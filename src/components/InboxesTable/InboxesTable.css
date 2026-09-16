@@ -1,0 +1,356 @@
+/**
+ * InboxesTable — Settings → Inboxes list.
+ *
+ * Same design tokens, layout, row rhythm, and id-chip-before-name anatomy as
+ * BroadcastHomePage/BotFlowsHomePage's tables, scoped to "lc-ib" and reduced
+ * to a static list (no row actions, no tabs).
+ */
+
+.lc-ib {
+  --lc-ib-border: #d9d9d9;
+  --lc-ib-border-dark: #e8e8e8;
+  --lc-ib-text-title: #3c492c;
+  --lc-ib-text-dimmed: #808975;
+  --lc-ib-secondary-dark: #57534e;
+  --lc-ib-text-light: #808975;
+  --lc-ib-text-placeholder: #8c8c8c;
+  --lc-ib-primary: #6bac1b;
+  --lc-ib-table-head-bg: #e7f2f6;
+  --lc-ib-row-hover: #f1f7e9;
+  --lc-ib-chip-bg: #eef0ee;
+  --lc-ib-chip-text: #6b7268;
+  --lc-ib-radius: 4px;
+  --lc-ib-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --lc-ib-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  height: 100%;
+  font-family: var(--lc-ib-font-family);
+  color: var(--lc-ib-text-title);
+  box-sizing: border-box;
+  /* mirrors BotFlowsHomePage/SegmentsHomePage's quiet settle-in on mount —
+     otherwise switching Settings tabs feels abrupt compared to every other
+     product page, which all fade+scale in. */
+  transition: opacity 220ms var(--lc-ib-ease-out), transform 220ms var(--lc-ib-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(1.004);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-ib {
+    transition: opacity 220ms ease;
+    transform: none;
+  }
+}
+
+.lc-ib *,
+.lc-ib *::before,
+.lc-ib *::after {
+  box-sizing: border-box;
+}
+
+/* --- Toolbar (search + sync) ---------------------------------------------- */
+
+.lc-ib__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.lc-ib__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 320px;
+  max-width: 100%;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid var(--lc-ib-border);
+  border-radius: var(--lc-ib-radius);
+}
+
+.lc-ib__search-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--lc-ib-text-placeholder);
+  flex-shrink: 0;
+}
+
+.lc-ib__search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-ib-text-title);
+}
+
+.lc-ib__search-input::placeholder {
+  color: var(--lc-ib-text-placeholder);
+}
+
+/* --- Table ------------------------------------------------------------------ */
+
+.lc-ib__table {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: var(--lc-ib-radius);
+  overflow: auto;
+  background: white;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.lc-ib__table[data-scrolling='true'] {
+  scrollbar-color: #e0e0e0 transparent;
+}
+
+.lc-ib__table::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.lc-ib__table::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lc-ib__table::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+  transition: background 0.15s ease;
+}
+
+.lc-ib__table[data-scrolling='true']::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+}
+
+.lc-ib__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px 12px 16px;
+}
+
+.lc-ib__row--head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--lc-ib-table-head-bg);
+}
+
+.lc-ib__row--body {
+  border-bottom: 1px solid var(--lc-ib-border-dark);
+  transition: background-color 150ms ease;
+  animation: lc-ib-row-in 200ms var(--lc-ib-ease-out) both;
+}
+
+.lc-ib__row--body:last-child {
+  border-bottom: none;
+}
+
+.lc-ib__row--body:hover {
+  background: var(--lc-ib-row-hover);
+}
+
+@keyframes lc-ib-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lc-ib__row--body:nth-of-type(2) { animation-delay: 0ms; }
+.lc-ib__row--body:nth-of-type(3) { animation-delay: 25ms; }
+.lc-ib__row--body:nth-of-type(4) { animation-delay: 50ms; }
+.lc-ib__row--body:nth-of-type(5) { animation-delay: 75ms; }
+.lc-ib__row--body:nth-of-type(n + 6) { animation-delay: 100ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-ib__row--body {
+    animation: none;
+  }
+}
+
+.lc-ib__cell {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--lc-ib-secondary-dark);
+  text-align: left;
+}
+
+.lc-ib__cell--name {
+  flex: 1 1 0;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.lc-ib__cell--type {
+  flex: 0 0 140px;
+}
+
+.lc-ib__cell--meta {
+  flex: 0 0 120px;
+  color: var(--lc-ib-text-dimmed);
+}
+
+.lc-ib__head-label {
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 400;
+  color: var(--lc-ib-secondary-dark);
+  white-space: nowrap;
+}
+
+.lc-ib__sort-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+.lc-ib__sort-icon {
+  width: 12px;
+  height: 12px;
+  color: var(--lc-ib-border);
+  transition: transform 150ms ease, color 150ms ease;
+}
+
+.lc-ib__sort-btn:hover .lc-ib__sort-icon {
+  color: var(--lc-ib-text-dimmed);
+}
+
+.lc-ib__sort-btn[data-sort='asc'] .lc-ib__sort-icon {
+  color: var(--lc-ib-primary);
+  transform: rotate(180deg);
+}
+
+.lc-ib__sort-btn[data-sort='desc'] .lc-ib__sort-icon {
+  color: var(--lc-ib-primary);
+}
+
+.lc-ib__sort-btn[data-sort] .lc-ib__head-label {
+  color: var(--lc-ib-text-title);
+  font-weight: 700;
+}
+
+.lc-ib__name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lc-ib__name-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-ib__id-chip {
+  appearance: none;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border: none;
+  border-radius: 4px;
+  background: var(--lc-ib-chip-bg);
+  color: var(--lc-ib-chip-text);
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.lc-ib__id-chip:hover {
+  background: var(--lc-ib-border);
+}
+
+.lc-ib__id-chip[data-copied='true'] {
+  color: var(--lc-ib-primary);
+  background: var(--lc-ib-row-hover);
+}
+
+.lc-ib__name {
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 700;
+  color: var(--lc-ib-text-title);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-ib__meta-line {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-ib-text-light);
+}
+
+.lc-ib__row-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: var(--lc-ib-text-dimmed);
+}
+
+.lc-ib__type-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lc-ib__type-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--lc-ib-secondary-dark);
+  white-space: nowrap;
+}
+
+.lc-ib__type-caption {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-ib-text-light);
+  white-space: nowrap;
+}
+
+.lc-ib__empty {
+  padding: 32px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--lc-ib-text-placeholder);
+}

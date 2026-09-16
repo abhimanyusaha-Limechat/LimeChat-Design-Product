@@ -42,6 +42,9 @@ import {
   type TemplateChannel,
 } from './components/TemplatesHomePage';
 import { SettingsPage, type SettingsTab } from './components/SettingsPage';
+import { InboxesTable, type InboxRowData } from './components/InboxesTable';
+import { ProfileSettings } from './components/ProfileSettings';
+import { AccountSettings } from './components/AccountSettings';
 
 const SETTINGS_TABS: SettingsTab[] = [
   { id: 'inboxes', label: 'Inboxes' },
@@ -52,6 +55,18 @@ const SETTINGS_TABS: SettingsTab[] = [
   { id: 'integrations', label: 'Integrations' },
   { id: 'profile', label: 'Profile' },
   { id: 'account', label: 'Account' },
+];
+
+// Automation's Settings nav is a different set entirely — no opt-out users,
+// events, or attribution; bot-specific config instead.
+const AUTOMATION_SETTINGS_TABS: SettingsTab[] = [
+  { id: 'bot-brain', label: 'Bot brain' },
+  { id: 'bot-settings', label: 'Bot settings' },
+  { id: 'inboxes', label: 'Inboxes' },
+  { id: 'integrations', label: 'Integrations' },
+  { id: 'collaborators', label: 'Collaborators' },
+  { id: 'variable', label: 'Variable' },
+  { id: 'bot-templates', label: 'Bot templates' },
 ];
 
 const SETTINGS_COPY: Record<string, { title: string; description: string }> = {
@@ -87,6 +102,26 @@ const SETTINGS_COPY: Record<string, { title: string; description: string }> = {
   account: {
     title: 'Account',
     description: 'Manage account-wide settings, billing, and permissions.',
+  },
+  'bot-brain': {
+    title: 'Bot brain',
+    description: "Manage the knowledge your bot draws on when answering questions.",
+  },
+  'bot-settings': {
+    title: 'Bot settings',
+    description: 'Configure how your bot behaves across conversations.',
+  },
+  collaborators: {
+    title: 'Collaborators',
+    description: 'Manage who has access to this bot and what they can do.',
+  },
+  variable: {
+    title: 'Variable',
+    description: 'Define reusable variables your bot can reference in flows.',
+  },
+  'bot-templates': {
+    title: 'Bot templates',
+    description: 'Manage reusable templates available to this bot.',
   },
 };
 
@@ -133,6 +168,34 @@ const PAST_DATES = [
   '03 November 2024, 01:35 PM', '20 November 2024, 09:50 AM', '08 December 2024, 04:40 PM',
   '22 December 2024, 11:20 AM',
 ];
+
+const INBOX_NAMES = [
+  'Limechat (189)', 'Limechat (189) BB', 'Nonucare Support', 'Aurora Botanicals CS', 'Nimbus Coffee Orders',
+  'Peak & Pine Outdoors', 'Saffron House Bookings', 'Bluebird Logistics', 'Harborlight Realty', 'Wildflower Skincare',
+  'Cedar & Co. Furniture', 'Tidepool Aquariums', 'Lantern Books', 'Meridian Fitness', 'Copper Kettle Cafe',
+  'Northstar Insurance', 'Willowmere Salon', 'Granite Peak Gear', 'Amberglow Candles', 'Foxglove Florist',
+  'Rivermill Bakery', 'Summit Cycles', 'Oakhaven Dental', 'Coral Bay Travel', 'Ivy & Oak Interiors',
+];
+
+/** Deterministic "looks real" ID: a 5-digit number that varies per row without being sequential. */
+const inboxId = (i: number) => String(36000 + i * 421 + (i % 4) * 67);
+
+/** Reformats PAST_DATES' "DD Month YYYY, HH:MM AM/PM" to "HH:MM AM/PM, DD Month YYYY". */
+const inboxCreatedOn = (i: number) => {
+  const [datePart, timePart] = PAST_DATES[i % PAST_DATES.length].split(', ');
+  return `${timePart}, ${datePart}`;
+};
+
+// Weighted so WhatsApp (the primary channel) still dominates the list.
+const INBOX_TYPES: InboxRowData['type'][] = ['whatsapp', 'whatsapp', 'whatsapp', 'email', 'instagram', 'sms'];
+
+const DEMO_INBOXES: InboxRowData[] = INBOX_NAMES.map((name, i) => ({
+  id: inboxId(i),
+  name,
+  type: INBOX_TYPES[i % INBOX_TYPES.length],
+  metaId: 'N/A',
+  createdOn: inboxCreatedOn(i),
+}));
 
 // Future dates — for anything still "scheduled" (all after today, 15 Sep 2026).
 const FUTURE_DATES = [
@@ -654,6 +717,24 @@ export function App() {
     !showBotFlowsHome;
 
   const [settingsTab, setSettingsTab] = useState('inboxes');
+  const [inboxSearch, setInboxSearch] = useState('');
+  const [inboxSyncing, setInboxSyncing] = useState(false);
+  const visibleInboxes = DEMO_INBOXES.filter(
+    (row) =>
+      row.id.includes(inboxSearch.trim()) ||
+      row.name.toLowerCase().includes(inboxSearch.trim().toLowerCase()),
+  );
+
+  const [profileName, setProfileName] = useState('LimeChat');
+  const [updatingProfile, setUpdatingProfile] = useState(false);
+  const [requestingPasswordChange, setRequestingPasswordChange] = useState(false);
+  const [apiKeyMasked, setApiKeyMasked] = useState('lcuat.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+  const [generatingKey, setGeneratingKey] = useState(false);
+
+  const [uiModePreference, setUiModePreference] = useState('Whatsapp');
+  const [dndStartTime, setDndStartTime] = useState('23:01');
+  const [dndEndTime, setDndEndTime] = useState('08:00');
+  const [savingDnd, setSavingDnd] = useState(false);
 
   const [broadcastTab, setBroadcastTab] = useState<BroadcastTab>('triggered');
   const [broadcastSearch, setBroadcastSearch] = useState('');
@@ -1130,12 +1211,70 @@ export function App() {
 
           {showSettingsHome && (
             <SettingsPage
-              tabs={SETTINGS_TABS}
+              tabs={product === 'automation' ? AUTOMATION_SETTINGS_TABS : SETTINGS_TABS}
               activeTab={settingsTab}
               onTabChange={setSettingsTab}
               title={SETTINGS_COPY[settingsTab].title}
               description={SETTINGS_COPY[settingsTab].description}
-            />
+            >
+              {settingsTab === 'inboxes' ? (
+                <InboxesTable
+                  inboxes={visibleInboxes}
+                  searchValue={inboxSearch}
+                  onSearchChange={setInboxSearch}
+                  syncing={inboxSyncing}
+                  onSync={() => {
+                    setInboxSyncing(true);
+                    window.setTimeout(() => setInboxSyncing(false), 900);
+                  }}
+                />
+              ) : settingsTab === 'profile' ? (
+                <ProfileSettings
+                  email="team@limechat.ai"
+                  name={profileName}
+                  onNameChange={setProfileName}
+                  updatingProfile={updatingProfile}
+                  onUpdateProfile={() => {
+                    setUpdatingProfile(true);
+                    window.setTimeout(() => setUpdatingProfile(false), 700);
+                  }}
+                  requestingPasswordChange={requestingPasswordChange}
+                  onRequestPasswordChange={() => {
+                    setRequestingPasswordChange(true);
+                    window.setTimeout(() => setRequestingPasswordChange(false), 700);
+                  }}
+                  apiKeyMasked={apiKeyMasked}
+                  apiKeyExpiry="Never"
+                  generatingKey={generatingKey}
+                  onGenerateKey={() => {
+                    setGeneratingKey(true);
+                    window.setTimeout(() => {
+                      setApiKeyMasked(`lcuat.${'X'.repeat(38)}`);
+                      setGeneratingKey(false);
+                    }, 700);
+                  }}
+                />
+              ) : settingsTab === 'account' ? (
+                <AccountSettings
+                  id="1"
+                  crmAccountId="189"
+                  company="Limechat Development"
+                  brandSubdomain="http://links.limechat.in"
+                  uiModeOptions={['Whatsapp', 'Instagram', 'Email', 'SMS']}
+                  uiModePreference={uiModePreference}
+                  onUiModePreferenceChange={setUiModePreference}
+                  dndStartTime={dndStartTime}
+                  dndEndTime={dndEndTime}
+                  onDndStartTimeChange={setDndStartTime}
+                  onDndEndTimeChange={setDndEndTime}
+                  savingDnd={savingDnd}
+                  onSaveDnd={() => {
+                    setSavingDnd(true);
+                    window.setTimeout(() => setSavingDnd(false), 700);
+                  }}
+                />
+              ) : undefined}
+            </SettingsPage>
           )}
 
           {!showCanvas && !showBroadcastHome && !showFlowsHome && !showBotFlowsHome && !showSegmentsHome && !showTemplatesHome && !showSettingsHome && (
