@@ -45,6 +45,7 @@ import { SettingsPage, type SettingsTab } from './components/SettingsPage';
 import { InboxesTable, type InboxRowData } from './components/InboxesTable';
 import { ProfileSettings } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
+import { HelpDeskAccountSettings, type HelpDeskToggleKey } from './components/HelpDeskAccountSettings';
 
 const SETTINGS_TABS: SettingsTab[] = [
   { id: 'inboxes', label: 'Inboxes' },
@@ -55,6 +56,27 @@ const SETTINGS_TABS: SettingsTab[] = [
   { id: 'integrations', label: 'Integrations' },
   { id: 'profile', label: 'Profile' },
   { id: 'account', label: 'Account' },
+];
+
+// HelpDesk's Settings nav is its own set entirely — ticketing/agent
+// operations config instead of the generic list above.
+const HELPDESK_SETTINGS_TABS: SettingsTab[] = [
+  { id: 'inboxes', label: 'Inboxes' },
+  { id: 'agents', label: 'Agents' },
+  { id: 'teams', label: 'Teams' },
+  { id: 'automation-rules', label: 'Automation rules' },
+  { id: 'custom-fields', label: 'Custom fields' },
+  { id: 'ticket-assignment', label: 'Ticket Assignment' },
+  { id: 'sla-rules', label: 'SLA rules' },
+  { id: 'canned-responses', label: 'Canned responses' },
+  { id: 'tags', label: 'Tags' },
+  { id: 'hd-attribution', label: 'Attribution' },
+  { id: 'data-security', label: 'Data security' },
+  { id: 'hd-integration', label: 'integration' },
+  { id: 'products', label: 'Products' },
+  { id: 'bot-csat', label: 'Bot CSAT' },
+  { id: 'account', label: 'Account' },
+  { id: 'billing', label: 'Billing' },
 ];
 
 // Automation's Settings nav is a different set entirely — no opt-out users,
@@ -122,6 +144,62 @@ const SETTINGS_COPY: Record<string, { title: string; description: string }> = {
   'bot-templates': {
     title: 'Bot templates',
     description: 'Manage reusable templates available to this bot.',
+  },
+  agents: {
+    title: 'Agents',
+    description: 'Manage the agents who handle tickets on this account.',
+  },
+  teams: {
+    title: 'Teams',
+    description: 'Group agents into teams and control how tickets route to them.',
+  },
+  'automation-rules': {
+    title: 'Automation rules',
+    description: 'Automatically assign, tag, or update tickets based on conditions you define.',
+  },
+  'custom-fields': {
+    title: 'Custom fields',
+    description: 'Add custom fields to capture the ticket details your team needs.',
+  },
+  'ticket-assignment': {
+    title: 'Ticket Assignment',
+    description: 'Configure how incoming tickets are distributed across agents and teams.',
+  },
+  'sla-rules': {
+    title: 'SLA rules',
+    description: 'Set response and resolution time targets for your tickets.',
+  },
+  'canned-responses': {
+    title: 'Canned responses',
+    description: 'Manage reusable replies agents can insert into tickets.',
+  },
+  tags: {
+    title: 'Tags',
+    description: 'Manage the tags used to categorize tickets and conversations.',
+  },
+  'hd-attribution': {
+    title: 'Attribution',
+    description: 'Understand which channels and sources tickets are coming from.',
+  },
+  'data-security': {
+    title: 'Data security',
+    description: 'Manage data retention, masking, and access controls for this account.',
+  },
+  'hd-integration': {
+    title: 'integration',
+    description: 'Connect third-party tools and services to your HelpDesk workspace.',
+  },
+  products: {
+    title: 'Products',
+    description: 'Manage the product catalog referenced across tickets and conversations.',
+  },
+  'bot-csat': {
+    title: 'Bot CSAT',
+    description: 'Configure the satisfaction survey your bot sends after resolving a ticket.',
+  },
+  billing: {
+    title: 'Billing',
+    description: 'Manage your plan, payment method, and billing history.',
   },
 };
 
@@ -736,6 +814,22 @@ export function App() {
   const [dndEndTime, setDndEndTime] = useState('08:00');
   const [savingDnd, setSavingDnd] = useState(false);
 
+  const [hdCompanyName, setHdCompanyName] = useState('LimeChat Development V2');
+  const [hdWebsiteUrl, setHdWebsiteUrl] = useState('');
+  const [hdCurrency, setHdCurrency] = useState('INR');
+  const [hdSiteLanguage, setHdSiteLanguage] = useState('English (En)');
+  const [hdToggles, setHdToggles] = useState<Record<HelpDeskToggleKey, boolean>>({
+    hideAllTicketsAgents: true,
+    hideQueuedTicketsAgents: true,
+    hideAllTicketsSupervisors: true,
+    hideQueuedTicketsSupervisors: true,
+    hideBotTicketsAgents: true,
+    enforceTagging: false,
+    hideOutOfStockShopify: false,
+    applyPiiMasking: false,
+    enableActionCableMonitoring: false,
+  });
+
   const [broadcastTab, setBroadcastTab] = useState<BroadcastTab>('triggered');
   const [broadcastSearch, setBroadcastSearch] = useState('');
   const [broadcastPage, setBroadcastPage] = useState(1);
@@ -1211,7 +1305,13 @@ export function App() {
 
           {showSettingsHome && (
             <SettingsPage
-              tabs={product === 'automation' ? AUTOMATION_SETTINGS_TABS : SETTINGS_TABS}
+              tabs={
+                product === 'automation'
+                  ? AUTOMATION_SETTINGS_TABS
+                  : product === 'helpdesk'
+                    ? HELPDESK_SETTINGS_TABS
+                    : SETTINGS_TABS
+              }
               activeTab={settingsTab}
               onTabChange={setSettingsTab}
               title={SETTINGS_COPY[settingsTab].title}
@@ -1253,6 +1353,24 @@ export function App() {
                       setGeneratingKey(false);
                     }, 700);
                   }}
+                />
+              ) : settingsTab === 'account' && product === 'helpdesk' ? (
+                <HelpDeskAccountSettings
+                  companyName={hdCompanyName}
+                  onCompanyNameChange={setHdCompanyName}
+                  websiteUrl={hdWebsiteUrl}
+                  onWebsiteUrlChange={setHdWebsiteUrl}
+                  currency={hdCurrency}
+                  onCurrencyChange={setHdCurrency}
+                  siteLanguageOptions={['English (En)', 'Hindi', 'Spanish']}
+                  siteLanguage={hdSiteLanguage}
+                  onSiteLanguageChange={setHdSiteLanguage}
+                  toggles={hdToggles}
+                  onToggleChange={(key, next) =>
+                    setHdToggles((prev) => ({ ...prev, [key]: next }))
+                  }
+                  supportedFileTypesSummary="PDF Documents +5"
+                  onConfigureFileTypes={() => alert('Configure supported file types')}
                 />
               ) : settingsTab === 'account' ? (
                 <AccountSettings
