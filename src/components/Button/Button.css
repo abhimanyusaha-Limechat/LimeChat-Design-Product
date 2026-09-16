@@ -1,0 +1,250 @@
+/**
+ * Button — LimeChat design system (Figma node 30:3, Mantine v6-based).
+ *
+ * Sizes (from the Button Sizes table):
+ *   size  font (Button/*)        L&R padding   height
+ *   xs    12 / 16  bold          12px          24px
+ *   sm    14 / 20  bold          16px          32px
+ *   md    16 / 24  bold          20px          40px
+ *   lg    18 / 28  bold          24px          48px
+ *   xl    20 / 32  bold          32px          56px
+ *   gap 8px (spacing/xs) · radius 4px (radius/2xs) · labels capitalised
+ *
+ * Colours (primary / green→success / gray / red→error / yellow→warning):
+ *   solid = background/<c>/filled · solid-hover = …/filled-hover
+ *   soft  = background/<c>/light  · soft-hover  = …/light-hover
+ *   text  = text/<c>/default      · border      = border/<c>/default
+ *
+ * Disabled uses background/disabled/default #f0f0f0 + text/disabled/default #bfbfbf
+ * (Figma defines it for the Filled variant; generalised to every variant here).
+ */
+.lc-btn {
+  --lc-btn-radius: 4px;
+  --lc-btn-gap: 8px;
+  --lc-btn-icon: 16px;
+  --lc-btn-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lc-btn-gap);
+  border: 1px solid transparent;
+  border-radius: var(--lc-btn-radius);
+  font-family: var(--lc-btn-font-family);
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease,
+    transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+/* press feedback — only when interactive */
+.lc-btn:not(:disabled):not([data-disabled]):not([data-loading]):active {
+  transform: scale(0.97);
+}
+
+.lc-btn[data-text-transform='none'] {
+  text-transform: none;
+}
+
+.lc-btn[data-full-width] {
+  display: flex;
+  width: 100%;
+}
+
+/* --- Sizes ----------------------------------------------------------- */
+.lc-btn[data-size='xs'] {
+  height: 24px;
+  padding: 0 12px;
+  font-size: 12px;
+  line-height: 16px;
+  --lc-btn-icon: 12px;
+}
+.lc-btn[data-size='sm'] {
+  height: 32px;
+  padding: 0 16px;
+  font-size: 14px;
+  line-height: 20px;
+}
+.lc-btn[data-size='md'] {
+  height: 40px;
+  padding: 0 20px;
+  font-size: 16px;
+  line-height: 24px;
+}
+.lc-btn[data-size='lg'] {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 18px;
+  line-height: 28px;
+}
+.lc-btn[data-size='xl'] {
+  height: 56px;
+  padding: 0 32px;
+  font-size: 20px;
+  line-height: 32px;
+}
+
+/* --- Colour tokens ------------------------------------------------- */
+.lc-btn[data-color='primary'] {
+  --c-solid: #6bac1b;
+  --c-solid-hover: #508014;
+  --c-soft: #f1f7e9;
+  --c-soft-hover: #edf5e3;
+  --c-text: #6bac1b;
+  --c-border: #6bac1b;
+}
+.lc-btn[data-color='green'] {
+  --c-solid: #16a34a;
+  --c-solid-hover: #007729;
+  --c-soft: #e8f6ed;
+  --c-soft-hover: #e3f4e9;
+  --c-text: #16a34a;
+  --c-border: #16a34a;
+}
+.lc-btn[data-color='gray'] {
+  --c-solid: #bfbfbf;
+  --c-solid-hover: #8c8c8c;
+  --c-soft: #f3f4f3;
+  --c-soft-hover: #f0f0ef;
+  --c-text: #8c8c8c;
+  --c-border: #d9d9d9;
+}
+.lc-btn[data-color='red'] {
+  --c-solid: #e5484d;
+  --c-solid-hover: #da1b21;
+  --c-soft: #fceaea;
+  --c-soft-hover: #fae5e5;
+  --c-text: #da1b21;
+  --c-border: #e5484d;
+}
+.lc-btn[data-color='yellow'] {
+  --c-solid: #e8a325;
+  --c-solid-hover: #c68610;
+  --c-soft: #fcf2e7;
+  --c-soft-hover: #faeee1;
+  --c-text: #c68610;
+  --c-border: #e8a325;
+}
+
+/* --- Variants ---------------------------------------------------- */
+.lc-btn[data-variant='filled'] {
+  background: var(--c-solid);
+  color: #ffffff;
+}
+.lc-btn[data-variant='light'] {
+  background: var(--c-soft);
+  color: var(--c-text);
+}
+.lc-btn[data-variant='outline'] {
+  background: transparent;
+  color: var(--c-text);
+  border-color: var(--c-border);
+}
+.lc-btn[data-variant='subtle'] {
+  background: transparent;
+  color: var(--c-text);
+}
+.lc-btn[data-variant='white'] {
+  background: #ffffff;
+  color: var(--c-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+.lc-btn[data-variant='default'] {
+  background: #ffffff;
+  color: #3c492c;
+  border-color: #d9d9d9;
+}
+
+/* hover — only when interactive */
+.lc-btn[data-variant='filled']:not(:disabled):not([data-disabled]):not([data-loading]):hover {
+  background: var(--c-solid-hover);
+}
+.lc-btn[data-variant='light']:not(:disabled):not([data-disabled]):not([data-loading]):hover {
+  background: var(--c-soft-hover);
+}
+.lc-btn[data-variant='outline']:not(:disabled):not([data-disabled]):not([data-loading]):hover,
+.lc-btn[data-variant='subtle']:not(:disabled):not([data-disabled]):not([data-loading]):hover {
+  background: var(--c-soft);
+}
+.lc-btn[data-variant='white']:not(:disabled):not([data-disabled]):not([data-loading]):hover,
+.lc-btn[data-variant='default']:not(:disabled):not([data-disabled]):not([data-loading]):hover {
+  background: #fafafa;
+}
+
+/* --- Disabled --------------------------------------------------- */
+.lc-btn:disabled,
+.lc-btn[data-disabled],
+.lc-btn[data-loading] {
+  cursor: not-allowed;
+}
+.lc-btn:disabled,
+.lc-btn[data-disabled] {
+  background: #f0f0f0;
+  color: #bfbfbf;
+  border-color: #f0f0f0;
+  box-shadow: none;
+}
+
+/* --- Focus ---------------------------------------------------- */
+.lc-btn:focus-visible {
+  outline: 2px solid var(--c-border, #6bac1b);
+  outline-offset: 2px;
+}
+
+/* --- Icon slots -------------------------------------------- */
+.lc-btn__section {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.lc-btn__section svg,
+.lc-btn__section img {
+  display: block;
+  width: var(--lc-btn-icon);
+  height: var(--lc-btn-icon);
+}
+
+/* --- Loading --------------------------------------------- */
+.lc-btn[data-loading] {
+  position: relative;
+  color: transparent;
+}
+.lc-btn[data-loading] .lc-btn__label,
+.lc-btn[data-loading] .lc-btn__section {
+  visibility: hidden;
+}
+.lc-btn__spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  color: #bfbfbf;
+  animation: lc-btn-spin 0.6s linear infinite;
+}
+
+@keyframes lc-btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-btn {
+    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  }
+  .lc-btn:active {
+    transform: none;
+  }
+  .lc-btn__spinner {
+    animation-duration: 1.2s;
+  }
+}

@@ -1,0 +1,1231 @@
+/**
+ * CanvasChrome — LimeChat design system (Figma nodes 227:12483 / 227:12818).
+ *
+ * Floating flow-builder canvas chrome: canvas navigation (top), floating tool
+ * panel (left) and status bar (bottom-left).
+ *
+ * Tokens:
+ *   pill      bg #fff · radius/xs 8px · shadow 0 1px 1px #0000001A, 0 1px 1.5px #0000000D
+ *   flow pill border border/primary/default #6bac1b · h 43 · px padding/xs 8 · py 6
+ *             title  Heading/h5  14/18 bold  text/title  #3c492c
+ *             sub    Text/xxs    10/12.5     text/dimmed  #808975
+ *   badge     bg background/primary/light-hover #edf5e3 · border #6bac1b · radius/2xs 4
+ *             Text Uppercase/xxs  10/12 semibold  text/primary/default #6bac1b
+ *   actions   h 44 · pl padding/sm 12 · pr padding/xs 8
+ *   saving    Text/sm 14/20  text/disabled #bfbfbf · loader 24
+ *   status    pill h 40 · p 8 · radius 5 · shadow 0 1px 3px #0303033... (elevation)
+ *             zoom  Text/Medium 14/22  #808975 · divider #f0f0f0
+ *   toolbar   panel px padding/xs 8 · py 12 · gap padding/sm 12 · radius/xs 8
+ *             divider gray/30 #f0f0f0
+ *   icon btn  transparent → text/dimmed #808975, hover bg #f5f5f4 / text #3c492c
+ *             light       → bg #edf5e3, text #6bac1b   (active tool)
+ *             filled      → bg background/primary/filled #6bac1b, text #fff
+ */
+.lc-canvas {
+  --lc-canvas-fg: #3c492c;
+  --lc-canvas-dimmed: #808975;
+  --lc-canvas-accent: #6bac1b;
+  --lc-canvas-accent-hover: #508014;
+  /* design-system Button light/primary: background/primary/light + …/light-hover */
+  --lc-canvas-accent-light: #f1f7e9;
+  --lc-canvas-accent-light-hover: #edf5e3;
+  /* badge fill — background/primary/light-hover */
+  --lc-canvas-accent-soft: #edf5e3;
+  --lc-canvas-hover-bg: #f5f5f4;
+  /* idle (unselected) icon-button glyph — a lighter grey than text/dimmed */
+  --lc-canvas-icon-idle: #a9b0a0;
+  --lc-canvas-divider: #f0f0f0;
+  --lc-canvas-disabled: #bfbfbf;
+  --lc-canvas-pill-radius: 8px;
+  --lc-canvas-pill-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 1.5px rgba(0, 0, 0, 0.05);
+  /* strong custom easings — built-ins are too weak for entrances */
+  --lc-canvas-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --lc-canvas-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  /* a heavier expo-out for the whole-scene entrance — the big, slow move gets
+     the more dramatic curve; small chrome pieces keep --lc-canvas-ease-out */
+  --lc-canvas-ease-scene: cubic-bezier(0.16, 1, 0.3, 1);
+  --lc-canvas-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  font-family: var(--lc-canvas-font-family);
+  color: var(--lc-canvas-fg);
+  /* let canvas interactions through; each panel re-enables pointer events */
+  pointer-events: none;
+  /* entering the editor from a home-page row should feel like settling into
+     place, not popping in — the scene fades/settles first, its chrome (nav,
+     toolbar, status bar — staggered below) cascades in on top of it */
+  transition: opacity 480ms var(--lc-canvas-ease-scene), transform 480ms var(--lc-canvas-ease-scene),
+    filter 480ms var(--lc-canvas-ease-scene);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.985);
+    filter: blur(6px);
+  }
+}
+.lc-canvas *,
+.lc-canvas *::before,
+.lc-canvas *::after {
+  box-sizing: border-box;
+}
+.lc-canvas__nav,
+.lc-canvas__toolbar,
+.lc-canvas__statusbar {
+  pointer-events: auto;
+  /* cascade in after the scene: each panel rises + fades on its own beat */
+  transition: opacity 320ms var(--lc-canvas-ease-out), transform 320ms var(--lc-canvas-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.lc-canvas__nav {
+  transition-delay: 70ms;
+}
+.lc-canvas__toolbar {
+  transition-delay: 150ms;
+}
+.lc-canvas__statusbar {
+  transition-delay: 230ms;
+}
+
+/* --- Canvas navigation ---------------------------------------------- */
+.lc-canvas__nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lc-canvas__flow {
+  /* 45° gradient stroke — dark at the ends, light in the middle */
+  --lc-canvas-flow-edge: #4d7c14;
+  --lc-canvas-flow-mid: #a9d878;
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 6px 8px;
+  border: 2px solid transparent;
+  border-radius: var(--lc-canvas-pill-radius);
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(
+        45deg,
+        var(--lc-canvas-flow-edge) 0%,
+        var(--lc-canvas-flow-mid) 50%,
+        var(--lc-canvas-flow-edge) 100%
+      )
+      border-box;
+  box-shadow: var(--lc-canvas-pill-shadow);
+}
+/* inactive state — pale gradient stroke, grey badge (Figma 10653:17584) */
+.lc-canvas__flow[data-active='false'] {
+  --lc-canvas-flow-edge: #c9e7a0;
+  --lc-canvas-flow-mid: #eef8dd;
+}
+/* warm yellow tone — stroke follows the "Scheduled" badge (Broadcast) */
+.lc-canvas__flow[data-tone='warning'] {
+  --lc-canvas-flow-edge: #c68610;
+  --lc-canvas-flow-mid: #f5d799;
+}
+.lc-canvas__flow[data-tone='warning'][data-active='false'] {
+  --lc-canvas-flow-edge: #f1d9ac;
+  --lc-canvas-flow-mid: #fbf1e2;
+}
+.lc-canvas__flow-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.lc-canvas__flow-title {
+  max-width: 200px;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-canvas-fg);
+  text-overflow: ellipsis;
+}
+.lc-canvas__flow-subtitle {
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 12.5px;
+  color: var(--lc-canvas-dimmed);
+}
+.lc-canvas__flow-badge {
+  position: absolute;
+  top: -12px;
+  left: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px solid var(--lc-canvas-accent);
+  border-radius: 4px;
+  background: var(--lc-canvas-accent-soft);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--lc-canvas-accent);
+  /* soften the active ↔ inactive swap driven by the Flow-details switch */
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+/* live indicator */
+.lc-canvas__flow-badge::before {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lc-canvas-accent);
+}
+.lc-canvas__flow[data-active='false'] .lc-canvas__flow-badge {
+  border-color: transparent;
+  background: var(--lc-canvas-divider);
+  color: var(--lc-canvas-dimmed);
+}
+.lc-canvas__flow[data-active='false'] .lc-canvas__flow-badge::before {
+  display: none;
+}
+/* warm yellow tone (e.g. Broadcast "Scheduled") — design-system yellow/warning family */
+.lc-canvas__flow-badge[data-tone='warning'] {
+  border-color: #e8a325;
+  background: #fcf2e7;
+  color: #c68610;
+}
+.lc-canvas__flow-badge[data-tone='warning']::before {
+  background: #e8a325;
+}
+
+/* --- Broadcast audience + schedule summary (Figma node 10863:6513) ---- */
+.lc-canvas__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 4px;
+  border-radius: var(--lc-canvas-pill-radius);
+  background: #ffffff;
+  box-shadow: var(--lc-canvas-pill-shadow);
+}
+.lc-canvas__meta-divider {
+  align-self: stretch;
+  width: 1px;
+  background: var(--lc-canvas-divider);
+}
+.lc-canvas__meta-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  width: 200px;
+  padding: 4px;
+  border-radius: var(--lc-canvas-pill-radius);
+  background: var(--lc-canvas-accent-light);
+  transition: filter 120ms ease;
+}
+.lc-canvas__meta-card:last-child {
+  /* background/secondary/light-hover */
+  background: #e1eff4;
+}
+/* only clickable cards (e.g. schedule) dim on hover — cards with a popover (e.g.
+   audience) stay put so the popover it opens reads on a clean white background */
+.lc-canvas__meta-card[role='button']:not(.lc-canvas__meta-card--has-popover):hover {
+  filter: brightness(0.97);
+}
+.lc-canvas__meta-card[role='button'] {
+  cursor: pointer;
+}
+.lc-canvas__meta-card[role='button']:focus-visible {
+  outline: 2px solid var(--lc-canvas-accent);
+  outline-offset: 2px;
+}
+.lc-canvas__meta-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--lc-canvas-pill-radius);
+  background: #ffffff;
+  color: var(--lc-canvas-fg);
+}
+.lc-canvas__meta-icon .lc-canvas__icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.64;
+}
+.lc-canvas__meta-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  white-space: nowrap;
+}
+.lc-canvas__meta-primary {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-canvas-fg);
+}
+.lc-canvas__meta-unit {
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 12.5px;
+  color: var(--lc-canvas-dimmed);
+}
+.lc-canvas__meta-secondary {
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 12.5px;
+  color: var(--lc-canvas-dimmed);
+}
+.lc-canvas__meta-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* --- Segments popover (hover on the audience card, Figma node 267:51706) - */
+.lc-canvas__meta-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: -50px;
+  z-index: 1000;
+  width: 370px;
+  cursor: default;
+  transform-origin: top left;
+  transition: opacity 160ms ease-out, transform 180ms var(--lc-canvas-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+}
+/* pointer — sits above the card the popover is anchored to (card centre = 150px from the popover's shifted left edge) */
+.lc-canvas__meta-popover-arrow {
+  position: absolute;
+  top: -1px;
+  left: 150px;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.04);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.lc-canvas__segments {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px;
+  border-radius: var(--lc-canvas-pill-radius);
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+  white-space: normal;
+}
+.lc-canvas__segments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 12px;
+}
+/* extra breathing room between the included and excluded groups specifically (12px -> 15px, 1.25x) */
+.lc-canvas__segments-group + .lc-canvas__segments-group {
+  margin-top: 3px;
+}
+.lc-canvas__segments-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lc-canvas__segments-chip {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12.5px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.lc-canvas__segments-chip--included {
+  background: var(--lc-canvas-accent-soft);
+  color: var(--lc-canvas-accent);
+}
+.lc-canvas__segments-chip--excluded {
+  /* red/secondary — matches design-system red (Button color="red") */
+  background: #fceaea;
+  color: #da1b21;
+}
+.lc-canvas__segments-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.lc-canvas__segments-number {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--lc-canvas-accent-soft);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--lc-canvas-accent);
+}
+.lc-canvas__segments-number[data-tone='excluded'] {
+  background: #fceaea;
+  color: #da1b21;
+}
+.lc-canvas__segments-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  color: var(--lc-canvas-dimmed);
+  overflow: hidden;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+}
+.lc-canvas__segments-divider {
+  flex-shrink: 0;
+  width: 1px;
+  height: 15px;
+  background: var(--lc-canvas-divider);
+}
+.lc-canvas__segments-count {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--lc-canvas-fg);
+  white-space: nowrap;
+}
+.lc-canvas__segments-total {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px -10px 0;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: var(--lc-canvas-accent-soft);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--lc-canvas-accent);
+}
+.lc-canvas__segments-total > span:first-child {
+  flex: 1 1 0;
+}
+.lc-canvas__schedule-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 12px 8px;
+}
+.lc-canvas__schedule-popover-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lc-canvas__schedule-popover-header.lc-canvas__segments-header {
+  padding: 0 12px 6px;
+  border-bottom: 1px solid var(--lc-canvas-divider);
+}
+.lc-canvas__schedule-popover-label {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--lc-canvas-fg);
+}
+.lc-canvas__schedule-popover-desc {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--lc-canvas-dimmed);
+}
+.lc-canvas__schedule-popover-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--lc-canvas-divider);
+}
+.lc-canvas__schedule-popover-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+.lc-canvas__schedule-popover-row > span:first-child {
+  color: var(--lc-canvas-dimmed);
+}
+.lc-canvas__schedule-popover-row > span:last-child {
+  color: var(--lc-canvas-fg);
+  font-weight: 600;
+  text-align: right;
+}
+.lc-canvas__segments-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid #f5f5f5;
+  border-radius: 4px;
+  background: #f3fafd;
+}
+.lc-canvas__segments-notice svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: #003b56;
+  margin-top: 2px;
+}
+.lc-canvas__segments-notice p {
+  margin: 0;
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #003b56;
+}
+
+.lc-canvas__nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lc-canvas__saving {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--lc-canvas-disabled);
+}
+.lc-canvas__saving .lc-canvas__icon {
+  width: 24px;
+  height: 24px;
+}
+
+.lc-canvas__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 2px 8px 2px 12px;
+  border-radius: var(--lc-canvas-pill-radius);
+  background: #ffffff;
+  box-shadow: var(--lc-canvas-pill-shadow);
+}
+.lc-canvas__collaborators {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px 2px 2px;
+  border: 0;
+  border-radius: 12px 2px 2px 12px;
+  background: transparent;
+  color: var(--lc-canvas-dimmed);
+  cursor: pointer;
+}
+.lc-canvas__collaborators:hover {
+  background: var(--lc-canvas-hover-bg);
+}
+.lc-canvas__collaborators .lc-canvas__icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* --- Kebab dropdown (Figma node 173:13717) ----------------------- */
+.lc-canvas__menu-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  /* stretch to the full actions-row height so the dropdown's `top: 100% + gap`
+     clears the whole canvas nav row instead of just the (shorter) icon button */
+  align-self: stretch;
+}
+.lc-canvas__icon-btn[data-variant='transparent'][aria-pressed='true'] {
+  background: var(--lc-canvas-hover-bg);
+  color: var(--lc-canvas-fg);
+}
+.lc-canvas__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  /* above the segments popover (z-index 1000) so it's never hidden behind it */
+  z-index: 1010;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 168px;
+  padding: 6px;
+  border-radius: 8px;
+  background: #ffffff;
+  /* design-system popover elevation — matches the account / product switchers */
+  box-shadow:
+    0 1px 1.5px rgba(0, 0, 0, 0.05),
+    0 20px 12.5px rgba(0, 0, 0, 0.1),
+    0 10px 5px rgba(0, 0, 0, 0.04);
+  /* grow out of the ⋮ button it's pinned to */
+  transform-origin: top right;
+  transition: opacity 150ms var(--lc-canvas-ease-out), transform 150ms var(--lc-canvas-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+.lc-canvas__menu-row {
+  display: flex;
+  flex-direction: column;
+}
+.lc-canvas__menu-divider {
+  height: 1px;
+  margin: 4px 0;
+  background: var(--lc-canvas-divider);
+}
+.lc-canvas__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-canvas-fg);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease, transform 120ms var(--lc-canvas-ease-out);
+}
+.lc-canvas__menu-item:hover {
+  background: var(--lc-canvas-hover-bg);
+}
+.lc-canvas__menu-item:active {
+  transform: scale(0.98);
+}
+.lc-canvas__menu-item:focus-visible {
+  outline: 2px solid var(--lc-canvas-accent);
+  outline-offset: -2px;
+}
+.lc-canvas__menu-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--lc-canvas-dimmed);
+}
+.lc-canvas__menu-item-icon svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.lc-canvas__menu-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+  padding: 8px 8px 4px;
+  border-top: 1px solid var(--lc-canvas-divider);
+}
+.lc-canvas__menu-footer-label {
+  font-size: 10px;
+  line-height: 12.5px;
+  color: var(--lc-canvas-dimmed);
+}
+.lc-canvas__menu-footer-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lc-canvas__menu-footer-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  white-space: nowrap;
+}
+.lc-canvas__menu-footer-name {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--lc-canvas-fg);
+}
+.lc-canvas__menu-footer-time {
+  font-size: 10px;
+  line-height: 12.5px;
+  color: var(--lc-canvas-dimmed);
+}
+
+/* --- Floating toolbar --------------------------------------------- */
+.lc-canvas__toolbar {
+  position: absolute;
+  left: 0;
+  /* clears the canvas-navigation flow pill (height 43) + 12px gap */
+  top: 55px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1)) drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.05));
+}
+.lc-canvas__toolbar-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* add-node button → tool list; the list keeps its own 4px between tools */
+  gap: 8px;
+  padding: 8px;
+  border-radius: var(--lc-canvas-pill-radius);
+  background: #ffffff;
+}
+.lc-canvas__toolbar-list {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+.lc-canvas__toolbar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.lc-canvas__toolbar-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--lc-canvas-divider);
+}
+
+/* --- Status bar ------------------------------------------------- */
+.lc-canvas__statusbar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+.lc-canvas__pill,
+.lc-canvas__minimap {
+  border-radius: 5px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 3px rgba(3, 3, 3, 0.2),
+    0 2px 2px rgba(255, 255, 255, 0.12),
+    0 0 2px rgba(250, 250, 250, 0.14);
+}
+.lc-canvas__pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 8px;
+}
+.lc-canvas__zoom {
+  padding: 0 2px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  color: var(--lc-canvas-dimmed);
+}
+.lc-canvas__pill-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--lc-canvas-divider);
+}
+
+/* --- Minimap (Figma 62:20517) ------------------------------------- */
+.lc-canvas__minimap {
+  display: flex;
+  flex-direction: column;
+}
+.lc-canvas__minimap-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 8px;
+}
+.lc-canvas__minimap-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: stretch;
+}
+.lc-canvas__minimap[data-expanded] {
+  width: 250px;
+  padding-bottom: 4px;
+}
+.lc-canvas__minimap[data-expanded] .lc-canvas__minimap-bar {
+  justify-content: space-between;
+  height: auto;
+  padding: 8px 8px 0;
+}
+.lc-canvas__minimap-panel {
+  position: relative;
+  height: 128px;
+  margin: 8px 4px 0;
+  border-radius: 4px;
+  background: var(--lc-canvas-divider);
+  overflow: hidden;
+  /* unfold downward from the bar rather than popping in */
+  transition: clip-path 200ms var(--lc-canvas-ease-in-out), opacity 200ms var(--lc-canvas-ease-in-out);
+  clip-path: inset(0 0 0 0 round 4px);
+
+  @starting-style {
+    clip-path: inset(100% 0 0 0 round 4px);
+    opacity: 0;
+  }
+}
+.lc-canvas__minimap-paper {
+  position: absolute;
+  border-radius: 4px;
+  background: #ffffff;
+}
+.lc-canvas__minimap-node {
+  position: absolute;
+  border-radius: 4px;
+  background: #d9d9d9;
+}
+
+/* --- Canvas search bar (Figma node 125:18398) ------------------- */
+.lc-canvas__searchbar-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.lc-canvas__searchbar {
+  position: absolute;
+  /* 12px from the search button's edge to the panel edge + 12px gap to the panel */
+  left: calc(100% + 24px);
+  top: 50%;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 240px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow:
+    0 7px 7px -5px rgba(0, 0, 0, 0.04),
+    0 10px 15px -5px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+  transform: translateY(-50%);
+  transform-origin: left center;
+  transition: opacity 160ms var(--lc-canvas-ease-out), transform 160ms var(--lc-canvas-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.96) translateX(-4px);
+  }
+}
+.lc-canvas__searchbar-field {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 0;
+  border-bottom: 1px solid #d9d9d9;
+}
+.lc-canvas__searchbar-field .lc-canvas__icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: #8c8c8c;
+}
+.lc-canvas__searchbar input {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-canvas-fg);
+  outline: none;
+}
+.lc-canvas__searchbar input::placeholder {
+  color: #8c8c8c;
+}
+.lc-canvas__searchbar input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+/* --- Node palette (Figma marketing "Add node") ------------------- */
+.lc-canvas__palette-wrap {
+  display: inline-flex;
+}
+.lc-canvas__palette {
+  /* anchored to the toolbar panel — top-aligned, 12px gap to the right of it */
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 0;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  /* stretch down to 12px above the bottom-left zoom bar:
+     viewport − topnav(56) − canvas inset(12) − toolbar offset(55)
+              − zoom bar(40) − inset(12) − gap(12) */
+  max-height: calc(100vh - 187px);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 1.5px rgba(0, 0, 0, 0.05),
+    0 20px 12.5px rgba(0, 0, 0, 0.1),
+    0 10px 5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  /* scale in from the "+" trigger it opens beside */
+  transform-origin: top left;
+  transition: opacity 160ms var(--lc-canvas-ease-out), transform 160ms var(--lc-canvas-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.96) translateX(-4px);
+  }
+}
+.lc-canvas__palette-search {
+  position: relative;
+  flex-shrink: 0;
+  padding: 12px 12px 8px;
+}
+.lc-canvas__palette-search .lc-canvas__icon {
+  position: absolute;
+  left: 24px;
+  top: 22px;
+  width: 16px;
+  height: 16px;
+  color: var(--lc-canvas-dimmed);
+  pointer-events: none;
+}
+.lc-canvas__palette-search input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px 0 34px;
+  border: 1px solid var(--lc-canvas-divider);
+  border-radius: 8px;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--lc-canvas-fg);
+}
+.lc-canvas__palette-search input::placeholder {
+  color: #8c8c8c;
+}
+.lc-canvas__palette-search input:focus-visible {
+  outline: none;
+  border-color: var(--lc-canvas-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-canvas-accent) 20%, transparent);
+}
+.lc-canvas__palette-body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 6px 12px 12px;
+  overflow-y: auto;
+  /* reserve the track always so the grid never shifts; the thumb only shows on hover */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.lc-canvas__palette-body:hover,
+.lc-canvas__palette-body:focus-within {
+  scrollbar-color: #e3e5e1 transparent;
+}
+.lc-canvas__palette-body::-webkit-scrollbar {
+  width: 6px;
+}
+.lc-canvas__palette-body::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 3px;
+}
+.lc-canvas__palette-body:hover::-webkit-scrollbar-thumb,
+.lc-canvas__palette-body:focus-within::-webkit-scrollbar-thumb {
+  background: #e3e5e1;
+}
+.lc-canvas__palette-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* staggered cascade as the palette opens */
+  transition: opacity 180ms var(--lc-canvas-ease-out), transform 180ms var(--lc-canvas-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.lc-canvas__palette-group:nth-child(2) {
+  transition-delay: 40ms;
+}
+.lc-canvas__palette-group:nth-child(3) {
+  transition-delay: 80ms;
+}
+.lc-canvas__palette-group:nth-child(4) {
+  transition-delay: 120ms;
+}
+.lc-canvas__palette-group:nth-child(5) {
+  transition-delay: 160ms;
+}
+.lc-canvas__palette-group-title {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--lc-canvas-dimmed);
+}
+.lc-canvas__palette-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.lc-canvas__palette-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 82px;
+  padding: 12px 4px;
+  border: 1px solid var(--lc-canvas-divider);
+  border-radius: 8px;
+  background: var(--lc-canvas-hover-bg);
+  font-family: inherit;
+  cursor: grab;
+  transition: border-color 120ms ease, background-color 120ms ease,
+    transform 140ms var(--lc-canvas-ease-out);
+}
+.lc-canvas__palette-tile:hover {
+  border-color: var(--lc-canvas-accent);
+  background: var(--lc-canvas-accent-light);
+}
+.lc-canvas__palette-tile:active {
+  cursor: grabbing;
+  transform: scale(0.97);
+}
+/* drag affordance — grip dots, bottom-centre, shown only on hover / focus */
+.lc-canvas__palette-tile-grip {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  color: var(--lc-canvas-icon-idle);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.lc-canvas__palette-tile:hover .lc-canvas__palette-tile-grip,
+.lc-canvas__palette-tile:focus-visible .lc-canvas__palette-tile-grip {
+  opacity: 1;
+}
+.lc-canvas__palette-tile-grip svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+.lc-canvas__palette-tile:focus-visible {
+  outline: 2px solid var(--lc-canvas-accent);
+  outline-offset: -2px;
+}
+.lc-canvas__palette-tile-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--lc-canvas-dimmed);
+}
+.lc-canvas__palette-tile-icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+.lc-canvas__palette-tile-label {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 14px;
+  text-align: center;
+  color: var(--lc-canvas-fg);
+}
+.lc-canvas__palette-empty {
+  margin: 0;
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--lc-canvas-dimmed);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-canvas__palette-tile {
+    transition: border-color 120ms ease, background-color 120ms ease;
+  }
+  .lc-canvas__palette-tile:active {
+    transform: none;
+  }
+  /* keep opacity for comprehension; drop movement + stagger */
+  .lc-canvas__palette,
+  .lc-canvas__menu,
+  .lc-canvas__minimap-panel,
+  .lc-canvas__palette-group {
+    transition: opacity 150ms ease;
+    transition-delay: 0ms;
+    transform: none;
+  }
+  .lc-canvas__searchbar {
+    transition: opacity 150ms ease;
+    transform: translateY(-50%);
+  }
+  .lc-canvas__minimap-panel {
+    clip-path: none;
+  }
+}
+
+/* --- Icon button --------------------------------------------- */
+.lc-canvas__icon-btn {
+  --lc-cb-size: 28px;
+  --lc-cb-icon: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--lc-cb-size);
+  height: var(--lc-cb-size);
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--lc-canvas-icon-idle);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease,
+    transform 120ms var(--lc-canvas-ease-out);
+}
+.lc-canvas__icon-btn:not(:disabled):active {
+  transform: scale(0.92);
+}
+.lc-canvas__icon-btn[data-size='xs'] {
+  --lc-cb-size: 20px;
+  --lc-cb-icon: 16px;
+}
+.lc-canvas__icon-btn[data-size='sm'] {
+  --lc-cb-size: 24px;
+  --lc-cb-icon: 16px;
+}
+.lc-canvas__icon-btn[data-size='md'] {
+  --lc-cb-size: 28px;
+  --lc-cb-icon: 18px;
+}
+.lc-canvas__icon-btn[data-size='lg'] {
+  --lc-cb-size: 34px;
+  --lc-cb-icon: 20px;
+}
+.lc-canvas__icon-btn[data-size='xl'] {
+  --lc-cb-size: 44px;
+  --lc-cb-icon: 20px;
+  border-radius: 8px;
+}
+.lc-canvas__icon-btn .lc-canvas__icon {
+  display: block;
+  width: var(--lc-cb-icon);
+  height: var(--lc-cb-icon);
+}
+.lc-canvas__icon-btn[data-variant='transparent']:hover {
+  background: var(--lc-canvas-hover-bg);
+  color: var(--lc-canvas-fg);
+}
+.lc-canvas__icon-btn[data-variant='light'] {
+  background: var(--lc-canvas-accent-light);
+  color: var(--lc-canvas-accent);
+}
+.lc-canvas__icon-btn[data-variant='light']:hover {
+  background: var(--lc-canvas-accent-light-hover);
+}
+.lc-canvas__icon-btn[data-variant='filled'] {
+  border-radius: 8px;
+  background: var(--lc-canvas-accent);
+  color: #ffffff;
+}
+.lc-canvas__icon-btn[data-variant='filled']:hover {
+  background: var(--lc-canvas-accent-hover);
+}
+.lc-canvas__icon-btn:focus-visible {
+  outline: 2px solid var(--lc-canvas-accent);
+  outline-offset: 1px;
+}
+.lc-canvas__icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* --- Misc ---------------------------------------------------- */
+.lc-canvas__icon {
+  display: block;
+}
+.lc-canvas__spinner {
+  transform-origin: 50% 50%;
+  animation: lc-canvas-spin 0.7s linear infinite;
+}
+@keyframes lc-canvas-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-canvas__spinner {
+    animation: none;
+  }
+  .lc-canvas__icon-btn {
+    transition: background-color 120ms ease, color 120ms ease;
+  }
+  .lc-canvas__icon-btn:active {
+    transform: none;
+  }
+  .lc-canvas__meta-popover {
+    transition: opacity 120ms ease-out;
+  }
+}

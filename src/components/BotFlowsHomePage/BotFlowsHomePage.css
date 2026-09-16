@@ -1,0 +1,544 @@
+/**
+ * BotFlowsHomePage — Automation → Flows landing view: search + New flow
+ * action, status tabs, and a bot flow table.
+ *
+ * Copied from SegmentsHomePage (same design system, layout, and row rhythm)
+ * with its "lc-sg" tokens renamed to "lc-bf" for scoping.
+ */
+
+.lc-bf {
+  --lc-bf-border: #d9d9d9;
+  --lc-bf-border-dark: #e8e8e8;
+  --lc-bf-text-title: #3c492c;
+  --lc-bf-text-dimmed: #808975;
+  --lc-bf-secondary-dark: #57534e;
+  --lc-bf-text-light: #808975;
+  --lc-bf-text-placeholder: #8c8c8c;
+  --lc-bf-primary: #6bac1b;
+  --lc-bf-table-head-bg: #e7f2f6;
+  --lc-bf-row-hover: #f1f7e9;
+  --lc-bf-bg: #faf9f5;
+  --lc-bf-radius: 4px;
+  --lc-bf-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --lc-bf-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+  padding: 12px 16px 20px;
+  font-family: var(--lc-bf-font-family);
+  color: var(--lc-bf-text-title);
+  background: var(--lc-bf-bg);
+  box-sizing: border-box;
+  overflow: hidden;
+  /* mirrors BroadcastHomePage's quiet settle-in on mount */
+  transition: opacity 220ms var(--lc-bf-ease-out), transform 220ms var(--lc-bf-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(1.004);
+  }
+}
+
+.lc-bf *,
+.lc-bf *::before,
+.lc-bf *::after {
+  box-sizing: border-box;
+}
+
+/* --- Toolbar (search + actions) ------------------------------------------ */
+
+.lc-bf__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.lc-bf__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 280px;
+  max-width: 100%;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid var(--lc-bf-border);
+  border-radius: var(--lc-bf-radius);
+}
+
+.lc-bf__search-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--lc-bf-text-placeholder);
+  flex-shrink: 0;
+}
+
+.lc-bf__search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-bf-text-title);
+}
+
+.lc-bf__search-input::placeholder {
+  color: var(--lc-bf-text-placeholder);
+}
+
+.lc-bf__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* --- Tabs row ---------------------------------------------------------------- */
+
+.lc-bf__nav-row {
+  display: flex;
+  align-items: flex-end;
+  flex-shrink: 0;
+  padding: 12px 12px 0;
+  background: white;
+  border-bottom: 1px solid var(--lc-bf-border);
+}
+
+.lc-bf__tabs {
+  display: flex;
+  align-items: center;
+}
+
+.lc-bf__tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0 0 12px;
+  margin-right: 24px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 400;
+  color: var(--lc-bf-text-dimmed);
+  border-bottom: 2px solid transparent;
+  transform: translateY(1px);
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.lc-bf__tab:hover {
+  color: var(--lc-bf-text-title);
+}
+
+.lc-bf__tab[data-active='true'] {
+  font-weight: 700;
+  color: var(--lc-bf-text-title);
+  border-bottom-color: var(--lc-bf-primary);
+}
+
+/* --- Table --------------------------------------------------------------- */
+
+.lc-bf__table {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: var(--lc-bf-radius);
+  overflow: auto;
+  background: white;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.lc-bf__table[data-scrolling='true'] {
+  scrollbar-color: #e0e0e0 transparent;
+}
+
+.lc-bf__table::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.lc-bf__table::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lc-bf__table::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+  transition: background 0.15s ease;
+}
+
+.lc-bf__table[data-scrolling='true']::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+}
+
+.lc-bf__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px 10px 16px;
+}
+
+.lc-bf__row--head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--lc-bf-table-head-bg);
+}
+
+.lc-bf__row--body {
+  padding-top: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--lc-bf-border-dark);
+  transition: background-color 150ms ease;
+  animation: lc-bf-row-in 200ms var(--lc-bf-ease-out) both;
+}
+
+.lc-bf__row--body:hover {
+  background: var(--lc-bf-row-hover);
+}
+
+@keyframes lc-bf-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lc-bf__row--body:nth-of-type(2) { animation-delay: 0ms; }
+.lc-bf__row--body:nth-of-type(3) { animation-delay: 25ms; }
+.lc-bf__row--body:nth-of-type(4) { animation-delay: 50ms; }
+.lc-bf__row--body:nth-of-type(5) { animation-delay: 75ms; }
+.lc-bf__row--body:nth-of-type(n + 6) { animation-delay: 100ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-bf__row--body {
+    animation: none;
+  }
+}
+
+.lc-bf__cell--name {
+  flex: 1 1 240px;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+
+.lc-bf__cell--description {
+  flex: 2 1 320px;
+  min-width: 160px;
+  text-align: left;
+}
+
+.lc-bf__cell--actions {
+  flex: 0 0 116px;
+  width: 116px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.lc-bf__row--head .lc-bf__cell--description {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.lc-bf__row--head .lc-bf__cell--actions {
+  justify-content: flex-start;
+}
+
+.lc-bf__head-label {
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 400;
+  color: var(--lc-bf-secondary-dark);
+  white-space: nowrap;
+}
+
+.lc-bf__sort-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+.lc-bf__sort-icon {
+  width: 12px;
+  height: 12px;
+  color: var(--lc-bf-border);
+  transition: transform 150ms ease, color 150ms ease;
+}
+
+.lc-bf__sort-btn:hover .lc-bf__sort-icon {
+  color: var(--lc-bf-text-dimmed);
+}
+
+.lc-bf__sort-btn[data-sort='asc'] .lc-bf__sort-icon {
+  color: var(--lc-bf-primary);
+  transform: rotate(180deg);
+}
+
+.lc-bf__sort-btn[data-sort='desc'] .lc-bf__sort-icon {
+  color: var(--lc-bf-primary);
+}
+
+.lc-bf__sort-btn[data-sort] .lc-bf__head-label {
+  color: var(--lc-bf-text-title);
+  font-weight: 700;
+}
+
+.lc-bf__name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lc-bf__name {
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 700;
+  color: var(--lc-bf-text-title);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-bf__meta-line {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-bf-text-light);
+  white-space: nowrap;
+}
+
+.lc-bf__description {
+  display: block;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--lc-bf-secondary-dark);
+  text-align: left;
+}
+
+.lc-bf__description--empty {
+  color: var(--lc-bf-text-placeholder);
+  font-style: italic;
+}
+
+/* --- Active/inactive toggle switch --------------------------------------- */
+
+.lc-bf__toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 18px;
+  padding: 2px;
+  border: none;
+  border-radius: 999px;
+  background: #d9d9d9;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.lc-bf__toggle:hover {
+  background: #c9c9c9;
+}
+
+.lc-bf__toggle[data-checked] {
+  background: var(--lc-bf-primary);
+}
+
+.lc-bf__toggle[data-checked]:hover {
+  background: #5c9518;
+}
+
+.lc-bf__toggle-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transform: translateX(0);
+  transition: transform 150ms ease;
+}
+
+.lc-bf__toggle[data-checked] .lc-bf__toggle-thumb {
+  transform: translateX(14px);
+}
+
+/* --- Row actions menu ------------------------------------------------------ */
+
+.lc-bf__menu-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.lc-bf__action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--lc-bf-radius);
+  color: var(--lc-bf-text-dimmed);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, transform 140ms var(--lc-bf-ease-out);
+}
+
+.lc-bf__action-btn:active {
+  transform: scale(0.92);
+}
+
+.lc-bf__action-btn:hover {
+  background: #f0efe9;
+  color: var(--lc-bf-text-title);
+}
+
+.lc-bf__action-btn .lc-bf__icon {
+  width: 16px;
+  height: 16px;
+}
+
+.lc-bf__menu {
+  position: fixed;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 168px;
+  padding: 6px;
+  border-radius: 8px;
+  background: white;
+  box-shadow:
+    0 1px 1.5px rgba(0, 0, 0, 0.05),
+    0 20px 12.5px rgba(0, 0, 0, 0.1),
+    0 10px 5px rgba(0, 0, 0, 0.04);
+  transform-origin: top right;
+  transition: opacity 150ms ease, transform 150ms ease;
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+.lc-bf__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--lc-bf-text-title);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+
+.lc-bf__menu-item:hover {
+  background: var(--lc-bf-row-hover);
+}
+
+.lc-bf__menu-item:active {
+  transform: scale(0.98);
+}
+
+.lc-bf__menu-item--danger {
+  color: #c92a2a;
+}
+
+.lc-bf__menu-item--danger:hover {
+  background: #fff0f0;
+}
+
+.lc-bf__menu-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: inherit;
+  opacity: 0.75;
+}
+
+/* --- Pagination -------------------------------------------------------------- */
+
+.lc-bf__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-top: 12px;
+  padding: 12px;
+  background: white;
+  border-top: 1px solid var(--lc-bf-border);
+  border-radius: var(--lc-bf-radius);
+}
+
+.lc-bf__page-item {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--lc-bf-radius);
+  border: 1px solid var(--lc-bf-border);
+  background: white;
+  color: var(--lc-bf-text-title);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.lc-bf__page-item:hover {
+  background: #f5f5f4;
+}
+
+.lc-bf__page-item[data-active='true'] {
+  background: var(--lc-bf-primary);
+  border-color: var(--lc-bf-primary);
+  color: white;
+}
+
+.lc-bf__page-item[data-ellipsis='true'] {
+  border: none;
+  cursor: default;
+}
+
+.lc-bf__page-item[data-ellipsis='true']:hover {
+  background: transparent;
+}

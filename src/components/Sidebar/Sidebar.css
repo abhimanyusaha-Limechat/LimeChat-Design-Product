@@ -1,0 +1,165 @@
+/**
+ * LimeChat product sidebar (rail navigation).
+ *
+ * Design tokens mirror "LimeChat Design System — V3" (Figma node 8773:1123):
+ *  - rail width ....... 64px
+ *  - rail fill ........ background/primary/filled-hover  #508014
+ *  - selected fill .... ~green/green-8                   #34540d
+ *  - icon / logo ...... ~green/green-0                   #fafdf6
+ *  - avatar fallback .. text/dimmed                      #808975
+ *  - control radius ... radius/2xs                       4px
+ *  - padding .......... top 12px · bottom/x 20px/8px
+ *  - horizontal pad ... padding/xs                       8px
+ *  - nav gap ......... spacing/2xs                       4px
+ *  - nav top offset .. padding/2xl                       32px
+ */
+.lc-sidebar {
+  --lc-sidebar-width: 64px;
+  --lc-sidebar-bg: #508014;
+  --lc-sidebar-item-selected-bg: #34540d;
+  --lc-sidebar-item-hover-bg: rgba(255, 255, 255, 0.1);
+  --lc-sidebar-fg: #fafdf6;
+  /* Idle (unselected) nav/footer icon stroke — ~green/green-2. */
+  --lc-sidebar-icon-idle: #cdf0a2;
+  --lc-sidebar-avatar-bg: #808975;
+  --lc-sidebar-radius: 4px;
+  --lc-sidebar-pad-y: 20px;
+  --lc-sidebar-pad-top: 12px;
+  --lc-sidebar-pad-x: 8px;
+  --lc-sidebar-nav-gap: 4px;
+  --lc-sidebar-nav-offset: 32px;
+  --lc-sidebar-control-size: 40px;
+  --lc-sidebar-icon-size: 20px;
+  --lc-sidebar-logo-size: 32px;
+  --lc-sidebar-avatar-size: 36px;
+  --lc-sidebar-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: var(--lc-sidebar-width);
+  min-width: var(--lc-sidebar-width);
+  max-width: var(--lc-sidebar-width);
+  height: 100%;
+  min-height: 100vh;
+  padding: var(--lc-sidebar-pad-top) var(--lc-sidebar-pad-x) var(--lc-sidebar-pad-y);
+  background: var(--lc-sidebar-bg);
+  color: var(--lc-sidebar-fg);
+  font-family: var(--lc-sidebar-font-family);
+}
+
+.lc-sidebar *,
+.lc-sidebar *::before,
+.lc-sidebar *::after {
+  box-sizing: border-box;
+}
+
+/* --- Logo ------------------------------------------------------------------ */
+.lc-sidebar__logo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--lc-sidebar-logo-size);
+  height: var(--lc-sidebar-logo-size);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.lc-sidebar__logo svg {
+  width: 100%;
+  height: 100%;
+}
+
+.lc-sidebar__logo:not([href]):not(button) {
+  cursor: default;
+}
+
+/* --- Nav ----------------------------------------------------------------- */
+.lc-sidebar__nav {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lc-sidebar-nav-gap);
+  min-height: 0;
+  margin: 0;
+  padding: var(--lc-sidebar-nav-offset) 0 0;
+  list-style: none;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.lc-sidebar__nav::-webkit-scrollbar {
+  display: none;
+}
+
+.lc-sidebar__footer {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Action control (nav item + footer buttons) ------------------------- */
+.lc-sidebar__item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--lc-sidebar-control-size);
+  height: var(--lc-sidebar-control-size);
+  padding: 0;
+  border: 0;
+  border-radius: var(--lc-sidebar-radius);
+  background: transparent;
+  color: var(--lc-sidebar-icon-idle);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lc-sidebar__item:hover {
+  background: var(--lc-sidebar-item-hover-bg);
+  color: var(--lc-sidebar-fg);
+}
+
+.lc-sidebar__item:focus-visible {
+  outline: 2px solid var(--lc-sidebar-fg);
+  outline-offset: 2px;
+}
+
+.lc-sidebar__item--selected,
+.lc-sidebar__item--selected:hover {
+  background: var(--lc-sidebar-item-selected-bg);
+  color: var(--lc-sidebar-fg);
+}
+
+.lc-sidebar__icon {
+  width: var(--lc-sidebar-icon-size);
+  height: var(--lc-sidebar-icon-size);
+  flex-shrink: 0;
+}
+
+/* --- Avatar (the shared <Avatar>, tinted to the rail's neutral chip) --- */
+.lc-sidebar__avatar {
+  /* keep the rail's grey fallback + light glyph instead of the primary tint */
+  --lc-avatar-light-bg: var(--lc-sidebar-avatar-bg);
+  --lc-avatar-fg-accent: var(--lc-sidebar-fg);
+  --lc-avatar-image-fallback: var(--lc-sidebar-avatar-bg);
+  font-size: 13px; /* initials a touch smaller than the DS default at this size */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-sidebar__item {
+    transition: none;
+  }
+}

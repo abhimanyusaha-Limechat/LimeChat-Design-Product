@@ -1,0 +1,140 @@
+/**
+ * Tooltip — LimeChat design system (Figma node 31:59).
+ *
+ * Tokens:
+ *  - surface ......... text/default            #3c492c
+ *  - label ........... background/default      #ffffff  · Text/xs  12 / 16
+ *  - link ............ text/primary/default    #6bac1b  · Text/xxs 10 / 12.5
+ *  - padding ......... padding/xs              8px
+ *  - label↔link gap .. padding/2xs             4px
+ *  - radius .......... radius/2xs              4px
+ *  - arrow ........... 4px triangle (rendered here as a small rotated square)
+ */
+.lc-tooltip-anchor {
+  display: inline-flex;
+}
+
+.lc-tooltip__bubble {
+  --lc-tooltip-bg: #3c492c;
+  --lc-tooltip-fg: #ffffff;
+  --lc-tooltip-link: #6bac1b;
+  --lc-tooltip-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  position: fixed;
+  z-index: 2147483000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 300px;
+  padding: 8px;
+  border-radius: 4px;
+  background: var(--lc-tooltip-bg);
+  color: var(--lc-tooltip-fg);
+  font-family: var(--lc-tooltip-font-family);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  text-align: left;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+  /* scale in from the edge nearest the trigger (set per side below) */
+  transform-origin: center;
+  animation: lc-tooltip-in 125ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.lc-tooltip__bubble--top {
+  transform-origin: center bottom;
+}
+.lc-tooltip__bubble--bottom {
+  transform-origin: center top;
+}
+.lc-tooltip__bubble--left {
+  transform-origin: right center;
+}
+.lc-tooltip__bubble--right {
+  transform-origin: left center;
+}
+
+/* Hopping between adjacent triggers (e.g. chips in a row) shouldn't replay
+   the full open animation — only the very first tooltip in a sequence should. */
+.lc-tooltip__bubble[data-instant] {
+  animation: none;
+}
+
+.lc-tooltip__bubble--multiline {
+  white-space: normal;
+  min-width: 160px;
+}
+
+.lc-tooltip__label {
+  max-width: 284px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lc-tooltip__link {
+  max-width: 284px;
+  padding: 0;
+  border: 0;
+  background: none;
+  overflow: hidden;
+  font: inherit;
+  font-size: 10px;
+  line-height: 12.5px;
+  color: var(--lc-tooltip-link);
+  text-align: left;
+  text-decoration: underline;
+  text-overflow: ellipsis;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* --- Arrow (a small rotated square clipped to the bubble edge) --------- */
+.lc-tooltip__arrow {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--lc-tooltip-bg);
+  border-radius: 1px;
+}
+.lc-tooltip__bubble--top .lc-tooltip__arrow {
+  bottom: -4px;
+  transform: translateX(-50%) rotate(45deg);
+}
+.lc-tooltip__bubble--bottom .lc-tooltip__arrow {
+  top: -4px;
+  transform: translateX(-50%) rotate(45deg);
+}
+.lc-tooltip__bubble--left .lc-tooltip__arrow {
+  right: -4px;
+  transform: translateY(-50%) rotate(45deg);
+}
+.lc-tooltip__bubble--right .lc-tooltip__arrow {
+  left: -4px;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+@keyframes lc-tooltip-in {
+  from {
+    opacity: 0;
+    /* not scale(0) — it should have shape even when "deflated" */
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* keep a plain fade for comprehension; drop the scale */
+  .lc-tooltip__bubble {
+    animation: lc-tooltip-fade 120ms ease-out;
+  }
+}
+@keyframes lc-tooltip-fade {
+  from {
+    opacity: 0;
+  }
+}

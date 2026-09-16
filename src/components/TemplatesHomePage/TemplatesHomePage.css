@@ -1,0 +1,673 @@
+/**
+ * TemplatesHomePage — Campaigns → Templates landing view: search + inbox/
+ * type/category filters, refresh, report/create actions, a single Whatsapp
+ * tab, and a message-templates table.
+ *
+ * Shares its visual language (colors, radii, row rhythm) with BroadcastHomePage
+ * / SegmentsHomePage — same design system, "lc-th" tokens for scoping.
+ */
+
+.lc-th {
+  --lc-th-border: #d9d9d9;
+  --lc-th-border-dark: #e8e8e8;
+  --lc-th-text-title: #3c492c;
+  --lc-th-text-dimmed: #808975;
+  --lc-th-secondary-dark: #57534e;
+  --lc-th-text-light: #808975;
+  --lc-th-text-placeholder: #8c8c8c;
+  --lc-th-primary: #6bac1b;
+  --lc-th-warning: #e8a112;
+  --lc-th-danger: #da1b21;
+  --lc-th-table-head-bg: #e7f2f6;
+  --lc-th-row-hover: #f1f7e9;
+  --lc-th-secondary-light-bg: #eef0ee;
+  --lc-th-secondary-light-text: #6b7268;
+  --lc-th-retry-bg: #f1f7e9;
+  --lc-th-bg: #faf9f5;
+  --lc-th-radius: 4px;
+  --lc-th-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --lc-th-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+  padding: 12px 16px 20px;
+  font-family: var(--lc-th-font-family);
+  color: var(--lc-th-text-title);
+  background: var(--lc-th-bg);
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: opacity 220ms var(--lc-th-ease-out), transform 220ms var(--lc-th-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(1.004);
+  }
+}
+
+.lc-th *,
+.lc-th *::before,
+.lc-th *::after {
+  box-sizing: border-box;
+}
+
+/* --- Toolbar (search + filters + actions) --------------------------------- */
+
+.lc-th__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.lc-th__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 240px;
+  max-width: 100%;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid var(--lc-th-border);
+  border-radius: var(--lc-th-radius);
+  flex-shrink: 0;
+}
+
+.lc-th__search-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--lc-th-text-placeholder);
+  flex-shrink: 0;
+}
+
+.lc-th__search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-th-text-title);
+}
+
+.lc-th__search-input::placeholder {
+  color: var(--lc-th-text-placeholder);
+}
+
+.lc-th__filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+}
+
+.lc-th__filter {
+  width: 148px;
+}
+
+.lc-th__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* --- Tabs row ---------------------------------------------------------------- */
+
+.lc-th__nav-row {
+  display: flex;
+  align-items: flex-end;
+  flex-shrink: 0;
+  padding: 12px 12px 0;
+  background: white;
+  border-bottom: 1px solid var(--lc-th-border);
+}
+
+.lc-th__tabs {
+  display: flex;
+  align-items: center;
+}
+
+.lc-th__tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0 0 12px;
+  margin-right: 24px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 400;
+  color: var(--lc-th-text-dimmed);
+  border-bottom: 2px solid transparent;
+  transform: translateY(1px);
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.lc-th__tab:hover {
+  color: var(--lc-th-text-title);
+}
+
+.lc-th__tab[data-active='true'] {
+  font-weight: 700;
+  color: var(--lc-th-text-title);
+  border-bottom-color: var(--lc-th-primary);
+}
+
+/* --- Table --------------------------------------------------------------- */
+
+.lc-th__table {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: var(--lc-th-radius);
+  overflow: auto;
+  background: white;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.lc-th__table[data-scrolling='true'] {
+  scrollbar-color: #e0e0e0 transparent;
+}
+
+.lc-th__table::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.lc-th__table::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lc-th__table::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+  transition: background 0.15s ease;
+}
+
+.lc-th__table[data-scrolling='true']::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+}
+
+.lc-th__row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 10px 20px 10px 16px;
+}
+
+.lc-th__row--head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 44px;
+  background: var(--lc-th-table-head-bg);
+}
+
+.lc-th__row--body {
+  padding-top: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--lc-th-border-dark);
+  transition: background-color 150ms ease;
+  animation: lc-th-row-in 200ms var(--lc-th-ease-out) both;
+}
+
+.lc-th__row--body:hover {
+  background: var(--lc-th-row-hover);
+}
+
+.lc-th__row--body[data-status='in-review'] {
+  border-left: 4px solid var(--lc-th-warning);
+  padding-left: 12px;
+  background: #fafafa;
+}
+
+.lc-th__row--body[data-status='in-review']:hover {
+  background: var(--lc-th-row-hover);
+}
+
+.lc-th__row--body[data-status='in-review'] .lc-th__name {
+  color: var(--lc-th-warning);
+}
+
+.lc-th__row--body[data-status='rejected'] {
+  border-left: 4px solid var(--lc-th-danger);
+  padding-left: 12px;
+  background: #fafafa;
+}
+
+.lc-th__row--body[data-status='rejected']:hover {
+  background: var(--lc-th-row-hover);
+}
+
+.lc-th__row--body[data-status='rejected'] .lc-th__name {
+  color: var(--lc-th-danger);
+}
+
+@keyframes lc-th-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lc-th__row--body:nth-of-type(2) { animation-delay: 0ms; }
+.lc-th__row--body:nth-of-type(3) { animation-delay: 25ms; }
+.lc-th__row--body:nth-of-type(4) { animation-delay: 50ms; }
+.lc-th__row--body:nth-of-type(5) { animation-delay: 75ms; }
+.lc-th__row--body:nth-of-type(n + 6) { animation-delay: 100ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-th__row--body {
+    animation: none;
+  }
+}
+
+.lc-th__cell--status {
+  flex: 0 0 88px;
+  width: 88px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.lc-th__cell--name {
+  flex: 1 1 320px;
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.lc-th__cell--category {
+  flex: 0 0 140px;
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.lc-th__cell--fallback {
+  flex: 0 0 140px;
+  width: 140px;
+  text-align: left;
+}
+
+.lc-th__cell--actions {
+  flex: 0 0 40px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.lc-th__head-label {
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 400;
+  color: var(--lc-th-secondary-dark);
+  white-space: nowrap;
+}
+
+.lc-th__sort-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+.lc-th__sort-icon {
+  width: 12px;
+  height: 12px;
+  color: var(--lc-th-border);
+  transition: transform 150ms ease, color 150ms ease;
+}
+
+.lc-th__sort-btn:hover .lc-th__sort-icon {
+  color: var(--lc-th-text-dimmed);
+}
+
+.lc-th__sort-btn[data-sort='asc'] .lc-th__sort-icon {
+  color: var(--lc-th-primary);
+  transform: rotate(180deg);
+}
+
+.lc-th__sort-btn[data-sort='desc'] .lc-th__sort-icon {
+  color: var(--lc-th-primary);
+}
+
+.lc-th__sort-btn[data-sort] .lc-th__head-label {
+  color: var(--lc-th-text-title);
+  font-weight: 700;
+}
+
+/* --- Status cell ------------------------------------------------------------ */
+
+.lc-th__status {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  /* pull the pill's padding back so its text lines up with the plain-text
+     language line below it and the "Status" header above, instead of
+     looking indented by the chip's own horizontal padding */
+  margin-left: -8px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+}
+
+.lc-th__status[data-status='in-review'] {
+  color: var(--lc-th-warning);
+  background: #fdf3e0;
+}
+
+.lc-th__status[data-status='active'] {
+  color: var(--lc-th-primary);
+  background: var(--lc-th-retry-bg);
+}
+
+.lc-th__status[data-status='rejected'] {
+  color: var(--lc-th-danger);
+  background: #fdecec;
+}
+
+.lc-th__status[data-status='paused'] {
+  color: var(--lc-th-text-dimmed);
+  background: #f0f0f0;
+}
+
+.lc-th__meta-line {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-th-text-light);
+  white-space: nowrap;
+}
+
+/* --- Name cell ---------------------------------------------------------- */
+
+.lc-th__type-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--lc-th-border);
+  border-radius: 6px;
+  color: var(--lc-th-secondary-dark);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lc-th__type-badge .lc-th__icon {
+  width: 16px;
+  height: 16px;
+}
+
+.lc-th__name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lc-th__name-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lc-th__name {
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 700;
+  color: var(--lc-th-text-title);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-th__preview {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-th-text-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-th__id-chip {
+  appearance: none;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border: none;
+  border-radius: 4px;
+  background: var(--lc-th-secondary-light-bg);
+  color: var(--lc-th-secondary-light-text);
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.lc-th__id-chip:hover {
+  background: var(--lc-th-border);
+}
+
+.lc-th__id-chip[data-copied='true'] {
+  color: var(--lc-th-primary);
+  background: var(--lc-th-retry-bg);
+}
+
+/* --- Category cell -------------------------------------------------------- */
+
+.lc-th__category {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: var(--lc-th-text-title);
+}
+
+.lc-th__business-tag {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-th-text-dimmed);
+}
+
+/* --- Fallback cell -------------------------------------------------------- */
+
+.lc-th__fallback {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--lc-th-text-dimmed);
+}
+
+/* --- Row actions menu ------------------------------------------------------ */
+
+.lc-th__menu-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.lc-th__action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--lc-th-radius);
+  color: var(--lc-th-text-dimmed);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, transform 140ms var(--lc-th-ease-out);
+}
+
+.lc-th__action-btn:active {
+  transform: scale(0.92);
+}
+
+.lc-th__action-btn:hover {
+  background: #f0efe9;
+  color: var(--lc-th-text-title);
+}
+
+.lc-th__action-btn .lc-th__icon {
+  width: 16px;
+  height: 16px;
+}
+
+.lc-th__menu {
+  position: fixed;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 190px;
+  padding: 6px;
+  border-radius: 8px;
+  background: white;
+  box-shadow:
+    0 1px 1.5px rgba(0, 0, 0, 0.05),
+    0 20px 12.5px rgba(0, 0, 0, 0.1),
+    0 10px 5px rgba(0, 0, 0, 0.04);
+  transform-origin: top right;
+  transition: opacity 150ms ease, transform 150ms ease;
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+.lc-th__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--lc-th-text-title);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+
+.lc-th__menu-item:hover {
+  background: var(--lc-th-row-hover);
+}
+
+.lc-th__menu-item:active {
+  transform: scale(0.98);
+}
+
+.lc-th__menu-item--danger {
+  color: #c92a2a;
+}
+
+.lc-th__menu-item--danger:hover {
+  background: #fff0f0;
+}
+
+.lc-th__menu-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: inherit;
+  opacity: 0.75;
+}
+
+/* --- Pagination -------------------------------------------------------------- */
+
+.lc-th__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-top: 12px;
+  padding: 12px;
+  background: white;
+  border-top: 1px solid var(--lc-th-border);
+  border-radius: var(--lc-th-radius);
+}
+
+.lc-th__page-item {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--lc-th-radius);
+  border: 1px solid var(--lc-th-border);
+  background: white;
+  color: var(--lc-th-text-title);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.lc-th__page-item:hover {
+  background: #f5f5f4;
+}
+
+.lc-th__page-item[data-active='true'] {
+  background: var(--lc-th-primary);
+  border-color: var(--lc-th-primary);
+  color: white;
+}
+
+.lc-th__page-item[data-ellipsis='true'] {
+  border: none;
+  cursor: default;
+}
+
+.lc-th__page-item[data-ellipsis='true']:hover {
+  background: transparent;
+}

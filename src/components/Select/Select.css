@@ -1,0 +1,259 @@
+/**
+ * NativeSelect — LimeChat design system (Figma node 31:15, Mantine v6 NativeSelect).
+ *
+ * Anatomy (stacked, 4px `spacing/2xs` gaps):
+ *   .Label      — label (SemiBold, text/title #3c492c) + optional * (text/error #da1b21)
+ *                 + description (Regular, text/dimmed #808975)
+ *   Input       — a real <select> styled as the control, with an overlaid chevron
+ *   message     — caption (text/dimmed #808975) and/or error (text/error/default #da1b21)
+ *
+ * Sizes (input height / L&R padding / value font / label font / helper font / gap / icon):
+ *   xs  24 / 12 / 12·16 / 12·16 / 10·12.5 / 8  / 12
+ *   sm  32 / 12 / 14·20 / 14·20 / 12·16   / 8  / 16
+ *   md  40 / 16 / 16·24 / 16·24 / 14·20   / 12 / 16
+ *   lg  48 / 16 / 18·28 / 18·28 / 16·24   / 12 / 16
+ *   xl  56 / 20 / 20·32 / 20·32 / 18·28   / 16 / 16
+ *   radius 4px (radius/2xs)
+ */
+.lc-select {
+  --lc-select-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  --lc-select-radius: 4px;
+
+  --lc-select-border: #d9d9d9;
+  --lc-select-bg: #ffffff;
+  --lc-select-value: #3c492c;
+  --lc-select-placeholder: #8c8c8c;
+  --lc-select-icon: #8c8c8c;
+  --lc-select-label: #3c492c;
+  --lc-select-helper: #808975;
+  --lc-select-error: #da1b21;
+  --lc-select-focus: #6bac1b;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 320px;
+  max-width: 100%;
+  font-family: var(--lc-select-font-family);
+}
+
+.lc-select *,
+.lc-select *::before,
+.lc-select *::after {
+  box-sizing: border-box;
+}
+
+.lc-select[data-full-width] {
+  width: 100%;
+}
+
+/* --- Size scale (custom props consumed below) --------------------- */
+.lc-select[data-size='xs'] {
+  --h: 24px;
+  --pad-x: 12px;
+  --gap: 8px;
+  --icon-size: 12px;
+  --value-fz: 12px;
+  --value-lh: 16px;
+  --label-fz: 12px;
+  --label-lh: 16px;
+  --helper-fz: 10px;
+  --helper-lh: 12.5px;
+}
+.lc-select[data-size='sm'] {
+  --h: 32px;
+  --pad-x: 12px;
+  --gap: 8px;
+  --icon-size: 16px;
+  --value-fz: 14px;
+  --value-lh: 20px;
+  --label-fz: 14px;
+  --label-lh: 20px;
+  --helper-fz: 12px;
+  --helper-lh: 16px;
+}
+.lc-select[data-size='md'] {
+  --h: 40px;
+  --pad-x: 16px;
+  --gap: 12px;
+  --icon-size: 16px;
+  --value-fz: 16px;
+  --value-lh: 24px;
+  --label-fz: 16px;
+  --label-lh: 24px;
+  --helper-fz: 14px;
+  --helper-lh: 20px;
+}
+.lc-select[data-size='lg'] {
+  --h: 48px;
+  --pad-x: 16px;
+  --gap: 12px;
+  --icon-size: 16px;
+  --value-fz: 18px;
+  --value-lh: 28px;
+  --label-fz: 18px;
+  --label-lh: 28px;
+  --helper-fz: 16px;
+  --helper-lh: 24px;
+}
+.lc-select[data-size='xl'] {
+  --h: 56px;
+  --pad-x: 20px;
+  --gap: 16px;
+  --icon-size: 16px;
+  --value-fz: 20px;
+  --value-lh: 32px;
+  --label-fz: 20px;
+  --label-lh: 32px;
+  --helper-fz: 18px;
+  --helper-lh: 28px;
+}
+
+/* --- Label block ------------------------------------------------ */
+.lc-select__label {
+  display: flex;
+  gap: 2px;
+  font-weight: 600;
+  font-size: var(--label-fz);
+  line-height: var(--label-lh);
+  color: var(--lc-select-label);
+}
+.lc-select__asterisk {
+  color: var(--lc-select-error);
+}
+.lc-select__description {
+  font-weight: 400;
+  font-size: var(--helper-fz);
+  line-height: var(--helper-lh);
+  color: var(--lc-select-helper);
+}
+
+/* --- Control (the native <select>) --------------------------- */
+.lc-select__control {
+  position: relative;
+  width: 100%;
+}
+
+.lc-select__input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: var(--h);
+  margin: 0;
+  padding: 0 calc(var(--pad-x) + var(--gap) + var(--icon-size)) 0 var(--pad-x);
+  border: 1px solid var(--lc-select-border);
+  border-radius: var(--lc-select-radius);
+  background: var(--lc-select-bg);
+  font-family: inherit;
+  font-weight: 400;
+  font-size: var(--value-fz);
+  line-height: var(--value-lh);
+  color: var(--lc-select-value);
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+.lc-select__input:focus-visible {
+  outline: none;
+  border-color: var(--lc-select-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-select-focus) 20%, transparent);
+}
+/* empty (placeholder shown) */
+.lc-select__input[data-placeholder] {
+  color: var(--lc-select-placeholder);
+}
+
+.lc-select__chevron {
+  position: absolute;
+  top: 50%;
+  right: var(--pad-x);
+  width: var(--icon-size);
+  height: var(--icon-size);
+  transform: translateY(-50%);
+  color: var(--lc-select-icon);
+  pointer-events: none;
+}
+.lc-select__chevron svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- Message (caption / error) --------------------------- */
+.lc-select__message-group {
+  display: flex;
+  flex-direction: column;
+}
+.lc-select__message {
+  font-weight: 400;
+  font-size: var(--helper-fz);
+  line-height: var(--helper-lh);
+}
+.lc-select__message--caption {
+  color: var(--lc-select-helper);
+}
+.lc-select__message--error {
+  color: var(--lc-select-error);
+}
+
+/* --- Variant: filled ----------------------------------- */
+.lc-select[data-variant='filled'] {
+  --lc-select-bg: #fafdf6;
+  --lc-select-border: transparent;
+}
+.lc-select[data-variant='filled'] .lc-select__input {
+  border-color: transparent;
+}
+
+/* --- Variant: unstyled -------------------------------- */
+.lc-select[data-variant='unstyled'] .lc-select__input {
+  height: auto;
+  padding: 0 calc(var(--gap) + var(--icon-size)) 0 0;
+  border-color: transparent;
+  background: transparent;
+  border-radius: 0;
+}
+.lc-select[data-variant='unstyled'] .lc-select__input:focus-visible {
+  box-shadow: none;
+}
+.lc-select[data-variant='unstyled'] .lc-select__chevron {
+  right: 0;
+}
+
+/* --- Status: error ----------------------------------- */
+.lc-select[data-error] {
+  --lc-select-border: #e5484d;
+  --lc-select-value: var(--lc-select-error);
+  --lc-select-placeholder: var(--lc-select-error);
+  --lc-select-icon: var(--lc-select-error);
+}
+.lc-select[data-error] .lc-select__input {
+  border-color: #e5484d;
+}
+.lc-select[data-error] .lc-select__input:focus-visible {
+  border-color: #e5484d;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #e5484d 18%, transparent);
+}
+
+/* --- State: disabled -------------------------------- */
+.lc-select[data-disabled] .lc-select__input,
+.lc-select__input:disabled {
+  background: #f0f0f0;
+  border-color: var(--lc-select-border);
+  color: #bfbfbf;
+  cursor: not-allowed;
+}
+.lc-select[data-disabled] .lc-select__chevron {
+  color: #bfbfbf;
+}
+.lc-select[data-disabled] .lc-select__label,
+.lc-select[data-disabled] .lc-select__description {
+  opacity: 0.7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-select__input {
+    transition: none;
+  }
+}

@@ -1,0 +1,657 @@
+/**
+ * Modal — LimeChat design system dialog shell (Figma nodes 135:8061 / 195:59804).
+ *
+ * Tokens:
+ *   card    bg #fff · radius/xs 8 · p padding/xl 24 · gap spacing/lg 24
+ *           shadow 0 7px 3.5px #0000000A, 0 10px 7.5px #0000001A, 0 1px 1.5px #0000000D
+ *   title   Heading/h6  16/20 bold  text/title #3c492c
+ *   desc    Text/xs     12/16       text/dimmed #808975
+ *   field   label Text SemiBold/xs 12/16 #3c492c · required *  #e5484d
+ *           input h 32 · border border/gray/light #d9d9d9 · radius/2xs 4
+ *   switch  track 36x20 · on background/primary/filled #6bac1b · off #d9d9d9 · thumb 16 #fff
+ */
+.lc-modal__overlay {
+  --lc-modal-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(1.47px);
+  -webkit-backdrop-filter: blur(1.47px);
+  transition: opacity 200ms var(--lc-modal-ease-out);
+
+  @starting-style {
+    opacity: 0;
+  }
+}
+.lc-modal__overlay[data-state='closing'] {
+  opacity: 0;
+  /* exit is quicker than enter — the user is done looking, not waiting on it */
+  transition: opacity 150ms var(--lc-modal-ease-out);
+}
+
+.lc-modal {
+  --lc-modal-fg: #3c492c;
+  --lc-modal-dimmed: #808975;
+  --lc-modal-border: #d9d9d9;
+  --lc-modal-accent: #6bac1b;
+  --lc-modal-hover-bg: #f5f5f4;
+  --lc-modal-danger: #e5484d;
+  --lc-modal-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 100%;
+  padding: 24px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 1.5px rgba(0, 0, 0, 0.05),
+    0 10px 7.5px rgba(0, 0, 0, 0.1),
+    0 7px 3.5px rgba(0, 0, 0, 0.04);
+  font-family: var(--lc-modal-font-family);
+  color: var(--lc-modal-fg);
+  /* modals appear centred, not anchored to a trigger — scale from centre */
+  transform-origin: center;
+  transition: opacity 200ms var(--lc-modal-ease-out), transform 200ms var(--lc-modal-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+.lc-modal[data-state='closing'] {
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 150ms var(--lc-modal-ease-out), transform 150ms var(--lc-modal-ease-out);
+}
+.lc-modal *,
+.lc-modal *::before,
+.lc-modal *::after {
+  box-sizing: border-box;
+}
+.lc-modal:focus {
+  outline: none;
+}
+
+/* --- Header ------------------------------------------------------ */
+.lc-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.lc-modal__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 402px;
+}
+.lc-modal__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--lc-modal-fg);
+}
+.lc-modal__description {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--lc-modal-dimmed);
+}
+.lc-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--lc-modal-dimmed);
+  cursor: pointer;
+}
+.lc-modal__close:hover {
+  background: var(--lc-modal-hover-bg);
+  color: var(--lc-modal-fg);
+}
+.lc-modal__close svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+/* --- Body / actions -------------------------------------------- */
+.lc-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.lc-modal__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* --- Fields --------------------------------------------------- */
+.lc-modal__field {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+}
+.lc-modal__field-label {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--lc-modal-fg);
+}
+.lc-modal__field-asterisk {
+  margin-left: 2px;
+  color: var(--lc-modal-danger);
+}
+.lc-modal__input {
+  width: 100%;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--lc-modal-border);
+  border-radius: 4px;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-modal-fg);
+}
+.lc-modal__input::placeholder,
+.lc-modal__textarea::placeholder {
+  color: #8c8c8c;
+}
+.lc-modal__input:disabled {
+  background: var(--lc-modal-hover-bg);
+  color: var(--lc-modal-dimmed);
+}
+/* native date/time pickers need room for their icon or the value clips against it */
+.lc-modal__input[type='date'],
+.lc-modal__input[type='time'] {
+  min-width: 132px;
+}
+
+/* leading-icon field (Design/Calendar, Design/Clock) wrapping a native date/time input */
+.lc-modal__field-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.lc-modal__field-icon {
+  position: absolute;
+  z-index: 1;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--lc-modal-dimmed);
+  pointer-events: none;
+}
+.lc-modal__field-icon svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.lc-modal__input--with-icon {
+  min-width: 160px;
+  padding-left: 34px;
+  /* native calendar/clock glyph is hidden — the whole field opens the picker instead */
+  position: relative;
+}
+.lc-modal__input--with-icon::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.lc-modal__input--with-icon:disabled::-webkit-calendar-picker-indicator {
+  cursor: not-allowed;
+}
+.lc-modal__input:focus-visible,
+.lc-modal__textarea:focus-visible {
+  outline: none;
+  border-color: var(--lc-modal-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-modal-accent) 20%, transparent);
+}
+.lc-modal__textarea {
+  width: 100%;
+  min-height: 76px;
+  padding: 8px 12px;
+  border: 1px solid var(--lc-modal-border);
+  border-radius: 4px;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-modal-fg);
+  resize: vertical;
+}
+
+/* --- Switch ------------------------------------------------- */
+.lc-modal__switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+.lc-modal__switch-label {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-modal-fg);
+}
+.lc-modal__switch-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--lc-modal-border);
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+.lc-modal__switch-track[aria-checked='true'] {
+  background: var(--lc-modal-accent);
+}
+.lc-modal__switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 120ms ease;
+}
+.lc-modal__switch-track[aria-checked='true'] .lc-modal__switch-thumb {
+  transform: translateX(16px);
+}
+.lc-modal__switch-track:focus-visible {
+  outline: 2px solid var(--lc-modal-accent);
+  outline-offset: 2px;
+}
+
+/* --- Stepper --------------------------------------------------- */
+.lc-modal__stepper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 32px;
+  border: 1px solid var(--lc-modal-border);
+  border-radius: 4px;
+  background: #ffffff;
+}
+.lc-modal__stepper[data-disabled] {
+  background: var(--lc-modal-hover-bg);
+}
+.lc-modal__stepper-input {
+  height: 100%;
+  padding-right: 32px;
+  border: 0;
+  background: transparent;
+}
+.lc-modal__stepper-input:disabled {
+  background: transparent;
+}
+.lc-modal__stepper:focus-within {
+  border-color: var(--lc-modal-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-modal-accent) 20%, transparent);
+}
+.lc-modal__stepper-input:focus-visible {
+  box-shadow: none;
+}
+.lc-modal__stepper-buttons {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  width: 24px;
+  height: 100%;
+  border-left: 1px solid var(--lc-modal-border);
+}
+.lc-modal__stepper-buttons button {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--lc-modal-dimmed);
+  cursor: pointer;
+}
+.lc-modal__stepper-buttons button:first-child {
+  border-bottom: 1px solid var(--lc-modal-border);
+}
+.lc-modal__stepper-buttons button:hover:not(:disabled) {
+  background: var(--lc-modal-hover-bg);
+  color: var(--lc-modal-fg);
+}
+.lc-modal__stepper-buttons button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.lc-modal__stepper-buttons svg {
+  display: block;
+  width: 12px;
+  height: 12px;
+}
+
+/* --- Checkbox ------------------------------------------------- */
+.lc-modal__checkbox-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+.lc-modal__checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.lc-modal__checkbox-input {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+  border: 1.5px solid var(--lc-modal-border);
+  border-radius: 4px;
+  background: #ffffff;
+  cursor: pointer;
+}
+.lc-modal__checkbox-input:checked {
+  border-color: var(--lc-modal-accent);
+  background: var(--lc-modal-accent);
+}
+.lc-modal__checkbox-input:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.lc-modal__checkbox-input:focus-visible {
+  outline: 2px solid var(--lc-modal-accent);
+  outline-offset: 2px;
+}
+.lc-modal__checkbox-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.lc-modal__checkbox-label {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-modal-dimmed);
+  transition: color 120ms ease;
+}
+.lc-modal__checkbox-row[data-checked] .lc-modal__checkbox-label {
+  color: var(--lc-modal-fg);
+}
+.lc-modal__checkbox-description {
+  margin: 0;
+  padding-left: 24px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-modal-dimmed);
+}
+
+/* --- Radio option row (Figma node 267:19000 / 267:19001) ----- */
+.lc-modal__radio-option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--lc-modal-border);
+  border-radius: 8px;
+  background: #fafafa;
+  cursor: pointer;
+  text-align: left;
+}
+.lc-modal__radio-option[data-checked] {
+  border-color: var(--lc-modal-accent);
+  background: #fafdf6;
+}
+.lc-modal__radio-main {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+.lc-modal__radio-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lc-modal__radio-input {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+  border: 1.5px solid var(--lc-modal-border);
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+}
+.lc-modal__radio-input:checked {
+  border-color: var(--lc-modal-accent);
+}
+.lc-modal__radio-input:checked::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--lc-modal-accent);
+}
+.lc-modal__radio-input:focus-visible {
+  outline: 2px solid var(--lc-modal-accent);
+  outline-offset: 2px;
+}
+.lc-modal__radio-label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: var(--lc-modal-fg);
+}
+.lc-modal__radio-description {
+  padding-left: 24px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-modal-dimmed);
+}
+.lc-modal__radio-divider {
+  align-self: stretch;
+  width: 1px;
+  flex-shrink: 0;
+  background: var(--lc-modal-border);
+}
+.lc-modal__radio-extra {
+  display: flex;
+  flex-shrink: 0;
+  gap: 16px;
+}
+
+/* --- Bordered card + inline banner (retry configuration block) - */
+.lc-modal__card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--lc-modal-border);
+  border-radius: 8px;
+  background: #fafafa;
+}
+.lc-modal__card-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding-left: 24px;
+}
+.lc-modal__card-controls-label {
+  padding-bottom: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-modal-dimmed);
+  white-space: nowrap;
+}
+.lc-modal__banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #e1eff4;
+}
+.lc-modal__banner-text {
+  margin: 0;
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: #003b56;
+}
+.lc-modal__banner-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #003b56;
+  cursor: pointer;
+}
+.lc-modal__banner-action:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+.lc-modal__banner-action svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+/* --- Layout helpers ----------------------------------------- */
+.lc-modal__row {
+  display: flex;
+  gap: 12px;
+}
+.lc-modal__row > .lc-modal__input {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+}
+.lc-modal__country-code {
+  flex-shrink: 0;
+  width: 90px;
+}
+.lc-modal__row--end {
+  align-items: flex-end;
+}
+.lc-modal__callout {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #e5f7cf;
+  border-radius: 8px;
+  background: #f1f7e9;
+}
+
+/* --- Chip list (added phone numbers / emails) ------------------ */
+.lc-modal__chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+.lc-modal__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+  border-radius: 999px;
+  background: var(--lc-modal-hover-bg);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-modal-fg);
+}
+.lc-modal__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--lc-modal-dimmed);
+  cursor: pointer;
+}
+.lc-modal__chip-remove:hover {
+  background: #e5e5e2;
+  color: var(--lc-modal-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-modal__switch-track,
+  .lc-modal__switch-thumb {
+    transition: none;
+  }
+  /* keep the overlay fade for comprehension; drop the card's scale motion */
+  .lc-modal {
+    transition: opacity 180ms ease-out;
+    transform: none;
+  }
+  .lc-modal[data-state='closing'] {
+    transition: opacity 140ms ease-out;
+    transform: none;
+  }
+}

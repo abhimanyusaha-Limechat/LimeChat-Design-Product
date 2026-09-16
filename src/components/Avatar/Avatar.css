@@ -1,0 +1,146 @@
+/**
+ * Avatar — LimeChat design system (Figma node 31:53, Mantine v6 Avatar).
+ *
+ * Type is derived: `src` → Image · string children → Initials · else → Icon.
+ *
+ * Sizes (square):           xs 16 · sm 24 · md 36 · lg 56 · xl 84
+ * Initials font (bold Lato): xs 10/12 (SemiBold, uppercase) · sm 12/16 · md 16/20 · lg 32/40 · xl 40/48
+ * Radius:  xs → radius/2xs 4px   ·   xl → circle
+ * Variants (colour family: primary):
+ *   light   → bg background/primary/light #f1f7e9 · fg text/primary/default #6bac1b
+ *   filled  → bg background/primary/filled #6bac1b · fg neutral/white #ffffff
+ *   outline → transparent · 1px border/primary/default #6bac1b · fg #6bac1b
+ *   image   → fg over a text/dimmed #808975 fallback fill
+ */
+.lc-avatar {
+  --lc-avatar-size: 36px;
+  --lc-avatar-radius: 4px;
+  --lc-avatar-font: 16px;
+  --lc-avatar-line: 20px;
+  --lc-avatar-weight: 700;
+  --lc-avatar-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  --lc-avatar-light-bg: #f1f7e9;
+  --lc-avatar-filled-bg: #6bac1b;
+  --lc-avatar-outline-border: #6bac1b;
+  --lc-avatar-fg-on-color: #ffffff;
+  --lc-avatar-fg-accent: #6bac1b;
+  --lc-avatar-image-fallback: #808975;
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--lc-avatar-size);
+  height: var(--lc-avatar-size);
+  border: 1px solid transparent;
+  border-radius: var(--lc-avatar-radius);
+  /* Keep the image-type fallback fill from painting under the border and rimming
+     the photo; the border itself (outline variant, groups) is unaffected. */
+  background-clip: padding-box;
+  overflow: hidden;
+  font-family: var(--lc-avatar-font-family);
+  font-size: var(--lc-avatar-font);
+  line-height: var(--lc-avatar-line);
+  font-weight: var(--lc-avatar-weight);
+  user-select: none;
+}
+
+/* --- Named sizes ------------------------------------------------- */
+.lc-avatar[data-size='xs'] {
+  --lc-avatar-size: 16px;
+  --lc-avatar-font: 10px;
+  --lc-avatar-line: 12px;
+  --lc-avatar-weight: 600;
+}
+.lc-avatar[data-size='sm'] {
+  --lc-avatar-size: 24px;
+  --lc-avatar-font: 12px;
+  --lc-avatar-line: 16px;
+}
+.lc-avatar[data-size='md'] {
+  --lc-avatar-size: 36px;
+  --lc-avatar-font: 16px;
+  --lc-avatar-line: 20px;
+}
+.lc-avatar[data-size='lg'] {
+  --lc-avatar-size: 56px;
+  --lc-avatar-font: 32px;
+  --lc-avatar-line: 40px;
+}
+.lc-avatar[data-size='xl'] {
+  --lc-avatar-size: 84px;
+  --lc-avatar-font: 40px;
+  --lc-avatar-line: 48px;
+}
+
+/* --- Radius --------------------------------------------------- */
+.lc-avatar[data-radius='xs'] {
+  --lc-avatar-radius: 4px;
+}
+.lc-avatar[data-radius='xl'] {
+  --lc-avatar-radius: 9999px;
+}
+
+/* --- Variants ----------------------------------------------- */
+.lc-avatar[data-variant='light'] {
+  background: var(--lc-avatar-light-bg);
+  color: var(--lc-avatar-fg-accent);
+}
+.lc-avatar[data-variant='filled'] {
+  background: var(--lc-avatar-filled-bg);
+  color: var(--lc-avatar-fg-on-color);
+}
+.lc-avatar[data-variant='outline'] {
+  background: transparent;
+  border-color: var(--lc-avatar-outline-border);
+  color: var(--lc-avatar-fg-accent);
+}
+
+/* --- Content ---------------------------------------------- */
+.lc-avatar[data-type='image'] {
+  /* longhand + explicit clip so the fallback fill can't paint under the 1px
+     border and rim the photo (the `background:` shorthand in the variant rules
+     would otherwise reset background-clip to border-box). */
+  background-color: var(--lc-avatar-image-fallback);
+  background-clip: padding-box;
+  color: #ffffff;
+}
+.lc-avatar__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.lc-avatar__initials {
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+.lc-avatar__icon {
+  width: 62.5%;
+  height: 62.5%;
+}
+.lc-avatar__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* --- Group (overlapping stack) -------------------------- */
+.lc-avatar-group {
+  display: inline-flex;
+  align-items: center;
+}
+.lc-avatar-group > .lc-avatar {
+  border-color: #ffffff;
+  margin-left: calc(-0.28 * var(--lc-avatar-size, 36px));
+}
+.lc-avatar-group > .lc-avatar:first-child {
+  margin-left: 0;
+}
+.lc-avatar-group__overflow {
+  background: var(--lc-avatar-light-bg, #f1f7e9);
+  color: var(--lc-avatar-fg-accent, #6bac1b);
+}

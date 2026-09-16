@@ -1,0 +1,194 @@
+/**
+ * PublishConfirmModal — audience/schedule review cards inside the shared Modal shell.
+ */
+.lc-publish-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lc-publish-confirm__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: #fafaf9;
+}
+
+.lc-publish-confirm__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lc-publish-confirm__section-title {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #eef0ee;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 700;
+  color: #6b7268;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.lc-publish-confirm__edit {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  color: #808975;
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+.lc-publish-confirm__edit:hover {
+  color: #3c492c;
+  text-decoration: underline;
+}
+
+.lc-publish-confirm__edit-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.lc-publish-confirm__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lc-publish-confirm__count {
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 700;
+  color: #3c492c;
+}
+
+/* --- Rolling number (audience count) -------------------------------------- */
+
+.lc-publish-confirm__rolling {
+  display: inline-flex;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+}
+
+.lc-publish-confirm__roll-digit {
+  display: inline-block;
+  overflow: hidden;
+  width: 0.62em;
+  height: 1.25em;
+  vertical-align: bottom;
+}
+
+.lc-publish-confirm__roll-track {
+  display: flex;
+  flex-direction: column;
+  transition: transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lc-publish-confirm__roll-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.25em;
+}
+
+.lc-publish-confirm__roll-sep {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-publish-confirm__roll-track {
+    transition: none;
+  }
+}
+
+.lc-publish-confirm__desc {
+  font-size: 12px;
+  line-height: 16px;
+  color: #808975;
+}
+
+.lc-publish-confirm__segments {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid #e7e5e4;
+}
+
+.lc-publish-confirm__segment-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lc-publish-confirm__segment-group-title {
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 600;
+  color: #a8a29e;
+}
+
+.lc-publish-confirm__segment-list {
+  list-style: none;
+  counter-reset: lc-publish-confirm-segment;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lc-publish-confirm__segment-item {
+  counter-increment: lc-publish-confirm-segment;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.lc-publish-confirm__segment-item::before {
+  content: counter(lc-publish-confirm-segment) '.';
+  flex-shrink: 0;
+  margin-right: 4px;
+  color: #a8a29e;
+}
+
+.lc-publish-confirm__segment-name {
+  flex: 1;
+  min-width: 0;
+  color: #3c492c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-publish-confirm__segment-count {
+  flex-shrink: 0;
+  font-weight: 600;
+  color: #3c492c;
+}
+
+.lc-publish-confirm__note {
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 15px;
+  color: #a8a29e;
+}

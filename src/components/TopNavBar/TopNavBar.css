@@ -1,0 +1,428 @@
+/**
+ * LimeChat top navigation bar.
+ *
+ * Design tokens mirror "LimeChat Design System — V3" (Figma node 8847:4018):
+ *  - bar height ........ 56px
+ *  - bar fill .......... background/default            #ffffff
+ *  - bottom border ..... border/gray/light            #d9d9d9
+ *  - control radius .... radius/2xs                    4px
+ *  - crumb text ........ text/dimmed #808975 / current text/default #3c492c
+ *  - info badge ........ bg background/secondary/light #e7f2f6 · text #003b56
+ *  - draft badge ....... bg #e1eff4 · text/secondary/default #097ba3
+ *  - account name ...... text/primary/dark            #34540d
+ *  - company avatar .... ~green/green-2 #cdf0a2 · ~green/green-6-anchor #6bac1b
+ *  - shadow ............ 0 1px 1px rgba(0,0,0,.05)
+ */
+.lc-topnav {
+  --lc-topnav-height: 56px;
+  --lc-topnav-bg: #ffffff;
+  --lc-topnav-border: #d9d9d9;
+  --lc-topnav-radius: 4px;
+  --lc-topnav-fg: #3c492c;
+  --lc-topnav-fg-dimmed: #808975;
+  --lc-topnav-fg-muted: #595959;
+  --lc-topnav-separator: #bfbfbf;
+  --lc-topnav-info-badge-bg: #e7f2f6;
+  --lc-topnav-info-badge-fg: #003b56;
+  --lc-topnav-draft-badge-bg: #e1eff4;
+  --lc-topnav-draft-badge-fg: #097ba3;
+  --lc-topnav-updated-fg: #097ba3;
+  --lc-topnav-account-fg: #34540d;
+  --lc-topnav-avatar-bg: #cdf0a2;
+  --lc-topnav-avatar-fg: #6bac1b;
+  --lc-topnav-hover-bg: #f5f5f4;
+  /* Account chip hover — one notch up the grey palette from the shared hover fill. */
+  --lc-topnav-account-hover-bg: #e7e5e4;
+  --lc-topnav-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  /* Fixed wordmark slot — keeps the breadcrumb start position identical across products. */
+  --lc-topnav-logo-width: 148px;
+  --lc-topnav-logo-height: 20px;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  height: var(--lc-topnav-height);
+  min-height: var(--lc-topnav-height);
+  padding: 0 16px 0 12px;
+  background: var(--lc-topnav-bg);
+  border-bottom: 1px solid var(--lc-topnav-border);
+  border-bottom-left-radius: var(--lc-topnav-radius);
+  border-bottom-right-radius: var(--lc-topnav-radius);
+  font-family: var(--lc-topnav-font-family);
+  color: var(--lc-topnav-fg);
+}
+
+.lc-topnav *,
+.lc-topnav *::before,
+.lc-topnav *::after {
+  box-sizing: border-box;
+}
+
+.lc-topnav__side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lc-topnav__side--end {
+  flex-shrink: 0;
+  justify-content: flex-end;
+}
+
+/* --- Product wordmark -------------------------------------------------- */
+.lc-topnav__logo {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  width: var(--lc-topnav-logo-width);
+  height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--lc-topnav-radius);
+  background: none;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--lc-topnav-avatar-fg);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.lc-topnav__logo--button {
+  cursor: pointer;
+}
+.lc-topnav__logo--button:hover {
+  background: var(--lc-topnav-hover-bg);
+}
+.lc-topnav__logo img,
+.lc-topnav__logo svg {
+  display: block;
+  height: var(--lc-topnav-logo-height);
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+
+/*
+ * Per-product wordmark tuning. Each asset has a different aspect ratio and
+ * internal whitespace, so a flat height makes the letterforms read at different
+ * sizes. These heights are set so the visible cap height matches across
+ * products; the class sets the custom property on the <img> itself, which the
+ * rule above resolves against.
+ */
+.lc-topnav__wordmark--campaigns {
+  --lc-topnav-logo-height: 19px;
+}
+.lc-topnav__wordmark--helpdesk {
+  --lc-topnav-logo-height: 27px;
+}
+.lc-topnav__wordmark--automation {
+  --lc-topnav-logo-height: 23px;
+  /* the "Automation" asset carries more internal top padding than the others —
+     nudge it up so the cap-top lines up with Campaigns / HelpDesk */
+  transform: translateY(-2px);
+}
+
+/* --- Breadcrumb ------------------------------------------------------- */
+.lc-topnav__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.lc-topnav__crumbs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lc-topnav__crumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.lc-topnav__crumb-link {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-topnav-fg-dimmed);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+a.lc-topnav__crumb-link:hover,
+button.lc-topnav__crumb-link:hover {
+  text-decoration: underline;
+}
+
+.lc-topnav__crumb--current .lc-topnav__crumb-link {
+  color: var(--lc-topnav-fg);
+  font-weight: 400;
+  cursor: default;
+  text-decoration: none;
+}
+
+/* Copyable crumbs (e.g. flow id) stay clickable even when they're the current crumb. */
+.lc-topnav__crumb--current .lc-topnav__crumb-link--copyable {
+  cursor: pointer;
+}
+button.lc-topnav__crumb-link--copyable:hover {
+  color: var(--lc-topnav-fg);
+  text-decoration: none;
+}
+.lc-topnav__crumb-link--copied,
+.lc-topnav__crumb-link--copied:hover {
+  color: var(--lc-topnav-avatar-fg); /* primary green #6bac1b */
+}
+
+.lc-topnav__separator {
+  width: 16px;
+  height: 16px;
+  color: var(--lc-topnav-separator);
+  flex-shrink: 0;
+}
+
+/* --- Badges --------------------------------------------------------- */
+.lc-topnav__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: var(--lc-topnav-radius);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.lc-topnav__badge--info {
+  background: var(--lc-topnav-info-badge-bg);
+  color: var(--lc-topnav-info-badge-fg);
+}
+.lc-topnav__badge--draft {
+  background: var(--lc-topnav-draft-badge-bg);
+  color: var(--lc-topnav-draft-badge-fg);
+}
+
+.lc-topnav__updated {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-topnav-updated-fg);
+  white-space: nowrap;
+}
+
+/* --- Icon button (edit pencil, apps menu) -------------------------- */
+.lc-topnav__icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--lc-topnav-radius);
+  background: transparent;
+  color: var(--lc-topnav-fg-dimmed);
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+.lc-topnav__icon-button:hover {
+  background: var(--lc-topnav-hover-bg);
+}
+.lc-topnav__icon-button:focus-visible {
+  outline: 2px solid var(--lc-topnav-avatar-fg);
+  outline-offset: 2px;
+}
+.lc-topnav__icon-button--edit {
+  width: 20px;
+  height: 20px;
+}
+.lc-topnav__icon-button--edit .lc-topnav__icon {
+  width: 14px;
+  height: 14px;
+}
+.lc-topnav__icon-button--apps {
+  width: 32px;
+  height: 32px;
+  color: var(--lc-topnav-fg-muted);
+}
+.lc-topnav__icon-button--apps .lc-topnav__icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* Product switcher popover anchored to the apps-menu button */
+.lc-topnav__apps-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.lc-topnav__apps-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 1000;
+  /* scale in from the apps-menu button it's anchored to */
+  transform-origin: top right;
+  transition: opacity 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+/* Account switcher popover anchored to the account chip */
+.lc-topnav__account-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.lc-topnav__account-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 1000;
+  /* scale in from the account chip it's anchored to */
+  transform-origin: top right;
+  transition: opacity 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+/*
+ * The anchor wrap is only as wide as the chip (~40px), so the panel's own
+ * `max-width: 100%` (relative to that positioned ancestor) would crush it.
+ * `min-width` wins over `max-width` in CSS resolution, so this restores the
+ * panel's real width regardless of stylesheet order. Compound selector also
+ * out-specifies `.lc-account-switcher`.
+ */
+.lc-account-switcher.lc-topnav__account-popover {
+  min-width: 280px;
+  max-width: none;
+}
+
+/* --- CTA controls (exported building blocks) --------------------- */
+.lc-topnav__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* match the design-system Button size="sm" used by the other CTA */
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--lc-topnav-border);
+  border-radius: var(--lc-topnav-radius);
+  background: var(--lc-topnav-bg);
+  color: var(--lc-topnav-fg);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  transition: background-color 120ms ease;
+}
+.lc-topnav__button:hover {
+  background: var(--lc-topnav-hover-bg);
+}
+.lc-topnav__button:focus-visible {
+  outline: 2px solid var(--lc-topnav-avatar-fg);
+  outline-offset: 2px;
+}
+.lc-topnav__button .lc-topnav__icon {
+  width: 16px;
+  height: 16px;
+}
+.lc-topnav__button--select {
+  font-weight: 400;
+}
+.lc-topnav__button--select .lc-topnav__button-caret {
+  color: var(--lc-topnav-fg-dimmed);
+}
+
+/* --- Account chip ---------------------------------------------------- */
+.lc-topnav__account {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  width: 142px;
+  height: 36px;
+  padding: 4px 4px 4px 12px;
+  border: 1px solid var(--lc-topnav-border);
+  border-radius: var(--lc-topnav-radius);
+  background: var(--lc-topnav-bg);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  font: inherit;
+  text-align: left;
+}
+button.lc-topnav__account {
+  cursor: pointer;
+}
+button.lc-topnav__account:hover {
+  background: var(--lc-topnav-account-hover-bg);
+}
+
+/* Compact "No name" variant (Figma node 9755:6709) — avatar only. */
+.lc-topnav__account--compact {
+  width: auto;
+  padding: 4px;
+  border-radius: 8px; /* radius/xs */
+}
+.lc-topnav__account-name {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--lc-topnav-account-fg);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* The shared <Avatar>, tinted to the account chip's green-2 chip look. */
+.lc-topnav__account-avatar {
+  --lc-avatar-light-bg: var(--lc-topnav-avatar-bg); /* #cdf0a2 */
+  --lc-avatar-fg-accent: var(--lc-topnav-avatar-fg); /* #6bac1b */
+  --lc-avatar-image-fallback: var(--lc-topnav-avatar-bg);
+}
+.lc-topnav__account-avatar .lc-avatar__initials {
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-topnav__icon-button,
+  .lc-topnav__button {
+    transition: none;
+  }
+  .lc-topnav__apps-popover,
+  .lc-topnav__account-popover {
+    transition: opacity 150ms ease;
+    transform: none;
+  }
+}
