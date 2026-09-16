@@ -1,0 +1,303 @@
+/**
+ * HelpDeskAccountSettings — Settings → Account, HelpDesk product.
+ *
+ * Same tokens/row anatomy as ProfileSettings/AccountSettings (`--lc-ps-*` /
+ * `--lc-as-*` mirrored here as `--lc-hda-*`) — two-column rows, no boxed
+ * sections, divider strokes.
+ */
+
+.lc-hda {
+  --lc-hda-border: #d9d9d9;
+  --lc-hda-divider: #ececea;
+  --lc-hda-text-title: #3c492c;
+  --lc-hda-text-dimmed: #808975;
+  --lc-hda-primary: #508014;
+  --lc-hda-required: #e0393e;
+  --lc-hda-bg-subtle: #fafaf9;
+  --lc-hda-radius: 8px;
+  --lc-hda-radius-sm: 4px;
+  --lc-hda-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --lc-hda-label-col: minmax(180px, 300px);
+
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  width: 100%;
+  max-width: 920px;
+  color: var(--lc-hda-text-title);
+  container-type: inline-size;
+}
+
+.lc-hda *,
+.lc-hda *::before,
+.lc-hda *::after {
+  box-sizing: border-box;
+}
+
+.lc-hda__section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: opacity 220ms var(--lc-hda-ease-out), transform 220ms var(--lc-hda-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-hda__section {
+    transition: opacity 180ms ease;
+    transform: none;
+  }
+}
+
+/* --- Top form fields: label above input, two per row ------------------- */
+
+.lc-hda__field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.lc-hda__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lc-hda__field--stacked {
+  max-width: 420px;
+}
+
+.lc-hda__field-label {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-hda-text-title);
+}
+
+.lc-hda__field-caption {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-hda-text-dimmed);
+}
+
+.lc-hda__required {
+  margin-right: 4px;
+  color: var(--lc-hda-required);
+  font-size: 10px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* --- Rows: label+description left, control right ------------------- */
+
+.lc-hda__row {
+  display: grid;
+  grid-template-columns: var(--lc-hda-label-col) minmax(0, 420px);
+  gap: 24px;
+  align-items: start;
+  align-self: flex-start;
+  padding: 16px 0;
+  border-top: 1px solid var(--lc-hda-divider);
+}
+
+.lc-hda__row--first {
+  border-top: none;
+  padding-top: 0;
+}
+
+.lc-hda__row--last {
+  border-bottom: 1px solid var(--lc-hda-divider);
+}
+
+.lc-hda__row-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lc-hda__label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--lc-hda-text-title);
+}
+
+.lc-hda__row-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-hda-text-dimmed);
+}
+
+.lc-hda__row-control {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 420px;
+  width: 100%;
+}
+
+/* --- Toggle rows: label left, switch pinned to the far right ----------- */
+
+.lc-hda__toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  padding: 20px 0;
+  border-top: 1px solid var(--lc-hda-divider);
+}
+
+.lc-hda__toggle-label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--lc-hda-text-title);
+  cursor: pointer;
+}
+
+.lc-hda__switch-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: #d9d9d9;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.lc-hda__switch-track[aria-checked='true'] {
+  background: var(--lc-hda-primary);
+}
+
+.lc-hda__switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease;
+}
+
+.lc-hda__switch-track[aria-checked='true'] .lc-hda__switch-thumb {
+  transform: translateX(18px);
+}
+
+.lc-hda__switch-track:focus-visible {
+  outline: 2px solid var(--lc-hda-primary);
+  outline-offset: 2px;
+}
+
+/* --- Inputs / select --------------------------------------------------- */
+
+.lc-hda__input {
+  width: 100%;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--lc-hda-border);
+  border-radius: var(--lc-hda-radius-sm);
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-hda-text-title);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.lc-hda__input::placeholder {
+  color: #8c8c8c;
+}
+
+.lc-hda__input:focus-visible {
+  outline: none;
+  border-color: var(--lc-hda-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-hda-primary) 20%, transparent);
+}
+
+.lc-hda__select-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.lc-hda__select {
+  appearance: none;
+  width: 100%;
+  height: 32px;
+  padding: 0 32px 0 12px;
+  border: 1px solid var(--lc-hda-border);
+  border-radius: var(--lc-hda-radius-sm);
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-hda-text-title);
+  cursor: pointer;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.lc-hda__select:focus-visible {
+  outline: none;
+  border-color: var(--lc-hda-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-hda-primary) 20%, transparent);
+}
+
+.lc-hda__select-wrap svg {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  color: var(--lc-hda-text-dimmed);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.lc-hda__file-types-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+  color: var(--lc-hda-primary);
+  font-weight: 600;
+  background: var(--lc-hda-bg-subtle);
+  border-color: var(--lc-hda-primary);
+}
+
+.lc-hda__file-types-btn svg {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  color: var(--lc-hda-primary);
+}
+
+/* --- Narrow containers: stack fields/rows ------------------------------- */
+
+@container (max-width: 480px) {
+  .lc-hda__field-grid {
+    grid-template-columns: 1fr;
+  }
+  .lc-hda__row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .lc-hda__row-control {
+    max-width: none;
+  }
+  .lc-hda__toggle-row {
+    align-items: flex-start;
+  }
+}
