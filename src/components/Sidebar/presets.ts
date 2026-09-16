@@ -19,7 +19,6 @@ export const helpdeskSidebar: SidebarPreset = {
   items: [
     { id: 'tickets', label: 'Tickets', icon: 'message-circle' },
     { id: 'analytics', label: 'Analytics', icon: 'chart-bar' },
-    { id: 'broadcast', label: 'Broadcast', icon: 'speakerphone' },
     { id: 'contacts', label: 'Contacts', icon: 'users' },
     { id: 'settings', label: 'Settings', icon: 'settings' },
   ],

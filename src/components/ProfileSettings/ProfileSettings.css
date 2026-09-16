@@ -1,0 +1,274 @@
+/**
+ * ProfileSettings — Settings → Profile.
+ *
+ * Two-column settings rows (label + description left, control right) —
+ * the GitHub/Stripe/Linear settings-page convention. Shares tokens with
+ * SettingsPage (`--lc-sp-*`) and Modal's field pattern so it reads as one
+ * design system rather than a bolted-on page.
+ */
+
+.lc-ps {
+  --lc-ps-border: #d9d9d9;
+  --lc-ps-divider: #ececea;
+  --lc-ps-text-title: #3c492c;
+  --lc-ps-text-dimmed: #808975;
+  --lc-ps-primary: #508014;
+  --lc-ps-bg-subtle: #fafaf9;
+  --lc-ps-radius: 8px;
+  --lc-ps-radius-sm: 4px;
+  --lc-ps-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --lc-ps-label-col: minmax(180px, 300px);
+
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  max-width: 920px;
+  color: var(--lc-ps-text-title);
+  /* the two-column row layout needs to respond to *this component's*
+     available width, not the viewport's — the settings sidebar can leave
+     it far narrower than the viewport, where a viewport media query alone
+     would never fire. */
+  container-type: inline-size;
+}
+
+.lc-ps *,
+.lc-ps *::before,
+.lc-ps *::after {
+  box-sizing: border-box;
+}
+
+.lc-ps__section {
+  display: flex;
+  flex-direction: column;
+  /* no border/box — sections are separated by rhythm (the 40px gap above)
+     rather than a stroke, so the page reads as one flowing settings page
+     instead of boxes stacked inside the SettingsPage card. */
+  /* cards settle in with a short stagger instead of popping in together —
+     matches the row-in rhythm used on every table page in this app. */
+  transition: opacity 220ms var(--lc-ps-ease-out), transform 220ms var(--lc-ps-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.lc-ps__section:nth-of-type(1) { transition-delay: 0ms; }
+.lc-ps__section:nth-of-type(2) { transition-delay: 40ms; }
+.lc-ps__section:nth-of-type(3) { transition-delay: 80ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-ps__section {
+    transition: opacity 180ms ease;
+    transition-delay: 0ms;
+    transform: none;
+  }
+}
+
+/* --- Rows: label+description left, control right ------------------- */
+
+.lc-ps__row {
+  display: grid;
+  /* capped to match .lc-ps__row-control's own max-width (420px) — otherwise
+     the row (and its border) stretches past the input into empty space. */
+  grid-template-columns: var(--lc-ps-label-col) minmax(0, 420px);
+  gap: 24px;
+  align-items: start;
+  /* .lc-ps__section is a flex column, which stretches children to its full
+     width by default — without this, the row's own box (and its border)
+     still spans the full 920px container regardless of the grid above. */
+  align-self: flex-start;
+  padding: 16px 0;
+  border-top: 1px solid var(--lc-ps-divider);
+}
+
+.lc-ps__row--first {
+  border-top: none;
+  padding-top: 0;
+}
+
+.lc-ps__row--last {
+  border-bottom: 1px solid var(--lc-ps-divider);
+}
+
+
+.lc-ps__row-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lc-ps__label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--lc-ps-text-title);
+}
+
+.lc-ps__row-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-ps-text-dimmed);
+}
+
+.lc-ps__row-control {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 420px;
+  width: 100%;
+}
+
+/* input + inline action button sharing a row (e.g. Name + Update) */
+.lc-ps__inline-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.lc-ps__inline-control .lc-ps__input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.lc-ps__inline-control .lc-btn {
+  flex-shrink: 0;
+}
+
+/* secondary icon-only action (e.g. copy) between an input and its CTA */
+.lc-ps__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lc-ps-border);
+  border-radius: var(--lc-ps-radius-sm);
+  background: #ffffff;
+  color: var(--lc-ps-text-dimmed);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease,
+    transform 140ms var(--lc-ps-ease-out);
+}
+.lc-ps__icon-btn:hover {
+  background: var(--lc-ps-bg-subtle);
+  color: var(--lc-ps-text-title);
+}
+.lc-ps__icon-btn:active {
+  transform: scale(0.94);
+}
+.lc-ps__icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* --- Inputs ----------------------------------------------------------- */
+
+.lc-ps__input {
+  width: 100%;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--lc-ps-border);
+  border-radius: var(--lc-ps-radius-sm);
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-ps-text-title);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.lc-ps__input::placeholder {
+  color: #8c8c8c;
+}
+
+.lc-ps__input:focus-visible {
+  outline: none;
+  border-color: var(--lc-ps-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-ps-primary) 20%, transparent);
+}
+
+.lc-ps__input:disabled {
+  background: var(--lc-ps-bg-subtle);
+  color: var(--lc-ps-text-dimmed);
+  cursor: not-allowed;
+}
+
+.lc-ps__input--mono {
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Section footer: primary action + inline status ------------------ */
+
+.lc-ps__section-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 20px;
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--lc-ps-divider);
+}
+.lc-ps__section-footer:empty {
+  display: none;
+}
+
+.lc-ps__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lc-ps-primary);
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 180ms var(--lc-ps-ease-out), transform 180ms var(--lc-ps-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+}
+
+.lc-ps__status[data-state='leaving'] {
+  opacity: 0;
+  transform: translateX(-4px);
+}
+
+.lc-ps__status svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-ps__status {
+    transition: opacity 180ms ease;
+    transform: none;
+  }
+  .lc-ps__status[data-state='leaving'] {
+    transform: none;
+  }
+}
+
+/* --- Narrow containers: stack label above control --------------------- */
+/* A container query (not a viewport media query) because the settings
+   sidebar can leave `.lc-ps` far narrower than the viewport itself. */
+
+@container (max-width: 480px) {
+  .lc-ps__row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .lc-ps__row-control {
+    max-width: none;
+  }
+}
