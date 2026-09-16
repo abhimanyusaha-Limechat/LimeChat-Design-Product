@@ -781,7 +781,12 @@ export function App() {
   const openBroadcastInEditor = (row: BroadcastRowData) => {
     setFlows((f) => ({
       ...f,
-      broadcast: { ...f.broadcast, name: row.name, id: row.displayId, active: row.status !== 'draft' },
+      broadcast: {
+        ...f.broadcast,
+        name: row.name,
+        id: row.displayId ?? f.broadcast.id,
+        active: row.status !== 'draft',
+      },
     }));
     setBroadcastStatus(row.status);
     setBroadcastView('canvas');

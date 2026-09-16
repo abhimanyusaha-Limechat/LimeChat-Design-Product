@@ -17,7 +17,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import { Tooltip } from '../Tooltip';
-import { FlowIcon, type FlowIconName } from './icons';
+import { FlowIcon } from './icons';
 import './FlowsHomePage.css';
 
 export type FlowTab = 'active' | 'inactive' | 'draft';
