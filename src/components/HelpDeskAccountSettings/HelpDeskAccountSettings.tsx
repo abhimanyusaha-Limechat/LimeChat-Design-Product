@@ -337,6 +337,7 @@ export function HelpDeskAccountSettings({
               const checked = selectedFileTypes.includes(opt.id);
               const children = fileTypeOptions.filter((o) => o.group === opt.id);
               const isGroup = children.length > 0;
+              const selectedChildCount = children.filter((c) => selectedFileTypes.includes(c.id)).length;
               const collapsed = collapsedFileTypeGroups.has(opt.id);
               const cls = ['lc-hda__file-type-option', opt.group && 'lc-hda__file-type-option--indent']
                 .filter(Boolean)
@@ -363,6 +364,11 @@ export function HelpDeskAccountSettings({
                     />
                     {opt.label}
                   </label>
+                  {isGroup && (
+                    <span className="lc-hda__file-type-badge" data-active={selectedChildCount > 0}>
+                      {selectedChildCount}/{children.length} selected
+                    </span>
+                  )}
                   {isGroup && (
                     <button
                       type="button"
