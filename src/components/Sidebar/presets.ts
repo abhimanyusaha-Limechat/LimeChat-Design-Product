@@ -20,6 +20,7 @@ export const helpdeskSidebar: SidebarPreset = {
     { id: 'tickets', label: 'Tickets', icon: 'message-circle' },
     { id: 'analytics', label: 'Analytics', icon: 'chart-bar' },
     { id: 'contacts', label: 'Contacts', icon: 'users' },
+    { id: 'templates', label: 'Templates', icon: 'layout' },
     { id: 'settings', label: 'Settings', icon: 'settings' },
   ],
   footerItems: [{ id: 'notifications', label: 'Notifications', icon: 'bell' }],
