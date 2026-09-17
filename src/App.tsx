@@ -54,8 +54,6 @@ const SETTINGS_TABS: SettingsTab[] = [
   { id: 'events', label: 'Events' },
   { id: 'attribution', label: 'Attribution' },
   { id: 'integrations', label: 'Integrations' },
-  { id: 'profile', label: 'Profile' },
-  { id: 'account', label: 'Account' },
 ];
 
 // HelpDesk's Settings nav is its own set entirely — ticketing/agent
@@ -75,7 +73,6 @@ const HELPDESK_SETTINGS_TABS: SettingsTab[] = [
   { id: 'hd-integration', label: 'Integration' },
   { id: 'products', label: 'Products' },
   { id: 'bot-csat', label: 'Bot CSAT' },
-  { id: 'account', label: 'Account' },
   { id: 'billing', label: 'Billing' },
 ];
 
@@ -90,6 +87,24 @@ const AUTOMATION_SETTINGS_TABS: SettingsTab[] = [
   { id: 'variable', label: 'Variable' },
   { id: 'bot-templates', label: 'Bot templates' },
 ];
+
+// Reached from the avatar popover ("Account Settings" / "Profile settings")
+// instead of the product's own Settings nav — just these two tabs.
+const USER_SETTINGS_TABS: SettingsTab[] = [
+  { id: 'account', label: 'Account settings' },
+  { id: 'profile', label: 'Profile settings' },
+];
+
+const USER_SETTINGS_COPY: Record<'account' | 'profile', { title: string; description: string }> = {
+  account: {
+    title: 'Account settings',
+    description: 'Manage account-wide settings, billing, and permissions.',
+  },
+  profile: {
+    title: 'Profile settings',
+    description: 'Manage your personal profile details and preferences.',
+  },
+};
 
 const SETTINGS_COPY: Record<string, { title: string; description: string }> = {
   inboxes: {
@@ -116,14 +131,6 @@ const SETTINGS_COPY: Record<string, { title: string; description: string }> = {
   integrations: {
     title: 'Integrations',
     description: 'Connect third-party tools and services to your workspace.',
-  },
-  profile: {
-    title: 'Profile',
-    description: 'Manage your personal profile details and preferences.',
-  },
-  account: {
-    title: 'Account',
-    description: 'Manage account-wide settings, billing, and permissions.',
   },
   'bot-brain': {
     title: 'Bot brain',
@@ -764,7 +771,14 @@ export function App() {
   const switchProduct = (next: SidebarProduct) => {
     setProduct(next);
     setSelected(sidebarPresets[next].items[0].id);
+    setUserSettingsOpen(false);
   };
+
+  // Account/Profile settings reached from the avatar popover — a dedicated
+  // page with just those two tabs, separate from the product's own (much
+  // longer) Settings nav.
+  const [userSettingsOpen, setUserSettingsOpen] = useState(false);
+  const [userSettingsTab, setUserSettingsTab] = useState<'account' | 'profile'>('account');
 
   const account = { name: 'Nonucare12', compact: true };
   const selectedLabel = preset.items.find((i) => i.id === selected)?.label ?? selected;
@@ -1034,8 +1048,38 @@ export function App() {
           setBroadcastView('list');
           setFlowsView('list');
           setSettingsTab('inboxes');
+          setUserSettingsOpen(false);
         }}
-        profile={{ name: 'Aditi Rao' }}
+        profile={{
+          name: 'Aditi Rao',
+          menuItems: [
+            {
+              id: 'profile-settings',
+              label: 'Profile settings',
+              icon: 'user',
+              onClick: () => {
+                setUserSettingsTab('profile');
+                setUserSettingsOpen(true);
+              },
+            },
+            {
+              id: 'account-settings',
+              label: 'Account Settings',
+              icon: 'settings',
+              onClick: () => {
+                setUserSettingsTab('account');
+                setUserSettingsOpen(true);
+              },
+            },
+            {
+              id: 'logout',
+              label: 'Logout',
+              icon: 'logout',
+              danger: true,
+              onClick: () => alert('Logout'),
+            },
+          ],
+        }}
         logo={{ onClick: () => switchProduct('helpdesk') }}
       />
 
@@ -1043,14 +1087,16 @@ export function App() {
         <TopNavBar
           {...TOP_NAV_BY_PRODUCT[product]()}
           breadcrumbs={
-            showCanvas
-              ? [
-                  { label: selected === 'broadcast' ? 'Broadcast' : 'Flows' },
-                  { label: curFlow.id, copyable: true },
-                ]
-              : showSettingsHome
-                ? [{ label: selectedLabel }, { label: SETTINGS_COPY[settingsTab].title }]
-                : [{ label: selectedLabel }]
+            userSettingsOpen
+              ? [{ label: USER_SETTINGS_COPY[userSettingsTab].title }]
+              : showCanvas
+                ? [
+                    { label: selected === 'broadcast' ? 'Broadcast' : 'Flows' },
+                    { label: curFlow.id, copyable: true },
+                  ]
+                : showSettingsHome
+                  ? [{ label: selectedLabel }, { label: SETTINGS_COPY[settingsTab].title }]
+                  : [{ label: selectedLabel }]
           }
           account={account}
           accountMenu={accountMenu}
@@ -1075,6 +1121,87 @@ export function App() {
             cursor: canvasCursor,
           }}
         >
+          {userSettingsOpen && (
+            <SettingsPage
+              tabs={USER_SETTINGS_TABS}
+              activeTab={userSettingsTab}
+              onTabChange={(id) => setUserSettingsTab(id as 'account' | 'profile')}
+              title={USER_SETTINGS_COPY[userSettingsTab].title}
+              description={USER_SETTINGS_COPY[userSettingsTab].description}
+            >
+              {userSettingsTab === 'profile' ? (
+                <ProfileSettings
+                  email="team@limechat.ai"
+                  name={profileName}
+                  onNameChange={setProfileName}
+                  updatingProfile={updatingProfile}
+                  onUpdateProfile={() => {
+                    setUpdatingProfile(true);
+                    window.setTimeout(() => setUpdatingProfile(false), 700);
+                  }}
+                  requestingPasswordChange={requestingPasswordChange}
+                  onRequestPasswordChange={() => {
+                    setRequestingPasswordChange(true);
+                    window.setTimeout(() => setRequestingPasswordChange(false), 700);
+                  }}
+                  apiKeyMasked={apiKeyMasked}
+                  apiKeyExpiry="Never"
+                  generatingKey={generatingKey}
+                  onGenerateKey={() => {
+                    setGeneratingKey(true);
+                    window.setTimeout(() => {
+                      setApiKeyMasked(`lcuat.${'X'.repeat(38)}`);
+                      setGeneratingKey(false);
+                    }, 700);
+                  }}
+                />
+              ) : product === 'helpdesk' ? (
+                <HelpDeskAccountSettings
+                  companyName={hdCompanyName}
+                  onCompanyNameChange={setHdCompanyName}
+                  websiteUrl={hdWebsiteUrl}
+                  onWebsiteUrlChange={setHdWebsiteUrl}
+                  currency={hdCurrency}
+                  onCurrencyChange={setHdCurrency}
+                  siteLanguageOptions={['English (En)', 'Hindi', 'Spanish']}
+                  siteLanguage={hdSiteLanguage}
+                  onSiteLanguageChange={setHdSiteLanguage}
+                  toggles={hdToggles}
+                  onToggleChange={(key, next) =>
+                    setHdToggles((prev) => ({ ...prev, [key]: next }))
+                  }
+                  selectedFileTypes={hdSelectedFileTypes}
+                  onFileTypeToggle={(id, next) =>
+                    setHdSelectedFileTypes((prev) =>
+                      next ? [...prev, id] : prev.filter((t) => t !== id),
+                    )
+                  }
+                />
+              ) : (
+                <AccountSettings
+                  id="1"
+                  crmAccountId="189"
+                  company="Limechat Development"
+                  brandSubdomain="http://links.limechat.in"
+                  uiModeOptions={['Whatsapp', 'Instagram', 'Email', 'SMS']}
+                  uiModePreference={uiModePreference}
+                  onUiModePreferenceChange={setUiModePreference}
+                  dndStartTime={dndStartTime}
+                  dndEndTime={dndEndTime}
+                  onDndStartTimeChange={setDndStartTime}
+                  onDndEndTimeChange={setDndEndTime}
+                  savingDnd={savingDnd}
+                  onSaveDnd={() => {
+                    setSavingDnd(true);
+                    window.setTimeout(() => setSavingDnd(false), 700);
+                  }}
+                />
+              )}
+            </SettingsPage>
+          )}
+
+          {!userSettingsOpen && (
+          <>
           {/* 12px inset so the canvas chrome doesn't sit flush against the shell.
               pointerEvents stays off unless the canvas is showing — otherwise this
               full-bleed absolutely-positioned div sits over later siblings (e.g. the
@@ -1330,73 +1457,6 @@ export function App() {
                     window.setTimeout(() => setInboxSyncing(false), 900);
                   }}
                 />
-              ) : settingsTab === 'profile' ? (
-                <ProfileSettings
-                  email="team@limechat.ai"
-                  name={profileName}
-                  onNameChange={setProfileName}
-                  updatingProfile={updatingProfile}
-                  onUpdateProfile={() => {
-                    setUpdatingProfile(true);
-                    window.setTimeout(() => setUpdatingProfile(false), 700);
-                  }}
-                  requestingPasswordChange={requestingPasswordChange}
-                  onRequestPasswordChange={() => {
-                    setRequestingPasswordChange(true);
-                    window.setTimeout(() => setRequestingPasswordChange(false), 700);
-                  }}
-                  apiKeyMasked={apiKeyMasked}
-                  apiKeyExpiry="Never"
-                  generatingKey={generatingKey}
-                  onGenerateKey={() => {
-                    setGeneratingKey(true);
-                    window.setTimeout(() => {
-                      setApiKeyMasked(`lcuat.${'X'.repeat(38)}`);
-                      setGeneratingKey(false);
-                    }, 700);
-                  }}
-                />
-              ) : settingsTab === 'account' && product === 'helpdesk' ? (
-                <HelpDeskAccountSettings
-                  companyName={hdCompanyName}
-                  onCompanyNameChange={setHdCompanyName}
-                  websiteUrl={hdWebsiteUrl}
-                  onWebsiteUrlChange={setHdWebsiteUrl}
-                  currency={hdCurrency}
-                  onCurrencyChange={setHdCurrency}
-                  siteLanguageOptions={['English (En)', 'Hindi', 'Spanish']}
-                  siteLanguage={hdSiteLanguage}
-                  onSiteLanguageChange={setHdSiteLanguage}
-                  toggles={hdToggles}
-                  onToggleChange={(key, next) =>
-                    setHdToggles((prev) => ({ ...prev, [key]: next }))
-                  }
-                  selectedFileTypes={hdSelectedFileTypes}
-                  onFileTypeToggle={(id, next) =>
-                    setHdSelectedFileTypes((prev) =>
-                      next ? [...prev, id] : prev.filter((t) => t !== id),
-                    )
-                  }
-                />
-              ) : settingsTab === 'account' ? (
-                <AccountSettings
-                  id="1"
-                  crmAccountId="189"
-                  company="Limechat Development"
-                  brandSubdomain="http://links.limechat.in"
-                  uiModeOptions={['Whatsapp', 'Instagram', 'Email', 'SMS']}
-                  uiModePreference={uiModePreference}
-                  onUiModePreferenceChange={setUiModePreference}
-                  dndStartTime={dndStartTime}
-                  dndEndTime={dndEndTime}
-                  onDndStartTimeChange={setDndStartTime}
-                  onDndEndTimeChange={setDndEndTime}
-                  savingDnd={savingDnd}
-                  onSaveDnd={() => {
-                    setSavingDnd(true);
-                    window.setTimeout(() => setSavingDnd(false), 700);
-                  }}
-                />
               ) : undefined}
             </SettingsPage>
           )}
@@ -1411,6 +1471,8 @@ export function App() {
                   flow-builder canvas chrome.
                 </p>
             </div>
+          )}
+          </>
           )}
         </main>
       </div>

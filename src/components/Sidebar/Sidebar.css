@@ -156,6 +156,89 @@
   --lc-avatar-fg-accent: var(--lc-sidebar-fg);
   --lc-avatar-image-fallback: var(--lc-sidebar-avatar-bg);
   font-size: 13px; /* initials a touch smaller than the DS default at this size */
+  cursor: pointer;
+}
+
+/* --- Profile popover menu ------------------------------------------------ */
+.lc-sidebar__profile-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.lc-sidebar__profile-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 188px;
+  padding: 6px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 1.5px rgba(0, 0, 0, 0.05),
+    0 20px 12.5px rgba(0, 0, 0, 0.1),
+    0 10px 5px rgba(0, 0, 0, 0.04);
+  transform-origin: bottom left;
+  transition: opacity 150ms ease, transform 150ms ease;
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+.lc-sidebar__profile-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  color: #3c492c;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+
+.lc-sidebar__profile-menu-item:hover {
+  background: #f5f5f4;
+}
+
+.lc-sidebar__profile-menu-item:active {
+  transform: scale(0.98);
+}
+
+.lc-sidebar__profile-menu-item--danger {
+  color: #e0393e;
+}
+
+.lc-sidebar__profile-menu-item--danger:hover {
+  background: color-mix(in srgb, #e0393e 8%, transparent);
+}
+
+.lc-sidebar__profile-menu-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--lc-sidebar-avatar-bg);
+}
+
+.lc-sidebar__profile-menu-item--danger .lc-sidebar__profile-menu-icon {
+  color: currentColor;
+}
+
+.lc-sidebar__profile-menu-icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
