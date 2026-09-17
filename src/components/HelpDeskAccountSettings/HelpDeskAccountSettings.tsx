@@ -220,6 +220,11 @@ export interface HelpDeskAccountSettingsProps {
   fileTypeOptions?: FileTypeOption[];
   selectedFileTypes: string[];
   onFileTypeToggle: (id: string, next: boolean) => void;
+
+  /** Company name/website/currency/site language section. Defaults to shown. */
+  showCompanyInfo?: boolean;
+  /** "Supported file types for attachments" row. Defaults to shown. */
+  showFileTypes?: boolean;
 }
 
 export function HelpDeskAccountSettings({
@@ -237,6 +242,8 @@ export function HelpDeskAccountSettings({
   fileTypeOptions = FILE_TYPE_OPTIONS,
   selectedFileTypes,
   onFileTypeToggle,
+  showCompanyInfo = true,
+  showFileTypes = true,
 }: HelpDeskAccountSettingsProps) {
   const companyId = useId();
   const websiteId = useId();
@@ -246,6 +253,7 @@ export function HelpDeskAccountSettings({
 
   return (
     <div className="lc-hda">
+      {showCompanyInfo && (
       <section className="lc-hda__section">
         <Row
           label="Company name"
@@ -313,6 +321,7 @@ export function HelpDeskAccountSettings({
           </div>
         </Row>
       </section>
+      )}
 
       <section className="lc-hda__section">
         {TOGGLE_ORDER.map((key, i) => (
@@ -322,9 +331,11 @@ export function HelpDeskAccountSettings({
             checked={toggles[key]}
             onChange={(next) => onToggleChange(key, next)}
             first={i === 0}
+            last={!showFileTypes && i === TOGGLE_ORDER.length - 1}
           />
         ))}
 
+        {showFileTypes && (
         <Row
           label="Supported file types for attachments"
           description="Only selected file types will be allowed for conversation attachments. Unsupported files will show as ‘Attachment not supported’. Leave empty to allow all file types."
@@ -393,6 +404,7 @@ export function HelpDeskAccountSettings({
             })}
           </div>
         </Row>
+        )}
       </section>
     </div>
   );
