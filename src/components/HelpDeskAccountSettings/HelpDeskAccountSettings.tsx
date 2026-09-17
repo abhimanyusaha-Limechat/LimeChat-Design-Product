@@ -18,11 +18,11 @@
  *     onSiteLanguageChange={setSiteLanguage}
  *     toggles={toggles}
  *     onToggleChange={(key, next) => ...}
- *     supportedFileTypesSummary="PDF Documents +5"
- *     onConfigureFileTypes={() => ...}
+ *     selectedFileTypes={selectedFileTypes}
+ *     onFileTypeToggle={(id, next) => ...}
  *   />
  */
-import { useId, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import './HelpDeskAccountSettings.css';
 
 const ChevronIcon = () => (
@@ -35,6 +35,7 @@ const ChevronIcon = () => (
 function Row({
   label,
   description,
+  descriptionPosition = 'label',
   htmlFor,
   required,
   first,
@@ -43,6 +44,8 @@ function Row({
 }: {
   label: string;
   description?: string;
+  /** Where the description renders — under the label (default) or under the control, as a caption. */
+  descriptionPosition?: 'label' | 'control';
   htmlFor?: string;
   /** Red dot after the label — matches the reference's required-field marker. */
   required?: boolean;
@@ -69,9 +72,12 @@ function Row({
             {label}
           </span>
         )}
-        {description && <p className="lc-hda__row-desc">{description}</p>}
+        {description && descriptionPosition === 'label' && <p className="lc-hda__row-desc">{description}</p>}
       </div>
-      <div className="lc-hda__row-control">{children}</div>
+      <div className="lc-hda__row-control">
+        {children}
+        {description && descriptionPosition === 'control' && <p className="lc-hda__row-desc">{description}</p>}
+      </div>
     </div>
   );
 }
@@ -148,6 +154,54 @@ const TOGGLE_ORDER: HelpDeskToggleKey[] = [
   'enableActionCableMonitoring',
 ];
 
+export interface FileTypeOption {
+  id: string;
+  label: string;
+  /** Nested under the `All …` option whose id this names — indented, and hidden when that group is collapsed. */
+  group?: string;
+}
+
+export const FILE_TYPE_OPTIONS: FileTypeOption[] = [
+  { id: 'allDocuments', label: 'All Documents' },
+  { id: 'pdfDocuments', label: 'PDF Documents', group: 'allDocuments' },
+  { id: 'wordDocuments', label: 'Word Documents', group: 'allDocuments' },
+  { id: 'wordDocumentsDocx', label: 'Word Documents (DOCX)', group: 'allDocuments' },
+  { id: 'excelSpreadsheets', label: 'Excel Spreadsheets', group: 'allDocuments' },
+  { id: 'excelSpreadsheetsXlsx', label: 'Excel Spreadsheets (XLSX)', group: 'allDocuments' },
+  { id: 'powerpointPresentations', label: 'PowerPoint Presentations', group: 'allDocuments' },
+  { id: 'powerpointPresentationsPptx', label: 'PowerPoint Presentations (PPTX)', group: 'allDocuments' },
+  { id: 'textFiles', label: 'Text Files', group: 'allDocuments' },
+  { id: 'csvFiles', label: 'CSV Files', group: 'allDocuments' },
+  { id: 'jsonFiles', label: 'JSON Files', group: 'allDocuments' },
+  { id: 'zipArchives', label: 'ZIP Archives', group: 'allDocuments' },
+
+  { id: 'allImages', label: 'All Images' },
+  { id: 'jpegImages', label: 'JPEG Images', group: 'allImages' },
+  { id: 'pngImages', label: 'PNG Images', group: 'allImages' },
+  { id: 'gifImages', label: 'GIF Images', group: 'allImages' },
+  { id: 'webpImages', label: 'WebP Images', group: 'allImages' },
+  { id: 'heicImages', label: 'HEIC Images', group: 'allImages' },
+  { id: 'heifImages', label: 'HEIF Images', group: 'allImages' },
+  { id: 'svgImages', label: 'SVG Images', group: 'allImages' },
+  { id: 'tiffImages', label: 'TIFF Images', group: 'allImages' },
+  { id: 'bmpImages', label: 'BMP Images', group: 'allImages' },
+
+  { id: 'allVideos', label: 'All Videos' },
+  { id: 'mp4Videos', label: 'MP4 Videos', group: 'allVideos' },
+  { id: 'threeGppVideos', label: '3GPP Videos', group: 'allVideos' },
+  { id: 'movVideos', label: 'MOV Videos', group: 'allVideos' },
+  { id: 'aviVideos', label: 'AVI Videos', group: 'allVideos' },
+  { id: 'mkvVideos', label: 'MKV Videos', group: 'allVideos' },
+  { id: 'webmVideos', label: 'WebM Videos', group: 'allVideos' },
+
+  { id: 'allAudio', label: 'All Audio' },
+  { id: 'mp3Audio', label: 'MP3 Audio', group: 'allAudio' },
+  { id: 'oggAudio', label: 'OGG Audio', group: 'allAudio' },
+  { id: 'wavAudio', label: 'WAV Audio', group: 'allAudio' },
+  { id: 'aacAudio', label: 'AAC Audio', group: 'allAudio' },
+  { id: 'flacAudio', label: 'FLAC Audio', group: 'allAudio' },
+];
+
 export interface HelpDeskAccountSettingsProps {
   companyName: string;
   onCompanyNameChange: (next: string) => void;
@@ -162,8 +216,10 @@ export interface HelpDeskAccountSettingsProps {
   toggles: Record<HelpDeskToggleKey, boolean>;
   onToggleChange: (key: HelpDeskToggleKey, next: boolean) => void;
 
-  supportedFileTypesSummary: string;
-  onConfigureFileTypes?: () => void;
+  /** Defaults to `FILE_TYPE_OPTIONS` — override only to offer a different set. */
+  fileTypeOptions?: FileTypeOption[];
+  selectedFileTypes: string[];
+  onFileTypeToggle: (id: string, next: boolean) => void;
 }
 
 export function HelpDeskAccountSettings({
@@ -178,60 +234,68 @@ export function HelpDeskAccountSettings({
   onSiteLanguageChange,
   toggles,
   onToggleChange,
-  supportedFileTypesSummary,
-  onConfigureFileTypes,
+  fileTypeOptions = FILE_TYPE_OPTIONS,
+  selectedFileTypes,
+  onFileTypeToggle,
 }: HelpDeskAccountSettingsProps) {
   const companyId = useId();
   const websiteId = useId();
   const currencyId = useId();
   const languageId = useId();
+  const [collapsedFileTypeGroups, setCollapsedFileTypeGroups] = useState<Set<string>>(new Set());
 
   return (
     <div className="lc-hda">
       <section className="lc-hda__section">
-        <div className="lc-hda__field-grid">
-          <div className="lc-hda__field">
-            <label className="lc-hda__field-label" htmlFor={companyId}>
-              <span className="lc-hda__required">•</span>Company name
-            </label>
-            <input
-              id={companyId}
-              className="lc-hda__input"
-              value={companyName}
-              onChange={(e) => onCompanyNameChange(e.currentTarget.value)}
-            />
-          </div>
-          <div className="lc-hda__field">
-            <label className="lc-hda__field-label" htmlFor={websiteId}>
-              Website url
-            </label>
-            <input
-              id={websiteId}
-              className="lc-hda__input"
-              placeholder="Your website url"
-              value={websiteUrl}
-              onChange={(e) => onWebsiteUrlChange(e.currentTarget.value)}
-            />
-          </div>
-        </div>
+        <Row
+          label="Company name"
+          htmlFor={companyId}
+          required
+          description="Shown to customers across the helpdesk."
+          first
+        >
+          <input
+            id={companyId}
+            className="lc-hda__input"
+            value={companyName}
+            onChange={(e) => onCompanyNameChange(e.currentTarget.value)}
+          />
+        </Row>
 
-        <div className="lc-hda__field lc-hda__field--stacked">
-          <label className="lc-hda__field-label" htmlFor={currencyId}>
-            <span className="lc-hda__required">•</span>Currency
-          </label>
+        <Row
+          label="Website url"
+          htmlFor={websiteId}
+          description="Shown on customer-facing pages and invoices."
+        >
+          <input
+            id={websiteId}
+            className="lc-hda__input"
+            placeholder="Your website url"
+            value={websiteUrl}
+            onChange={(e) => onWebsiteUrlChange(e.currentTarget.value)}
+          />
+        </Row>
+
+        <Row
+          label="Currency"
+          htmlFor={currencyId}
+          required
+          description="The currency your products are sold in."
+        >
           <input
             id={currencyId}
             className="lc-hda__input"
             value={currency}
             onChange={(e) => onCurrencyChange(e.currentTarget.value)}
           />
-          <p className="lc-hda__field-caption">The currency your products are sold in</p>
-        </div>
+        </Row>
 
-        <div className="lc-hda__field lc-hda__field--stacked">
-          <label className="lc-hda__field-label" htmlFor={languageId}>
-            Site language (Beta)
-          </label>
+        <Row
+          label="Site language (Beta)"
+          htmlFor={languageId}
+          description="Sets the default language for agent replies."
+          last
+        >
           <div className="lc-hda__select-wrap">
             <select
               id={languageId}
@@ -247,7 +311,7 @@ export function HelpDeskAccountSettings({
             </select>
             <ChevronIcon />
           </div>
-        </div>
+        </Row>
       </section>
 
       <section className="lc-hda__section">
@@ -261,16 +325,67 @@ export function HelpDeskAccountSettings({
           />
         ))}
 
-        <Row label="Supported file types for attachments" last>
-          <button type="button" className="lc-hda__select lc-hda__file-types-btn" onClick={onConfigureFileTypes}>
-            <span>{supportedFileTypesSummary}</span>
-            <ChevronIcon />
-          </button>
-          <p className="lc-hda__row-desc">
-            Only selected file types will be allowed for conversation attachments. Unsupported
-            files will show as &lsquo;Attachment not supported&rsquo;. Leave empty to allow all
-            file types.
-          </p>
+        <Row
+          label="Supported file types for attachments"
+          description="Only selected file types will be allowed for conversation attachments. Unsupported files will show as ‘Attachment not supported’. Leave empty to allow all file types."
+          last
+        >
+          <div className="lc-hda__file-types-list" role="group" aria-label="Supported file types for attachments">
+            {fileTypeOptions.map((opt) => {
+              if (opt.group && collapsedFileTypeGroups.has(opt.group)) return null;
+
+              const checked = selectedFileTypes.includes(opt.id);
+              const children = fileTypeOptions.filter((o) => o.group === opt.id);
+              const isGroup = children.length > 0;
+              const collapsed = collapsedFileTypeGroups.has(opt.id);
+              const cls = ['lc-hda__file-type-option', opt.group && 'lc-hda__file-type-option--indent']
+                .filter(Boolean)
+                .join(' ');
+              const rowCls = [
+                'lc-hda__file-type-row',
+                isGroup && 'lc-hda__file-type-row--group',
+                opt.group && 'lc-hda__file-type-row--child',
+              ]
+                .filter(Boolean)
+                .join(' ');
+
+              return (
+                <div key={opt.id} className={rowCls}>
+                  <label className={cls}>
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) => {
+                        const next = e.currentTarget.checked;
+                        onFileTypeToggle(opt.id, next);
+                        children.forEach((child) => onFileTypeToggle(child.id, next));
+                      }}
+                    />
+                    {opt.label}
+                  </label>
+                  {isGroup && (
+                    <button
+                      type="button"
+                      className="lc-hda__file-type-collapse"
+                      aria-expanded={!collapsed}
+                      aria-label={collapsed ? `Expand ${opt.label}` : `Collapse ${opt.label}`}
+                      data-collapsed={collapsed}
+                      onClick={() =>
+                        setCollapsedFileTypeGroups((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(opt.id)) next.delete(opt.id);
+                          else next.add(opt.id);
+                          return next;
+                        })
+                      }
+                    >
+                      <ChevronIcon />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </Row>
       </section>
     </div>
