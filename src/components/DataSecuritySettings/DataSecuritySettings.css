@@ -1,0 +1,353 @@
+/**
+ * DataSecuritySettings — Settings → Data security, HelpDesk product.
+ *
+ * List rows share the label-column/control-column anatomy of
+ * AccountSettings/ProfileSettings/HelpDeskAccountSettings (`--lc-as-*`/
+ * `--lc-hda-*` mirrored here as `--lc-dss-*`). The master "Mask message PII"
+ * row is the one switch that gates every row below it, so it breaks from
+ * that plain-row anatomy into its own highlighted card.
+ */
+
+.lc-dss {
+  --lc-dss-divider: #ececea;
+  --lc-dss-text-title: #3c492c;
+  --lc-dss-text-dimmed: #808975;
+  --lc-dss-primary: #508014;
+  --lc-dss-bg-subtle: #fafaf9;
+  --lc-dss-radius-sm: 4px;
+  --lc-dss-label-col: minmax(180px, 300px);
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 920px;
+  color: var(--lc-dss-text-title);
+  container-type: inline-size;
+}
+
+.lc-dss *,
+.lc-dss *::before,
+.lc-dss *::after {
+  box-sizing: border-box;
+}
+
+/* --- Shared row-as-button reset ------------------------------------- */
+
+.lc-dss__header-row,
+.lc-dss__list-row {
+  display: grid;
+  align-self: flex-start;
+  margin: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.lc-dss__header-row:disabled,
+.lc-dss__list-row:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.lc-dss__header-row:focus-visible,
+.lc-dss__list-row:focus-visible {
+  outline: 2px solid var(--lc-dss-primary);
+  outline-offset: 2px;
+}
+
+/* --- Master toggle: a highlighted card, not a plain row -------------- */
+
+.lc-dss__header-row {
+  grid-template-columns: auto 1fr auto;
+  align-items: flex-start;
+  width: 75%;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 28px;
+  border: 1px solid color-mix(in srgb, var(--lc-dss-primary) 30%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--lc-dss-primary) 7%, transparent);
+}
+
+.lc-dss__header-row:hover {
+  background: color-mix(in srgb, var(--lc-dss-primary) 12%, transparent);
+}
+
+.lc-dss__header-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  color: var(--lc-dss-primary);
+}
+
+.lc-dss__header-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lc-dss__header-label {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--lc-dss-text-title);
+}
+
+.lc-dss__header-desc {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-dss-text-dimmed);
+}
+
+/* --- Plain list rows -------------------------------------------------- */
+
+.lc-dss__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.lc-dss__list-row {
+  grid-template-columns: var(--lc-dss-label-col) minmax(0, 420px);
+  align-items: flex-start;
+  gap: 24px;
+  margin-inline-start: -12px;
+  padding-inline: 12px 80px;
+  padding-block: 14px;
+  border-radius: var(--lc-dss-radius-sm);
+}
+
+.lc-dss__list-row:hover {
+  background: var(--lc-dss-bg-subtle);
+}
+
+.lc-dss__list-row:disabled:hover {
+  background: none;
+}
+
+.lc-dss__select-all-row {
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--lc-dss-divider);
+}
+
+.lc-dss__list-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lc-dss__list-label {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--lc-dss-text-title);
+  transition: color 120ms ease;
+}
+
+.lc-dss__desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-dss-text-dimmed);
+}
+
+.lc-dss__list-row[aria-checked='false'] .lc-dss__list-label {
+  color: var(--lc-dss-text-dimmed);
+}
+
+/* --- Block profanity: word/phrase list ------------------------------- */
+
+.lc-dss__profanity-panel {
+  display: flex;
+  flex-direction: column;
+  width: 75%;
+  gap: 10px;
+  margin: -6px 0 14px 12px;
+  padding: 4px 0 4px 16px;
+  border-left: 2px solid var(--lc-dss-divider);
+  transition: opacity 120ms ease;
+}
+
+.lc-dss__profanity-panel[data-disabled='true'] {
+  opacity: 0.6;
+}
+
+.lc-dss__profanity-empty {
+  margin: 0;
+  padding: 10px 0;
+  font-size: 13px;
+  color: var(--lc-dss-text-dimmed);
+}
+
+.lc-dss__profanity-add {
+  display: flex;
+  gap: 8px;
+}
+
+.lc-dss__profanity-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: var(--lc-dss-radius-sm);
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--lc-dss-text-title);
+}
+
+.lc-dss__profanity-input:focus-visible {
+  outline: none;
+  border-color: var(--lc-dss-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-dss-primary) 20%, transparent);
+}
+
+.lc-dss__profanity-input:disabled {
+  cursor: not-allowed;
+  background: var(--lc-dss-bg-subtle);
+}
+
+.lc-dss__profanity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lc-dss__profanity-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: var(--lc-dss-radius-sm);
+  background: #fceaea;
+  border: 0;
+}
+
+.lc-dss__profanity-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+  color: #da1b21;
+}
+
+.lc-dss__profanity-match {
+  display: flex;
+  flex-shrink: 0;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--lc-dss-bg-subtle);
+}
+
+.lc-dss__profanity-match button {
+  border: 0;
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lc-dss-text-dimmed);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.lc-dss__profanity-match button:disabled,
+.lc-dss__profanity-remove:disabled {
+  cursor: not-allowed;
+}
+
+.lc-dss__profanity-match button[data-active='true'] {
+  background: var(--lc-dss-primary);
+  color: #ffffff;
+}
+
+.lc-dss__profanity-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--lc-dss-radius-sm);
+  background: none;
+  color: var(--lc-dss-text-dimmed);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.lc-dss__profanity-remove:hover {
+  background: color-mix(in srgb, var(--lc-dss-primary) 12%, transparent);
+  color: var(--lc-dss-primary);
+}
+
+.lc-dss__profanity-remove svg {
+  width: 14px;
+  height: 14px;
+}
+
+@container (max-width: 480px) {
+  .lc-dss__profanity-item {
+    flex-wrap: wrap;
+  }
+}
+
+@container (max-width: 480px) {
+  .lc-dss__header-row {
+    grid-template-columns: auto 1fr;
+  }
+  .lc-dss__header-row .lc-dss__switch-track {
+    grid-column: 2;
+  }
+  .lc-dss__list-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+/* --- Switch -------------------------------------------------------- */
+
+.lc-dss__switch-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: #d9d9d9;
+  transition: background-color 150ms ease;
+}
+
+.lc-dss__switch-track[data-checked='true'] {
+  background: var(--lc-dss-primary);
+}
+
+.lc-dss__switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease;
+}
+
+.lc-dss__switch-track[data-checked='true'] .lc-dss__switch-thumb {
+  transform: translateX(18px);
+}

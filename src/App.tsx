@@ -46,6 +46,7 @@ import { InboxesTable, type InboxRowData } from './components/InboxesTable';
 import { ProfileSettings } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
 import { HelpDeskAccountSettings, type HelpDeskToggleKey } from './components/HelpDeskAccountSettings';
+import { DataSecuritySettings, type PiiTypeKey, type ProfanityWord } from './components/DataSecuritySettings';
 import { TagsInput } from './components/TagsInput';
 import { Button } from './components/Button';
 
@@ -878,6 +879,25 @@ export function App() {
   });
   const [hdSelectedFileTypes, setHdSelectedFileTypes] = useState<string[]>(['pdfDocuments']);
 
+  const [dsMaskMessagePii, setDsMaskMessagePii] = useState(true);
+  const [dsPiiTypes, setDsPiiTypes] = useState<Record<PiiTypeKey, boolean>>({
+    aadhaarNumber: true,
+    panNumber: true,
+    cardNumber: true,
+    ifscCode: true,
+    bankAccountNumber: true,
+    internationalPhoneNumber: false,
+    emailAddress: false,
+    upiId: false,
+    drivingLicenceNumber: false,
+    voterId: false,
+    passportNumber: false,
+    otp: false,
+    dateOfBirth: false,
+  });
+  const [dsBlockProfanity, setDsBlockProfanity] = useState(false);
+  const [dsProfanityWords, setDsProfanityWords] = useState<ProfanityWord[]>([]);
+
   const [broadcastTab, setBroadcastTab] = useState<BroadcastTab>('triggered');
   const [broadcastSearch, setBroadcastSearch] = useState('');
   const [broadcastPage, setBroadcastPage] = useState(1);
@@ -1494,7 +1514,33 @@ export function App() {
                 ) : undefined
               }
             >
-              {settingsTab === 'inboxes' ? (
+              {settingsTab === 'data-security' ? (
+                <DataSecuritySettings
+                  maskMessagePii={dsMaskMessagePii}
+                  onMaskMessagePiiChange={setDsMaskMessagePii}
+                  piiTypes={dsPiiTypes}
+                  onPiiTypeChange={(key, next) =>
+                    setDsPiiTypes((prev) => ({ ...prev, [key]: next }))
+                  }
+                  blockProfanity={dsBlockProfanity}
+                  onBlockProfanityChange={setDsBlockProfanity}
+                  profanityWords={dsProfanityWords}
+                  onAddProfanityWord={(text) =>
+                    setDsProfanityWords((prev) => [
+                      ...prev,
+                      { id: crypto.randomUUID(), text, matchType: 'whole' },
+                    ])
+                  }
+                  onRemoveProfanityWord={(id) =>
+                    setDsProfanityWords((prev) => prev.filter((w) => w.id !== id))
+                  }
+                  onProfanityMatchTypeChange={(id, matchType) =>
+                    setDsProfanityWords((prev) =>
+                      prev.map((w) => (w.id === id ? { ...w, matchType } : w)),
+                    )
+                  }
+                />
+              ) : settingsTab === 'inboxes' ? (
                 <InboxesTable
                   inboxes={visibleInboxes}
                   searchValue={inboxSearch}
