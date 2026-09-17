@@ -786,7 +786,8 @@ export function App() {
   const showBotFlowsHome =
     product === 'automation' && selected === 'flows' && botFlowsView === 'list';
   const showSegmentsHome = product === 'marketing' && selected === 'segments';
-  const showTemplatesHome = product === 'marketing' && selected === 'templates';
+  const showTemplatesHome =
+    (product === 'marketing' || product === 'helpdesk') && selected === 'templates';
   const showSettingsHome = selected === 'settings';
   const showCanvas =
     (CANVAS_ITEMS[product] ?? []).includes(selected) &&
