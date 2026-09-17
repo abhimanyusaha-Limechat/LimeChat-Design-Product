@@ -47,6 +47,37 @@ import { ProfileSettings } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
 import { HelpDeskAccountSettings, type HelpDeskToggleKey } from './components/HelpDeskAccountSettings';
 import { DataSecuritySettings, type PiiTypeKey, type ProfanityWord } from './components/DataSecuritySettings';
+import {
+  IntegrationsHomePage,
+  type IntegrationCategory,
+  FreshdeskIcon,
+  KaptureIcon,
+  ZohoDeskIcon,
+  OnedirectIcon,
+  ZendeskIcon,
+  OdooIcon,
+  ShiprocketIcon,
+  EzyslipsIcon,
+  PickrrIcon,
+  EasyEcomIcon,
+  UnicommerceIcon,
+  ShipDelightIcon,
+  BlueDartIcon,
+  ClickPostIcon,
+  DelhiveryIcon,
+  ShopifyIcon,
+  WooCommerceIcon,
+  MagentoIcon,
+  BigCommerceIcon,
+  RazorpayIcon,
+  StripeIcon,
+  PayUIcon,
+  CashfreeIcon,
+  GoogleSheetsIcon,
+  SlackIcon,
+  WhatsAppBusinessIcon,
+  WebhookIcon,
+} from './components/IntegrationsHomePage';
 import { TagsInput } from './components/TagsInput';
 import { Button } from './components/Button';
 
@@ -84,6 +115,66 @@ const HELPDESK_SETTINGS_TABS: SettingsTab[] = [
   { id: 'products', label: 'Products' },
   { id: 'bot-csat', label: 'Bot CSAT' },
   { id: 'billing', label: 'Billing' },
+];
+
+const INTEGRATION_CATEGORIES: IntegrationCategory[] = [
+  {
+    id: 'crm-partners',
+    title: 'CRM Partners',
+    partners: [
+      { id: 'freshdesk', name: 'Freshdesk', icon: <FreshdeskIcon /> },
+      { id: 'kapture', name: 'Kapture', icon: <KaptureIcon /> },
+      { id: 'zoho-desk', name: 'Zoho Desk', icon: <ZohoDeskIcon /> },
+      { id: 'onedirect', name: 'Onedirect', icon: <OnedirectIcon /> },
+      { id: 'zendesk', name: 'Zendesk', icon: <ZendeskIcon /> },
+      { id: 'odoo', name: 'Odoo', icon: <OdooIcon /> },
+    ],
+  },
+  {
+    id: 'logistics-partners',
+    title: 'Logistics Partners',
+    partners: [
+      { id: 'shiprocket', name: 'Shiprocket', icon: <ShiprocketIcon /> },
+      { id: 'ezyslips', name: 'Ezyslips', icon: <EzyslipsIcon /> },
+      { id: 'pickrr', name: 'Pickrr', icon: <PickrrIcon /> },
+      { id: 'easyecom', name: 'EasyEcom', icon: <EasyEcomIcon /> },
+      { id: 'unicommerce', name: 'Unicommerce', icon: <UnicommerceIcon /> },
+      { id: 'shipdelight', name: 'ShipDelight', icon: <ShipDelightIcon /> },
+      { id: 'bluedart', name: 'Blue Dart', icon: <BlueDartIcon /> },
+      { id: 'clickpost', name: 'ClickPost', icon: <ClickPostIcon /> },
+      { id: 'delhivery', name: 'Delhivery', icon: <DelhiveryIcon /> },
+    ],
+  },
+  {
+    id: 'storefront-partners',
+    title: 'Storefront Partners',
+    partners: [
+      { id: 'shopify', name: 'Shopify', icon: <ShopifyIcon /> },
+      { id: 'woocommerce', name: 'WooCommerce', icon: <WooCommerceIcon /> },
+      { id: 'magento', name: 'Magento', icon: <MagentoIcon /> },
+      { id: 'bigcommerce', name: 'BigCommerce', icon: <BigCommerceIcon /> },
+    ],
+  },
+  {
+    id: 'billing-partners',
+    title: 'Billing Partners',
+    partners: [
+      { id: 'razorpay', name: 'Razorpay', icon: <RazorpayIcon /> },
+      { id: 'stripe', name: 'Stripe', icon: <StripeIcon /> },
+      { id: 'payu', name: 'PayU', icon: <PayUIcon /> },
+      { id: 'cashfree', name: 'Cashfree', icon: <CashfreeIcon /> },
+    ],
+  },
+  {
+    id: 'others',
+    title: 'Others',
+    partners: [
+      { id: 'google-sheets', name: 'Google Sheets', icon: <GoogleSheetsIcon /> },
+      { id: 'slack', name: 'Slack', icon: <SlackIcon /> },
+      { id: 'whatsapp-business', name: 'WhatsApp Business', icon: <WhatsAppBusinessIcon /> },
+      { id: 'webhook', name: 'Webhook', icon: <WebhookIcon /> },
+    ],
+  },
 ];
 
 // Automation's Settings nav is a different set entirely — no opt-out users,
@@ -1514,7 +1605,12 @@ export function App() {
                 ) : undefined
               }
             >
-              {settingsTab === 'data-security' ? (
+              {settingsTab === 'hd-integration' || settingsTab === 'integrations' ? (
+                <IntegrationsHomePage
+                  categories={INTEGRATION_CATEGORIES}
+                  onPartnerClick={(id) => alert(`Connect ${id}`)}
+                />
+              ) : settingsTab === 'data-security' ? (
                 <DataSecuritySettings
                   maskMessagePii={dsMaskMessagePii}
                   onMaskMessagePiiChange={setDsMaskMessagePii}
