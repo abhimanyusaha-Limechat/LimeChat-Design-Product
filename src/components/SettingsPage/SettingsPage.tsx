@@ -18,6 +18,8 @@ export interface SettingsPageProps {
   onTabChange: (id: string) => void;
   title: string;
   description?: string;
+  /** Rendered at the right end of the header (e.g. a Save button). */
+  headerActions?: ReactNode;
   children?: ReactNode;
 }
 
@@ -39,6 +41,7 @@ export function SettingsPage({
   onTabChange,
   title,
   description,
+  headerActions,
   children,
 }: SettingsPageProps) {
   const navScroll = useScrollFade();
@@ -64,8 +67,11 @@ export function SettingsPage({
       <div className="lc-sp__main">
         <div className="lc-sp__card">
           <div className="lc-sp__header">
-            <h1 className="lc-sp__title">{title}</h1>
-            {description && <p className="lc-sp__description">{description}</p>}
+            <div className="lc-sp__header-text">
+              <h1 className="lc-sp__title">{title}</h1>
+              {description && <p className="lc-sp__description">{description}</p>}
+            </div>
+            {headerActions && <div className="lc-sp__header-actions">{headerActions}</div>}
           </div>
           <div className="lc-sp__content" {...contentScroll}>
             {children}

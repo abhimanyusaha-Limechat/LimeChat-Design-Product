@@ -1,0 +1,251 @@
+/**
+ * TagsInput — LimeChat design system.
+ *
+ * Same tokens/anatomy as `NativeSelect` (`--lc-select-*` mirrored here as
+ * `--lc-tags-*`) so the two read as one input family.
+ */
+.lc-tags-input {
+  --lc-tags-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  --lc-tags-radius: 4px;
+  --lc-tags-border: #d9d9d9;
+  --lc-tags-bg: #ffffff;
+  --lc-tags-value: #3c492c;
+  --lc-tags-placeholder: #b3b3b3;
+  --lc-tags-icon: #8c8c8c;
+  --lc-tags-label: #3c492c;
+  --lc-tags-helper: #808975;
+  --lc-tags-focus: #6bac1b;
+  --lc-tags-pill-bg: #f5f5f4;
+  --lc-tags-pill-fg: #3c492c;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 320px;
+  max-width: 100%;
+  font-family: var(--lc-tags-font-family);
+}
+
+.lc-tags-input *,
+.lc-tags-input *::before,
+.lc-tags-input *::after {
+  box-sizing: border-box;
+}
+
+.lc-tags-input__label-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lc-tags-input__label {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-tags-label);
+}
+
+.lc-tags-input__label-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+.lc-tags-input__label-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.lc-tags-input__description {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-tags-helper);
+}
+
+.lc-tags-input__control {
+  position: relative;
+  width: 100%;
+}
+
+/* --- Horizontal layout: label left, control right --------------------- */
+.lc-tags-input[data-layout='horizontal'] {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 24px;
+  width: 100%;
+  max-width: 640px;
+}
+
+.lc-tags-input[data-layout='horizontal'] .lc-tags-input__label-col {
+  flex: 0 0 200px;
+  width: 200px;
+  padding-top: 6px;
+  overflow: hidden;
+}
+
+.lc-tags-input__label-text {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.lc-tags-input[data-layout='horizontal'] .lc-tags-input__control {
+  flex: 0 0 420px;
+  width: 420px;
+}
+
+.lc-tags-input__field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 32px 4px 8px;
+  border: 1px solid var(--lc-tags-border);
+  border-radius: var(--lc-tags-radius);
+  background: var(--lc-tags-bg);
+  cursor: text;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.lc-tags-input__field:focus-within {
+  border-color: var(--lc-tags-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-tags-focus) 20%, transparent);
+}
+
+.lc-tags-input__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 4px 0 8px;
+  border-radius: 999px;
+  background: var(--lc-tags-pill-bg);
+  color: var(--lc-tags-pill-fg);
+  font-size: 13px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.lc-tags-input__pill-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--lc-tags-helper);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.lc-tags-input__pill-remove:hover {
+  background: color-mix(in srgb, #000000 8%, transparent);
+  color: var(--lc-tags-value);
+}
+
+.lc-tags-input__pill-remove svg {
+  width: 10px;
+  height: 10px;
+}
+
+.lc-tags-input__input {
+  flex: 1 1 60px;
+  min-width: 60px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-tags-value);
+  outline: none;
+}
+
+.lc-tags-input__input::placeholder {
+  color: var(--lc-tags-placeholder);
+}
+
+.lc-tags-input__chevron {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--lc-tags-icon);
+  cursor: pointer;
+}
+
+.lc-tags-input__chevron svg {
+  width: 16px;
+  height: 16px;
+}
+
+.lc-tags-input__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  border: 1px solid var(--lc-tags-border);
+  border-radius: var(--lc-tags-radius);
+  background: #ffffff;
+  box-shadow:
+    0 1px 1.5px rgba(0, 0, 0, 0.05),
+    0 20px 12.5px rgba(0, 0, 0, 0.1),
+    0 10px 5px rgba(0, 0, 0, 0.04);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.lc-tags-input__option {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--lc-tags-value);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.lc-tags-input__option:hover {
+  background: #f5f5f4;
+}
+
+.lc-tags-input[data-disabled] .lc-tags-input__field {
+  background: #f0f0f0;
+  color: #bfbfbf;
+  cursor: not-allowed;
+}
+
+.lc-tags-input[data-disabled] .lc-tags-input__label,
+.lc-tags-input[data-disabled] .lc-tags-input__description {
+  opacity: 0.7;
+}

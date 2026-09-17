@@ -46,6 +46,15 @@ import { InboxesTable, type InboxRowData } from './components/InboxesTable';
 import { ProfileSettings } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
 import { HelpDeskAccountSettings, type HelpDeskToggleKey } from './components/HelpDeskAccountSettings';
+import { TagsInput } from './components/TagsInput';
+import { Button } from './components/Button';
+
+const WhatsAppIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9" />
+    <path d="M9 10a0.5 .5 0 0 0 1 0v-1a0.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a0.5 .5 0 0 0 0 -1h-1a0.5 .5 0 0 0 -1 0" />
+  </svg>
+);
 
 const SETTINGS_TABS: SettingsTab[] = [
   { id: 'inboxes', label: 'Inboxes' },
@@ -82,6 +91,7 @@ const AUTOMATION_SETTINGS_TABS: SettingsTab[] = [
   { id: 'bot-brain', label: 'Bot brain' },
   { id: 'bot-settings', label: 'Bot settings' },
   { id: 'inboxes', label: 'Inboxes' },
+  { id: 'bot-inbox-mapping', label: 'Bot Inbox mapping' },
   { id: 'integrations', label: 'Integrations' },
   { id: 'collaborators', label: 'Collaborators' },
   { id: 'variable', label: 'Variable' },
@@ -139,6 +149,10 @@ const SETTINGS_COPY: Record<string, { title: string; description: string }> = {
   'bot-settings': {
     title: 'Bot settings',
     description: 'Configure how your bot behaves across conversations.',
+  },
+  'bot-inbox-mapping': {
+    title: 'Bot Inbox mapping',
+    description: 'Map this bot to the inboxes it should respond in.',
   },
   collaborators: {
     title: 'Collaborators',
@@ -818,6 +832,24 @@ export function App() {
       row.name.toLowerCase().includes(inboxSearch.trim().toLowerCase()),
   );
 
+  const BOT_NAMES = [
+    'Sales Bot',
+    'FAQ',
+    'Order Tracking Assistant',
+    'Billing Helper',
+    'Onboarding Concierge',
+    'VIP Support',
+    'Lead Qualifier',
+    'Appointment Scheduler',
+    'Feedback Bot',
+    'Returns & Refunds Assistant',
+    'Multilingual Support Bot',
+  ];
+  const [botInboxMap, setBotInboxMap] = useState<Record<string, string[]>>({
+    'Sales Bot': ['Limechat (189)'],
+  });
+  const [savingBotInboxMap, setSavingBotInboxMap] = useState(false);
+
   const [profileName, setProfileName] = useState('LimeChat');
   const [updatingProfile, setUpdatingProfile] = useState(false);
   const [requestingPasswordChange, setRequestingPasswordChange] = useState(false);
@@ -1445,6 +1477,22 @@ export function App() {
               onTabChange={setSettingsTab}
               title={SETTINGS_COPY[settingsTab].title}
               description={SETTINGS_COPY[settingsTab].description}
+              headerActions={
+                settingsTab === 'bot-inbox-mapping' ? (
+                  <Button
+                    variant="filled"
+                    color="primary"
+                    size="sm"
+                    loading={savingBotInboxMap}
+                    onClick={() => {
+                      setSavingBotInboxMap(true);
+                      window.setTimeout(() => setSavingBotInboxMap(false), 700);
+                    }}
+                  >
+                    Save
+                  </Button>
+                ) : undefined
+              }
             >
               {settingsTab === 'inboxes' ? (
                 <InboxesTable
@@ -1457,6 +1505,34 @@ export function App() {
                     window.setTimeout(() => setInboxSyncing(false), 900);
                   }}
                 />
+              ) : settingsTab === 'bot-inbox-mapping' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
+                  {BOT_NAMES.map((bot, i) => (
+                    <div
+                      key={bot}
+                      style={{
+                        width: '100%',
+                        maxWidth: 640,
+                        padding: i === 0 ? '0 0 16px' : '16px 0',
+                        borderTop: i === 0 ? 'none' : '1px solid #ececea',
+                        borderBottom: i === BOT_NAMES.length - 1 ? '1px solid #ececea' : 'none',
+                      }}
+                    >
+                      <TagsInput
+                        label={bot}
+                        labelIcon={<WhatsAppIcon />}
+                        layout="horizontal"
+                        placeholder="Enter inboxes"
+                        searchPlaceholder="Search inboxes"
+                        data={INBOX_NAMES}
+                        value={botInboxMap[bot] ?? []}
+                        onChange={(next) =>
+                          setBotInboxMap((prev) => ({ ...prev, [bot]: next }))
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
               ) : undefined}
             </SettingsPage>
           )}
