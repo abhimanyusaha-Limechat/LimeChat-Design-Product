@@ -37,7 +37,6 @@
 .lc-hda__section {
   display: flex;
   flex-direction: column;
-  gap: 20px;
   transition: opacity 220ms var(--lc-hda-ease-out), transform 220ms var(--lc-hda-ease-out);
 
   @starting-style {
@@ -51,38 +50,6 @@
     transition: opacity 180ms ease;
     transform: none;
   }
-}
-
-/* --- Top form fields: label above input, two per row ------------------- */
-
-.lc-hda__field-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-
-.lc-hda__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.lc-hda__field--stacked {
-  max-width: 420px;
-}
-
-.lc-hda__field-label {
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 18px;
-  color: var(--lc-hda-text-title);
-}
-
-.lc-hda__field-caption {
-  margin: 0;
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--lc-hda-text-dimmed);
 }
 
 .lc-hda__required {
@@ -146,12 +113,12 @@
 /* --- Toggle rows: label left, switch pinned to the far right ----------- */
 
 .lc-hda__toggle-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: var(--lc-hda-label-col) minmax(0, 420px);
   align-items: center;
-  justify-content: space-between;
+  align-self: flex-start;
   gap: 24px;
-  width: 100%;
-  padding: 20px 0;
+  padding: 16px 0;
   border-top: 1px solid var(--lc-hda-divider);
 }
 
@@ -265,32 +232,115 @@
   transform: translateY(-50%);
 }
 
-.lc-hda__file-types-btn {
+.lc-hda__file-types-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--lc-hda-border);
+  border-radius: var(--lc-hda-radius-sm);
+  background: #ffffff;
+}
+
+.lc-hda__file-type-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--lc-hda-text-title);
+  cursor: pointer;
+}
+
+.lc-hda__file-type-option input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--lc-hda-primary);
+  cursor: pointer;
+}
+
+.lc-hda__file-type-option--indent {
+  padding-left: 12px;
+  color: var(--lc-hda-text-dimmed);
+}
+
+.lc-hda__file-type-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  text-align: left;
-  color: var(--lc-hda-primary);
-  font-weight: 600;
-  background: var(--lc-hda-bg-subtle);
-  border-color: var(--lc-hda-primary);
+  border-radius: var(--lc-hda-radius-sm);
+  transition: background-color 120ms ease;
 }
 
-.lc-hda__file-types-btn svg {
+.lc-hda__file-type-row:hover {
+  background: var(--lc-hda-bg-subtle);
+}
+
+.lc-hda__file-type-row .lc-hda__file-type-option {
+  flex: 1 1 0;
+}
+
+.lc-hda__file-type-row--group {
+  margin-top: 6px;
+}
+
+.lc-hda__file-type-row--group:first-child {
+  margin-top: 0;
+}
+
+.lc-hda__file-type-row--group .lc-hda__file-type-option {
+  font-weight: 600;
+}
+
+.lc-hda__file-type-row--child {
+  margin-left: 12px;
+  padding-left: 10px;
+  border-left: 1px solid var(--lc-hda-divider);
+}
+
+.lc-hda__file-type-collapse {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-right: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--lc-hda-radius-sm);
+  background: transparent;
+  color: var(--lc-hda-text-dimmed);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.lc-hda__file-type-collapse:hover {
+  background: color-mix(in srgb, var(--lc-hda-primary) 12%, transparent);
+  color: var(--lc-hda-primary);
+}
+
+.lc-hda__file-type-collapse:focus-visible {
+  outline: 2px solid var(--lc-hda-primary);
+  outline-offset: 1px;
+}
+
+.lc-hda__file-type-collapse svg {
   width: 14px;
   height: 14px;
-  color: var(--lc-hda-primary);
+  transition: transform 150ms ease;
+}
+
+.lc-hda__file-type-collapse[data-collapsed='true'] svg {
+  transform: rotate(-90deg);
 }
 
 /* --- Narrow containers: stack fields/rows ------------------------------- */
 
 @container (max-width: 480px) {
-  .lc-hda__field-grid {
-    grid-template-columns: 1fr;
-  }
-  .lc-hda__row {
+  .lc-hda__row,
+  .lc-hda__toggle-row {
     grid-template-columns: 1fr;
     gap: 8px;
   }

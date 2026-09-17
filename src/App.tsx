@@ -72,7 +72,7 @@ const HELPDESK_SETTINGS_TABS: SettingsTab[] = [
   { id: 'tags', label: 'Tags' },
   { id: 'hd-attribution', label: 'Attribution' },
   { id: 'data-security', label: 'Data security' },
-  { id: 'hd-integration', label: 'integration' },
+  { id: 'hd-integration', label: 'Integration' },
   { id: 'products', label: 'Products' },
   { id: 'bot-csat', label: 'Bot CSAT' },
   { id: 'account', label: 'Account' },
@@ -186,7 +186,7 @@ const SETTINGS_COPY: Record<string, { title: string; description: string }> = {
     description: 'Manage data retention, masking, and access controls for this account.',
   },
   'hd-integration': {
-    title: 'integration',
+    title: 'Integration',
     description: 'Connect third-party tools and services to your HelpDesk workspace.',
   },
   products: {
@@ -829,6 +829,7 @@ export function App() {
     applyPiiMasking: false,
     enableActionCableMonitoring: false,
   });
+  const [hdSelectedFileTypes, setHdSelectedFileTypes] = useState<string[]>(['pdfDocuments']);
 
   const [broadcastTab, setBroadcastTab] = useState<BroadcastTab>('triggered');
   const [broadcastSearch, setBroadcastSearch] = useState('');
@@ -1369,8 +1370,12 @@ export function App() {
                   onToggleChange={(key, next) =>
                     setHdToggles((prev) => ({ ...prev, [key]: next }))
                   }
-                  supportedFileTypesSummary="PDF Documents +5"
-                  onConfigureFileTypes={() => alert('Configure supported file types')}
+                  selectedFileTypes={hdSelectedFileTypes}
+                  onFileTypeToggle={(id, next) =>
+                    setHdSelectedFileTypes((prev) =>
+                      next ? [...prev, id] : prev.filter((t) => t !== id),
+                    )
+                  }
                 />
               ) : settingsTab === 'account' ? (
                 <AccountSettings
