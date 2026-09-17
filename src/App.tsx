@@ -1042,7 +1042,7 @@ export function App() {
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       <Sidebar
         {...preset}
-        selectedId={selected}
+        selectedId={userSettingsOpen ? undefined : selected}
         onSelect={(id) => {
           setSelected(id);
           setBroadcastView('list');
