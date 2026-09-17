@@ -27,7 +27,9 @@ export type SidebarIconName =
   | 'license'
   | 'book'
   | 'whatsapp'
-  | 'bell';
+  | 'bell'
+  | 'user'
+  | 'logout';
 
 type IconProps = SVGProps<SVGSVGElement> & { name: SidebarIconName };
 
@@ -131,6 +133,15 @@ const PATHS: Record<SidebarIconName, string[]> = {
   bell: [
     'M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6',
     'M9 17v1a3 3 0 0 0 6 0v-1',
+  ],
+  user: [
+    'M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0',
+    'M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2',
+  ],
+  logout: [
+    'M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2',
+    'M7 12h14l-3 -3',
+    'M18 15l3 -3',
   ],
 };
 

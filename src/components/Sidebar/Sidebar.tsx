@@ -10,11 +10,20 @@
  * `items`, the `selectedId`, and an `onSelect` handler (or per-item `href`s for
  * link-based routing). Product presets live in `./presets`.
  */
-import { useId, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { LimeChatLogo, SidebarIcon, type SidebarIconName } from './icons';
 import { Tooltip } from '../Tooltip';
 import { Avatar } from '../Avatar';
 import './Sidebar.css';
+
+export interface SidebarMenuItem {
+  id: string;
+  label: string;
+  icon?: SidebarIconName | ReactNode;
+  onClick?: () => void;
+  /** Renders in the destructive red treatment (e.g. Logout). */
+  danger?: boolean;
+}
 
 export interface SidebarItem {
   /** Stable identifier, also used as the selection key. */
@@ -39,7 +48,14 @@ export interface SidebarProps {
   /** Secondary actions pinned above the avatar (e.g. WhatsApp, notifications). */
   footerItems?: SidebarItem[];
   /** Signed-in user. Renders initials when `avatarUrl` is omitted. */
-  profile?: { name: string; avatarUrl?: string; onClick?: () => void };
+  profile?: {
+    name: string;
+    avatarUrl?: string;
+    /** Ignored when `menuItems` is set — the avatar opens the popover instead. */
+    onClick?: () => void;
+    /** Shown as a popover menu above the avatar when clicked (e.g. Profile settings, Account settings, Logout). */
+    menuItems?: SidebarMenuItem[];
+  };
   /** Brand-mark target. A string renders an anchor; a function renders a button. */
   logo?: { href?: string; onClick?: () => void; label?: string };
   /** Accessible name for the <nav> landmark. */
@@ -52,6 +68,26 @@ export interface SidebarProps {
 
 function renderIcon(icon: SidebarItem['icon']): ReactNode {
   return typeof icon === 'string' ? <SidebarIcon name={icon as SidebarIconName} /> : icon;
+}
+
+/** Popover menu anchored above the avatar (the rail sits at the screen edge, so it opens up + right). */
+function ProfileMenu({ items, onSelect }: { items: SidebarMenuItem[]; onSelect: (item: SidebarMenuItem) => void }) {
+  return (
+    <div className="lc-sidebar__profile-menu" role="menu" aria-label="Profile menu">
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          role="menuitem"
+          className={`lc-sidebar__profile-menu-item${item.danger ? ' lc-sidebar__profile-menu-item--danger' : ''}`}
+          onClick={() => onSelect(item)}
+        >
+          <span className="lc-sidebar__profile-menu-icon">{renderIcon(item.icon)}</span>
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 function SidebarLogo({ logo }: { logo: SidebarProps['logo'] }) {
@@ -182,6 +218,25 @@ export function Sidebar({
   style,
 }: SidebarProps) {
   const navId = useId();
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileWrapRef = useRef<HTMLDivElement>(null);
+  const hasProfileMenu = !!profile?.menuItems && profile.menuItems.length > 0;
+
+  useEffect(() => {
+    if (!profileMenuOpen) return;
+    const onDocPointer = (e: MouseEvent) => {
+      if (!profileWrapRef.current?.contains(e.target as Node)) setProfileMenuOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setProfileMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onDocPointer);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onDocPointer);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [profileMenuOpen]);
 
   return (
     <div className={`lc-sidebar${className ? ` ${className}` : ''}`} style={style}>
@@ -212,18 +267,37 @@ export function Sidebar({
           ))}
 
           {profile && (
-            <Avatar
-              className="lc-sidebar__avatar"
-              src={profile.avatarUrl}
-              alt={profile.name}
-              size="md"
-              radius="xs"
-              {...(profile.onClick
-                ? { onClick: profile.onClick, role: 'button', tabIndex: 0 }
-                : {})}
-            >
-              {profile.avatarUrl ? undefined : initials(profile.name)}
-            </Avatar>
+            <div className="lc-sidebar__profile-wrap" ref={profileWrapRef}>
+              <Avatar
+                className="lc-sidebar__avatar"
+                src={profile.avatarUrl}
+                alt={profile.name}
+                size="md"
+                radius="xs"
+                {...(hasProfileMenu
+                  ? {
+                      onClick: () => setProfileMenuOpen((o) => !o),
+                      role: 'button' as const,
+                      tabIndex: 0,
+                      'aria-haspopup': 'menu' as const,
+                      'aria-expanded': profileMenuOpen,
+                    }
+                  : profile.onClick
+                    ? { onClick: profile.onClick, role: 'button' as const, tabIndex: 0 }
+                    : {})}
+              >
+                {profile.avatarUrl ? undefined : initials(profile.name)}
+              </Avatar>
+              {hasProfileMenu && profileMenuOpen && (
+                <ProfileMenu
+                  items={profile.menuItems!}
+                  onSelect={(item) => {
+                    setProfileMenuOpen(false);
+                    item.onClick?.();
+                  }}
+                />
+              )}
+            </div>
           )}
         </div>
       )}
