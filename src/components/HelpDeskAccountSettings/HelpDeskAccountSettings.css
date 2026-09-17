@@ -265,10 +265,29 @@
   color: var(--lc-hda-text-dimmed);
 }
 
+.lc-hda__file-type-badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--lc-hda-bg-subtle);
+  color: var(--lc-hda-text-dimmed);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.lc-hda__file-type-badge[data-active='true'] {
+  background: color-mix(in srgb, var(--lc-hda-primary) 14%, transparent);
+  color: var(--lc-hda-primary);
+}
+
 .lc-hda__file-type-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   border-radius: var(--lc-hda-radius-sm);
   transition: background-color 120ms ease;
 }
