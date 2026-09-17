@@ -1,0 +1,96 @@
+/**
+ * IntegrationsHomePage — Settings → Integration, HelpDesk product.
+ *
+ * Tokens mirror SettingsPage's (`--lc-sp-*`) so section titles and tiles
+ * read as part of the same page rather than a separate design.
+ */
+
+.lc-ihp {
+  --lc-ihp-text-title: #3c492c;
+  --lc-ihp-text-dimmed: #57534e;
+  --lc-ihp-tile-bg: #f5f5f4;
+  --lc-ihp-tile-bg-hover: #ececea;
+  --lc-ihp-radius: 8px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+.lc-ihp *,
+.lc-ihp *::before,
+.lc-ihp *::after {
+  box-sizing: border-box;
+}
+
+.lc-ihp__section-title {
+  margin: 0 0 14px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-ihp-text-title);
+}
+
+.lc-ihp__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 124px));
+  gap: 16px;
+}
+
+.lc-ihp__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  aspect-ratio: 1 / 1.35;
+  padding: 32px 12px;
+  border: 0;
+  border-radius: var(--lc-ihp-radius);
+  background: var(--lc-ihp-tile-bg);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.lc-ihp__tile:hover {
+  background: var(--lc-ihp-tile-bg-hover);
+}
+
+.lc-ihp__tile:focus-visible {
+  outline: 2px solid #508014;
+  outline-offset: 2px;
+}
+
+.lc-ihp__tile-name {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--lc-ihp-text-dimmed);
+}
+
+.lc-ihp__icon-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.lc-ihp__icon-text {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 480px) {
+  .lc-ihp__grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
