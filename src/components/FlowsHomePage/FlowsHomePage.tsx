@@ -13,10 +13,11 @@
  *     onNewFlow={() => setOpen(true)}
  *   />
  */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import { Tooltip } from '../Tooltip';
+import { Menu } from '../Menu';
 import { FlowIcon } from './icons';
 import './FlowsHomePage.css';
 
@@ -162,17 +163,6 @@ export function FlowsHomePage({
   const [timeframe, setTimeframe] = useState('this-week');
   const [showRetry, setShowRetry] = useState(true);
 
-  const [reportMenuOpen, setReportMenuOpen] = useState(false);
-  const reportMenuRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!reportMenuOpen) return;
-    const onPointerDown = (e: PointerEvent) => {
-      if (!reportMenuRef.current?.contains(e.target as Node)) setReportMenuOpen(false);
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    return () => document.removeEventListener('pointerdown', onPointerDown);
-  }, [reportMenuOpen]);
-
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollTimeout = useRef<number>();
   const handleTableScroll = () => {
@@ -215,45 +205,26 @@ export function FlowsHomePage({
           />
         </div>
         <div className="lc-fh__actions">
-          <div className="lc-fh__report-wrap" ref={reportMenuRef}>
-            <Button
-              variant="default"
-              color="gray"
-              size="sm"
-              leftSection={<FlowIcon name="download" />}
-              onClick={() => setReportMenuOpen((o) => !o)}
-            >
-              Report
-            </Button>
-            {reportMenuOpen && (
-              <div className="lc-fh__report-menu" role="menu" aria-label="Report options">
-                <button
-                  type="button"
-                  role="menuitem"
-                  className="lc-fh__report-menu-item"
-                  onClick={() => {
-                    setReportMenuOpen(false);
-                    onReport?.('flow-report');
-                  }}
-                >
-                  <FlowIcon name="download" className="lc-fh__report-menu-icon" />
-                  Flow report
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  className="lc-fh__report-menu-item"
-                  onClick={() => {
-                    setReportMenuOpen(false);
-                    onReport?.('error-log');
-                  }}
-                >
-                  <FlowIcon name="alert-triangle" className="lc-fh__report-menu-icon" />
-                  Error log
-                </button>
-              </div>
+          <Menu
+            ariaLabel="Report options"
+            align="start"
+            items={[
+              { label: 'Flow report', icon: <FlowIcon name="download" />, onClick: () => onReport?.('flow-report') },
+              { label: 'Error log', icon: <FlowIcon name="alert-triangle" />, onClick: () => onReport?.('error-log') },
+            ]}
+            trigger={({ ref, onClick }) => (
+              <Button
+                ref={ref}
+                variant="default"
+                color="gray"
+                size="sm"
+                leftSection={<FlowIcon name="download" />}
+                onClick={onClick}
+              >
+                Report
+              </Button>
             )}
-          </div>
+          />
           <Button
             variant="filled"
             color="primary"

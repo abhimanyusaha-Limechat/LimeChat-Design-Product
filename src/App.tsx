@@ -1,5 +1,5 @@
 /** Demo harness for the reusable components. Not part of the published components. */
-import { useState } from 'react';
+import { useState, type ComponentProps, type ReactNode } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { sidebarPresets, type SidebarProduct } from './components/Sidebar/presets';
 import { TopNavBar } from './components/TopNavBar';
@@ -80,6 +80,14 @@ import {
 } from './components/IntegrationsHomePage';
 import { TagsInput } from './components/TagsInput';
 import { Button } from './components/Button';
+import { TicketListItem, type TicketChannel } from './components/TicketListItem';
+import { HelpdeskTicketsPage } from './components/HelpdeskTicketsPage';
+import { TicketsSection } from './components/TicketsSection';
+import { ConversationTopBar } from './components/ConversationTopBar';
+import { MessageBubble } from './components/MessageBubble';
+import { TicketComposer, type TicketComposerMode } from './components/TicketComposer';
+import { EmailMessage, EmailReplyComposer } from './components/EmailMessage';
+import { TicketDetailsPanel, type TicketDetailsSection } from './components/TicketDetailsPanel';
 
 const WhatsAppIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -859,15 +867,285 @@ const PRODUCTS: { id: SidebarProduct; label: string }[] = [
   { id: 'automation', label: 'Automation' },
 ];
 
+interface TicketRowData {
+  id: string;
+  ticketId: string;
+  channel: TicketChannel;
+  user: string;
+  phone?: string;
+  avatarCount?: number;
+  isNew?: boolean;
+  timestamp: string;
+  message: string;
+  assignee?: string;
+  unreadCount?: number;
+}
+
+interface ConversationEntry {
+  id: string;
+  side: 'agent' | 'customer';
+  quote?: { name: string; text: string };
+  text: string;
+  time: string;
+}
+
+/** Per-ticket conversation threads, keyed by ticket id — lets the two linked tickets in each
+ * channel demonstrate the same thread from an incoming (customer-first) vs. outgoing
+ * (agent-first) angle. */
+const CONVERSATIONS: Record<string, ConversationEntry[]> = {
+  't-1': [
+    { id: 'm-1', side: 'customer', text: 'Hey, is my order still on its way? It has been 3 days already.', time: '10:02' },
+    { id: 'm-2', side: 'agent', text: 'Hi John! Let me check that for you right away.', time: '10:03' },
+    { id: 'm-3', side: 'customer', text: 'Sure, thanks. Order number is #48213.', time: '10:04' },
+    { id: 'm-4', side: 'agent', text: 'Your order left the warehouse yesterday and is out for delivery today.', time: '10:06' },
+  ],
+  't-2': [
+    { id: 'm-1', side: 'agent', text: 'Hi John, just a heads up — your order #48213 is out for delivery today.', time: '10:06' },
+    {
+      id: 'm-2',
+      side: 'customer',
+      quote: { name: 'John', text: 'Hey, is my order still on its way? It has been 3 days already.' },
+      text: 'Oh perfect, thank you for the update!',
+      time: '10:08',
+    },
+    { id: 'm-3', side: 'agent', text: 'Anytime! Let us know if it does not arrive today.', time: '10:09' },
+  ],
+};
+
+interface EmailThreadEntry {
+  id: string;
+  senderName: string;
+  senderEmail: string;
+  date: string;
+  badgeLabel?: string;
+  preview: string;
+  body: ReactNode;
+  defaultExpanded?: boolean;
+}
+
+/** Per-ticket email threads, keyed by ticket id — same incoming/outgoing pairing as
+ * `CONVERSATIONS`, rendered as a stack of `EmailMessage` rows instead of chat bubbles. */
+const EMAIL_THREADS: Record<string, EmailThreadEntry[]> = {
+  't-3': [
+    {
+      id: 'e-1',
+      senderName: 'Aditi Rao',
+      senderEmail: 'aditi.rao@example.com',
+      date: 'Sep 10, 2026, 9:14 AM',
+      badgeLabel: '5 days ago',
+      preview: 'Following up on the refund request I submitted last week.',
+      body: (
+        <>
+          Hi team,
+          <br />
+          <br />
+          Following up on the refund request I submitted last week — I haven&apos;t heard back yet. Could you let me know the status?
+          <br />
+          <br />
+          Thanks,
+          <br />
+          Aditi
+        </>
+      ),
+      defaultExpanded: false,
+    },
+    {
+      id: 'e-2',
+      senderName: 'Marcus Lee',
+      senderEmail: 'marcus@limechat.io',
+      date: 'Sep 15, 2026, 9:31 AM',
+      badgeLabel: 'Today',
+      preview: 'I can confirm your refund of ₹1,200 has been processed today.',
+      body: (
+        <>
+          Hi Aditi,
+          <br />
+          <br />
+          Apologies for the delay — I can confirm your refund of ₹1,200 has been processed today. It should reflect in your account within 3-5 business days.
+          <br />
+          <br />
+          Best,
+          <br />
+          Marcus
+        </>
+      ),
+      defaultExpanded: true,
+    },
+  ],
+  't-4': [
+    {
+      id: 'e-1',
+      senderName: 'Marcus Lee',
+      senderEmail: 'marcus@limechat.io',
+      date: 'Sep 15, 2026, 9:31 AM',
+      badgeLabel: '9 minutes ago',
+      preview: 'Good news — your refund of ₹1,200 has been processed.',
+      body: (
+        <>
+          Hi Aditi,
+          <br />
+          <br />
+          Good news — your refund of ₹1,200 has been processed. It should reflect in your account within 3-5 business days.
+          <br />
+          <br />
+          Best,
+          <br />
+          Marcus
+        </>
+      ),
+      defaultExpanded: false,
+    },
+    {
+      id: 'e-2',
+      senderName: 'Aditi Rao',
+      senderEmail: 'aditi.rao@example.com',
+      date: 'Sep 15, 2026, 9:35 AM',
+      badgeLabel: 'Today',
+      preview: 'Great, thank you so much for the quick turnaround!',
+      body: (
+        <>
+          Great, thank you so much for the quick turnaround!
+          <br />
+          <br />
+          Aditi
+        </>
+      ),
+      defaultExpanded: true,
+    },
+  ],
+};
+
+/** Every `MessageBubble` variant/flag, one after another, for design review — see
+ * ticket `t-showcase` ("Design QA · All message states"). */
+const SHOWCASE_MESSAGES: Array<{ id: string } & ComponentProps<typeof MessageBubble>> = [
+  { id: 's-1', side: 'customer', variant: 'text', time: '09:00', children: 'Hey, can you help me with a few things?' },
+  { id: 's-2', side: 'agent', variant: 'text', time: '09:00', children: "Of course! Here's every message state, one by one." },
+  {
+    id: 's-3',
+    side: 'customer',
+    variant: 'quote',
+    time: '09:01',
+    quote: { name: 'Design QA', text: 'Here\'s every message state, one by one.' },
+    children: 'Perfect, starting with quote/reply.',
+  },
+  {
+    id: 's-4',
+    side: 'agent',
+    variant: 'media',
+    time: '09:01',
+    media: [{}, {}],
+  },
+  {
+    id: 's-5',
+    side: 'customer',
+    variant: 'link',
+    time: '09:02',
+    link: { title: 'LimeChat Design System', description: 'Figma file with all components', domain: 'figma.com' },
+  },
+  {
+    id: 's-6',
+    side: 'agent',
+    variant: 'attachment',
+    time: '09:02',
+    attachment: { title: 'design-states.pdf', meta: '2 pages · 66 kB', fileType: 'pdf' },
+  },
+  { id: 's-7', side: 'customer', variant: 'location', time: '09:03', location: {} },
+  {
+    id: 's-8',
+    side: 'agent',
+    variant: 'note',
+    time: '09:03',
+    onlyVisibleToMe: true,
+    note: { ticketId: '123456' },
+    children: 'Internal note — only the team can see this.',
+  },
+  {
+    id: 's-9',
+    side: 'customer',
+    variant: 'blocked',
+    time: '09:04',
+    warningLabel: 'Message blocked — flagged content',
+    children: 'stupid',
+  },
+  { id: 's-10', side: 'agent', variant: 'deleted', time: '09:04' },
+  { id: 's-11', side: 'customer', variant: 'opened', time: '09:05' },
+  { id: 's-12', side: 'agent', variant: 'viewOnce', time: '09:05', children: 'Photo' },
+  {
+    id: 's-13',
+    side: 'agent',
+    variant: 'text',
+    time: '09:06',
+    forwarded: true,
+    children: 'And this one was forwarded from another chat.',
+  },
+  {
+    id: 's-14',
+    side: 'customer',
+    variant: 'text',
+    time: '09:06',
+    reaction: { emoji: '❤️', count: 2 },
+    children: "That's the whole set — thanks!",
+  },
+];
+
+const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
+  {
+    id: 'previous-tickets',
+    label: 'Previous tickets',
+    defaultOpen: true,
+    items: [
+      { title: 'Email_Sales', timestamp: '6 months ago', preview: 'Hi, Looks like you are away from our...' },
+    ],
+  },
+  { id: 'sub-tickets', label: 'Sub tickets', emptyText: 'There are no voice logs for this customer' },
+  { id: 'voice-logs', label: 'Voice logs', emptyText: 'There are no voice logs for this customer' },
+  { id: 'conversation-fields', label: 'Conversation fields', emptyText: 'There are no fields for this customer' },
+  { id: 'contact-fields', label: 'Contact fields', emptyText: 'There are no fields for this customer' },
+  { id: 'conversation-tags', label: 'Conversation tags', emptyText: 'There are no tags for this customer' },
+  { id: 'contact-tags', label: 'Contact tags', emptyText: 'There are no tags for this customer' },
+  { id: 'shopify-tags', label: 'Shopify tags', emptyText: 'There are no tags for this customer' },
+];
+
+/** Demo tickets — t-1..t-4 are 2 linked pairs (WhatsApp incoming/outgoing, Email
+ * incoming/outgoing) that exercise both message directions; t-5..t-14 pad out the
+ * list with a variety of channels, assignees, and unread states. */
+const TICKETS: TicketRowData[] = [
+  { id: 't-1', ticketId: '100230', channel: 'whatsapp', user: 'John', phone: '98765 43210', avatarCount: 2, isNew: true, timestamp: '4 minutes ago', message: 'Hey, is my order still on its way? It has been 3 days already.', assignee: 'Jane', unreadCount: 2 },
+  { id: 't-2', ticketId: '100231', channel: 'whatsapp', user: 'John', phone: '98765 43210', avatarCount: 2, timestamp: '2 minutes ago', message: 'Anytime! Let us know if it does not arrive today.', assignee: 'Jane' },
+  { id: 't-3', ticketId: '100232', channel: 'email', user: 'Aditi Rao', timestamp: '12 minutes ago', message: 'Following up on the refund request I submitted last week.', assignee: 'Marcus', unreadCount: 1 },
+  { id: 't-4', ticketId: '100233', channel: 'email', user: 'Aditi Rao', timestamp: '9 minutes ago', message: "You're welcome! Let us know if there's anything else.", assignee: 'Marcus' },
+  { id: 't-5', ticketId: '100234', channel: 'instagram', user: 'the.skincare.edit', isNew: true, timestamp: '20 minutes ago', message: 'Do you restock the lavender candle? Sold out everywhere.', unreadCount: 3 },
+  { id: 't-6', ticketId: '100235', channel: 'sms', user: 'Rahul Verma', timestamp: '35 minutes ago', message: 'OTP did not arrive, can you resend it please?', assignee: 'Jane' },
+  { id: 't-7', ticketId: '100236', channel: 'whatsapp', user: 'Priya Nair', avatarCount: 2, timestamp: '1 hour ago', message: 'Thanks for the quick help earlier, resolved now!', assignee: 'Marcus' },
+  { id: 't-8', ticketId: '100237', channel: 'email', user: 'Support Team', timestamp: '2 hours ago', message: 'Escalation: customer requesting a callback about billing.', assignee: 'Marcus', unreadCount: 5 },
+  { id: 't-9', ticketId: '100238', channel: 'instagram', user: 'urban.threads.co', timestamp: '3 hours ago', message: 'Is the summer collection back in stock yet?', assignee: 'Jane' },
+  { id: 't-10', ticketId: '100239', channel: 'sms', user: 'Karan Mehta', isNew: true, timestamp: '4 hours ago', message: 'Package shows delivered but I never received it.', unreadCount: 1 },
+  { id: 't-11', ticketId: '100240', channel: 'whatsapp', user: 'Sneha Iyer', avatarCount: 1, timestamp: '5 hours ago', message: 'Can I exchange this for a different size?', assignee: 'Marcus' },
+  { id: 't-12', ticketId: '100241', channel: 'email', user: 'Vikram Singh', timestamp: '6 hours ago', message: 'Invoice copy needed for reimbursement, please advise.', assignee: 'Jane' },
+  { id: 't-13', ticketId: '100242', channel: 'instagram', user: 'thefitnessjourney', timestamp: '8 hours ago', message: 'Do you ship internationally to Singapore?', unreadCount: 2 },
+  { id: 't-14', ticketId: '100243', channel: 'sms', user: 'Neha Kapoor', timestamp: '1 day ago', message: 'Thanks, the replacement arrived today!', assignee: 'Marcus' },
+  {
+    id: 't-showcase',
+    ticketId: '100244',
+    channel: 'whatsapp',
+    user: 'Design QA',
+    timestamp: 'Just now',
+    message: 'All message states — for design review',
+    assignee: 'You',
+  },
+];
+
 const TOP_NAV_BY_PRODUCT = {
-  helpdesk: () =>
+  helpdesk: (selected: string) =>
     helpDeskTopNav({
       onVoiceCall: () => alert('Voice call'),
       onCreateTicket: () => alert('New ticket'),
+      showActions: selected === 'tickets',
     }),
   marketing: () => campaignsTopNav({ onChannelChange: () => alert('Pick channel') }),
   automation: () => automationTopNav({ onChannelChange: () => alert('Pick channel') }),
 } as const;
+
 
 export function App() {
   const [product, setProduct] = useState<SidebarProduct>('helpdesk');
@@ -909,6 +1187,7 @@ export function App() {
   const showTemplatesHome =
     (product === 'marketing' || product === 'helpdesk') && selected === 'templates';
   const showSettingsHome = selected === 'settings';
+  const showTicketsHome = product === 'helpdesk' && selected === 'tickets';
   const showCanvas =
     (CANVAS_ITEMS[product] ?? []).includes(selected) &&
     !showBroadcastHome &&
@@ -941,6 +1220,17 @@ export function App() {
     'Sales Bot': ['Limechat (189)'],
   });
   const [savingBotInboxMap, setSavingBotInboxMap] = useState(false);
+  const [savingHelpdeskSettings, setSavingHelpdeskSettings] = useState(false);
+  const [selectedTicketId, setSelectedTicketId] = useState(TICKETS[0].id);
+  const selectedTicket = TICKETS.find((ticket) => ticket.id === selectedTicketId);
+  const [ticketsTab, setTicketsTab] = useState('queued');
+  const [ticketsSearch, setTicketsSearch] = useState('');
+  const [composerMode, setComposerMode] = useState<TicketComposerMode>('reply');
+  const [resolveStatus, setResolveStatus] = useState('Resolve');
+  const [composerDraft, setComposerDraft] = useState('');
+  const [detailsTab, setDetailsTab] = useState('Overview');
+  const [ticketAgent, setTicketAgent] = useState('John Adams');
+  const [ticketTeam, setTicketTeam] = useState('Marketing');
 
   const [profileName, setProfileName] = useState('LimeChat');
   const [updatingProfile, setUpdatingProfile] = useState(false);
@@ -1228,7 +1518,7 @@ export function App() {
 
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, minHeight: 0 }}>
         <TopNavBar
-          {...TOP_NAV_BY_PRODUCT[product]()}
+          {...(product === 'helpdesk' ? TOP_NAV_BY_PRODUCT.helpdesk(selected) : TOP_NAV_BY_PRODUCT[product]())}
           breadcrumbs={
             userSettingsOpen
               ? [{ label: USER_SETTINGS_COPY[userSettingsTab].title }]
@@ -1237,9 +1527,11 @@ export function App() {
                     { label: selected === 'broadcast' ? 'Broadcast' : 'Flows' },
                     { label: curFlow.id, copyable: true },
                   ]
-                : showSettingsHome
-                  ? [{ label: selectedLabel }, { label: SETTINGS_COPY[settingsTab].title }]
-                  : [{ label: selectedLabel }]
+                : showTicketsHome
+                  ? [{ label: 'Tickets' }, { label: selectedTicket?.ticketId ?? '', copyable: true }]
+                  : showSettingsHome
+                    ? [{ label: selectedLabel }, { label: SETTINGS_COPY[settingsTab].title }]
+                    : [{ label: selectedLabel }]
           }
           account={account}
           accountMenu={accountMenu}
@@ -1588,16 +1880,36 @@ export function App() {
               onTabChange={setSettingsTab}
               title={SETTINGS_COPY[settingsTab].title}
               description={SETTINGS_COPY[settingsTab].description}
+              onWatchVideo={() => alert(`Play tutorial video: ${SETTINGS_COPY[settingsTab].title}`)}
+              onViewDocs={() => alert(`Open docs: ${SETTINGS_COPY[settingsTab].title}`)}
               headerActions={
                 settingsTab === 'bot-inbox-mapping' ? (
                   <Button
                     variant="filled"
                     color="primary"
                     size="sm"
+                    style={{ width: 100 }}
                     loading={savingBotInboxMap}
                     onClick={() => {
                       setSavingBotInboxMap(true);
                       window.setTimeout(() => setSavingBotInboxMap(false), 700);
+                    }}
+                  >
+                    Save
+                  </Button>
+                ) : settingsTab === 'bot-csat' ||
+                    settingsTab === 'data-security' ||
+                    settingsTab === 'hd-attribution' ||
+                    settingsTab === 'ticket-assignment' ? (
+                  <Button
+                    variant="filled"
+                    color="primary"
+                    size="sm"
+                    style={{ width: 100 }}
+                    loading={savingHelpdeskSettings}
+                    onClick={() => {
+                      setSavingHelpdeskSettings(true);
+                      window.setTimeout(() => setSavingHelpdeskSettings(false), 700);
                     }}
                   >
                     Save
@@ -1679,7 +1991,149 @@ export function App() {
             </SettingsPage>
           )}
 
-          {!showCanvas && !showBroadcastHome && !showFlowsHome && !showBotFlowsHome && !showSegmentsHome && !showTemplatesHome && !showSettingsHome && (
+          {showTicketsHome && (
+            <HelpdeskTicketsPage
+              conversationAlign={selectedTicket?.channel === 'email' ? 'start' : 'end'}
+              ticketsSection={
+                <TicketsSection
+                  status="Open"
+                  onStatusClick={() => alert('Change ticket status filter')}
+                  searchValue={ticketsSearch}
+                  onSearchChange={setTicketsSearch}
+                  onFilterClick={() => alert('Filter tickets')}
+                  onTagsClick={() => alert('Filter by tags')}
+                  dateRangeLabel="Last 7 days"
+                  onDateRangeClick={() => alert('Change date range')}
+                  inboxLabel="All inboxes"
+                  onInboxClick={() => alert('Change inbox filter')}
+                  tabs={[
+                    { id: 'mine', label: 'Mine' },
+                    { id: 'queued', label: 'Queued' },
+                    { id: 'all', label: 'All' },
+                  ]}
+                  activeTab={ticketsTab}
+                  onTabChange={setTicketsTab}
+                  sortLabel="Newly created"
+                  onSortClick={() => alert('Change sort order')}
+                  onLoadMore={() => alert('Load more tickets')}
+                >
+                  {TICKETS.map((ticket) => (
+                    <TicketListItem
+                      key={ticket.id}
+                      channel={ticket.channel}
+                      user={ticket.user}
+                      avatars={
+                        ticket.avatarCount
+                          ? Array.from({ length: Math.min(ticket.avatarCount, 3) }, () => ({}))
+                          : undefined
+                      }
+                      avatarOverflow={ticket.avatarCount && ticket.avatarCount > 3 ? ticket.avatarCount - 3 : undefined}
+                      isNew={ticket.isNew}
+                      timestamp={ticket.timestamp}
+                      message={ticket.message}
+                      assignee={ticketsTab === 'mine' ? undefined : ticket.assignee}
+                      unreadCount={ticket.unreadCount}
+                      selected={selectedTicketId === ticket.id}
+                      showCheckbox={false}
+                      onMoreActions={() => alert(`More actions: ${ticket.user}`)}
+                      onClick={() => setSelectedTicketId(ticket.id)}
+                    />
+                  ))}
+                </TicketsSection>
+              }
+              conversationTopBar={
+                <ConversationTopBar
+                  name={selectedTicket?.user ?? ''}
+                  channel={selectedTicket?.channel}
+                  isNew={selectedTicket?.isNew}
+                  phone={selectedTicket?.phone}
+                  inboxName="Inbox name"
+                  callAvailable={selectedTicket?.channel === 'whatsapp'}
+                  onCall={() => alert('Start voice call')}
+                  onResolve={() => alert('Resolve ticket')}
+                  resolveLabel={resolveStatus}
+                  onResolveStatusChange={setResolveStatus}
+                  onStarTicket={() => alert('Star mark ticket')}
+                  onMuteTicket={() => alert('Mute ticket notifications')}
+                />
+              }
+              conversation={
+                selectedTicketId === 't-showcase' ? (
+                  SHOWCASE_MESSAGES.map(({ id, ...msg }) => <MessageBubble key={id} {...msg} />)
+                ) : selectedTicket?.channel === 'email' ? (
+                  (EMAIL_THREADS[selectedTicketId] ?? []).map((email) => (
+                    <EmailMessage
+                      key={email.id}
+                      senderName={email.senderName}
+                      senderEmail={email.senderEmail}
+                      date={email.date}
+                      badgeLabel={email.badgeLabel}
+                      preview={email.preview}
+                      body={email.body}
+                      defaultExpanded={email.defaultExpanded}
+                      onMoreActions={() => alert(`More actions: ${email.senderName}`)}
+                    />
+                  ))
+                ) : (
+                  (CONVERSATIONS[selectedTicketId] ?? []).map((entry) => (
+                    <MessageBubble
+                      key={entry.id}
+                      side={entry.side}
+                      time={entry.time}
+                      status="read"
+                      variant={entry.quote ? 'quote' : 'text'}
+                      quote={entry.quote}
+                      avatar={entry.side === 'agent'}
+                      avatarInitial={selectedTicket?.assignee?.charAt(0) ?? 'A'}
+                    >
+                      {entry.text}
+                    </MessageBubble>
+                  ))
+                )
+              }
+              composer={
+                selectedTicket?.channel === 'email' ? (
+                  <EmailReplyComposer
+                    cc={[selectedTicket.user.toLowerCase().replace(' ', '.') + '@example.com']}
+                    bcc={['support@limechat.io']}
+                    value={composerDraft}
+                    onChange={setComposerDraft}
+                    onAddCc={() => alert('Add CC')}
+                    onAddBcc={() => alert('Add BCC')}
+                    onToggleAi={() => alert('Toggle AI assist')}
+                    onDelete={() => setComposerDraft('')}
+                    onReply={() => setComposerDraft('')}
+                  />
+                ) : (
+                  <TicketComposer
+                    mode={composerMode}
+                    onModeChange={setComposerMode}
+                    value={composerDraft}
+                    onChange={setComposerDraft}
+                    sendLabel={composerMode === 'template' ? 'Send' : undefined}
+                    onSend={() => setComposerDraft('')}
+                    onMic={() => alert('Record voice note')}
+                    onAttach={() => alert('Attach file')}
+                    onEmoji={() => alert('Insert emoji')}
+                  />
+                )
+              }
+              detailsPanel={
+                <TicketDetailsPanel
+                  tabs={['Overview', 'Orders', 'Products']}
+                  activeTab={detailsTab}
+                  onTabChange={setDetailsTab}
+                  ticketId={selectedTicket?.ticketId ?? ''}
+                  onCopyTicketId={() => alert('Copy ticket ID')}
+                  agent={{ value: ticketAgent, options: ['John Adams', 'Jane Doe', 'Marcus Lee'], onChange: setTicketAgent }}
+                  team={{ value: ticketTeam, options: ['Marketing', 'Support', 'Sales'], onChange: setTicketTeam }}
+                  sections={TICKET_DETAIL_SECTIONS}
+                />
+              }
+            />
+          )}
+
+          {!showCanvas && !showBroadcastHome && !showFlowsHome && !showBotFlowsHome && !showSegmentsHome && !showTemplatesHome && !showSettingsHome && !showTicketsHome && (
             <div style={{ padding: 24 }}>
                 <h1 style={{ marginTop: 0 }}>LimeChat App Shell</h1>
                 <p>Reusable rail navigation + top bar from the LimeChat Design System V3.</p>

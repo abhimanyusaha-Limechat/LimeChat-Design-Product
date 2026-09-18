@@ -1,0 +1,191 @@
+/**
+ * TicketComposer — LimeChat design system (Figma node 8985:37228 "ticket_input").
+ */
+.lc-ticket-composer {
+  --lc-tc-title: #3c492c;
+  --lc-tc-dimmed: #808975;
+  --lc-tc-primary: #6bac1b;
+  --lc-tc-primary-light: #e5f7cf;
+  --lc-tc-border: #d9d9d9;
+  --lc-tc-secondary: #097ba3;
+  --lc-tc-secondary-light: #e7f2f6;
+  --lc-tc-warning: #e8a325;
+  --lc-tc-warning-light: #faefdb;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  background: #ffffff;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.lc-ticket-composer[data-mode='note'] {
+  background: #fcf9f3;
+  border-color: var(--lc-tc-warning);
+}
+.lc-ticket-composer[data-focused]:not([data-mode='note']) {
+  border-color: var(--lc-tc-primary);
+}
+.lc-ticket-composer *,
+.lc-ticket-composer *::before,
+.lc-ticket-composer *::after {
+  box-sizing: border-box;
+}
+
+.lc-ticket-composer__input-row {
+  width: 100%;
+}
+
+.lc-ticket-composer__textarea {
+  width: 100%;
+  min-height: 32px;
+  max-height: 132px; /* 6 lines (20px line-height) + 12px vertical padding, then scrolls */
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  outline: none;
+  resize: none;
+  overflow-y: auto;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-tc-title);
+  scrollbar-width: thin;
+  scrollbar-color: #e0e0de transparent;
+}
+.lc-ticket-composer__textarea::placeholder {
+  color: var(--lc-tc-dimmed);
+}
+.lc-ticket-composer__textarea::-webkit-scrollbar {
+  width: 5px;
+}
+.lc-ticket-composer__textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+.lc-ticket-composer__textarea::-webkit-scrollbar-thumb {
+  background: #e0e0de;
+  border-radius: 4px;
+}
+.lc-ticket-composer__textarea::-webkit-scrollbar-thumb:hover {
+  background: #cfcfcc;
+}
+
+.lc-ticket-composer__options {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.lc-ticket-composer__tabs {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: fit-content;
+  padding: 3px;
+  background: #f5f6f5;
+  border: 1px solid #ebeceb;
+  border-radius: 4px;
+}
+/* Single sliding pill behind the tab labels — animates position/size instead of
+   each button popping its own background in and out, so switching modes reads
+   as one continuous movement rather than three independent state changes. */
+.lc-ticket-composer__tab-indicator {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  height: 28px;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), width 200ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 150ms ease;
+}
+.lc-ticket-composer__tab {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lc-tc-dimmed);
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+.lc-ticket-composer__tab:not([data-active]):hover {
+  color: var(--lc-tc-title);
+}
+.lc-ticket-composer__tab[data-active] {
+  color: var(--lc-tc-primary);
+}
+.lc-ticket-composer__tab[data-active][data-mode='note'] {
+  color: var(--lc-tc-warning);
+}
+
+.lc-ticket-composer__counter {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--lc-tc-secondary-light);
+  color: var(--lc-tc-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.lc-ticket-composer__end {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.lc-ticket-composer__end .lc-btn__label {
+  /* Lato (as hosted by Google Fonts) only ships 400/700/900 — 500/600 silently
+     fall back to 400 with no visible change, so 400 is used directly here. */
+  font-weight: 400;
+}
+
+.lc-ticket-composer__icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lc-ticket-composer__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #8c8c8c;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.lc-ticket-composer__icon-btn:hover {
+  background: #f3f4f3;
+}
+.lc-ticket-composer__icon-btn svg {
+  width: 16px;
+  height: 16px;
+}

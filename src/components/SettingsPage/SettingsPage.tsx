@@ -5,6 +5,8 @@
  * card on the right. `children` renders inside the card.
  */
 import { useRef, useState, type ReactNode, type UIEvent } from 'react';
+import { Button } from '../Button';
+import { Tooltip } from '../Tooltip';
 import './SettingsPage.css';
 
 export interface SettingsTab {
@@ -18,10 +20,31 @@ export interface SettingsPageProps {
   onTabChange: (id: string) => void;
   title: string;
   description?: string;
-  /** Rendered at the right end of the header (e.g. a Save button). */
+  /** "Watch video" header CTA — opens a tutorial for this settings section. Omit to hide. */
+  onWatchVideo?: () => void;
+  /** "View docs" header CTA — opens the LimeChat docs page for this settings section. Omit to hide. */
+  onViewDocs?: () => void;
+  /** Rendered at the right end of the header (e.g. a Save button), after the video/docs CTAs. */
   headerActions?: ReactNode;
   children?: ReactNode;
 }
+
+const PlayCircleIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M10 9l5 3l-5 3z" />
+  </svg>
+);
+
+const DocsIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+    <path d="M9 9h1" />
+    <path d="M9 13h6" />
+    <path d="M9 17h6" />
+  </svg>
+);
 
 /** Flags `data-scrolling` for 600ms after each scroll — same fade-in-thumb pattern as the tables. */
 function useScrollFade() {
@@ -41,6 +64,8 @@ export function SettingsPage({
   onTabChange,
   title,
   description,
+  onWatchVideo,
+  onViewDocs,
   headerActions,
   children,
 }: SettingsPageProps) {
@@ -71,7 +96,44 @@ export function SettingsPage({
               <h1 className="lc-sp__title">{title}</h1>
               {description && <p className="lc-sp__description">{description}</p>}
             </div>
-            {headerActions && <div className="lc-sp__header-actions">{headerActions}</div>}
+            {(onWatchVideo || onViewDocs || headerActions) && (
+              <div className="lc-sp__header-actions">
+                {(onWatchVideo || onViewDocs) && (
+                  <div className="lc-sp__help-ctas">
+                    {onWatchVideo && (
+                      <Tooltip label={`Learn more on ${title} on a video explainer`} position="bottom">
+                        <Button
+                          variant="light"
+                          color="primary"
+                          size="sm"
+                          leftSection={<PlayCircleIcon />}
+                          onClick={onWatchVideo}
+                        >
+                          Video
+                        </Button>
+                      </Tooltip>
+                    )}
+                    {onViewDocs && (
+                      <Tooltip label={`Learn more on ${title} on Documentation`} position="bottom">
+                        <Button
+                          variant="light"
+                          color="primary"
+                          size="sm"
+                          leftSection={<DocsIcon />}
+                          onClick={onViewDocs}
+                        >
+                          Docs
+                        </Button>
+                      </Tooltip>
+                    )}
+                  </div>
+                )}
+                {(onWatchVideo || onViewDocs) && headerActions && (
+                  <span className="lc-sp__header-divider" aria-hidden="true" />
+                )}
+                {headerActions}
+              </div>
+            )}
           </div>
           <div className="lc-sp__content" {...contentScroll}>
             {children}

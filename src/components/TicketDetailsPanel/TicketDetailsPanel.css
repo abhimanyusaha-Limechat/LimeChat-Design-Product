@@ -1,0 +1,277 @@
+/**
+ * TicketDetailsPanel — LimeChat design system (Figma node 9530:21902
+ * "right_hand_panel_conversation").
+ */
+.lc-tdp {
+  --lc-tdp-title: #3c492c;
+  --lc-tdp-dimmed: #808975;
+  --lc-tdp-primary: #6bac1b;
+  --lc-tdp-primary-light: #f1f7e9;
+  --lc-tdp-border: #d9d9d9;
+  --lc-tdp-secondary: #097ba3;
+  --lc-tdp-secondary-dark: #003b56;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 8px;
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+}
+.lc-tdp *,
+.lc-tdp *::before,
+.lc-tdp *::after {
+  box-sizing: border-box;
+}
+
+/* --- Tabs ------------------------------------------------------------ */
+.lc-tdp__tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 8px 12px 0;
+  border-bottom: 1px solid #ececea;
+}
+.lc-tdp__tab {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px 12px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 4px 4px 0 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lc-tdp-dimmed);
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.lc-tdp__tab:not([data-active]):hover {
+  background: #f3f4f3;
+  color: var(--lc-tdp-title);
+}
+.lc-tdp__tab[data-active] {
+  color: var(--lc-tdp-primary);
+  background: #fafdf6;
+  font-weight: 700;
+  border-bottom-color: var(--lc-tdp-primary);
+}
+
+.lc-tdp__body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* --- Ticket info ----------------------------------------------------- */
+.lc-tdp__info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px;
+  padding: 12px;
+  background: #f3fafd;
+  border-radius: 8px;
+}
+
+.lc-tdp__detail-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lc-tdp__detail-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--lc-tdp-secondary-dark);
+}
+.lc-tdp__detail-icon svg {
+  width: 100%;
+  height: 100%;
+}
+.lc-tdp__detail-label {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-tdp-secondary-dark);
+}
+.lc-tdp__detail-value {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #ffffff;
+  color: var(--lc-tdp-secondary-dark);
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-tdp__assignment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.lc-tdp__assignment-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-tdp-dimmed);
+  white-space: nowrap;
+}
+.lc-tdp__assignment-label .lc-tdp__detail-icon {
+  color: var(--lc-tdp-dimmed);
+}
+.lc-tdp__dot {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ececea;
+}
+.lc-tdp__assignment-select {
+  width: 180px;
+}
+
+/* --- Collapsible sections ---------------------------------------------- */
+.lc-tdp__sections {
+  display: flex;
+  flex-direction: column;
+}
+
+.lc-tdp__section {
+  background: #fafafa;
+  border-top: 1px solid #ececea;
+}
+
+.lc-tdp__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px;
+  background: #ffffff;
+}
+
+.lc-tdp__section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lc-tdp-title);
+}
+
+.lc-tdp__badge {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--lc-tdp-primary-light);
+  color: var(--lc-tdp-primary);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.lc-tdp__section-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lc-tdp__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--lc-tdp-title);
+  cursor: pointer;
+}
+.lc-tdp__icon-btn:hover {
+  background: #f3f4f3;
+}
+.lc-tdp__icon-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.lc-tdp__section-body {
+  padding: 8px;
+}
+
+.lc-tdp__empty {
+  margin: 0;
+  padding: 4px 12px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-tdp-dimmed);
+}
+
+.lc-tdp__item {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 4px;
+}
+.lc-tdp__item-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  color: var(--lc-tdp-primary);
+}
+.lc-tdp__item-icon svg {
+  width: 100%;
+  height: 100%;
+}
+.lc-tdp__item-text {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lc-tdp__item-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.lc-tdp__item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lc-tdp-title);
+}
+.lc-tdp__item-timestamp {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--lc-tdp-dimmed);
+}
+.lc-tdp__item-preview {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-tdp-dimmed);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

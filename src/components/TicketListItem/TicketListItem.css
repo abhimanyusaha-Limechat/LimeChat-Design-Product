@@ -1,0 +1,286 @@
+/**
+ * TicketListItem — LimeChat design system (Figma node 8977:4521 "tickets",
+ * Default / Hover / Selected property states).
+ *
+ * Text/sm 14/20 (dimmed #808975) · Text/xs 12/16 · heading/h5 14/18 bold
+ * (text/default #3c492c) · Text Uppercase/xxs 10/12 SemiBold (badges)
+ */
+.lc-ticket-row {
+  --lc-tr-title: #3c492c;
+  --lc-tr-dimmed: #808975;
+  --lc-tr-border: #f5f5f5;
+  --lc-tr-border-hover: #d9d9d9;
+  --lc-tr-primary: #6bac1b;
+  --lc-tr-primary-light: #f1f7e9;
+  --lc-tr-secondary: #097ba3;
+  --lc-tr-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--lc-tr-border);
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  cursor: pointer;
+  text-align: left;
+  animation: lc-tr-row-in 200ms var(--lc-tr-ease-out) both;
+}
+
+/* Same stagger pattern as the other list/table rows (Flows, Segments, Bot
+   Flows, Templates homepages) — CSS-only, no per-row inline delay in TSX. */
+@keyframes lc-tr-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.lc-ticket-row:nth-of-type(1) {
+  animation-delay: 0ms;
+}
+.lc-ticket-row:nth-of-type(2) {
+  animation-delay: 25ms;
+}
+.lc-ticket-row:nth-of-type(3) {
+  animation-delay: 50ms;
+}
+.lc-ticket-row:nth-of-type(4) {
+  animation-delay: 75ms;
+}
+.lc-ticket-row:nth-of-type(n + 5) {
+  animation-delay: 100ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-ticket-row {
+    animation: none;
+  }
+}
+
+.lc-ticket-row *,
+.lc-ticket-row *::before,
+.lc-ticket-row *::after {
+  box-sizing: border-box;
+}
+
+.lc-ticket-row:hover {
+  background: var(--lc-tr-primary-light);
+  border-bottom-color: var(--lc-tr-border-hover);
+}
+
+.lc-ticket-row[data-selected] {
+  background: var(--lc-tr-primary-light);
+  border-bottom-color: transparent;
+}
+
+.lc-ticket-row:focus-visible {
+  outline: 2px solid var(--lc-tr-primary);
+  outline-offset: -2px;
+}
+
+.lc-ticket-row__accent {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 4px;
+  background: var(--lc-tr-primary);
+}
+
+/* --- Checkbox --------------------------------------------------------- */
+.lc-ticket-row__checkbox {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid #d9d9d9;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.lc-ticket-row__checkbox[data-checked='true'] {
+  background: var(--lc-tr-primary);
+  border-color: var(--lc-tr-primary);
+}
+
+.lc-ticket-row__checkbox-icon {
+  width: 12px;
+  height: 12px;
+  color: #ffffff;
+}
+
+/* --- Body layout -------------------------------------------------------- */
+.lc-ticket-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.lc-ticket-row__header,
+.lc-ticket-row__preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* --- Identity: channel icon + name + avatars + badge -------------------- */
+.lc-ticket-row__identity {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.lc-ticket-row__channel-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  color: #8c8c8c;
+}
+.lc-ticket-row__channel-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.lc-ticket-row__user {
+  flex-shrink: 0;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-tr-title);
+}
+
+/* --- Badges ------------------------------------------------------------- */
+.lc-ticket-row__badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.lc-ticket-row__badge--count {
+  min-width: 16px;
+  justify-content: center;
+  border-radius: 100px;
+  background: var(--lc-tr-primary);
+  color: #ffffff;
+}
+
+/* --- Meta: timestamp / more-actions -------------------------------------- */
+.lc-ticket-row__meta {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 74px;
+  height: 16px;
+}
+
+.lc-ticket-row__timestamp {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-tr-dimmed);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: opacity 100ms ease;
+}
+.lc-ticket-row__timestamp[data-hidden-on-hover] {
+  position: absolute;
+  inset: 0;
+  text-align: right;
+}
+.lc-ticket-row:hover .lc-ticket-row__timestamp[data-hidden-on-hover] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lc-ticket-row__more {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border: none;
+  background: transparent;
+  color: var(--lc-tr-title);
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  transition: opacity 100ms ease;
+}
+.lc-ticket-row:hover .lc-ticket-row__more {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lc-ticket-row__more svg {
+  width: 20px;
+  height: 20px;
+}
+.lc-ticket-row__more:hover {
+  color: var(--lc-tr-primary);
+}
+
+/* --- Preview: message + assignee ----------------------------------------- */
+.lc-ticket-row__message {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.lc-ticket-row__message-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--lc-tr-dimmed);
+}
+
+.lc-ticket-row__message-text {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-tr-dimmed);
+}
+
+.lc-ticket-row__mention {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lc-ticket-row__assignee {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-tr-secondary);
+  white-space: nowrap;
+}

@@ -9,11 +9,11 @@
  *     onCreateTemplate={() => setOpen(true)}
  *   />
  */
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { createPortal } from 'react-dom';
+import { useRef, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import { Tooltip } from '../Tooltip';
+import { ActionMenu } from '../Menu';
 import { TemplateIcon } from './icons';
 import './TemplatesHomePage.css';
 
@@ -112,98 +112,16 @@ function RowActions({
   onClone?: (row: TemplateRowData) => void;
   onDelete?: (row: TemplateRowData) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    if (!open) return;
-    const reposition = () => {
-      const rect = triggerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      setCoords({ top: rect.bottom + 6, left: rect.right - 168 });
-    };
-    reposition();
-    window.addEventListener('scroll', reposition, true);
-    window.addEventListener('resize', reposition);
-    return () => {
-      window.removeEventListener('scroll', reposition, true);
-      window.removeEventListener('resize', reposition);
-    };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointerDown = (e: PointerEvent) => {
-      const target = e.target as Node;
-      if (!triggerRef.current?.contains(target) && !menuRef.current?.contains(target)) setOpen(false);
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    return () => document.removeEventListener('pointerdown', onPointerDown);
-  }, [open]);
-
   return (
-    <div className="lc-th__menu-wrap">
-      <button
-        ref={triggerRef}
-        type="button"
-        className="lc-th__action-btn"
-        aria-label="More actions"
-        onClick={() => setOpen((o) => !o)}
-      >
-        <TemplateIcon name="dots-vertical" />
-      </button>
-      {open &&
-        typeof document !== 'undefined' &&
-        createPortal(
-          <div
-            ref={menuRef}
-            className="lc-th__menu"
-            role="menu"
-            aria-label="Template actions"
-            style={coords ? { top: coords.top, left: coords.left } : { visibility: 'hidden' }}
-          >
-            <button
-              type="button"
-              role="menuitem"
-              className="lc-th__menu-item"
-              onClick={() => {
-                setOpen(false);
-                onEdit?.(row);
-              }}
-            >
-              <TemplateIcon name="edit" className="lc-th__menu-icon" />
-              Edit template
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              className="lc-th__menu-item"
-              onClick={() => {
-                setOpen(false);
-                onClone?.(row);
-              }}
-            >
-              <TemplateIcon name="copy" className="lc-th__menu-icon" />
-              Clone
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              className="lc-th__menu-item lc-th__menu-item--danger"
-              onClick={() => {
-                setOpen(false);
-                onDelete?.(row);
-              }}
-            >
-              <TemplateIcon name="trash" className="lc-th__menu-icon" />
-              Delete
-            </button>
-          </div>,
-          document.body,
-        )}
-    </div>
+    <ActionMenu
+      ariaLabel="Template actions"
+      icon={<TemplateIcon name="dots-vertical" />}
+      items={[
+        { label: 'Edit template', icon: <TemplateIcon name="edit" />, onClick: () => onEdit?.(row) },
+        { label: 'Clone', icon: <TemplateIcon name="copy" />, onClick: () => onClone?.(row) },
+        { label: 'Delete', icon: <TemplateIcon name="trash" />, danger: true, onClick: () => onDelete?.(row) },
+      ]}
+    />
   );
 }
 

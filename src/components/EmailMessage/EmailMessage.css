@@ -1,0 +1,446 @@
+/**
+ * EmailMessage / EmailReplyComposer — LimeChat design system
+ * (Figma node 9468:5662 "email-message", incl. detail-disclosure and
+ * reply-composer variants).
+ */
+.lc-email-message,
+.lc-email-reply {
+  --lc-email-title: #3c492c;
+  --lc-email-dimmed: #808975;
+  --lc-email-border: #d9d9d9;
+  --lc-email-gray-bg: #f7f8f6;
+  --lc-email-gray-light-bg: #f3f4f3;
+  --lc-email-blue: #1b83ac;
+  --lc-email-badge-bg: #f1f7e9;
+  --lc-email-badge-text: #6bac1b;
+  --lc-email-primary: #6bac1b;
+  --lc-email-star: #f2b705;
+
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* --- EmailMessage --------------------------------------------------------- */
+.lc-email-message {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 24px;
+  background: #ffffff;
+  border: 1px solid var(--lc-email-border);
+  border-radius: 12px;
+}
+
+.lc-email-message__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.lc-email-message__avatar {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lc-email-dimmed);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+}
+.lc-email-message__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lc-email-message__sender-stack {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 12px;
+}
+
+.lc-email-message__name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+}
+.lc-email-message__name {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-email-title);
+}
+.lc-email-message__email {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-email-dimmed);
+}
+
+.lc-email-message__recipient-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-email-dimmed);
+}
+.lc-email-message__preview {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-email-dimmed);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  width: 100%;
+}
+
+.lc-email-message__chevron {
+  display: inline-flex;
+  cursor: pointer;
+}
+.lc-email-message__chevron svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+  transition: transform 0.15s ease;
+}
+.lc-email-message__chevron[data-open='true'] svg {
+  transform: rotate(180deg);
+}
+
+.lc-email-message__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.lc-email-message__date {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-email-dimmed);
+  white-space: nowrap;
+}
+.lc-email-message__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--lc-email-badge-bg);
+  color: var(--lc-email-badge-text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+}
+.lc-email-message__more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  color: var(--lc-email-dimmed);
+  cursor: pointer;
+}
+.lc-email-message__more svg {
+  width: 16px;
+  height: 16px;
+}
+.lc-email-message__more:hover {
+  background: var(--lc-email-gray-light-bg);
+}
+
+/* --- Body ------------------------------------------------------------------ */
+.lc-email-message__body-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding-left: 40px;
+}
+.lc-email-message__body {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-email-title);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.lc-email-message__body p {
+  margin: 0 0 0;
+}
+
+.lc-email-message__divider {
+  width: 100%;
+  height: 1px;
+  background: var(--lc-email-border);
+}
+
+/* --- Detail disclosure ------------------------------------------------ */
+.lc-email-message__details {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--lc-email-border);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #ffffff;
+}
+.lc-email-message__detail-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 24px;
+}
+.lc-email-message__details .lc-email-message__detail-row:first-child {
+  padding-top: 16px;
+}
+.lc-email-message__details .lc-email-message__detail-row:last-child {
+  padding-bottom: 16px;
+}
+.lc-email-message__detail-label {
+  flex-shrink: 0;
+  width: 72px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--lc-email-dimmed);
+  display: flex;
+  justify-content: flex-end;
+}
+.lc-email-message__detail-value {
+  flex: 1 0 0;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--lc-email-title);
+}
+.lc-email-message__detail-value--strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+.lc-email-message__star svg {
+  width: 14px;
+  height: 14px;
+  color: var(--lc-email-star);
+}
+
+/* --- Attachments ------------------------------------------------------ */
+.lc-email-message__attachments {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lc-email-message__attachments-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  color: var(--lc-email-title);
+}
+.lc-email-message__attachments-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lc-email-message__attachment {
+  width: 160px;
+  height: 80px;
+  border-radius: 4px;
+  object-fit: cover;
+  display: block;
+}
+.lc-email-message__attachment--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef1f6;
+  color: #b7c0d8;
+}
+.lc-email-message__attachment--placeholder svg {
+  width: 28px;
+  height: 28px;
+}
+
+/* --- Quoted text -------------------------------------------------------- */
+.lc-email-message__quoted-toggle {
+  width: 100%;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  background: var(--lc-email-gray-bg);
+  color: var(--lc-email-blue);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+.lc-email-message__quoted-toggle:hover {
+  filter: brightness(0.97);
+}
+.lc-email-message__quoted-text {
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: var(--lc-email-gray-bg);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--lc-email-dimmed);
+  white-space: pre-wrap;
+}
+
+/* --- EmailReplyComposer -------------------------------------------------- */
+.lc-email-reply {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px;
+  background: #ffffff;
+  border: 2px solid var(--lc-email-primary);
+  border-radius: 8px;
+  box-shadow: 0px 7px 7px rgba(0, 0, 0, 0.04), 0px 10px 15px -5px rgba(0, 0, 0, 0.1), 0px 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.lc-email-reply__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0 4px 12px;
+  border-bottom: 1px solid var(--lc-email-border);
+}
+.lc-email-reply__recipients {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-email-title);
+  overflow: hidden;
+  white-space: nowrap;
+  min-width: 0;
+}
+.lc-email-reply__bcc-label {
+  color: var(--lc-email-dimmed);
+}
+.lc-email-reply__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.lc-email-reply__chip {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  background: var(--lc-email-gray-light-bg);
+  color: #8c8c8c;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.lc-email-reply__chip:hover {
+  filter: brightness(0.97);
+}
+
+.lc-email-reply__input-row {
+  padding: 6px 12px;
+}
+.lc-email-reply__textarea {
+  width: 100%;
+  min-height: 96px;
+  border: none;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-email-title);
+}
+.lc-email-reply__textarea::placeholder {
+  color: var(--lc-email-dimmed);
+}
+
+.lc-email-reply__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.lc-email-reply__toolbar-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.lc-email-reply__icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--lc-email-title);
+  cursor: pointer;
+}
+.lc-email-reply__icon-btn svg {
+  width: 20px;
+  height: 20px;
+}
+.lc-email-reply__icon-btn:hover {
+  background: var(--lc-email-gray-light-bg);
+}
+.lc-email-reply__ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  margin-left: 8px;
+  border: none;
+  border-radius: 4px;
+  background: var(--lc-email-badge-bg);
+  color: var(--lc-email-primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.lc-email-reply__ai-btn svg {
+  width: 16px;
+  height: 16px;
+}
+.lc-email-reply__ai-btn[data-active='true'] {
+  filter: brightness(0.97);
+}
+.lc-email-reply__send-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lc-email-reply__send-group .lc-email-reply__icon-btn {
+  width: 24px;
+  height: 24px;
+}
+.lc-email-reply__send-group .lc-email-reply__icon-btn svg {
+  width: 16px;
+  height: 16px;
+}

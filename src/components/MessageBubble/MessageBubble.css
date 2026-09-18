@@ -1,0 +1,536 @@
+/**
+ * MessageBubble — LimeChat design system (Figma node 9235:2872, both
+ * "Agent side" / "Customer side" property sets).
+ *
+ * Bubble radius/sm: 12px · nested card radius: 8px · avatar/image radius: 4px
+ * Balloon drop shadow: 0px 1px 1px rgba(0,0,0,.1), 0px 1px 1.5px rgba(0,0,0,.05)
+ * Text/sm 14/20 (title #3c492c) · Text/xxs 10/12.5 (dimmed #808975)
+ */
+.lc-message-bubble {
+  --lc-bubble-radius: 12px;
+  --lc-bubble-radius-card: 8px;
+  --lc-bubble-radius-2xs: 4px;
+  --lc-bubble-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1), 0px 1px 1.5px rgba(0, 0, 0, 0.05);
+
+  --lc-bubble-agent-bg: #e5f7cf;
+  --lc-bubble-agent-card-bg: #cdf0a2;
+  --lc-bubble-customer-bg: #ffffff;
+  --lc-bubble-customer-card-bg: #f3fafd;
+  --lc-bubble-note-bg: #faefdb;
+  --lc-bubble-blocked-bg: #fcf3f3;
+  --lc-bubble-blocked-chip-bg: #f5c7c8;
+  --lc-bubble-blocked-text: #a1171c;
+  --lc-bubble-blocked-banner-text: #da1b21;
+
+  --lc-text-title: #3c492c;
+  --lc-text-dimmed: #808975;
+  --lc-text-gray-4: #a8aca6;
+  --lc-text-secondary-alpha: rgba(0, 0, 0, 0.5);
+
+  --lc-pimask-bg: #f5f5f5;
+  --lc-pimask-border: #d9d9d9;
+  --lc-pimask-unlocked-text: #34540d;
+
+  max-width: 490px;
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+.lc-message-bubble[data-side='agent'] {
+  align-items: flex-end;
+  align-self: flex-end;
+}
+.lc-message-bubble[data-side='customer'] {
+  align-items: flex-start;
+  align-self: flex-start;
+}
+
+.lc-message-bubble__row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lc-message-bubble__avatar {
+  flex-shrink: 0;
+}
+
+.lc-message-bubble__bubble {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 6px 10px;
+  border-radius: var(--lc-bubble-radius);
+  box-shadow: var(--lc-bubble-shadow);
+  background: var(--lc-bubble-agent-bg);
+}
+[data-side='customer'] .lc-message-bubble__bubble {
+  background: var(--lc-bubble-customer-bg);
+}
+[data-variant='quote'] .lc-message-bubble__bubble,
+[data-variant='media'] .lc-message-bubble__bubble,
+[data-variant='link'] .lc-message-bubble__bubble,
+[data-variant='attachment'] .lc-message-bubble__bubble {
+  padding: 4px;
+}
+[data-variant='note'] .lc-message-bubble__bubble {
+  background: var(--lc-bubble-note-bg);
+  gap: 8px;
+  padding: 6px 10px;
+}
+[data-variant='blocked'] .lc-message-bubble__bubble {
+  background: var(--lc-bubble-blocked-bg);
+  gap: 4px;
+}
+
+/* --- Sender name (customer side) --------------------------------------- */
+.lc-message-bubble__sender {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+/* --- Banners (forwarded / notice / warning) ---------------------------- */
+.lc-message-bubble__banner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 8px;
+}
+.lc-message-bubble__banner-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+.lc-message-bubble__banner p {
+  margin: 0;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 16px;
+  white-space: nowrap;
+  color: var(--lc-text-dimmed);
+}
+.lc-message-bubble__banner[data-tone='error'] p {
+  color: var(--lc-bubble-blocked-banner-text);
+}
+
+/* --- Text content -------------------------------------------------------- */
+.lc-message-bubble__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-text-title);
+  white-space: pre-wrap;
+  word-break: break-word;
+  /* Figma's "Side padding" (50px spacer, 2px row gap) and "Bottom padding" (20px
+     spacer, 2px column gap) reserve room for the absolutely-positioned time/tick
+     footer without a separate spacer element — 52px right, 22px bottom. */
+  padding-right: 52px;
+  padding-bottom: 22px;
+}
+[data-variant='quote'] .lc-message-bubble__text {
+  padding: 2px 60px 22px 8px;
+}
+[data-variant='media'] .lc-message-bubble__text,
+[data-variant='link'] .lc-message-bubble__text,
+[data-variant='attachment'] .lc-message-bubble__text {
+  padding: 2px 8px 14px;
+}
+[data-variant='blocked'] .lc-message-bubble__text {
+  padding-right: 52px;
+  padding-bottom: 22px;
+}
+
+/* --- Footer: time + tick --------------------------------------------- */
+.lc-message-bubble__footer {
+  position: absolute;
+  right: 7px;
+  bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.lc-message-bubble__time {
+  font-size: 10px;
+  line-height: 12.5px;
+  color: var(--lc-text-dimmed);
+  white-space: nowrap;
+}
+.lc-message-bubble__tick svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  color: var(--lc-text-dimmed);
+}
+.lc-message-bubble__tick[data-status='read'] svg {
+  color: #4fa8e0;
+}
+
+/* --- Only visible to you ------------------------------------------------ */
+.lc-message-bubble__private {
+  position: absolute;
+  left: 10px;
+  bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  line-height: 12.5px;
+  color: var(--lc-text-gray-4);
+  white-space: nowrap;
+}
+.lc-message-bubble__private svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+/* --- Tail ---------------------------------------------------------------- */
+.lc-message-bubble__tail {
+  position: absolute;
+  bottom: -1px;
+  width: 15px;
+  height: 18px;
+  color: var(--lc-bubble-agent-bg);
+  right: -7px;
+  clip-path: path('M0 0 C 2 9 6 15 15 18 C 8 17 0 12 0 0 Z');
+  background: currentColor;
+}
+[data-side='customer'] .lc-message-bubble__tail {
+  right: auto;
+  left: -7px;
+  transform: scaleX(-1);
+  color: var(--lc-bubble-customer-bg);
+}
+[data-variant='note'] .lc-message-bubble__tail {
+  color: var(--lc-bubble-note-bg);
+}
+[data-variant='blocked'] .lc-message-bubble__tail {
+  color: var(--lc-bubble-blocked-bg);
+}
+
+/* --- Quote --------------------------------------------------------------- */
+.lc-message-bubble__quote {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  border-radius: var(--lc-bubble-radius-card);
+  background: var(--lc-bubble-agent-card-bg);
+}
+[data-side='customer'] .lc-message-bubble__quote {
+  background: var(--lc-bubble-customer-card-bg);
+}
+.lc-message-bubble__quote-bar {
+  flex-shrink: 0;
+  width: 4px;
+}
+.lc-message-bubble__quote-body {
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lc-message-bubble__quote-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  white-space: nowrap;
+}
+.lc-message-bubble__quote-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-text-dimmed);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Media grid ------------------------------------------------------ */
+.lc-message-bubble__media {
+  display: grid;
+  gap: 2px;
+  border-radius: var(--lc-bubble-radius-card);
+  overflow: hidden;
+}
+.lc-message-bubble__media[data-count='1'] {
+  grid-template-columns: 1fr;
+  width: 242px;
+  height: 242px;
+}
+.lc-message-bubble__media[data-count='2'],
+.lc-message-bubble__media[data-count='3'],
+.lc-message-bubble__media[data-count='4'] {
+  grid-template-columns: 1fr 1fr;
+  width: 242px;
+  height: 242px;
+}
+.lc-message-bubble__media-item {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* --- Link / attachment cards ------------------------------------------ */
+.lc-message-bubble__card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--lc-bubble-radius-card);
+  background: var(--lc-bubble-agent-card-bg);
+  min-width: 164px;
+  max-width: 279px;
+}
+[data-side='customer'] .lc-message-bubble__card {
+  background: var(--lc-bubble-customer-card-bg);
+}
+.lc-message-bubble__card--link {
+  width: 242px;
+}
+.lc-message-bubble__card--attachment {
+  width: 164px;
+}
+.lc-message-bubble__card-thumb {
+  width: 100%;
+  height: 138px;
+  object-fit: cover;
+  display: block;
+}
+.lc-message-bubble__card--attachment .lc-message-bubble__card-thumb {
+  height: 93px;
+}
+.lc-message-bubble__card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.lc-message-bubble__card--link .lc-message-bubble__card-body {
+  padding: 8px 8px 12px;
+}
+.lc-message-bubble__card-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  color: var(--lc-text-title);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lc-message-bubble__card-desc,
+.lc-message-bubble__card-meta {
+  margin: 0;
+  font-size: 10px;
+  line-height: 12.5px;
+  color: var(--lc-text-dimmed);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lc-message-bubble__card-file {
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+  padding: 8px 10px 12px;
+}
+.lc-message-bubble__doc-icon {
+  flex-shrink: 0;
+  width: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #eb362b;
+}
+.lc-message-bubble__doc-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.lc-message-bubble__doc-icon span {
+  font-size: 8px;
+  text-transform: uppercase;
+}
+
+/* --- Location ------------------------------------------------------------ */
+.lc-message-bubble__location {
+  width: 279px;
+  height: 157px;
+  border-radius: var(--lc-bubble-radius-2xs);
+  object-fit: cover;
+  display: block;
+}
+
+/* --- Thumbnail placeholder (used when no `src` supplied) --------------- */
+.lc-message-bubble__thumb-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef1f6;
+  color: #b7c0d8;
+}
+.lc-message-bubble__thumb-placeholder svg {
+  width: 32%;
+  height: 32%;
+}
+
+/* --- System states (deleted / opened / view-once) ---------------------- */
+.lc-message-bubble__system {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding-right: 46px;
+  padding-bottom: 14px;
+}
+.lc-message-bubble__system svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--lc-text-dimmed);
+}
+.lc-message-bubble__system p {
+  margin: 0;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 16px;
+  color: var(--lc-text-dimmed);
+  white-space: nowrap;
+}
+.lc-message-bubble__system--title p {
+  font-style: normal;
+  color: var(--lc-text-title);
+}
+
+/* --- Private note --------------------------------------------------------- */
+.lc-message-bubble__note-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 16px;
+  color: var(--lc-text-title);
+}
+.lc-message-bubble__note-header svg {
+  width: 16px;
+  height: 16px;
+  color: var(--lc-text-title);
+}
+.lc-message-bubble__note-header > span:first-of-type {
+  font-style: italic;
+  white-space: nowrap;
+}
+.lc-message-bubble__note-divider {
+  align-self: stretch;
+  width: 1px;
+  background: #cfd1cd;
+}
+.lc-message-bubble__note-header span:last-child {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.lc-message-bubble__note-text {
+  margin: 0;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 20px;
+  color: var(--lc-text-dimmed);
+}
+
+/* --- Blocked / profane ----------------------------------------------------- */
+.lc-message-bubble__profane {
+  padding: 0 2px;
+  background: var(--lc-bubble-blocked-chip-bg);
+  color: var(--lc-bubble-blocked-text);
+  font-size: 14px;
+  line-height: 20px;
+}
+[data-variant='blocked'] .lc-message-bubble__text {
+  color: var(--lc-text-title);
+}
+
+/* --- PI masking chip ------------------------------------------------------ */
+.lc-message-bubble__pi-mask {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 4px 6px;
+  border-radius: var(--lc-bubble-radius-2xs);
+  border: none;
+  background: var(--lc-pimask-bg);
+  cursor: pointer;
+  vertical-align: middle;
+}
+.lc-message-bubble__pi-mask:hover {
+  filter: brightness(0.97);
+}
+.lc-message-bubble__pi-mask svg {
+  width: 12px;
+  height: 12px;
+  color: var(--lc-text-title);
+}
+.lc-message-bubble__pi-mask-dots {
+  display: inline-block;
+  width: 96px;
+  height: 4.5px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(to right, var(--lc-text-gray-4) 0 3px, transparent 3px 6px);
+}
+.lc-message-bubble__pi-mask--unlocked {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 4px 6px;
+  border-radius: var(--lc-bubble-radius-2xs);
+  background: #ffffff;
+  border: 1px solid var(--lc-pimask-border);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12px;
+  color: var(--lc-pimask-unlocked-text);
+  vertical-align: middle;
+}
+.lc-message-bubble__pi-mask--unlocked svg {
+  width: 12px;
+  height: 12px;
+  color: var(--lc-pimask-unlocked-text);
+}
+
+/* --- Reaction chip -------------------------------------------------------- */
+.lc-message-bubble__reaction-row {
+  padding: 0 32px;
+  margin-top: -6px;
+}
+[data-side='customer'] .lc-message-bubble__reaction-row {
+  padding-left: 32px;
+}
+.lc-message-bubble__reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 8px 2.5px 9px;
+  border-radius: 13px;
+  background: #ffffff;
+  border: 1px solid #f5f5f5;
+  box-shadow: 0px 0.66px 0px rgba(0, 0, 0, 0.06);
+}
+.lc-message-bubble__reaction-emoji {
+  font-size: 16px;
+  line-height: 20px;
+}
+.lc-message-bubble__reaction-count {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-text-secondary-alpha);
+}
