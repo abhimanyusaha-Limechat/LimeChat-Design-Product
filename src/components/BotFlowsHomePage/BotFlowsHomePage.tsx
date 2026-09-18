@@ -15,10 +15,10 @@
  *     onRowClick={openFlowInEditor}
  *   />
  */
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { createPortal } from 'react-dom';
+import { useRef, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
+import { ActionMenu } from '../Menu';
 import { BotFlowIcon } from './icons';
 import './BotFlowsHomePage.css';
 
@@ -53,104 +53,16 @@ function RowActions({
   onDownload?: (row: BotFlowRowData) => void;
   onDelete?: (row: BotFlowRowData) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  // Rows animate in with a `transform`, which — even at rest — establishes a
-  // stacking context per row. A menu positioned inside its own row can end up
-  // painted behind a later row's stacking context despite z-index. Portalling
-  // to <body> (like Tooltip already does) sidesteps that entirely.
-  useLayoutEffect(() => {
-    if (!open) return;
-    const reposition = () => {
-      const rect = triggerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      setCoords({ top: rect.bottom + 6, left: rect.right - 168 });
-    };
-    reposition();
-    window.addEventListener('scroll', reposition, true);
-    window.addEventListener('resize', reposition);
-    return () => {
-      window.removeEventListener('scroll', reposition, true);
-      window.removeEventListener('resize', reposition);
-    };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointerDown = (e: PointerEvent) => {
-      const target = e.target as Node;
-      if (!triggerRef.current?.contains(target) && !menuRef.current?.contains(target)) setOpen(false);
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    return () => document.removeEventListener('pointerdown', onPointerDown);
-  }, [open]);
-
   return (
-    <div className="lc-bf__menu-wrap">
-      <Tooltip label="More actions" disabled={open}>
-        <button
-          ref={triggerRef}
-          type="button"
-          className="lc-bf__action-btn"
-          aria-label="More actions"
-          onClick={() => setOpen((o) => !o)}
-        >
-          <BotFlowIcon name="dots-vertical" />
-        </button>
-      </Tooltip>
-      {open &&
-        typeof document !== 'undefined' &&
-        createPortal(
-          <div
-            ref={menuRef}
-            className="lc-bf__menu"
-            role="menu"
-            aria-label="Flow actions"
-            style={coords ? { top: coords.top, left: coords.left } : { visibility: 'hidden' }}
-          >
-            <button
-              type="button"
-              role="menuitem"
-              className="lc-bf__menu-item"
-              onClick={() => {
-                setOpen(false);
-                onClone?.(row);
-              }}
-            >
-              <BotFlowIcon name="copy" className="lc-bf__menu-icon" />
-              Clone
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              className="lc-bf__menu-item"
-              onClick={() => {
-                setOpen(false);
-                onDownload?.(row);
-              }}
-            >
-              <BotFlowIcon name="download" className="lc-bf__menu-icon" />
-              Download
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              className="lc-bf__menu-item lc-bf__menu-item--danger"
-              onClick={() => {
-                setOpen(false);
-                onDelete?.(row);
-              }}
-            >
-              <BotFlowIcon name="trash" className="lc-bf__menu-icon" />
-              Delete
-            </button>
-          </div>,
-          document.body,
-        )}
-    </div>
+    <ActionMenu
+      ariaLabel="Flow actions"
+      icon={<BotFlowIcon name="dots-vertical" />}
+      items={[
+        { label: 'Clone', icon: <BotFlowIcon name="copy" />, onClick: () => onClone?.(row) },
+        { label: 'Download', icon: <BotFlowIcon name="download" />, onClick: () => onDownload?.(row) },
+        { label: 'Delete', icon: <BotFlowIcon name="trash" />, danger: true, onClick: () => onDelete?.(row) },
+      ]}
+    />
   );
 }
 

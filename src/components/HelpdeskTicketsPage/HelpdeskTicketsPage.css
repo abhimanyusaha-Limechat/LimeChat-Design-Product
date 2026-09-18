@@ -1,0 +1,98 @@
+/**
+ * HelpdeskTicketsPage — LimeChat design system (Figma node 9530:21891
+ * "Content Area": tickets_section | Main Content | Right Panel).
+ */
+.lc-hd-tickets {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: #f5f5f4;
+  overflow: hidden;
+}
+.lc-hd-tickets *,
+.lc-hd-tickets *::before,
+.lc-hd-tickets *::after {
+  box-sizing: border-box;
+}
+
+.lc-hd-tickets__list {
+  flex-shrink: 0;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.lc-hd-tickets__resize-handle {
+  flex-shrink: 0;
+  position: relative;
+  width: 2px;
+  height: 100%;
+  background: #ececea;
+  cursor: col-resize;
+  touch-action: none;
+  transition: background-color 150ms ease, width 150ms ease;
+}
+.lc-hd-tickets__resize-handle::after {
+  content: '';
+  position: absolute;
+  inset: 0 -4px;
+}
+.lc-hd-tickets__resize-handle:hover,
+.lc-hd-tickets__resize-handle[data-dragging] {
+  width: 4px;
+  background: #6bac1b;
+}
+
+.lc-hd-tickets__main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  padding: 8px;
+}
+
+.lc-hd-tickets__topbar {
+  flex-shrink: 0;
+}
+
+.lc-hd-tickets__conversation {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 8px 4px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.lc-hd-tickets__conversation[data-align='start'] {
+  justify-content: flex-start;
+}
+.lc-hd-tickets__conversation::-webkit-scrollbar {
+  display: none;
+}
+
+.lc-hd-tickets__composer {
+  flex-shrink: 0;
+}
+
+.lc-hd-tickets__details {
+  flex-shrink: 0;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 8px 8px 8px 0;
+}

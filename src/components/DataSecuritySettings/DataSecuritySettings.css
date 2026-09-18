@@ -333,7 +333,9 @@
 }
 
 .lc-dss__switch-track[data-checked='true'] {
-  background: var(--lc-dss-primary);
+  /* Design-system primary green (matches every other active toggle/filled
+     control), not the darker --lc-dss-primary used for text/border accents. */
+  background: #6bac1b;
 }
 
 .lc-dss__switch-thumb {

@@ -112,13 +112,15 @@ export interface HelpDeskTopNavOptions {
   onVoiceCall?: () => void;
   onCreateTicket?: () => void;
   onAppsMenuClick?: () => void;
+  /** Show the "Voice call" / "Ticket" CTAs — only relevant on the Tickets section. Default `true`. */
+  showActions?: boolean;
 }
 
 export function helpDeskTopNav(options: HelpDeskTopNavOptions = {}): Partial<TopNavBarProps> {
-  const { onVoiceCall, onCreateTicket, onAppsMenuClick } = options;
+  const { onVoiceCall, onCreateTicket, onAppsMenuClick, showActions = true } = options;
   return {
     logo: wordmark(helpDeskWordmark, 'HelpDesk', 'helpdesk'),
-    actions: (
+    actions: showActions && (
       <>
         <TopNavButton icon="phone" onClick={onVoiceCall}>
           Voice call

@@ -1,0 +1,175 @@
+/**
+ * ConversationTopBar — LimeChat design system (Figma node 8984:34679).
+ */
+.lc-conv-top {
+  --lc-ct-title: #3c492c;
+  --lc-ct-dimmed: #808975;
+  --lc-ct-primary: #6bac1b;
+  --lc-ct-primary-light: #f1f7e9;
+  --lc-ct-border: #d9d9d9;
+
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1), 0px 1px 1.5px rgba(0, 0, 0, 0.05);
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+.lc-conv-top *,
+.lc-conv-top *::before,
+.lc-conv-top *::after {
+  box-sizing: border-box;
+}
+
+.lc-conv-top__identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lc-conv-top__channel-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  background: var(--lc-ct-primary-light);
+  color: var(--lc-ct-primary);
+}
+.lc-conv-top__channel-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.lc-conv-top__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lc-conv-top__name-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.lc-conv-top__name {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-ct-title);
+}
+.lc-conv-top__badge {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--lc-ct-primary-light);
+  color: var(--lc-ct-primary);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12px;
+  text-transform: uppercase;
+}
+
+.lc-conv-top__meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-ct-dimmed);
+}
+.lc-conv-top__meta-divider {
+  color: #cfd1cd;
+}
+
+.lc-conv-top__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-conv-top__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--lc-ct-dimmed);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.lc-conv-top__icon-btn:hover {
+  background: #f3f4f3;
+  color: var(--lc-ct-title);
+}
+.lc-conv-top__icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+.lc-conv-top__icon-btn--outline {
+  border: 1px solid rgba(107, 172, 27, 0.35);
+  color: var(--lc-ct-primary);
+}
+.lc-conv-top__icon-btn--outline:hover {
+  background: var(--lc-ct-primary-light);
+  color: var(--lc-ct-primary);
+}
+
+.lc-conv-top__call-wrap {
+  position: relative;
+}
+.lc-conv-top__available {
+  position: absolute;
+  top: -8px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 100px;
+  background: #ffffff;
+  color: var(--lc-ct-primary);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 12px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 0 0 1px var(--lc-ct-primary-light);
+}
+.lc-conv-top__available::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--lc-ct-primary);
+}
+
+.lc-conv-top__split {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.lc-conv-top__split .lc-conv-top__icon-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--lc-ct-border);
+  color: var(--lc-ct-dimmed);
+}
+.lc-conv-top__split .lc-conv-top__icon-btn:hover {
+  background: #f3f4f3;
+  color: var(--lc-ct-title);
+}
+.lc-conv-top__split .lc-conv-top__icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
