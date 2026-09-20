@@ -4,7 +4,9 @@
  * reply-composer variants).
  */
 .lc-email-message,
-.lc-email-reply {
+.lc-email-reply,
+.lc-email-composer-bar,
+.lc-email-forward {
   --lc-email-title: #3c492c;
   --lc-email-dimmed: #808975;
   --lc-email-border: #d9d9d9;
@@ -324,13 +326,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   gap: 8px;
   padding: 4px 0 4px 12px;
+  background: none;
+  border: none;
   border-bottom: 1px solid var(--lc-email-border);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 .lc-email-reply__recipients {
   display: flex;
   align-items: center;
+  flex: 1 1 0;
   gap: 8px;
   font-size: 12px;
   line-height: 16px;
@@ -338,6 +348,16 @@
   overflow: hidden;
   white-space: nowrap;
   min-width: 0;
+}
+.lc-email-reply__recipients-list {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.lc-email-reply__bcc {
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .lc-email-reply__bcc-label {
   color: var(--lc-email-dimmed);
@@ -367,7 +387,7 @@
 }
 .lc-email-reply__textarea {
   width: 100%;
-  min-height: 96px;
+  min-height: 120px;
   border: none;
   outline: none;
   resize: vertical;
@@ -443,4 +463,225 @@
 .lc-email-reply__send-group .lc-email-reply__icon-btn svg {
   width: 16px;
   height: 16px;
+}
+
+/* --- EmailComposerBar ------------------------------------------------------ */
+.lc-email-composer-bar {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 7px 3.5px rgba(0, 0, 0, 0.04), 0 10px 7.5px rgba(0, 0, 0, 0.1),
+    0 1px 1.5px rgba(0, 0, 0, 0.05);
+}
+.lc-email-composer-bar__left,
+.lc-email-composer-bar__right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.lc-email-composer-bar__right {
+  gap: 8px;
+}
+.lc-email-composer-bar__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--lc-email-dimmed);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.lc-email-composer-bar__icon-btn:hover {
+  background: var(--lc-email-gray-light-bg);
+}
+.lc-email-composer-bar__icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* --- EmailForwardComposer ------------------------------------------------- */
+.lc-email-forward {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  padding: 2px;
+  background: #e5f7cf;
+  border-radius: 4px;
+}
+.lc-email-forward[data-maximized] {
+  height: 100%;
+}
+.lc-email-forward__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 2px 8px;
+}
+.lc-email-forward__title {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-email-title);
+}
+.lc-email-forward[data-maximized] .lc-email-forward__title {
+  font-size: 14px;
+  line-height: 20px;
+}
+.lc-email-forward__title-actions {
+  display: flex;
+  align-items: center;
+}
+.lc-email-forward__title-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--lc-email-title);
+  cursor: pointer;
+}
+.lc-email-forward__title-icon-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+.lc-email-forward__title-icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.lc-email-forward__card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  padding: 8px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 7px 3.5px rgba(0, 0, 0, 0.04), 0 10px 7.5px rgba(0, 0, 0, 0.1),
+    0 1px 1.5px rgba(0, 0, 0, 0.05);
+}
+.lc-email-forward[data-maximized] .lc-email-forward__card {
+  flex: 1 0 0;
+  min-height: 0;
+}
+
+.lc-email-forward__address-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: 4px 0 12px 12px;
+  border-bottom: 1px solid var(--lc-email-border);
+}
+.lc-email-forward__recipient-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+.lc-email-forward__recipient-label {
+  flex-shrink: 0;
+  width: 30px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-email-title);
+}
+.lc-email-forward__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 24px;
+  padding: 0 12px;
+  background: #ffffff;
+  border: 1px solid var(--lc-email-border);
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-email-title);
+}
+.lc-email-forward__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--lc-email-dimmed);
+  cursor: pointer;
+}
+.lc-email-forward__chip-remove:hover {
+  color: var(--lc-email-title);
+}
+.lc-email-forward__recipient-input {
+  flex: 1 0 0;
+  min-width: 80px;
+  height: 24px;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--lc-email-title);
+}
+.lc-email-forward__recipient-input::placeholder {
+  color: var(--text-placeholder, #8c8c8c);
+}
+
+.lc-email-forward__input-row {
+  padding: 6px 12px;
+}
+.lc-email-forward[data-maximized] .lc-email-forward__input-row {
+  flex: 1 0 0;
+  min-height: 0;
+}
+.lc-email-forward__textarea {
+  width: 100%;
+  min-height: 120px;
+  border: none;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-email-title);
+}
+.lc-email-forward[data-maximized] .lc-email-forward__textarea {
+  height: 100%;
+  resize: none;
+}
+.lc-email-forward__textarea::placeholder {
+  color: var(--lc-email-dimmed);
+}
+
+/* --- EmailForwardComposer: maximized overlay ------------------------------ */
+.lc-email-forward-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(24px, 8vh, 72px) clamp(24px, 8vw, 96px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(1.47px);
+  -webkit-backdrop-filter: blur(1.47px);
+}
+.lc-email-forward-overlay .lc-email-forward {
+  width: 100%;
+  max-width: 1248px;
 }

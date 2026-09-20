@@ -165,7 +165,7 @@ export const EmailReplyComposer = forwardRef<HTMLDivElement, EmailReplyComposerP
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          rows={4}
+          rows={6}
         />
       </div>
 

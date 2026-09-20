@@ -30,17 +30,6 @@ function iconProps() {
   };
 }
 
-const TicketGlyph = () => (
-  <svg {...iconProps()}>
-    <path d="M15 5l6 6l-1.5 1.5a2.121 2.121 0 0 0 -3 3l-6.5 6.5l-6 -6l6.5 -6.5a2.121 2.121 0 0 0 3 -3z" />
-  </svg>
-);
-const CopyIcon = () => (
-  <svg {...iconProps()}>
-    <rect x="8" y="8" width="12" height="12" rx="2" />
-    <path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2" />
-  </svg>
-);
 const PlusIcon = () => (
   <svg {...iconProps()}>
     <path d="M12 5l0 14" />
@@ -74,6 +63,7 @@ export interface TicketDetailsSection {
   emptyText?: string;
   defaultOpen?: boolean;
   onAdd?: () => void;
+  hideAdd?: boolean;
 }
 
 export interface AssignmentField {
@@ -87,16 +77,15 @@ export interface TicketDetailsPanelProps extends HTMLAttributes<HTMLDivElement> 
   activeTab?: string;
   onTabChange?: (tab: string) => void;
   ticketId?: string;
-  onCopyTicketId?: () => void;
   agent?: AssignmentField;
   team?: AssignmentField;
   sections?: TicketDetailsSection[];
 }
 
-function DetailRow({ icon, label, value, action }: { icon: ReactNode; label: string; value: string; action: ReactNode }) {
+function DetailRow({ icon, label, value, action }: { icon?: ReactNode; label: string; value: string; action?: ReactNode }) {
   return (
     <div className="lc-tdp__detail-row">
-      <span className="lc-tdp__detail-icon">{icon}</span>
+      {icon != null && <span className="lc-tdp__detail-icon">{icon}</span>}
       <span className="lc-tdp__detail-label">{label}</span>
       <span className="lc-tdp__detail-value">{value}</span>
       {action}
@@ -104,15 +93,15 @@ function DetailRow({ icon, label, value, action }: { icon: ReactNode; label: str
   );
 }
 
-function AssignmentRow({ icon, label, field }: { icon: ReactNode; label: string; field: AssignmentField }) {
+function AssignmentRow({ icon, label, field }: { icon?: ReactNode; label: string; field: AssignmentField }) {
   return (
     <div className="lc-tdp__assignment-row">
       <span className="lc-tdp__assignment-label">
-        <span className="lc-tdp__detail-icon">{icon}</span>
+        {icon != null && <span className="lc-tdp__detail-icon">{icon}</span>}
         {label}
       </span>
       <NativeSelect
-        size="sm"
+        size="xs"
         data={field.options}
         value={field.value}
         onChange={(e) => field.onChange?.(e.currentTarget.value)}
@@ -132,9 +121,11 @@ function Section({ section }: { section: TicketDetailsSection }) {
           {section.count != null && <span className="lc-tdp__badge">{section.count}</span>}
         </div>
         <div className="lc-tdp__section-actions">
-          <button type="button" className="lc-tdp__icon-btn" aria-label={`Add ${section.label}`} onClick={section.onAdd}>
-            <PlusIcon />
-          </button>
+          {!section.hideAdd && (
+            <button type="button" className="lc-tdp__icon-btn" aria-label={`Add ${section.label}`} onClick={section.onAdd}>
+              <PlusIcon />
+            </button>
+          )}
           <button
             type="button"
             className="lc-tdp__icon-btn"
@@ -175,7 +166,6 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
     activeTab,
     onTabChange,
     ticketId,
-    onCopyTicketId,
     agent,
     team,
     sections = [],
@@ -207,20 +197,9 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
       <div className="lc-tdp__body">
         {(ticketId || agent || team) && (
           <div className="lc-tdp__info">
-            {ticketId && (
-              <DetailRow
-                icon={<TicketGlyph />}
-                label="Ticket Id"
-                value={ticketId}
-                action={
-                  <button type="button" className="lc-tdp__icon-btn" aria-label="Copy ticket ID" onClick={onCopyTicketId}>
-                    <CopyIcon />
-                  </button>
-                }
-              />
-            )}
-            {agent && <AssignmentRow icon={<span className="lc-tdp__dot" />} label="Assign Agent" field={agent} />}
-            {team && <AssignmentRow icon={<span className="lc-tdp__dot" />} label="Assign Team" field={team} />}
+            {ticketId && <DetailRow label="Ticket Id" value={ticketId} />}
+            {agent && <AssignmentRow label="Assign Agent" field={agent} />}
+            {team && <AssignmentRow label="Assign Team" field={team} />}
           </div>
         )}
 

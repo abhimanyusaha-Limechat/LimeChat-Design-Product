@@ -132,11 +132,6 @@ function iconProps() {
   };
 }
 
-const TicketGlyph = () => (
-  <svg {...iconProps()}>
-    <path d="M15 5l6 6l-1.5 1.5a2.121 2.121 0 0 0 -3 3l-6.5 6.5l-6 -6l6.5 -6.5a2.121 2.121 0 0 0 3 -3z" />
-  </svg>
-);
 const ChevronDownIcon = () => (
   <svg {...iconProps()}>
     <path d="M6 9l6 6l6 -6" />
@@ -234,10 +229,7 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
     <div {...rest} ref={ref} className={`lc-tickets-section${className ? ` ${className}` : ''}`}>
       <div className="lc-tickets-section__header-filters">
         <div className="lc-tickets-section__header">
-          <span className="lc-tickets-section__title">
-            <TicketGlyph />
-            {title}
-          </span>
+          <span className="lc-tickets-section__title">{title}</span>
           {status && (
             <button type="button" className="lc-tickets-section__status" onClick={onStatusClick}>
               {status}

@@ -86,7 +86,7 @@ import { TicketsSection } from './components/TicketsSection';
 import { ConversationTopBar } from './components/ConversationTopBar';
 import { MessageBubble } from './components/MessageBubble';
 import { TicketComposer, type TicketComposerMode } from './components/TicketComposer';
-import { EmailMessage, EmailReplyComposer } from './components/EmailMessage';
+import { EmailMessage, EmailComposerBar, EmailForwardComposer } from './components/EmailMessage';
 import { TicketDetailsPanel, type TicketDetailsSection } from './components/TicketDetailsPanel';
 
 const WhatsAppIcon = () => (
@@ -1098,9 +1098,9 @@ const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
     ],
   },
   { id: 'sub-tickets', label: 'Sub tickets', emptyText: 'There are no voice logs for this customer' },
-  { id: 'voice-logs', label: 'Voice logs', emptyText: 'There are no voice logs for this customer' },
+  { id: 'voice-logs', label: 'Voice logs', emptyText: 'There are no voice logs for this customer', hideAdd: true },
   { id: 'conversation-fields', label: 'Conversation fields', emptyText: 'There are no fields for this customer' },
-  { id: 'contact-fields', label: 'Contact fields', emptyText: 'There are no fields for this customer' },
+  { id: 'contact-fields', label: 'Contact fields', emptyText: 'There are no fields for this customer', hideAdd: true },
   { id: 'conversation-tags', label: 'Conversation tags', emptyText: 'There are no tags for this customer' },
   { id: 'contact-tags', label: 'Contact tags', emptyText: 'There are no tags for this customer' },
   { id: 'shopify-tags', label: 'Shopify tags', emptyText: 'There are no tags for this customer' },
@@ -1228,6 +1228,12 @@ export function App() {
   const [composerMode, setComposerMode] = useState<TicketComposerMode>('reply');
   const [resolveStatus, setResolveStatus] = useState('Resolve');
   const [composerDraft, setComposerDraft] = useState('');
+  const [emailComposerAction, setEmailComposerAction] = useState<'reply' | 'forward' | null>(null);
+  const [forwardTo, setForwardTo] = useState<string[]>([]);
+  const [forwardCc, setForwardCc] = useState<string[]>(['info@mywebsite.com']);
+  const [forwardBcc, setForwardBcc] = useState<string[]>(['hello@samplemail.com']);
+  const [replyCc, setReplyCc] = useState<string[]>(['support@limechat.io']);
+  const [replyBcc, setReplyBcc] = useState<string[]>([]);
   const [detailsTab, setDetailsTab] = useState('Overview');
   const [ticketAgent, setTicketAgent] = useState('John Adams');
   const [ticketTeam, setTicketTeam] = useState('Marketing');
@@ -2093,17 +2099,68 @@ export function App() {
               }
               composer={
                 selectedTicket?.channel === 'email' ? (
-                  <EmailReplyComposer
-                    cc={[selectedTicket.user.toLowerCase().replace(' ', '.') + '@example.com']}
-                    bcc={['support@limechat.io']}
-                    value={composerDraft}
-                    onChange={setComposerDraft}
-                    onAddCc={() => alert('Add CC')}
-                    onAddBcc={() => alert('Add BCC')}
-                    onToggleAi={() => alert('Toggle AI assist')}
-                    onDelete={() => setComposerDraft('')}
-                    onReply={() => setComposerDraft('')}
-                  />
+                  emailComposerAction === 'reply' ? (
+                    <EmailForwardComposer
+                      mode="reply"
+                      to={[selectedTicket.user.toLowerCase().replace(' ', '.') + '@example.com']}
+                      cc={replyCc}
+                      bcc={replyBcc}
+                      onAddRecipient={(field, email) => {
+                        if (field === 'cc') setReplyCc((v) => [...v, email]);
+                        if (field === 'bcc') setReplyBcc((v) => [...v, email]);
+                      }}
+                      onRemoveRecipient={(field, email) => {
+                        if (field === 'cc') setReplyCc((v) => v.filter((e) => e !== email));
+                        if (field === 'bcc') setReplyBcc((v) => v.filter((e) => e !== email));
+                      }}
+                      value={composerDraft}
+                      onChange={setComposerDraft}
+                      onToggleAi={() => alert('Toggle AI assist')}
+                      onDelete={() => {
+                        setComposerDraft('');
+                        setEmailComposerAction(null);
+                      }}
+                      onSend={() => {
+                        setComposerDraft('');
+                        setEmailComposerAction(null);
+                      }}
+                    />
+                  ) : emailComposerAction === 'forward' ? (
+                    <EmailForwardComposer
+                      mode="forward"
+                      to={forwardTo}
+                      cc={forwardCc}
+                      bcc={forwardBcc}
+                      onAddRecipient={(field, email) => {
+                        if (field === 'to') setForwardTo((v) => [...v, email]);
+                        if (field === 'cc') setForwardCc((v) => [...v, email]);
+                        if (field === 'bcc') setForwardBcc((v) => [...v, email]);
+                      }}
+                      onRemoveRecipient={(field, email) => {
+                        if (field === 'to') setForwardTo((v) => v.filter((e) => e !== email));
+                        if (field === 'cc') setForwardCc((v) => v.filter((e) => e !== email));
+                        if (field === 'bcc') setForwardBcc((v) => v.filter((e) => e !== email));
+                      }}
+                      value={composerDraft}
+                      onChange={setComposerDraft}
+                      onToggleAi={() => alert('Toggle AI assist')}
+                      onDelete={() => {
+                        setComposerDraft('');
+                        setEmailComposerAction(null);
+                      }}
+                      onSend={() => {
+                        setComposerDraft('');
+                        setEmailComposerAction(null);
+                      }}
+                    />
+                  ) : (
+                    <EmailComposerBar
+                      onMerge={() => alert('Merge ticket')}
+                      onNotes={() => alert('Open private notes')}
+                      onReply={() => setEmailComposerAction('reply')}
+                      onForward={() => setEmailComposerAction('forward')}
+                    />
+                  )
                 ) : (
                   <TicketComposer
                     mode={composerMode}
@@ -2124,7 +2181,6 @@ export function App() {
                   activeTab={detailsTab}
                   onTabChange={setDetailsTab}
                   ticketId={selectedTicket?.ticketId ?? ''}
-                  onCopyTicketId={() => alert('Copy ticket ID')}
                   agent={{ value: ticketAgent, options: ['John Adams', 'Jane Doe', 'Marcus Lee'], onChange: setTicketAgent }}
                   team={{ value: ticketTeam, options: ['Marketing', 'Support', 'Sales'], onChange: setTicketTeam }}
                   sections={TICKET_DETAIL_SECTIONS}
