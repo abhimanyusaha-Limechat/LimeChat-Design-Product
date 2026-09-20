@@ -139,6 +139,7 @@
 .lc-select__input {
   appearance: none;
   -webkit-appearance: none;
+  color-scheme: light;
   width: 100%;
   height: var(--h);
   margin: 0;
@@ -152,6 +153,7 @@
   line-height: var(--value-lh);
   color: var(--lc-select-value);
   cursor: pointer;
+  outline: none;
   transition: border-color 120ms ease, background-color 120ms ease;
 }
 .lc-select__input:focus-visible {
