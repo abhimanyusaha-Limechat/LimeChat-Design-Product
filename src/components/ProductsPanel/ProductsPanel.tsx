@@ -55,6 +55,52 @@ function formatINR(amount: number): string {
   }).format(amount);
 }
 
+const SEARCH_PLACEHOLDER_PHRASES = ['product name', 'SKU', 'keyword'];
+
+/** Types out, pauses, then deletes each phrase in turn — a rotating typewriter placeholder. */
+function useTypingPlaceholder(phrases: string[]): string {
+  const [text, setText] = useState('');
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const reducedMotion = useRef(
+    typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+  ).current;
+
+  useEffect(() => {
+    if (reducedMotion) return undefined;
+    const current = phrases[phraseIndex % phrases.length];
+    let timeout: number;
+    if (!deleting && text === current) {
+      timeout = window.setTimeout(() => setDeleting(true), 1300);
+    } else if (deleting && text === '') {
+      timeout = window.setTimeout(() => {
+        setDeleting(false);
+        setPhraseIndex((i) => (i + 1) % phrases.length);
+      }, 300);
+    } else {
+      timeout = window.setTimeout(
+        () => setText((t) => (deleting ? current.slice(0, t.length - 1) : current.slice(0, t.length + 1))),
+        deleting ? 30 : 60,
+      );
+    }
+    return () => window.clearTimeout(timeout);
+  }, [text, deleting, phraseIndex, phrases, reducedMotion]);
+
+  return reducedMotion ? phrases[0] : text;
+}
+
+/** Animated overlay placeholder for the search input — cycles "Search by product name / SKU / keyword...". */
+function AnimatedSearchPlaceholder({ visible }: { visible: boolean }) {
+  const typed = useTypingPlaceholder(SEARCH_PLACEHOLDER_PHRASES);
+  if (!visible) return null;
+  return (
+    <span className="lc-pp__search-placeholder" aria-hidden="true">
+      Search by {typed}
+      <span className="lc-pp__search-caret" />
+    </span>
+  );
+}
+
 function iconProps() {
   return {
     viewBox: '0 0 24 24',
@@ -186,6 +232,7 @@ function RatingStars({ rating, count, showCount = true }: { rating: number; coun
 }
 
 function StatusPill({ availability, stockCount }: { availability: Availability; stockCount?: number }) {
+  if (availability === 'in_stock') return null;
   return (
     <span className="lc-pp__status" data-status={availability}>
       {availability === 'low_stock' && stockCount != null ? `${stockCount} left` : STATUS_LABEL[availability]}
@@ -408,7 +455,10 @@ function ProductDetailView({ product, onBack }: { product: Product; onBack: () =
             <span className="lc-pp__detail-name">{product.name}</span>
             <StatusPill availability={product.availability} />
           </div>
-          <CopyableValue value={product.sku} />
+          <div className="lc-pp__detail-meta-row">
+            <CopyableValue value={product.sku} />
+            <RatingStars rating={product.rating} count={product.ratingCount} />
+          </div>
         </div>
 
         <div className="lc-pp__detail-section">
@@ -416,17 +466,12 @@ function ProductDetailView({ product, onBack }: { product: Product; onBack: () =
           <PriceBlock product={product} />
         </div>
 
+        <DetailCtas product={product} />
+
         <div className="lc-pp__detail-section">
           <p className="lc-pp__detail-section-title">Description</p>
           <TruncatedDescription text={product.description} />
         </div>
-
-        <DetailCtas product={product} />
-
-      <div className="lc-pp__detail-section">
-        <p className="lc-pp__detail-section-title">Rating</p>
-        <RatingStars rating={product.rating} count={product.ratingCount} />
-      </div>
 
       <div className="lc-pp__detail-section">
         <p className="lc-pp__detail-section-title">Product information</p>
@@ -447,9 +492,15 @@ function ProductDetailView({ product, onBack }: { product: Product; onBack: () =
           <span className="lc-pp__detail-row-value">{product.stockCount} units</span>
         </div>
         {product.variants && product.variants.length > 0 && (
-          <div className="lc-pp__detail-row">
+          <div className="lc-pp__detail-row lc-pp__detail-row--chips">
             <span className="lc-pp__detail-row-label">Variants</span>
-            <span className="lc-pp__detail-row-value">{product.variants.join(', ')}</span>
+            <div className="lc-pp__chip-list">
+              {product.variants.map((variant) => (
+                <span key={variant} className="lc-pp__chip">
+                  {variant}
+                </span>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -748,10 +799,10 @@ export function ProductsPanel() {
           <input
             className="lc-pp__search-input"
             type="text"
-            placeholder="Search products by name, SKU, or keyword..."
             value={search}
             onChange={(e) => setSearch(e.currentTarget.value)}
           />
+          <AnimatedSearchPlaceholder visible={!search} />
           {search && (
             <button type="button" className="lc-pp__search-clear" aria-label="Clear search" onClick={() => setSearch('')}>
               <ClearIcon />

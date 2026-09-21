@@ -18,6 +18,7 @@ import { forwardRef, useEffect, useRef, useState, type HTMLAttributes, type Reac
 import { NativeSelect } from '../Select';
 import { Tooltip } from '../Tooltip';
 import { ProductsPanel } from '../ProductsPanel';
+import { OrdersPanel } from '../OrdersPanel';
 import './TicketDetailsPanel.css';
 
 function iconProps() {
@@ -43,10 +44,21 @@ const ChevronIcon = ({ open }: { open: boolean }) => (
     <path d="M6 9l6 6l6 -6" />
   </svg>
 );
+const TagCloseIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M18 6l-12 12" />
+    <path d="M6 6l12 12" />
+  </svg>
+);
 const MailIcon = () => (
   <svg {...iconProps()}>
     <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
     <path d="M3 7l9 6l9 -6" />
+  </svg>
+);
+const PhoneIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
   </svg>
 );
 const OverviewIcon = () => (
@@ -92,6 +104,26 @@ export interface TicketDetailsSectionItem {
   title: string;
   timestamp?: string;
   preview?: string;
+  /** Call length, e.g. "5 minutes 10 seconds" — when set, the item renders as a voice log card instead of the generic layout. */
+  duration?: string;
+}
+
+export type TicketFieldType = 'text' | 'date' | 'select' | 'cascading';
+
+export interface TicketFieldOption {
+  value: string;
+  label: string;
+  /** Next-level options — present only on `cascading` fields, up to 3 levels deep. */
+  children?: TicketFieldOption[];
+}
+
+export interface TicketDetailsField {
+  id: string;
+  label: string;
+  type: TicketFieldType;
+  defaultValue?: string;
+  /** Options for `select` and `cascading` fields. */
+  options?: TicketFieldOption[];
 }
 
 export interface TicketDetailsSection {
@@ -99,6 +131,9 @@ export interface TicketDetailsSection {
   label: string;
   count?: number;
   items?: TicketDetailsSectionItem[];
+  fields?: TicketDetailsField[];
+  /** Removable chips, e.g. conversation/contact tags. */
+  tags?: string[];
   emptyText?: string;
   defaultOpen?: boolean;
   onAdd?: () => void;
@@ -195,6 +230,128 @@ function AssignmentRow({ icon, label, field }: { icon?: ReactNode; label: string
   );
 }
 
+/** Free-text field — a plain, unmanaged label + input pair. */
+function TextField({ field }: { field: TicketDetailsField }) {
+  const [value, setValue] = useState(field.defaultValue ?? '');
+  return (
+    <label className="lc-tdp__field">
+      <span className="lc-tdp__field-label">{field.label}</span>
+      <input
+        className="lc-tdp__field-input"
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.currentTarget.value)}
+      />
+    </label>
+  );
+}
+
+/** Native date picker field. */
+function DateField({ field }: { field: TicketDetailsField }) {
+  const [value, setValue] = useState(field.defaultValue ?? '');
+  return (
+    <label className="lc-tdp__field">
+      <span className="lc-tdp__field-label">{field.label}</span>
+      <input
+        className="lc-tdp__field-input"
+        type="date"
+        value={value}
+        onChange={(e) => setValue(e.currentTarget.value)}
+      />
+    </label>
+  );
+}
+
+/** Single-level dropdown, built on the shared NativeSelect. */
+function SelectField({ field }: { field: TicketDetailsField }) {
+  const [value, setValue] = useState(field.defaultValue ?? '');
+  return (
+    <NativeSelect
+      label={field.label}
+      size="xs"
+      placeholder="Select..."
+      data={(field.options ?? []).map((o) => ({ value: o.value, label: o.label }))}
+      value={value}
+      onChange={(e) => setValue(e.currentTarget.value)}
+    />
+  );
+}
+
+/** Up to 3 chained dropdowns — picking a level reveals the next level's options. */
+function CascadingField({ field }: { field: TicketDetailsField }) {
+  const [path, setPath] = useState<string[]>([]);
+  const level1 = field.options ?? [];
+  const level2 = level1.find((o) => o.value === path[0])?.children ?? [];
+  const level3 = level2.find((o) => o.value === path[1])?.children ?? [];
+
+  return (
+    <div className="lc-tdp__field">
+      <span className="lc-tdp__field-label">{field.label}</span>
+      <div className="lc-tdp__cascade">
+        <NativeSelect
+          size="xs"
+          placeholder="Select..."
+          data={level1.map((o) => ({ value: o.value, label: o.label }))}
+          value={path[0] ?? ''}
+          onChange={(e) => setPath([e.currentTarget.value])}
+        />
+        {path[0] && level2.length > 0 && (
+          <NativeSelect
+            size="xs"
+            placeholder="Select..."
+            data={level2.map((o) => ({ value: o.value, label: o.label }))}
+            value={path[1] ?? ''}
+            onChange={(e) => setPath([path[0], e.currentTarget.value])}
+          />
+        )}
+        {path[1] && level3.length > 0 && (
+          <NativeSelect
+            size="xs"
+            placeholder="Select..."
+            data={level3.map((o) => ({ value: o.value, label: o.label }))}
+            value={path[2] ?? ''}
+            onChange={(e) => setPath([path[0], path[1], e.currentTarget.value])}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SectionField({ field }: { field: TicketDetailsField }) {
+  switch (field.type) {
+    case 'date':
+      return <DateField field={field} />;
+    case 'select':
+      return <SelectField field={field} />;
+    case 'cascading':
+      return <CascadingField field={field} />;
+    default:
+      return <TextField field={field} />;
+  }
+}
+
+/** Removable chip list for conversation/contact tags. */
+function TagList({ tags: initialTags }: { tags: string[] }) {
+  const [tags, setTags] = useState(initialTags);
+  const removeTag = (tag: string) => setTags((prev) => prev.filter((t) => t !== tag));
+
+  if (tags.length === 0) return <p className="lc-tdp__empty">No tags added yet.</p>;
+
+  return (
+    <div className="lc-tdp__tags">
+      {tags.map((tag) => (
+        <span key={tag} className="lc-tdp__tag">
+          {tag}
+          <button type="button" className="lc-tdp__tag-remove" aria-label={`Remove ${tag}`} onClick={() => removeTag(tag)}>
+            <TagCloseIcon />
+          </button>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function Section({ section }: { section: TicketDetailsSection }) {
   const [open, setOpen] = useState(section.defaultOpen ?? false);
   const toggle = () => setOpen((v) => !v);
@@ -238,21 +395,48 @@ function Section({ section }: { section: TicketDetailsSection }) {
       </div>
       {open && (
         <div className="lc-tdp__section-body">
+          {section.fields && section.fields.length > 0 && (
+            <div className="lc-tdp__fields">
+              {section.fields.map((field) => (
+                <SectionField key={field.id} field={field} />
+              ))}
+            </div>
+          )}
+          {section.tags && <TagList tags={section.tags} />}
           {section.items && section.items.length > 0
-            ? section.items.map((item, i) => (
-                // eslint-disable-next-line react/no-array-index-key
-                <div key={i} className="lc-tdp__item">
-                  <span className="lc-tdp__item-icon">{item.icon ?? <MailIcon />}</span>
-                  <div className="lc-tdp__item-text">
-                    <div className="lc-tdp__item-title-row">
-                      <span className="lc-tdp__item-title">{item.title}</span>
-                      {item.timestamp && <span className="lc-tdp__item-timestamp">{item.timestamp}</span>}
+            ? section.items.map((item, i) =>
+                item.duration != null ? (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <div key={i} className="lc-tdp__item lc-tdp__voice-item">
+                    <div className="lc-tdp__voice-row">
+                      <span className="lc-tdp__voice-caller">
+                        {item.icon ?? <PhoneIcon />}
+                        <span>{item.title}</span>
+                      </span>
+                      {item.timestamp && <span className="lc-tdp__voice-time">{item.timestamp}</span>}
                     </div>
-                    {item.preview && <p className="lc-tdp__item-preview">{item.preview}</p>}
+                    <div className="lc-tdp__voice-row">
+                      <span className="lc-tdp__voice-duration">{item.duration}</span>
+                      <span className="lc-tdp__voice-transcript">See transcript</span>
+                    </div>
                   </div>
-                </div>
-              ))
-            : section.emptyText && <p className="lc-tdp__empty">{section.emptyText}</p>}
+                ) : (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <div key={i} className="lc-tdp__item">
+                    <span className="lc-tdp__item-icon">{item.icon ?? <MailIcon />}</span>
+                    <div className="lc-tdp__item-text">
+                      <div className="lc-tdp__item-title-row">
+                        <span className="lc-tdp__item-title">{item.title}</span>
+                        {item.timestamp && <span className="lc-tdp__item-timestamp">{item.timestamp}</span>}
+                      </div>
+                      {item.preview && <p className="lc-tdp__item-preview">{item.preview}</p>}
+                    </div>
+                  </div>
+                ),
+              )
+            : !section.fields?.length &&
+              !section.tags &&
+              section.emptyText && <p className="lc-tdp__empty">{section.emptyText}</p>}
         </div>
       )}
     </div>
@@ -319,6 +503,12 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
       {resolvedActiveTab === 'Products' && (
         <div className="lc-tdp__body">
           <ProductsPanel />
+        </div>
+      )}
+
+      {resolvedActiveTab === 'Orders' && (
+        <div className="lc-tdp__body">
+          <OrdersPanel />
         </div>
       )}
     </div>
