@@ -103,6 +103,7 @@
   align-items: flex-start;
   gap: 24px;
   padding-top: 20px;
+  padding-left: 20px;
   transition: opacity 120ms ease;
 }
 
