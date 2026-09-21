@@ -94,7 +94,7 @@ import { ConversationTopBar } from './components/ConversationTopBar';
 import { MessageBubble } from './components/MessageBubble';
 import { TicketComposer, type TicketComposerMode } from './components/TicketComposer';
 import { EmailMessage, EmailComposerBar, EmailForwardComposer } from './components/EmailMessage';
-import { TicketDetailsPanel, type TicketDetailsSection } from './components/TicketDetailsPanel';
+import { TicketDetailsPanel, type TicketDetailsField, type TicketDetailsSection } from './components/TicketDetailsPanel';
 
 const WhatsAppIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -1095,22 +1095,158 @@ const SHOWCASE_MESSAGES: Array<{ id: string } & ComponentProps<typeof MessageBub
   },
 ];
 
+const TICKET_CUSTOM_FIELDS: TicketDetailsField[] = [
+  { id: 'order-ref', label: 'Order reference', type: 'text', defaultValue: 'ORD-10241' },
+  { id: 'follow-up', label: 'Follow-up date', type: 'date', defaultValue: '2026-09-25' },
+  {
+    id: 'priority',
+    label: 'Priority',
+    type: 'select',
+    defaultValue: 'medium',
+    options: [
+      { value: 'low', label: 'Low' },
+      { value: 'medium', label: 'Medium' },
+      { value: 'high', label: 'High' },
+      { value: 'urgent', label: 'Urgent' },
+    ],
+  },
+  {
+    id: 'issue-category',
+    label: 'Issue category',
+    type: 'cascading',
+    options: [
+      {
+        value: 'product',
+        label: 'Product',
+        children: [
+          {
+            value: 'sizing',
+            label: 'Sizing',
+            children: [
+              { value: 'too-small', label: 'Too small' },
+              { value: 'too-large', label: 'Too large' },
+              { value: 'wrong-size', label: 'Wrong size shipped' },
+            ],
+          },
+          {
+            value: 'quality',
+            label: 'Quality',
+            children: [
+              { value: 'defective', label: 'Defective item' },
+              { value: 'damaged', label: 'Damaged in transit' },
+            ],
+          },
+          {
+            value: 'availability',
+            label: 'Availability',
+            children: [
+              { value: 'out-of-stock', label: 'Out of stock' },
+              { value: 'restock-eta', label: 'Restock ETA' },
+            ],
+          },
+        ],
+      },
+      {
+        value: 'order',
+        label: 'Order',
+        children: [
+          {
+            value: 'shipping',
+            label: 'Shipping',
+            children: [
+              { value: 'delayed', label: 'Delayed delivery' },
+              { value: 'lost', label: 'Lost in transit' },
+            ],
+          },
+          {
+            value: 'payment',
+            label: 'Payment',
+            children: [
+              { value: 'failed', label: 'Payment failed' },
+              { value: 'refund', label: 'Refund status' },
+            ],
+          },
+        ],
+      },
+      {
+        value: 'account',
+        label: 'Account',
+        children: [
+          {
+            value: 'login',
+            label: 'Login issue',
+            children: [
+              { value: 'password-reset', label: 'Password reset' },
+              { value: 'otp', label: 'OTP not received' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+];
+
 const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
   {
     id: 'previous-tickets',
     label: 'Previous tickets',
-    defaultOpen: true,
     items: [
       { title: 'Email_Sales', timestamp: '6 months ago', preview: 'Hi, Looks like you are away from our...' },
+      { title: 'WhatsApp_Support', timestamp: '4 months ago', preview: 'My order hasn\'t arrived yet, can you...' },
+      { title: 'Email_Billing', timestamp: '2 months ago', preview: 'I was charged twice for my last order...' },
+      { title: 'WhatsApp_Support', timestamp: '3 weeks ago', preview: 'Thanks for the quick resolution earlier!' },
     ],
   },
-  { id: 'sub-tickets', label: 'Sub tickets', emptyText: 'There are no voice logs for this customer' },
-  { id: 'voice-logs', label: 'Voice logs', emptyText: 'There are no voice logs for this customer', hideAdd: true },
-  { id: 'conversation-fields', label: 'Conversation fields', emptyText: 'There are no fields for this customer' },
-  { id: 'contact-fields', label: 'Contact fields', emptyText: 'There are no fields for this customer', hideAdd: true },
-  { id: 'conversation-tags', label: 'Conversation tags', emptyText: 'There are no tags for this customer' },
-  { id: 'contact-tags', label: 'Contact tags', emptyText: 'There are no tags for this customer' },
-  { id: 'shopify-tags', label: 'Shopify tags', emptyText: 'There are no tags for this customer' },
+  {
+    id: 'sub-tickets',
+    label: 'Sub tickets',
+    emptyText: 'There are no sub tickets for this customer',
+    items: [
+      { title: 'Refund_Request', timestamp: '5 days ago', preview: 'Splitting this off to track the refund separately...' },
+      { title: 'Replacement_Item', timestamp: '2 days ago', preview: 'Logging the replacement request for the damaged item.' },
+    ],
+  },
+  {
+    id: 'voice-logs',
+    label: 'Voice logs',
+    emptyText: 'There are no voice logs for this customer',
+    hideAdd: true,
+    items: [
+      { title: 'Ananya Rao', timestamp: '5th Aug | 10:00 am', duration: '5 minutes 10 seconds' },
+      { title: 'Ananya Rao', timestamp: '2nd Aug | 3:45 pm', duration: '2 minutes 45 seconds' },
+    ],
+  },
+  {
+    id: 'conversation-fields',
+    label: 'Conversation fields',
+    emptyText: 'There are no fields for this customer',
+    fields: TICKET_CUSTOM_FIELDS,
+  },
+  {
+    id: 'contact-fields',
+    label: 'Contact fields',
+    emptyText: 'There are no fields for this customer',
+    hideAdd: true,
+    fields: TICKET_CUSTOM_FIELDS,
+  },
+  {
+    id: 'conversation-tags',
+    label: 'Conversation tags',
+    emptyText: 'There are no tags for this customer',
+    tags: ['Order delay', 'Delivery issue', 'Follow-up needed'],
+  },
+  {
+    id: 'contact-tags',
+    label: 'Contact tags',
+    emptyText: 'There are no tags for this customer',
+    tags: ['Returning customer', 'VIP'],
+  },
+  {
+    id: 'shopify-tags',
+    label: 'Shopify tags',
+    emptyText: 'There are no tags for this customer',
+    tags: ['Shopify Plus', 'High LTV'],
+  },
 ];
 
 /** Demo tickets — t-1..t-4 are 2 linked pairs (WhatsApp incoming/outgoing, Email
