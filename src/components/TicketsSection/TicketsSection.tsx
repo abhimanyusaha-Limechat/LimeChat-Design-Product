@@ -15,6 +15,7 @@
  */
 import { forwardRef, useCallback, useEffect, useId, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { Button } from '../Button';
+import { Menu } from '../Menu';
 import './TicketsSection.css';
 
 /**
@@ -169,6 +170,20 @@ const SortIcon = () => (
     <path d="M17 19l0 -14" />
   </svg>
 );
+const CheckIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M5 12l5 5l10 -10" />
+  </svg>
+);
+
+export const TICKETS_SORT_OPTIONS = [
+  'Newly created',
+  'Oldest created',
+  'Newest activity',
+  'Oldest activity',
+] as const;
+
+export type TicketsSortOption = (typeof TICKETS_SORT_OPTIONS)[number];
 
 export interface TicketsSectionTab {
   id: string;
@@ -192,6 +207,8 @@ export interface TicketsSectionProps extends HTMLAttributes<HTMLDivElement> {
   onTabChange?: (id: string) => void;
   sortLabel?: string;
   onSortClick?: () => void;
+  sortOptions?: readonly string[];
+  onSortChange?: (option: string) => void;
   children?: ReactNode;
   /** Renders a secondary "Load more" CTA below the last row when set. */
   onLoadMore?: () => void;
@@ -217,6 +234,8 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
     onTabChange,
     sortLabel,
     onSortClick,
+    sortOptions = TICKETS_SORT_OPTIONS,
+    onSortChange,
     children,
     onLoadMore,
     loadMoreLabel = 'Load more tickets',
@@ -301,12 +320,29 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
       )}
 
       {sortLabel && (
-        <button type="button" className="lc-tickets-section__sort" onClick={onSortClick}>
-          <span className="lc-tickets-section__sort-label">
-            Sorted by: <span className="lc-tickets-section__sort-value">{sortLabel}</span>
-          </span>
-          <SortIcon />
-        </button>
+        <Menu
+          ariaLabel="Sort tickets by"
+          align="start"
+          width={200}
+          items={sortOptions.map((option) => ({
+            key: option,
+            label: option,
+            selected: option === sortLabel,
+            trailingIcon: option === sortLabel ? <CheckIcon /> : undefined,
+            onClick: () => {
+              onSortChange?.(option);
+              onSortClick?.();
+            },
+          }))}
+          trigger={({ ref, onClick }) => (
+            <button ref={ref} type="button" className="lc-tickets-section__sort" onClick={onClick}>
+              <span className="lc-tickets-section__sort-label">
+                Sorted by: <span className="lc-tickets-section__sort-value">{sortLabel}</span>
+              </span>
+              <SortIcon />
+            </button>
+          )}
+        />
       )}
 
       <div className="lc-tickets-section__list-wrap" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>

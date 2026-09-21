@@ -47,6 +47,7 @@ import { ProfileSettings } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
 import { HelpDeskAccountSettings, type HelpDeskToggleKey } from './components/HelpDeskAccountSettings';
 import { DataSecuritySettings, type PiiTypeKey, type ProfanityWord } from './components/DataSecuritySettings';
+import { AttributionSettings, type AttributionWindowKey, type AttributionWindowValue } from './components/AttributionSettings';
 import {
   IntegrationsHomePage,
   type IntegrationCategory,
@@ -1225,6 +1226,7 @@ export function App() {
   const selectedTicket = TICKETS.find((ticket) => ticket.id === selectedTicketId);
   const [ticketsTab, setTicketsTab] = useState('queued');
   const [ticketsSearch, setTicketsSearch] = useState('');
+  const [ticketsSort, setTicketsSort] = useState('Newly created');
   const [composerMode, setComposerMode] = useState<TicketComposerMode>('reply');
   const [resolveStatus, setResolveStatus] = useState('Resolve');
   const [composerDraft, setComposerDraft] = useState('');
@@ -1278,6 +1280,17 @@ export function App() {
   });
   const [dsBlockProfanity, setDsBlockProfanity] = useState(false);
   const [dsProfanityWords, setDsProfanityWords] = useState<ProfanityWord[]>([]);
+
+  const [attrEnabled, setAttrEnabled] = useState<Record<AttributionWindowKey, boolean>>({
+    linkClick: true,
+    linkSent: true,
+    botIntent: true,
+  });
+  const [attrWindows, setAttrWindows] = useState<Record<AttributionWindowKey, AttributionWindowValue>>({
+    linkClick: { days: 2, hours: 0 },
+    linkSent: { days: 2, hours: 0 },
+    botIntent: { days: 2, hours: 0 },
+  });
 
   const [broadcastTab, setBroadcastTab] = useState<BroadcastTab>('triggered');
   const [broadcastSearch, setBroadcastSearch] = useState('');
@@ -1948,6 +1961,20 @@ export function App() {
                     )
                   }
                 />
+              ) : settingsTab === 'hd-attribution' ? (
+                <AttributionSettings
+                  enabled={attrEnabled}
+                  onEnabledChange={(key, next) =>
+                    setAttrEnabled((prev) => ({ ...prev, [key]: next }))
+                  }
+                  windows={attrWindows}
+                  onWindowChange={(key, field, value) =>
+                    setAttrWindows((prev) => ({
+                      ...prev,
+                      [key]: { ...prev[key], [field]: value },
+                    }))
+                  }
+                />
               ) : settingsTab === 'inboxes' ? (
                 <InboxesTable
                   inboxes={visibleInboxes}
@@ -2013,8 +2040,8 @@ export function App() {
                   ]}
                   activeTab={ticketsTab}
                   onTabChange={setTicketsTab}
-                  sortLabel="Newly created"
-                  onSortClick={() => alert('Change sort order')}
+                  sortLabel={ticketsSort}
+                  onSortChange={setTicketsSort}
                   onLoadMore={() => alert('Load more tickets')}
                 >
                   {TICKETS.map((ticket) => (

@@ -1,0 +1,186 @@
+/**
+ * AttributionSettings — Settings → Attribution, HelpDesk product.
+ *
+ * Reuses the same divider/text/primary tokens as DataSecuritySettings
+ * (`--lc-dss-*` mirrored here as `--lc-attr-*`) so the two settings pages
+ * read as one system.
+ */
+
+.lc-attr {
+  --lc-attr-divider: #ececea;
+  --lc-attr-text-title: #3c492c;
+  --lc-attr-text-dimmed: #808975;
+  --lc-attr-primary: #508014;
+  --lc-attr-bg-subtle: #fafaf9;
+  --lc-attr-radius-sm: 6px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  max-width: 920px;
+  color: var(--lc-attr-text-title);
+  container-type: inline-size;
+}
+
+.lc-attr *,
+.lc-attr *::before,
+.lc-attr *::after {
+  box-sizing: border-box;
+}
+
+.lc-attr__section {
+  display: flex;
+  flex-direction: column;
+  width: 75%;
+}
+
+.lc-attr__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--lc-attr-divider);
+}
+
+.lc-attr__section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--lc-attr-text-title);
+}
+
+.lc-attr__info-trigger {
+  display: inline-flex;
+  cursor: default;
+}
+
+.lc-attr__info-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--lc-attr-primary);
+}
+
+.lc-attr__toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.lc-attr__toggle:focus-visible {
+  outline: 2px solid var(--lc-attr-primary);
+  outline-offset: 2px;
+  border-radius: 999px;
+}
+
+.lc-attr__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding-top: 20px;
+  transition: opacity 120ms ease;
+}
+
+.lc-attr__row[data-disabled='true'] {
+  opacity: 0.5;
+}
+
+.lc-attr__row-label {
+  flex: 0 0 auto;
+  width: 200px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--lc-attr-text-title);
+  padding-top: 8px;
+}
+
+.lc-attr__fields {
+  display: flex;
+  gap: 24px;
+}
+
+.lc-attr__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lc-attr__field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lc-attr-text-title);
+}
+
+.lc-attr__field-input {
+  width: 160px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--lc-attr-divider);
+  border-radius: var(--lc-attr-radius-sm);
+  background: var(--lc-attr-bg-subtle);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--lc-attr-text-title);
+}
+
+.lc-attr__field-input:focus-visible {
+  outline: none;
+  border-color: var(--lc-attr-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-attr-primary) 20%, transparent);
+}
+
+.lc-attr__field-input:disabled {
+  cursor: not-allowed;
+}
+
+@container (max-width: 480px) {
+  .lc-attr__row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .lc-attr__row-label {
+    width: auto;
+    padding-top: 0;
+  }
+}
+
+/* --- Switch (shared visual language with DataSecuritySettings) ------- */
+
+.lc-attr__switch-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: #d9d9d9;
+  transition: background-color 150ms ease;
+}
+
+.lc-attr__switch-track[data-checked='true'] {
+  background: #6bac1b;
+}
+
+.lc-attr__switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease;
+}
+
+.lc-attr__switch-track[data-checked='true'] .lc-attr__switch-thumb {
+  transform: translateX(18px);
+}

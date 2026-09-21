@@ -37,9 +37,13 @@ export interface MenuItemData {
   key?: string;
   label: ReactNode;
   icon?: ReactNode;
+  /** Renders after the label, flush to the trailing edge — e.g. a selected-state checkmark. */
+  trailingIcon?: ReactNode;
   onClick?: () => void;
   danger?: boolean;
   disabled?: boolean;
+  /** Highlights the row with a light primary background, for the currently active option in a single-select list. */
+  selected?: boolean;
 }
 
 export interface MenuTriggerRenderProps {
@@ -125,7 +129,7 @@ export function Menu({ items, trigger, ariaLabel, align = 'end', width = 190, cl
                 key={item.key ?? i}
                 type="button"
                 role="menuitem"
-                className={`lc-menu__item${item.danger ? ' lc-menu__item--danger' : ''}`}
+                className={`lc-menu__item${item.danger ? ' lc-menu__item--danger' : ''}${item.selected ? ' lc-menu__item--selected' : ''}`}
                 disabled={item.disabled}
                 onClick={() => {
                   setOpen(false);
@@ -133,7 +137,10 @@ export function Menu({ items, trigger, ariaLabel, align = 'end', width = 190, cl
                 }}
               >
                 {item.icon && <span className="lc-menu__item-icon">{item.icon}</span>}
-                {item.label}
+                <span className="lc-menu__item-label">{item.label}</span>
+                {item.trailingIcon && (
+                  <span className="lc-menu__item-icon lc-menu__item-icon--trailing">{item.trailingIcon}</span>
+                )}
               </button>
             ))}
           </div>,
