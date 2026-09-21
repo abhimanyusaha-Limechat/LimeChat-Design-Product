@@ -1,0 +1,368 @@
+/**
+ * BotCsatSettings — Settings → Bot CSAT, HelpDesk product.
+ *
+ * Reuses the same tokens/anatomy as DataSecuritySettings and
+ * AttributionSettings (`--lc-dss-*`/`--lc-attr-*` mirrored here as
+ * `--lc-csat-*`) so the three settings pages read as one system.
+ */
+
+.lc-csat {
+  --lc-csat-divider: #ececea;
+  --lc-csat-text-title: #3c492c;
+  --lc-csat-text-dimmed: #808975;
+  --lc-csat-primary: #508014;
+  --lc-csat-bg-subtle: #fafaf9;
+  --lc-csat-radius-sm: 6px;
+  --lc-csat-label-col: 260px;
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 920px;
+  color: var(--lc-csat-text-title);
+  container-type: inline-size;
+}
+
+.lc-csat *,
+.lc-csat *::before,
+.lc-csat *::after {
+  box-sizing: border-box;
+}
+
+/* --- Master toggle: highlighted card (matches DataSecuritySettings) -- */
+
+.lc-csat__header-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: flex-start;
+  width: 75%;
+  gap: 16px;
+  margin: 0 0 28px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--lc-csat-primary) 30%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--lc-csat-primary) 7%, transparent);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.lc-csat__header-row:hover {
+  background: color-mix(in srgb, var(--lc-csat-primary) 12%, transparent);
+}
+
+.lc-csat__header-row:focus-visible {
+  outline: 2px solid var(--lc-csat-primary);
+  outline-offset: 2px;
+}
+
+.lc-csat__header-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  color: var(--lc-csat-primary);
+}
+
+.lc-csat__header-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lc-csat__header-label {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--lc-csat-text-title);
+}
+
+.lc-csat__header-desc {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-csat-text-dimmed);
+}
+
+/* --- Body rows ---------------------------------------------------- */
+
+.lc-csat__body {
+  display: flex;
+  flex-direction: column;
+  transition: opacity 120ms ease;
+}
+
+.lc-csat[data-disabled='true'] .lc-csat__body {
+  opacity: 0.5;
+}
+
+.lc-csat__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  max-width: 75%;
+  padding: 20px 0;
+  border-top: 1px solid var(--lc-csat-divider);
+}
+
+.lc-csat__row-label-col {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  width: var(--lc-csat-label-col);
+  gap: 3px;
+  padding-top: 8px;
+}
+
+.lc-csat__row-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--lc-csat-text-title);
+}
+
+.lc-csat__row-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-csat-text-dimmed);
+}
+
+.lc-csat__info-trigger {
+  display: inline-flex;
+  cursor: default;
+}
+
+.lc-csat__info-icon {
+  width: 15px;
+  height: 15px;
+  color: var(--lc-csat-primary);
+}
+
+/* --- Flow checkbox grid -------------------------------------------- */
+
+.lc-csat__flow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(160px, 200px));
+  grid-auto-flow: column;
+  grid-template-rows: repeat(5, auto);
+  column-gap: 48px;
+  row-gap: 20px;
+  flex: 1 1 auto;
+}
+
+.lc-csat__checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.lc-csat__checkbox input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.lc-csat__checkbox-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #c7cbc0;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #ffffff;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.lc-csat__checkbox-box svg {
+  width: 12px;
+  height: 12px;
+}
+
+.lc-csat__checkbox-box[data-checked='true'] {
+  background: var(--lc-csat-primary);
+  border-color: var(--lc-csat-primary);
+}
+
+.lc-csat__checkbox:has(input:disabled) {
+  cursor: not-allowed;
+}
+
+.lc-csat__checkbox-label {
+  font-size: 14px;
+  color: var(--lc-csat-text-title);
+  transition: color 120ms ease;
+}
+
+.lc-csat__checkbox:has(input:checked) .lc-csat__checkbox-label {
+  color: var(--lc-csat-primary);
+  font-weight: 600;
+}
+
+/* --- Rating scale radio group --------------------------------------- */
+
+.lc-csat__radio-group {
+  display: flex;
+  gap: 40px;
+  padding-top: 8px;
+}
+
+.lc-csat__radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.lc-csat__radio input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.lc-csat__radio-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #c7cbc0;
+  border-radius: 50%;
+  transition: border-color 120ms ease;
+}
+
+.lc-csat__radio-dot::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--lc-csat-primary);
+  transform: scale(0);
+  transition: transform 120ms ease;
+}
+
+.lc-csat__radio-dot[data-checked='true'] {
+  border-color: var(--lc-csat-primary);
+}
+
+.lc-csat__radio-dot[data-checked='true']::after {
+  transform: scale(1);
+}
+
+.lc-csat__radio:has(input:disabled) {
+  cursor: not-allowed;
+}
+
+.lc-csat__radio-label {
+  font-size: 14px;
+  color: var(--lc-csat-text-title);
+  transition: color 120ms ease;
+}
+
+.lc-csat__radio:has(input:checked) .lc-csat__radio-label {
+  color: var(--lc-csat-primary);
+  font-weight: 600;
+}
+
+/* --- Time delay fields ------------------------------------------------ */
+
+.lc-csat__delay-fields {
+  display: flex;
+  gap: 32px;
+}
+
+.lc-csat__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lc-csat__field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lc-csat-text-title);
+}
+
+.lc-csat__field-input {
+  width: 160px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--lc-csat-divider);
+  border-radius: var(--lc-csat-radius-sm);
+  background: var(--lc-csat-bg-subtle);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--lc-csat-text-title);
+}
+
+.lc-csat__field-input:focus-visible {
+  outline: none;
+  border-color: var(--lc-csat-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-csat-primary) 20%, transparent);
+}
+
+.lc-csat__field-input:disabled {
+  cursor: not-allowed;
+}
+
+@container (max-width: 640px) {
+  .lc-csat__row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .lc-csat__row-label-col {
+    width: auto;
+    padding-top: 0;
+  }
+  .lc-csat__flow-grid {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+    grid-template-rows: repeat(7, auto);
+  }
+  .lc-csat__header-row {
+    width: 100%;
+  }
+}
+
+/* --- Switch (shared visual language with DataSecuritySettings) ------- */
+
+.lc-csat__switch-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: #d9d9d9;
+  transition: background-color 150ms ease;
+}
+
+.lc-csat__switch-track[data-checked='true'] {
+  background: #6bac1b;
+}
+
+.lc-csat__switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease;
+}
+
+.lc-csat__switch-track[data-checked='true'] .lc-csat__switch-thumb {
+  transform: translateX(18px);
+}

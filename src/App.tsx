@@ -49,6 +49,12 @@ import { HelpDeskAccountSettings, type HelpDeskToggleKey } from './components/He
 import { DataSecuritySettings, type PiiTypeKey, type ProfanityWord } from './components/DataSecuritySettings';
 import { AttributionSettings, type AttributionWindowKey, type AttributionWindowValue } from './components/AttributionSettings';
 import {
+  BotCsatSettings,
+  type CsatFlowKey,
+  type CsatRatingScale,
+  type CsatTimeDelay,
+} from './components/BotCsatSettings';
+import {
   IntegrationsHomePage,
   type IntegrationCategory,
   FreshdeskIcon,
@@ -1298,6 +1304,27 @@ export function App() {
     botIntent: { days: 2, hours: 0 },
   });
 
+  const [csatEnabled, setCsatEnabled] = useState(true);
+  const [csatFlows, setCsatFlows] = useState<Record<CsatFlowKey, boolean>>({
+    showProducts: false,
+    faq: true,
+    gptProductSearch: true,
+    myCaptain: false,
+    voucher: true,
+    cancelOrder: true,
+    trackOrder: true,
+    gptQna: true,
+    returnOrder: false,
+    addressChange: false,
+    returnRefund: true,
+    checkout: true,
+    gptAgenticQna: false,
+    exchangeOrder: false,
+  });
+  const [csatRatingScale, setCsatRatingScale] = useState<CsatRatingScale>('5');
+  const [csatDelay, setCsatDelay] = useState<CsatTimeDelay>({ hours: 0, minutes: 0, seconds: 15 });
+  const [csatReminderDelay, setCsatReminderDelay] = useState<CsatTimeDelay>({ hours: 0, minutes: 0, seconds: 20 });
+
   const [broadcastTab, setBroadcastTab] = useState<BroadcastTab>('triggered');
   const [broadcastSearch, setBroadcastSearch] = useState('');
   const [broadcastPage, setBroadcastPage] = useState(1);
@@ -1979,6 +2006,23 @@ export function App() {
                       ...prev,
                       [key]: { ...prev[key], [field]: value },
                     }))
+                  }
+                />
+              ) : settingsTab === 'bot-csat' ? (
+                <BotCsatSettings
+                  enabled={csatEnabled}
+                  onEnabledChange={setCsatEnabled}
+                  flows={csatFlows}
+                  onFlowChange={(key, next) => setCsatFlows((prev) => ({ ...prev, [key]: next }))}
+                  ratingScale={csatRatingScale}
+                  onRatingScaleChange={setCsatRatingScale}
+                  csatDelay={csatDelay}
+                  onCsatDelayChange={(field, value) =>
+                    setCsatDelay((prev) => ({ ...prev, [field]: value }))
+                  }
+                  reminderDelay={csatReminderDelay}
+                  onReminderDelayChange={(field, value) =>
+                    setCsatReminderDelay((prev) => ({ ...prev, [field]: value }))
                   }
                 />
               ) : settingsTab === 'inboxes' ? (
