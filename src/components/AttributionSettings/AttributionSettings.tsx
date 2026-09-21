@@ -53,21 +53,24 @@ export interface AttributionSettingsProps {
   onWindowChange: (key: AttributionWindowKey, field: AttributionWindowField, value: number) => void;
 }
 
-const SECTIONS: { key: AttributionWindowKey; title: string; info: string }[] = [
+const SECTIONS: { key: AttributionWindowKey; title: string; info: string; windowInfo: string }[] = [
   {
     key: 'linkClick',
     title: 'Link Click Attribution',
     info: 'Attribute a ticket to the campaign whose link the customer clicked.',
+    windowInfo: 'How long after the click a new ticket can still be attributed to the campaign.',
   },
   {
     key: 'linkSent',
     title: 'Link Sent Attribution',
     info: 'Attribute a ticket to the campaign whose link was sent to the customer, even if it was never clicked.',
+    windowInfo: 'How long after the link was sent a new ticket can still be attributed to the campaign.',
   },
   {
     key: 'botIntent',
     title: 'Bot Intent Attribution',
     info: 'Attribute a ticket to the bot intent that started the conversation.',
+    windowInfo: 'How long after the bot intent a new ticket can still be attributed to it.',
   },
 ];
 
@@ -91,19 +94,22 @@ export function AttributionSettings({
         return (
           <section key={section.key} className="lc-attr__section">
             <div className="lc-attr__section-header">
-              <span className="lc-attr__section-title">
-                {section.title}
-                <Tooltip label={section.info}>
-                  <span
-                    className="lc-attr__info-trigger"
-                    tabIndex={0}
-                    role="button"
-                    aria-label={`About ${section.title}`}
-                  >
-                    <InfoIcon />
-                  </span>
-                </Tooltip>
-              </span>
+              <div className="lc-attr__section-heading">
+                <span className="lc-attr__section-title">
+                  {section.title}
+                  <Tooltip label={section.info}>
+                    <span
+                      className="lc-attr__info-trigger"
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`About ${section.title}`}
+                    >
+                      <InfoIcon />
+                    </span>
+                  </Tooltip>
+                </span>
+                <p className="lc-attr__section-desc">{section.info}</p>
+              </div>
 
               <button
                 type="button"
@@ -117,7 +123,10 @@ export function AttributionSettings({
             </div>
 
             <div className="lc-attr__row" data-disabled={disabled}>
-              <span className="lc-attr__row-label">Attribution Window</span>
+              <div className="lc-attr__row-label-col">
+                <span className="lc-attr__row-label">Attribution Window</span>
+                <p className="lc-attr__row-desc">{section.windowInfo}</p>
+              </div>
               <div className="lc-attr__fields">
                 <label className="lc-attr__field">
                   <span className="lc-attr__field-label">Days</span>
