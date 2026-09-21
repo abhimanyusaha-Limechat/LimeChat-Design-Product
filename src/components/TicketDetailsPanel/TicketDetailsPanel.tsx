@@ -14,8 +14,10 @@
  *     ]}
  *   />
  */
-import { forwardRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { NativeSelect } from '../Select';
+import { Tooltip } from '../Tooltip';
+import { ProductsPanel } from '../ProductsPanel';
 import './TicketDetailsPanel.css';
 
 function iconProps() {
@@ -47,6 +49,43 @@ const MailIcon = () => (
     <path d="M3 7l9 6l9 -6" />
   </svg>
 );
+const OverviewIcon = () => (
+  <svg {...iconProps()}>
+    <rect x="4" y="4" width="7" height="7" rx="1" />
+    <rect x="13" y="4" width="7" height="7" rx="1" />
+    <rect x="4" y="13" width="7" height="7" rx="1" />
+    <rect x="13" y="13" width="7" height="7" rx="1" />
+  </svg>
+);
+const OrdersIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M6.331 8h11.339a2 2 0 0 1 1.977 2.304l-1.255 8.152a3 3 0 0 1 -2.966 2.544h-6.852a3 3 0 0 1 -2.966 -2.544l-1.255 -8.152a2 2 0 0 1 1.977 -2.304z" />
+    <path d="M9 11v-5a3 3 0 0 1 6 0v5" />
+  </svg>
+);
+const ProductsIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" />
+    <path d="M12 12l8 -4.5" />
+    <path d="M12 12l0 9" />
+    <path d="M12 12l-8 -4.5" />
+  </svg>
+);
+const CartIcon = () => (
+  <svg {...iconProps()}>
+    <circle cx="6" cy="19" r="2" />
+    <circle cx="17" cy="19" r="2" />
+    <path d="M17 17h-11v-14h-2" />
+    <path d="M6 5l14 1l-1 7h-13" />
+  </svg>
+);
+
+const TAB_ICONS: Record<string, () => ReactNode> = {
+  Overview: OverviewIcon,
+  Orders: OrdersIcon,
+  Products: ProductsIcon,
+  Cart: CartIcon,
+};
 
 export interface TicketDetailsSectionItem {
   icon?: ReactNode;
@@ -82,12 +121,57 @@ export interface TicketDetailsPanelProps extends HTMLAttributes<HTMLDivElement> 
   sections?: TicketDetailsSection[];
 }
 
-function DetailRow({ icon, label, value, action }: { icon?: ReactNode; label: string; value: string; action?: ReactNode }) {
+/** Copy-to-clipboard detail value — "Click to copy" tooltip; flips to "Copied" briefly on click. */
+function CopyableDetailValue({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const handleClick = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      // Clipboard access denied/unavailable — the value simply won't confirm.
+    }
+    setCopied(true);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setCopied(false), 1000);
+  };
+
+  return (
+    <Tooltip label="Click to copy" position="bottom">
+      <button
+        type="button"
+        className={`lc-tdp__detail-value lc-tdp__detail-value--copyable${
+          copied ? ' lc-tdp__detail-value--copied' : ''
+        }`}
+        onClick={handleClick}
+      >
+        {copied ? 'Copied' : value}
+      </button>
+    </Tooltip>
+  );
+}
+
+function DetailRow({
+  icon,
+  label,
+  value,
+  action,
+  copyable,
+}: {
+  icon?: ReactNode;
+  label: string;
+  value: string;
+  action?: ReactNode;
+  copyable?: boolean;
+}) {
   return (
     <div className="lc-tdp__detail-row">
       {icon != null && <span className="lc-tdp__detail-icon">{icon}</span>}
       <span className="lc-tdp__detail-label">{label}</span>
-      <span className="lc-tdp__detail-value">{value}</span>
+      {copyable ? <CopyableDetailValue value={value} /> : <span className="lc-tdp__detail-value">{value}</span>}
       {action}
     </div>
   );
@@ -113,28 +197,43 @@ function AssignmentRow({ icon, label, field }: { icon?: ReactNode; label: string
 
 function Section({ section }: { section: TicketDetailsSection }) {
   const [open, setOpen] = useState(section.defaultOpen ?? false);
+  const toggle = () => setOpen((v) => !v);
   return (
     <div className="lc-tdp__section">
-      <div className="lc-tdp__section-header">
+      <div
+        className="lc-tdp__section-header"
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+        onClick={toggle}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggle();
+          }
+        }}
+      >
         <div className="lc-tdp__section-title">
           <span>{section.label}</span>
           {section.count != null && <span className="lc-tdp__badge">{section.count}</span>}
         </div>
         <div className="lc-tdp__section-actions">
           {!section.hideAdd && (
-            <button type="button" className="lc-tdp__icon-btn" aria-label={`Add ${section.label}`} onClick={section.onAdd}>
+            <button
+              type="button"
+              className="lc-tdp__icon-btn"
+              aria-label={`Add ${section.label}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                section.onAdd?.();
+              }}
+            >
               <PlusIcon />
             </button>
           )}
-          <button
-            type="button"
-            className="lc-tdp__icon-btn"
-            aria-label={open ? 'Collapse' : 'Expand'}
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-          >
+          <span className="lc-tdp__icon-btn" aria-hidden="true">
             <ChevronIcon open={open} />
-          </button>
+          </span>
         </div>
       </div>
       {open && (
@@ -162,7 +261,7 @@ function Section({ section }: { section: TicketDetailsSection }) {
 
 export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelProps>(function TicketDetailsPanel(
   {
-    tabs = ['Overview', 'Orders', 'Products'],
+    tabs = ['Overview', 'Orders', 'Products', 'Cart'],
     activeTab,
     onTabChange,
     ticketId,
@@ -179,36 +278,49 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   return (
     <div {...rest} ref={ref} className={`lc-tdp${className ? ` ${className}` : ''}`}>
       <div className="lc-tdp__tabs" role="tablist">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            role="tab"
-            aria-selected={resolvedActiveTab === tab}
-            className="lc-tdp__tab"
-            data-active={resolvedActiveTab === tab || undefined}
-            onClick={() => onTabChange?.(tab)}
-          >
-            {tab}
-          </button>
-        ))}
+        {tabs.map((tab) => {
+          const Icon = TAB_ICONS[tab];
+          return (
+            <Tooltip key={tab} label={tab} position="bottom">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={resolvedActiveTab === tab}
+                aria-label={tab}
+                className="lc-tdp__tab"
+                data-active={resolvedActiveTab === tab || undefined}
+                onClick={() => onTabChange?.(tab)}
+              >
+                {Icon ? <Icon /> : tab}
+              </button>
+            </Tooltip>
+          );
+        })}
       </div>
 
-      <div className="lc-tdp__body">
-        {(ticketId || agent || team) && (
-          <div className="lc-tdp__info">
-            {ticketId && <DetailRow label="Ticket Id" value={ticketId} />}
-            {agent && <AssignmentRow label="Assign Agent" field={agent} />}
-            {team && <AssignmentRow label="Assign Team" field={team} />}
+      {resolvedActiveTab === 'Overview' && (
+        <div className="lc-tdp__body">
+          {(ticketId || agent || team) && (
+            <div className="lc-tdp__info">
+              {ticketId && <DetailRow label="Ticket Id" value={ticketId} copyable />}
+              {agent && <AssignmentRow label="Assign Agent" field={agent} />}
+              {team && <AssignmentRow label="Assign Team" field={team} />}
+            </div>
+          )}
+
+          <div className="lc-tdp__sections">
+            {sections.map((section) => (
+              <Section key={section.id} section={section} />
+            ))}
           </div>
-        )}
-
-        <div className="lc-tdp__sections">
-          {sections.map((section) => (
-            <Section key={section.id} section={section} />
-          ))}
         </div>
-      </div>
+      )}
+
+      {resolvedActiveTab === 'Products' && (
+        <div className="lc-tdp__body">
+          <ProductsPanel />
+        </div>
+      )}
     </div>
   );
 });

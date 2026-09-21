@@ -2248,7 +2248,7 @@ export function App() {
               }
               detailsPanel={
                 <TicketDetailsPanel
-                  tabs={['Overview', 'Orders', 'Products']}
+                  tabs={['Overview', 'Orders', 'Products', 'Cart']}
                   activeTab={detailsTab}
                   onTabChange={setDetailsTab}
                   ticketId={selectedTicket?.ticketId ?? ''}
