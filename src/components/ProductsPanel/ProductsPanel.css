@@ -350,6 +350,12 @@
   border-radius: 8px;
   font-size: 40px;
 }
+.lc-pp__thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .lc-pp__thumb-initial {
   transition: opacity 140ms ease;
 }

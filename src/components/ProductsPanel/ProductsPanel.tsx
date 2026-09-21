@@ -207,11 +207,15 @@ function ProductThumbnail({
   return (
     <span
       className={`lc-pp__thumb${size === 'lg' ? ' lc-pp__thumb--lg' : ''}`}
-      style={{ background: palette.bg, color: palette.fg }}
+      style={product.imageUrl ? undefined : { background: palette.bg, color: palette.fg }}
     >
-      <span className="lc-pp__thumb-initial" aria-hidden="true">
-        {product.name.charAt(0)}
-      </span>
+      {product.imageUrl ? (
+        <img className="lc-pp__thumb-img" src={product.imageUrl} alt="" aria-hidden="true" />
+      ) : (
+        <span className="lc-pp__thumb-initial" aria-hidden="true">
+          {product.name.charAt(0)}
+        </span>
+      )}
       {shareable && (
         <button type="button" className="lc-pp__thumb-share" aria-label="Share product" onClick={handleShare}>
           {copied ? <CheckIcon /> : <ShareIcon />}

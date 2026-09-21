@@ -1190,6 +1190,7 @@ const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
   {
     id: 'previous-tickets',
     label: 'Previous tickets',
+    hideAdd: true,
     items: [
       { title: 'Email_Sales', timestamp: '6 months ago', preview: 'Hi, Looks like you are away from our...' },
       { title: 'WhatsApp_Support', timestamp: '4 months ago', preview: 'My order hasn\'t arrived yet, can you...' },
@@ -1220,6 +1221,7 @@ const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
     id: 'conversation-fields',
     label: 'Conversation fields',
     emptyText: 'There are no fields for this customer',
+    hideAdd: true,
     fields: TICKET_CUSTOM_FIELDS,
   },
   {
@@ -1246,6 +1248,15 @@ const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
     label: 'Shopify tags',
     emptyText: 'There are no tags for this customer',
     tags: ['Shopify Plus', 'High LTV'],
+  },
+  {
+    id: 'crm-tickets',
+    label: 'CRM tickets',
+    emptyText: 'There are no CRM tickets for this customer',
+    items: [
+      { title: 'Salesforce_Case_00931', timestamp: '3 months ago', preview: 'Escalated to account manager for loyalty credit...' },
+      { title: 'HubSpot_Ticket_4021', timestamp: '1 month ago', preview: 'Customer requested invoice copy for reimbursement...' },
+    ],
   },
 ];
 

@@ -14,12 +14,39 @@
  *     ]}
  *   />
  */
-import { forwardRef, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type HTMLAttributes,
+  type ReactNode,
+} from 'react';
+import { createPortal } from 'react-dom';
 import { NativeSelect } from '../Select';
 import { Tooltip } from '../Tooltip';
 import { ProductsPanel } from '../ProductsPanel';
 import { OrdersPanel } from '../OrdersPanel';
+import { CartPanel } from '../CartPanel';
+import { Modal, ModalTextarea, ModalCheckbox } from '../Modal';
+import { Button } from '../Button';
 import './TicketDetailsPanel.css';
+
+const RANDOM_AGENT_NAMES = [
+  'Aditi Sharma',
+  'Rahul Verma',
+  'Priya Nair',
+  'Karan Mehta',
+  'Sneha Iyer',
+  'Vikram Singh',
+  'Neha Gupta',
+  'Arjun Reddy',
+  'Ishita Kapoor',
+  'Manish Joshi',
+  'Divya Menon',
+  'Rohan Kulkarni',
+];
 
 function iconProps() {
   return {
@@ -212,6 +239,117 @@ function DetailRow({
   );
 }
 
+/** Trigger + popover with a search box — used to assign an agent/team from a long, searchable name list. */
+function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (next: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number; width: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    const reposition = () => {
+      const rect = triggerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setCoords({ top: rect.bottom + 4, left: rect.left, width: Math.max(rect.width, 200) });
+    };
+    reposition();
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    return () => {
+      window.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    inputRef.current?.focus();
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (!triggerRef.current?.contains(target) && !popoverRef.current?.contains(target)) {
+        setOpen(false);
+        setQuery('');
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        setQuery('');
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  const filtered = RANDOM_AGENT_NAMES.filter((name) => name.toLowerCase().includes(query.trim().toLowerCase()));
+
+  return (
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        className="lc-tdp__assignee-trigger"
+        data-placeholder={!value || undefined}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <span className="lc-tdp__assignee-trigger-value">{value || 'Select...'}</span>
+        <ChevronIcon open={open} />
+      </button>
+      {open &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            ref={popoverRef}
+            className="lc-tdp__assignee-popover"
+            style={coords ? { top: coords.top, left: coords.left, width: coords.width } : { visibility: 'hidden' }}
+          >
+            <input
+              ref={inputRef}
+              type="text"
+              className="lc-tdp__assignee-search"
+              placeholder="Search agents..."
+              value={query}
+              onChange={(e) => setQuery(e.currentTarget.value)}
+            />
+            <div className="lc-tdp__assignee-list" role="listbox">
+              {filtered.length === 0 ? (
+                <p className="lc-tdp__assignee-empty">No agents found.</p>
+              ) : (
+                filtered.map((name) => (
+                  <button
+                    key={name}
+                    type="button"
+                    role="option"
+                    aria-selected={name === value}
+                    data-selected={name === value || undefined}
+                    className="lc-tdp__assignee-option"
+                    onClick={() => {
+                      onChange(name);
+                      setOpen(false);
+                      setQuery('');
+                    }}
+                  >
+                    {name}
+                  </button>
+                ))
+              )}
+            </div>
+          </div>,
+          document.body,
+        )}
+    </>
+  );
+}
+
 function AssignmentRow({ icon, label, field }: { icon?: ReactNode; label: string; field: AssignmentField }) {
   return (
     <div className="lc-tdp__assignment-row">
@@ -219,13 +357,7 @@ function AssignmentRow({ icon, label, field }: { icon?: ReactNode; label: string
         {icon != null && <span className="lc-tdp__detail-icon">{icon}</span>}
         {label}
       </span>
-      <NativeSelect
-        size="xs"
-        data={field.options}
-        value={field.value}
-        onChange={(e) => field.onChange?.(e.currentTarget.value)}
-        wrapperClassName="lc-tdp__assignment-select"
-      />
+      <AssigneeSearchSelect value={field.value} onChange={(next) => field.onChange?.(next)} />
     </div>
   );
 }
@@ -268,7 +400,7 @@ function SelectField({ field }: { field: TicketDetailsField }) {
   return (
     <NativeSelect
       label={field.label}
-      size="xs"
+      size="sm"
       placeholder="Select..."
       data={(field.options ?? []).map((o) => ({ value: o.value, label: o.label }))}
       value={value}
@@ -289,7 +421,7 @@ function CascadingField({ field }: { field: TicketDetailsField }) {
       <span className="lc-tdp__field-label">{field.label}</span>
       <div className="lc-tdp__cascade">
         <NativeSelect
-          size="xs"
+          size="sm"
           placeholder="Select..."
           data={level1.map((o) => ({ value: o.value, label: o.label }))}
           value={path[0] ?? ''}
@@ -297,7 +429,7 @@ function CascadingField({ field }: { field: TicketDetailsField }) {
         />
         {path[0] && level2.length > 0 && (
           <NativeSelect
-            size="xs"
+            size="sm"
             placeholder="Select..."
             data={level2.map((o) => ({ value: o.value, label: o.label }))}
             value={path[1] ?? ''}
@@ -306,7 +438,7 @@ function CascadingField({ field }: { field: TicketDetailsField }) {
         )}
         {path[1] && level3.length > 0 && (
           <NativeSelect
-            size="xs"
+            size="sm"
             placeholder="Select..."
             data={level3.map((o) => ({ value: o.value, label: o.label }))}
             value={path[2] ?? ''}
@@ -352,8 +484,66 @@ function TagList({ tags: initialTags }: { tags: string[] }) {
   );
 }
 
+/** "Create a Sub-ticket" modal (Figma node 41:12551) — opened from Sub tickets' + button. */
+function SubTicketModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [reason, setReason] = useState('');
+  const [assignee, setAssignee] = useState('');
+  const [requireResolution, setRequireResolution] = useState(true);
+
+  const reset = () => {
+    setReason('');
+    setAssignee('');
+    setRequireResolution(true);
+  };
+  const close = () => {
+    onClose();
+    reset();
+  };
+  const canCreate = reason.trim().length > 0 && assignee.trim().length > 0;
+
+  return (
+    <Modal
+      open={open}
+      onClose={close}
+      title="Create a Sub-ticket"
+      width={525}
+      footer={
+        <Button variant="filled" color="primary" size="sm" disabled={!canCreate} onClick={close}>
+          Create
+        </Button>
+      }
+    >
+      <div className="lc-tdp__subticket-form">
+        <ModalTextarea
+          label="Reason for the sub ticket creation"
+          required
+          placeholder="Write your issue"
+          value={reason}
+          onChange={(e) => setReason(e.currentTarget.value)}
+        />
+        <NativeSelect
+          label="Assign to"
+          withAsterisk
+          size="sm"
+          placeholder="Select an internal agent"
+          data={RANDOM_AGENT_NAMES}
+          value={assignee}
+          onChange={(e) => setAssignee(e.currentTarget.value)}
+        />
+        <ModalCheckbox
+          checked={requireResolution}
+          onChange={setRequireResolution}
+          label="Resolving this ticket is required to close the parent ticket."
+          description="This assists in determining the dependency of the parent ticket on the internal ticket."
+        />
+      </div>
+    </Modal>
+  );
+}
+
 function Section({ section }: { section: TicketDetailsSection }) {
   const [open, setOpen] = useState(section.defaultOpen ?? false);
+  const [subTicketModalOpen, setSubTicketModalOpen] = useState(false);
   const toggle = () => setOpen((v) => !v);
   return (
     <div className="lc-tdp__section">
@@ -370,7 +560,7 @@ function Section({ section }: { section: TicketDetailsSection }) {
           }
         }}
       >
-        <div className="lc-tdp__section-title">
+        <div className="lc-tdp__section-title" data-open={open || undefined}>
           <span>{section.label}</span>
           {section.count != null && <span className="lc-tdp__badge">{section.count}</span>}
         </div>
@@ -382,7 +572,11 @@ function Section({ section }: { section: TicketDetailsSection }) {
               aria-label={`Add ${section.label}`}
               onClick={(e) => {
                 e.stopPropagation();
-                section.onAdd?.();
+                if (section.id === 'sub-tickets') {
+                  setSubTicketModalOpen(true);
+                } else {
+                  section.onAdd?.();
+                }
               }}
             >
               <PlusIcon />
@@ -438,6 +632,9 @@ function Section({ section }: { section: TicketDetailsSection }) {
               !section.tags &&
               section.emptyText && <p className="lc-tdp__empty">{section.emptyText}</p>}
         </div>
+      )}
+      {section.id === 'sub-tickets' && (
+        <SubTicketModal open={subTicketModalOpen} onClose={() => setSubTicketModalOpen(false)} />
       )}
     </div>
   );
@@ -509,6 +706,12 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
       {resolvedActiveTab === 'Orders' && (
         <div className="lc-tdp__body">
           <OrdersPanel />
+        </div>
+      )}
+
+      {resolvedActiveTab === 'Cart' && (
+        <div className="lc-tdp__body">
+          <CartPanel />
         </div>
       )}
     </div>

@@ -2,6 +2,12 @@
  * Mock product catalog — powers the agent-facing Products tab in
  * TicketDetailsPanel (src/components/ProductsPanel).
  */
+import nikeAirZoomPegasus41 from '../assets/products/nike-air-zoom-pegasus-41.webp';
+import adidasUltraboost22 from '../assets/products/adidas-ultraboost-22.webp';
+import pumaRsxEfekt from '../assets/products/puma-rsx-efekt.webp';
+import reebokClassicLeather from '../assets/products/reebok-classic-leather.webp';
+import newBalance990v6 from '../assets/products/new-balance-990v6.webp';
+
 export type Availability = 'in_stock' | 'low_stock' | 'out_of_stock' | 'discontinued';
 
 export interface Product {
@@ -20,6 +26,8 @@ export interface Product {
   stockCount: number;
   createdAt: string;
   variants?: string[];
+  /** Product photo — falls back to a colored-initial tile when absent. */
+  imageUrl?: string;
 }
 
 export const MOCK_PRODUCTS: Product[] = [
@@ -40,6 +48,7 @@ export const MOCK_PRODUCTS: Product[] = [
     description:
       'Lightweight daily running shoe designed for responsive cushioning and comfortable long-distance running. The updated foam midsole delivers a springy, energised feel on every stride, while the engineered mesh upper keeps your feet cool and breathable across easy runs, tempo sessions, and race day.',
     variants: ['UK 7', 'UK 8', 'UK 9', 'UK 10'],
+    imageUrl: nikeAirZoomPegasus41,
   },
   {
     id: 'prod_002',
@@ -58,6 +67,7 @@ export const MOCK_PRODUCTS: Product[] = [
     description:
       'Energy-returning Boost midsole with a Primeknit upper for an adaptive, sock-like fit. Built for runners who want a plush, cushioned ride without sacrificing responsiveness, this silhouette pairs a supportive heel frame with a continental rubber outsole for reliable grip in wet and dry conditions.',
     variants: ['UK 6', 'UK 7', 'UK 8', 'UK 9'],
+    imageUrl: adidasUltraboost22,
   },
   {
     id: 'prod_003',
@@ -75,6 +85,7 @@ export const MOCK_PRODUCTS: Product[] = [
     createdAt: '2026-06-18',
     description:
       'Chunky retro-inspired sneaker with layered mesh panels and a bold two-tone sole. Draws on 90s running silhouettes with a modern comfort upgrade, featuring a cushioned foam insert and a durable rubber outsole that holds up to everyday wear on the street or in the gym.',
+    imageUrl: pumaRsxEfekt,
   },
   {
     id: 'prod_004',
@@ -128,6 +139,7 @@ export const MOCK_PRODUCTS: Product[] = [
     createdAt: '2026-03-08',
     description:
       'Timeless soft leather upper with a die-cut EVA midsole for everyday comfort. A design that has barely changed since its debut, pairing a low-profile silhouette with a foam sockliner that molds to your foot over time.',
+    imageUrl: reebokClassicLeather,
   },
   {
     id: 'prod_007',
@@ -335,5 +347,24 @@ export const MOCK_PRODUCTS: Product[] = [
     createdAt: '2025-08-17',
     description:
       'Curved-brim cap in soft cotton twill with an embroidered cat logo. A breathable eyelet vent keeps you cool, and the classic six-panel construction pairs well with both athletic and casual outfits.',
+  },
+  {
+    id: 'prod_019',
+    sku: 'NB-990V6-CRM',
+    name: 'New Balance 990v6',
+    brand: 'New Balance',
+    category: 'Running Shoes',
+    originalPrice: 15999,
+    discountedPrice: 13999,
+    discountPercentage: 13,
+    rating: 4.7,
+    ratingCount: 261,
+    availability: 'in_stock',
+    stockCount: 27,
+    createdAt: '2026-09-05',
+    description:
+      'Made-in-USA premium trainer with ENCAP midsole cushioning for a stable, plush ride. A cream mesh-and-suede upper with burgundy accents delivers everyday comfort with a heritage running silhouette.',
+    variants: ['UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11'],
+    imageUrl: newBalance990v6,
   },
 ];
