@@ -36,9 +36,16 @@
   padding: 8px 12px 0;
   border-bottom: 1px solid #ececea;
 }
+.lc-tdp__tabs .lc-tooltip-anchor {
+  flex: 1 1 0;
+  min-width: 0;
+}
 .lc-tdp__tab {
   flex: 1 1 0;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 8px 12px;
   border: none;
   border-bottom: 2px solid transparent;
@@ -51,6 +58,10 @@
   cursor: pointer;
   text-align: center;
   transition: background-color 150ms ease, color 150ms ease;
+}
+.lc-tdp__tab svg {
+  width: 20px;
+  height: 20px;
 }
 .lc-tdp__tab:not([data-active]):hover {
   background: #f3f4f3;
@@ -118,6 +129,19 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+button.lc-tdp__detail-value--copyable {
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+button.lc-tdp__detail-value--copyable:hover {
+  background: var(--lc-tdp-primary-light);
+}
+.lc-tdp__detail-value--copied,
+.lc-tdp__detail-value--copied:hover {
+  color: var(--lc-tdp-primary);
+  text-transform: none;
+}
 
 .lc-tdp__assignment-row {
   display: flex;
@@ -160,6 +184,10 @@
   justify-content: space-between;
   padding: 8px 20px;
   background: #ffffff;
+  cursor: pointer;
+}
+.lc-tdp__section-header:hover {
+  background: #fafafa;
 }
 
 .lc-tdp__section-title {
