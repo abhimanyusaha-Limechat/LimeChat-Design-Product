@@ -1,5 +1,5 @@
 /** Demo harness for the reusable components. Not part of the published components. */
-import { useState, type ComponentProps, type ReactNode } from 'react';
+import { Fragment, useState, type ComponentProps, type ReactNode } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { sidebarPresets, type SidebarProduct } from './components/Sidebar/presets';
 import { TopNavBar } from './components/TopNavBar';
@@ -90,8 +90,9 @@ import { Button } from './components/Button';
 import { TicketListItem, type TicketChannel } from './components/TicketListItem';
 import { HelpdeskTicketsPage } from './components/HelpdeskTicketsPage';
 import { TicketsSection } from './components/TicketsSection';
+import { TicketsBulkModifyModal } from './components/TicketsBulkModifyModal';
 import { ConversationTopBar } from './components/ConversationTopBar';
-import { MessageBubble } from './components/MessageBubble';
+import { MessageBubble, MessageDateDivider } from './components/MessageBubble';
 import { TicketComposer, type TicketComposerMode } from './components/TicketComposer';
 import { EmailMessage, EmailComposerBar, EmailForwardComposer } from './components/EmailMessage';
 import { TicketDetailsPanel, type TicketDetailsField, type TicketDetailsSection } from './components/TicketDetailsPanel';
@@ -894,28 +895,50 @@ interface ConversationEntry {
   quote?: { name: string; text: string };
   text: string;
   time: string;
+  /** ISO date (e.g. '2026-09-20') — consecutive entries sharing a date are grouped
+   * under one day chip instead of repeating it per message. */
+  date: string;
 }
+
+const DATE_CHIP_FORMATTER = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+/** e.g. '2026-09-20' -> 'September 20, 2026'. */
+const formatDateChip = (isoDate: string) => DATE_CHIP_FORMATTER.format(new Date(`${isoDate}T00:00:00`));
 
 /** Per-ticket conversation threads, keyed by ticket id — lets the two linked tickets in each
  * channel demonstrate the same thread from an incoming (customer-first) vs. outgoing
  * (agent-first) angle. */
 const CONVERSATIONS: Record<string, ConversationEntry[]> = {
   't-1': [
-    { id: 'm-1', side: 'customer', text: 'Hey, is my order still on its way? It has been 3 days already.', time: '10:02' },
-    { id: 'm-2', side: 'agent', text: 'Hi John! Let me check that for you right away.', time: '10:03' },
-    { id: 'm-3', side: 'customer', text: 'Sure, thanks. Order number is #48213.', time: '10:04' },
-    { id: 'm-4', side: 'agent', text: 'Your order left the warehouse yesterday and is out for delivery today.', time: '10:06' },
+    { id: 'm-1', side: 'customer', text: 'Hi, I placed an order last week and haven’t heard anything since.', time: '09:41', date: '2026-09-19' },
+    { id: 'm-2', side: 'agent', text: 'Hi John! Sorry for the trouble — let me pull that up for you.', time: '09:42', date: '2026-09-19' },
+    { id: 'm-3', side: 'customer', text: 'Sure, thanks. Order number is #48213.', time: '09:43', date: '2026-09-19' },
+    { id: 'm-4', side: 'agent', text: 'Got it, one moment while I check the shipping status.', time: '09:44', date: '2026-09-19' },
+    { id: 'm-5', side: 'agent', text: 'Looks like it’s been sitting at the local facility for a couple of days.', time: '09:46', date: '2026-09-19' },
+    { id: 'm-6', side: 'customer', text: 'Hey, is my order still on its way? It has been 3 days already.', time: '10:02', date: '2026-09-20' },
+    { id: 'm-7', side: 'agent', text: 'Hi John! Let me check that for you right away.', time: '10:03', date: '2026-09-20' },
+    { id: 'm-8', side: 'customer', text: 'Sure, thanks. Order number is #48213.', time: '10:04', date: '2026-09-20' },
+    { id: 'm-9', side: 'agent', text: 'Thanks for your patience — I’ve escalated this with our logistics partner.', time: '10:05', date: '2026-09-20' },
+    { id: 'm-10', side: 'agent', text: 'Your order left the warehouse yesterday and is out for delivery today.', time: '10:06', date: '2026-09-20' },
+    { id: 'm-11', side: 'customer', text: 'That’s great to hear, thank you!', time: '10:07', date: '2026-09-20' },
+    { id: 'm-12', side: 'agent', text: 'Of course! You’ll get a tracking notification once it’s out for delivery.', time: '10:08', date: '2026-09-20' },
+    { id: 'm-13', side: 'customer', text: 'One more thing — can I change the delivery address at this point?', time: '10:10', date: '2026-09-20' },
+    { id: 'm-14', side: 'agent', text: 'Since it’s already out for delivery, we can’t redirect it, unfortunately.', time: '10:11', date: '2026-09-20' },
+    { id: 'm-15', side: 'agent', text: 'But if the courier misses you, they’ll leave a reattempt slip with a reschedule option.', time: '10:12', date: '2026-09-20' },
+    { id: 'm-16', side: 'customer', text: 'Got it, that works. Thanks for clarifying!', time: '10:13', date: '2026-09-20' },
+    { id: 'm-17', side: 'agent', text: 'Happy to help! Is there anything else I can do for you today?', time: '10:14', date: '2026-09-20' },
+    { id: 'm-18', side: 'customer', text: 'Nope, that’s all. Thanks again!', time: '10:15', date: '2026-09-20' },
   ],
   't-2': [
-    { id: 'm-1', side: 'agent', text: 'Hi John, just a heads up — your order #48213 is out for delivery today.', time: '10:06' },
+    { id: 'm-1', side: 'agent', text: 'Hi John, just a heads up — your order #48213 is out for delivery today.', time: '10:06', date: '2026-09-20' },
     {
       id: 'm-2',
       side: 'customer',
       quote: { name: 'John', text: 'Hey, is my order still on its way? It has been 3 days already.' },
       text: 'Oh perfect, thank you for the update!',
       time: '10:08',
+      date: '2026-09-20',
     },
-    { id: 'm-3', side: 'agent', text: 'Anytime! Let us know if it does not arrive today.', time: '10:09' },
+    { id: 'm-3', side: 'agent', text: 'Anytime! Let us know if it does not arrive today.', time: '10:09', date: '2026-09-20' },
   ],
 };
 
@@ -1370,6 +1393,15 @@ export function App() {
   const [ticketsTab, setTicketsTab] = useState('queued');
   const [ticketsSearch, setTicketsSearch] = useState('');
   const [ticketsSort, setTicketsSort] = useState('Newly created');
+  const [ticketsStatus, setTicketsStatus] = useState('Open');
+  const [ticketsSelectedInboxes, setTicketsSelectedInboxes] = useState<string[]>([]);
+  const [ticketsSelectMode, setTicketsSelectMode] = useState(false);
+  const [checkedTicketIds, setCheckedTicketIds] = useState<Set<string>>(new Set());
+  const setCheckedTicketIdsAndExit = (next: Set<string>) => {
+    setCheckedTicketIds(next);
+    if (next.size === 0) setTicketsSelectMode(false);
+  };
+  const [ticketsBulkModifyOpen, setTicketsBulkModifyOpen] = useState(false);
   const [composerMode, setComposerMode] = useState<TicketComposerMode>('reply');
   const [resolveStatus, setResolveStatus] = useState('Resolve');
   const [composerDraft, setComposerDraft] = useState('');
@@ -2210,16 +2242,24 @@ export function App() {
               conversationAlign={selectedTicket?.channel === 'email' ? 'start' : 'end'}
               ticketsSection={
                 <TicketsSection
-                  status="Open"
-                  onStatusClick={() => alert('Change ticket status filter')}
+                  status={ticketsStatus}
+                  onStatusChange={setTicketsStatus}
                   searchValue={ticketsSearch}
                   onSearchChange={setTicketsSearch}
                   onFilterClick={() => alert('Filter tickets')}
                   onTagsClick={() => alert('Filter by tags')}
                   dateRangeLabel="Last 7 days"
                   onDateRangeClick={() => alert('Change date range')}
-                  inboxLabel="All inboxes"
-                  onInboxClick={() => alert('Change inbox filter')}
+                  inboxLabel={
+                    ticketsSelectedInboxes.length === 0
+                      ? 'All inboxes'
+                      : ticketsSelectedInboxes.length === 1
+                        ? ticketsSelectedInboxes[0]
+                        : `${ticketsSelectedInboxes.length} inboxes`
+                  }
+                  inboxOptions={INBOX_NAMES}
+                  selectedInboxes={ticketsSelectedInboxes}
+                  onSelectedInboxesChange={setTicketsSelectedInboxes}
                   tabs={[
                     { id: 'mine', label: 'Mine' },
                     { id: 'queued', label: 'Queued' },
@@ -2230,27 +2270,38 @@ export function App() {
                   sortLabel={ticketsSort}
                   onSortChange={setTicketsSort}
                   onLoadMore={() => alert('Load more tickets')}
+                  selectedCount={ticketsSelectMode ? checkedTicketIds.size : undefined}
+                  allSelected={checkedTicketIds.size === TICKETS.length}
+                  onSelectAllChange={(checked) =>
+                    setCheckedTicketIdsAndExit(checked ? new Set(TICKETS.map((t) => t.id)) : new Set())
+                  }
+                  onModify={() => setTicketsBulkModifyOpen(true)}
                 >
                   {TICKETS.map((ticket) => (
                     <TicketListItem
                       key={ticket.id}
                       channel={ticket.channel}
                       user={ticket.user}
-                      avatars={
-                        ticket.avatarCount
-                          ? Array.from({ length: Math.min(ticket.avatarCount, 3) }, () => ({}))
-                          : undefined
-                      }
-                      avatarOverflow={ticket.avatarCount && ticket.avatarCount > 3 ? ticket.avatarCount - 3 : undefined}
+                      avatars={ticket.avatarCount ? Array.from({ length: ticket.avatarCount }, () => ({})) : undefined}
                       isNew={ticket.isNew}
                       timestamp={ticket.timestamp}
                       message={ticket.message}
                       assignee={ticketsTab === 'mine' ? undefined : ticket.assignee}
                       unreadCount={ticket.unreadCount}
                       selected={selectedTicketId === ticket.id}
-                      showCheckbox={false}
-                      onSelect={() => alert(`Select ticket: ${ticket.user}`)}
-                      onSelectAll={() => alert('Select all tickets')}
+                      showCheckbox={ticketsSelectMode}
+                      checked={checkedTicketIds.has(ticket.id)}
+                      onCheckedChange={(next) => {
+                        const nextIds = new Set(checkedTicketIds);
+                        if (next) nextIds.add(ticket.id);
+                        else nextIds.delete(ticket.id);
+                        setCheckedTicketIdsAndExit(nextIds);
+                      }}
+                      onSelect={() => setTicketsSelectMode(true)}
+                      onSelectAll={() => {
+                        setTicketsSelectMode(true);
+                        setCheckedTicketIds(new Set(TICKETS.map((t) => t.id)));
+                      }}
                       onMarkAsStarred={() => alert(`Mark as starred: ${ticket.user}`)}
                       onClick={() => setSelectedTicketId(ticket.id)}
                     />
@@ -2287,23 +2338,27 @@ export function App() {
                       preview={email.preview}
                       body={email.body}
                       defaultExpanded={email.defaultExpanded}
-                      onMoreActions={() => alert(`More actions: ${email.senderName}`)}
+                      onReply={() => alert(`Reply to: ${email.senderName}`)}
+                      onReplyToAll={() => alert(`Reply to all: ${email.senderName}`)}
+                      onForward={() => alert(`Forward: ${email.senderName}`)}
                     />
                   ))
                 ) : (
-                  (CONVERSATIONS[selectedTicketId] ?? []).map((entry) => (
-                    <MessageBubble
-                      key={entry.id}
-                      side={entry.side}
-                      time={entry.time}
-                      status="read"
-                      variant={entry.quote ? 'quote' : 'text'}
-                      quote={entry.quote}
-                      avatar={entry.side === 'agent'}
-                      avatarInitial={selectedTicket?.assignee?.charAt(0) ?? 'A'}
-                    >
-                      {entry.text}
-                    </MessageBubble>
+                  (CONVERSATIONS[selectedTicketId] ?? []).map((entry, i, entries) => (
+                    <Fragment key={entry.id}>
+                      {entry.date !== entries[i - 1]?.date && <MessageDateDivider label={formatDateChip(entry.date)} />}
+                      <MessageBubble
+                        side={entry.side}
+                        time={entry.time}
+                        status="read"
+                        variant={entry.quote ? 'quote' : 'text'}
+                        quote={entry.quote}
+                        avatar={entry.side === 'agent'}
+                        avatarInitial={selectedTicket?.assignee?.charAt(0) ?? 'A'}
+                      >
+                        {entry.text}
+                      </MessageBubble>
+                    </Fragment>
                   ))
                 )
               }
@@ -2398,6 +2453,17 @@ export function App() {
               }
             />
           )}
+
+          <TicketsBulkModifyModal
+            open={ticketsBulkModifyOpen}
+            onClose={() => setTicketsBulkModifyOpen(false)}
+            selectedCount={checkedTicketIds.size}
+            onApply={(values) => {
+              alert(`Applied changes to ${checkedTicketIds.size} ticket(s): ${JSON.stringify(values)}`);
+              setTicketsBulkModifyOpen(false);
+              setCheckedTicketIdsAndExit(new Set());
+            }}
+          />
 
           {!showCanvas && !showBroadcastHome && !showFlowsHome && !showBotFlowsHome && !showSegmentsHome && !showTemplatesHome && !showSettingsHome && !showTicketsHome && (
             <div style={{ padding: 24 }}>

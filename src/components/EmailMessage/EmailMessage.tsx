@@ -17,19 +17,9 @@
  *   />
  */
 import { forwardRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { ActionMenu } from '../Menu';
 import './EmailMessage.css';
-
-function iconProps() {
-  return {
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-    'aria-hidden': true,
-  };
-}
+import { iconProps } from '../iconProps';
 
 const ChevronDownIcon = () => (
   <svg {...iconProps()}>
@@ -86,7 +76,13 @@ export interface EmailMessageProps extends Omit<HTMLAttributes<HTMLDivElement>, 
   details?: EmailDetails;
   /** Uncontrolled initial state for the compressed/expanded row. Default `true`. */
   defaultExpanded?: boolean;
-  onMoreActions?: () => void;
+  /**
+   * "More actions" popover (Reply / Reply to all / Forward), shown via the
+   * dots-vertical trigger. Provide at least one handler to enable the trigger.
+   */
+  onReply?: () => void;
+  onReplyToAll?: () => void;
+  onForward?: () => void;
 }
 
 function AttachmentThumb({ thumbnail, name }: EmailAttachment) {
@@ -130,7 +126,9 @@ export const EmailMessage = forwardRef<HTMLDivElement, EmailMessageProps>(functi
     quotedText,
     details,
     defaultExpanded = true,
-    onMoreActions,
+    onReply,
+    onReplyToAll,
+    onForward,
     className,
     ...rest
   },
@@ -195,24 +193,23 @@ export const EmailMessage = forwardRef<HTMLDivElement, EmailMessageProps>(functi
         <div className="lc-email-message__meta">
           <span className="lc-email-message__date">{date}</span>
           {badgeLabel && <span className="lc-email-message__badge">{badgeLabel}</span>}
-          <span
-            className="lc-email-message__more"
-            role="button"
-            tabIndex={0}
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoreActions?.();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.stopPropagation();
-                onMoreActions?.();
-              }
-            }}
-            aria-label="More actions"
-          >
-            <DotsVerticalIcon />
-          </span>
+          {(onReply != null || onReplyToAll != null || onForward != null) && (
+            <span onClick={(e) => e.stopPropagation()}>
+              <ActionMenu
+                ariaLabel="Email actions"
+                tooltip="More actions"
+                align="end"
+                width={160}
+                triggerClassName="lc-email-message__more"
+                icon={<DotsVerticalIcon />}
+                items={[
+                  { key: 'reply', label: 'Reply', onClick: () => onReply?.() },
+                  { key: 'reply-all', label: 'Reply to all', onClick: () => onReplyToAll?.() },
+                  { key: 'forward', label: 'Forward', onClick: () => onForward?.() },
+                ]}
+              />
+            </span>
+          )}
         </div>
       </button>
 

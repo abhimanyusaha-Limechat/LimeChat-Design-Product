@@ -10,8 +10,7 @@
  *   <TicketListItem
  *     channel="whatsapp"
  *     user="John"
- *     avatars={[{ src: '/a.jpg' }, { src: '/b.jpg' }, { src: '/c.jpg' }]}
- *     avatarOverflow={3}
+ *     avatars={[{ src: '/a.jpg' }, { src: '/b.jpg' }, { src: '/c.jpg' }, { src: '/d.jpg' }]}
  *     isNew
  *     timestamp="4 minutes ago"
  *     message="This is a dummy message for the component"
@@ -24,6 +23,7 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { TicketIcon, type TicketIconName } from './icons';
 import { ActionMenu } from '../Menu';
+import { Avatar, AvatarGroup } from '../Avatar';
 import './TicketListItem.css';
 
 export type TicketChannel = 'whatsapp' | 'email' | 'instagram' | 'sms';
@@ -46,10 +46,8 @@ export interface TicketListItemProps extends Omit<HTMLAttributes<HTMLDivElement>
   /** Overrides the channel glyph entirely. */
   channelIcon?: ReactNode;
   user: string;
-  /** Participant avatars, shown as a small overlapping stack (max 3 rendered). */
+  /** Participant avatars, shown as a small overlapping stack — the rest collapse into a "+N" chip. */
   avatars?: TicketAvatar[];
-  /** Overflow count shown as "+N" after the avatar stack, e.g. remaining participants. */
-  avatarOverflow?: number;
   isNew?: boolean;
   timestamp: string;
   /** The small glyph before the message preview (default: a "forwarded" icon). Set `false` to hide. */
@@ -74,7 +72,7 @@ export interface TicketListItemProps extends Omit<HTMLAttributes<HTMLDivElement>
   onClick?: () => void;
 }
 
-function Checkbox({ checked, onChange }: { checked: boolean; onChange: (next: boolean) => void }) {
+export function TicketRowCheckbox({ checked, onChange }: { checked: boolean; onChange: (next: boolean) => void }) {
   return (
     <span
       className="lc-ticket-row__checkbox"
@@ -105,7 +103,6 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
     channelIcon,
     user,
     avatars,
-    avatarOverflow,
     isNew = false,
     timestamp,
     messageIcon,
@@ -134,6 +131,7 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
       ref={ref}
       className={`lc-ticket-row${className ? ` ${className}` : ''}`}
       data-selected={selected || undefined}
+      data-checked={(showCheckbox && checked) || undefined}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
@@ -151,7 +149,7 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
       {selected && <span className="lc-ticket-row__accent" aria-hidden="true" />}
 
       {showCheckbox && (
-        <Checkbox checked={checked} onChange={(next) => onCheckedChange?.(next)} />
+        <TicketRowCheckbox checked={checked} onChange={(next) => onCheckedChange?.(next)} />
       )}
 
       <div className="lc-ticket-row__body">
@@ -161,6 +159,14 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
               {channelIcon ?? <TicketIcon name={CHANNEL_ICON[channel]} />}
             </span>
             <span className="lc-ticket-row__user">{user}</span>
+            {avatars && avatars.length > 0 && (
+              <AvatarGroup className="lc-ticket-row__avatars" limit={3} size={16} radius="xl">
+                {avatars.map((a, i) => (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <Avatar key={i} src={a.src} alt={a.alt} />
+                ))}
+              </AvatarGroup>
+            )}
           </div>
 
           <div className="lc-ticket-row__meta">

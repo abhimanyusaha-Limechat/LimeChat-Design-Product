@@ -54,6 +54,7 @@
   gap: 8px;
   flex: 1 1 0;
   min-width: 0;
+  min-height: 0;
   height: 100%;
   padding: 8px;
 }
@@ -68,19 +69,25 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 8px;
   padding: 8px 4px;
   overflow-x: hidden;
   overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
 }
-.lc-hd-tickets__conversation[data-align='start'] {
-  justify-content: flex-start;
+/* `margin-top: auto` on the inner wrapper (rather than `justify-content:
+   flex-end` on the scroll container itself) pushes short conversations to
+   the bottom while keeping the container scrollable once content overflows
+   — flex containers with `justify-content: flex-end/center` have a known
+   bug where overflowed content pushed above the visible area can't be
+   scrolled to, because `scrollHeight` doesn't account for it. */
+.lc-hd-tickets__conversation-inner {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  /* No `gap` here — MessageBubble owns its own top margin so consecutive
+     messages from the same sender can sit closer than a sender change. */
 }
-.lc-hd-tickets__conversation::-webkit-scrollbar {
-  display: none;
+.lc-hd-tickets__conversation[data-align='start'] .lc-hd-tickets__conversation-inner {
+  margin-top: 0;
 }
 
 .lc-hd-tickets__composer {

@@ -19,18 +19,7 @@ import { Button } from '../Button';
 import { ActionMenu, Menu } from '../Menu';
 import { TicketIcon, type TicketChannel } from '../TicketListItem';
 import './ConversationTopBar.css';
-
-function iconProps() {
-  return {
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-    'aria-hidden': true,
-  };
-}
+import { iconProps } from '../iconProps';
 
 const PhoneIcon = () => (
   <svg {...iconProps()}>

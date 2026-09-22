@@ -1,0 +1,40 @@
+/**
+ * TicketsBulkModifyModal — field-label overrides + selected-count badge.
+ */
+.lc-tbm-row {
+  display: flex;
+  gap: 16px;
+}
+.lc-tbm-row .lc-select {
+  flex: 1 1 0;
+}
+
+.lc-tbm-field {
+  --lc-select-label: #3c492c;
+}
+.lc-select[data-size='sm'].lc-tbm-field {
+  --label-fz: 12px;
+  --label-lh: 16px;
+}
+
+.lc-tbm-select-trigger {
+  width: 100%;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-tbm-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  padding: 1px 6px;
+  border-radius: 100px;
+  background: #6bac1b;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}

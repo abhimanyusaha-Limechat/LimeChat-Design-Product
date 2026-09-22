@@ -33,7 +33,6 @@ const PATHS: Record<TicketIconName, string[]> = {
 const FILLED: Partial<Record<TicketIconName, boolean>> = {
   'dots-vertical': true,
   'dots-horizontal': true,
-  check: true,
 };
 
 type IconProps = SVGProps<SVGSVGElement> & { name: TicketIconName };

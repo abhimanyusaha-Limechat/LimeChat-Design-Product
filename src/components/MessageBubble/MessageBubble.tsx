@@ -5,7 +5,7 @@
  * tails, avatars, timestamps + read ticks, forwarded/notice banners,
  * reactions, and content variants (text, quote/reply, media, link,
  * attachment, location, private note, deleted/opened/view-once system
- * states, and inline PII-masking / profanity-blocking chips).
+ * states).
  *
  *   <MessageBubble side="agent" time="12:00" status="read">
  *     Hey, how can I help?
@@ -17,14 +17,12 @@
  *
  *   <MessageBubble side="agent" variant="media" media={[{ src: '/photo.jpg' }]} time="12:00" />
  *   <MessageBubble side="agent" variant="deleted" time="12:00" />
- *   <MessageBubble side="agent" time="12:00">
- *     This is my aadhar number <PiMask value="1234 5678 8901" />
- *   </MessageBubble>
  */
-import { forwardRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { Avatar } from '../Avatar';
 import { Button } from '../Button';
 import './MessageBubble.css';
+import { iconProps } from '../iconProps';
 
 export type MessageBubbleSide = 'agent' | 'customer';
 export type MessageStatus = 'sent' | 'delivered' | 'read';
@@ -83,18 +81,6 @@ export interface NoteData {
 
 /* --- Icons (Tabler-style outline, matches Avatar's PersonIcon) --------- */
 
-function iconProps() {
-  return {
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-    'aria-hidden': true,
-  };
-}
-
 const ForwardIcon = () => (
   <svg {...iconProps()}>
     <path d="M15 8l4 4l-4 4" />
@@ -106,12 +92,6 @@ const LockIcon = () => (
   <svg {...iconProps()}>
     <rect x="5" y="11" width="14" height="10" rx="2" />
     <path d="M8 11v-4a4 4 0 0 1 8 0v4" />
-  </svg>
-);
-const LockOpenIcon = () => (
-  <svg {...iconProps()}>
-    <rect x="5" y="11" width="14" height="10" rx="2" />
-    <path d="M8 11v-5a4 4 0 0 1 8 0" />
   </svg>
 );
 const TrashIcon = () => (
@@ -163,51 +143,18 @@ const DocIcon = ({ label = 'file' }: { label?: string }) => (
   </div>
 );
 
-function Tick(_props: { status: MessageStatus }) {
-  return null;
-}
-
-/* --- Inline content helpers (usable inside `children`) ----------------- */
-
-export interface PiMaskProps {
-  /** The masked value, revealed on click. */
-  value: string;
-  className?: string;
-}
-
-/** Inline PII-masking chip — starts masked, reveals `value` on click. */
-export function PiMask({ value, className }: PiMaskProps) {
-  const [revealed, setRevealed] = useState(false);
-
-  if (revealed) {
-    return (
-      <span className={`lc-message-bubble__pi-mask lc-message-bubble__pi-mask--unlocked${className ? ` ${className}` : ''}`}>
-        <LockOpenIcon />
-        {value}
-      </span>
-    );
-  }
-
+/** Single check for `sent`; double (overlapping) check for `delivered`/`read` — the second turns blue via CSS when `read`. */
+function Tick({ status }: { status: MessageStatus }) {
   return (
-    <button
-      type="button"
-      className={`lc-message-bubble__pi-mask${className ? ` ${className}` : ''}`}
-      onClick={() => setRevealed(true)}
-      aria-label="Reveal masked personal information"
-    >
-      <LockIcon />
-      <span className="lc-message-bubble__pi-mask-dots" aria-hidden="true" />
-    </button>
+    <span className="lc-message-bubble__tick" data-status={status} aria-hidden="true">
+      <svg viewBox="0 0 16 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 5.5L4.5 9L11 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        {status !== 'sent' && (
+          <path d="M5.5 5.5L9 9L15.5 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        )}
+      </svg>
+    </span>
   );
-}
-
-export interface ProfaneWordProps {
-  children?: ReactNode;
-}
-
-/** Inline highlighted chip for a word blocked by profanity filtering. */
-export function ProfaneWord({ children }: ProfaneWordProps) {
-  return <span className="lc-message-bubble__profane">{children}</span>;
 }
 
 /* --- Media / link / attachment thumbnails ------------------------------- */
@@ -233,7 +180,7 @@ function Thumbnail({ src, alt, className }: { src?: string; alt?: string; classN
 export interface MessageBubbleProps extends Omit<HTMLAttributes<HTMLDivElement>, 'content'> {
   side?: MessageBubbleSide;
   variant?: MessageBubbleVariant;
-  /** Message text / mixed inline content (`PiMask`, `ProfaneWord`, strings). */
+  /** Message text / mixed inline content. */
   children?: ReactNode;
   time?: string;
   status?: MessageStatus;
@@ -422,13 +369,22 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(func
             </>
           )}
 
-          {showText && (variant === 'text' || variant === 'quote' || variant === 'media' || variant === 'link' || variant === 'attachment' || variant === 'blocked') && (
+          {showText && (variant === 'text' || variant === 'quote' || variant === 'blocked') && (
+            <p className="lc-message-bubble__text">
+              {children}
+              {/* Reserves just enough trailing inline space for the time/tick footer — wraps to
+                  a new line only when the last line would otherwise run under it, instead of
+                  reserving that space on every line. */}
+              <span className="lc-message-bubble__text-spacer" aria-hidden="true" />
+            </p>
+          )}
+          {showText && (variant === 'media' || variant === 'link' || variant === 'attachment') && (
             <p className="lc-message-bubble__text">{children}</p>
           )}
 
           <div className="lc-message-bubble__footer">
             {time && <span className="lc-message-bubble__time">{time}</span>}
-            <Tick status={status} />
+            {side === 'agent' && <Tick status={status} />}
           </div>
 
           {onlyVisibleToMe && (
@@ -457,5 +413,14 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(func
     </div>
   );
 });
+
+/** Centered pill separating a day's messages from the next — e.g. "September 20, 2026". */
+export function MessageDateDivider({ label }: { label: string }) {
+  return (
+    <div className="lc-message-bubble__date-divider">
+      <span>{label}</span>
+    </div>
+  );
+}
 
 export default MessageBubble;

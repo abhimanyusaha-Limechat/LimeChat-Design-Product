@@ -1,4 +1,4 @@
-export { Avatar, AvatarGroup, default, AVATAR_SIZE_PX } from './Avatar';
+export { Avatar, AvatarGroup, default } from './Avatar';
 export type {
   AvatarProps,
   AvatarGroupProps,

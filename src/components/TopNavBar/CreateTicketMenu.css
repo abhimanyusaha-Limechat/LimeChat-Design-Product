@@ -6,6 +6,25 @@
   transform-origin: top left;
 }
 
+/* Cap the list to ~5 rows (32px item + 2px gap) and scroll beyond that, with a
+   slim, low-contrast thumb instead of the platform default. */
+.lc-create-ticket-menu .lc-menu__items {
+  max-height: 168px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #d9d9d9 transparent;
+}
+.lc-create-ticket-menu .lc-menu__items::-webkit-scrollbar {
+  width: 6px;
+}
+.lc-create-ticket-menu .lc-menu__items::-webkit-scrollbar-track {
+  background: transparent;
+}
+.lc-create-ticket-menu .lc-menu__items::-webkit-scrollbar-thumb {
+  background: #d9d9d9;
+  border-radius: 100px;
+}
+
 .lc-create-ticket-menu__search {
   display: flex;
   align-items: center;

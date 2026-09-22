@@ -6,12 +6,15 @@
  *
  *   <ProductsPanel />
  */
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockProducts';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
 import './ProductsPanel.css';
+import { iconProps } from '../iconProps';
+import { formatINR } from '../formatINR';
+import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 
 type SortKey = 'relevance' | 'price_low_high' | 'price_high_low' | 'rating' | 'recently_added';
 
@@ -45,14 +48,6 @@ function hashString(value: string): number {
     hash |= 0;
   }
   return Math.abs(hash);
-}
-
-function formatINR(amount: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(amount);
 }
 
 const SEARCH_PLACEHOLDER_PHRASES = ['product name', 'SKU', 'keyword'];
@@ -99,18 +94,6 @@ function AnimatedSearchPlaceholder({ visible }: { visible: boolean }) {
       <span className="lc-pp__search-caret" />
     </span>
   );
-}
-
-function iconProps() {
-  return {
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-    'aria-hidden': true,
-  };
 }
 
 const SearchIcon = () => (
@@ -529,9 +512,10 @@ function toggleValue<T>(list: T[], value: T): T[] {
 
 /**
  * FilterPopover — intentionally near-duplicates Menu's trigger/portal/
- * outside-click/Escape/reposition mechanics (Menu.tsx), because Menu's
- * `items` API only supports single-action rows and has no escape hatch for
- * arbitrary content like a checkbox list + price-range inputs.
+ * outside-click/Escape mechanics (Menu.tsx), because Menu's `items` API only
+ * supports single-action rows and has no escape hatch for arbitrary content
+ * like a checkbox list + price-range inputs. Positioning is shared via
+ * `usePopoverPosition` (also used by Menu itself).
  */
 function FilterPopover({
   categories,
@@ -547,29 +531,10 @@ function FilterPopover({
   active: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const width = 240;
-
-  useLayoutEffect(() => {
-    if (!open) return;
-    const reposition = () => {
-      const rect = triggerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const popoverHeight = popoverRef.current?.offsetHeight ?? 0;
-      const maxTop = window.innerHeight - popoverHeight - 8;
-      const top = Math.min(rect.bottom + 6, Math.max(8, maxTop));
-      setCoords({ top, left: rect.right - width });
-    };
-    reposition();
-    window.addEventListener('scroll', reposition, true);
-    window.addEventListener('resize', reposition);
-    return () => {
-      window.removeEventListener('scroll', reposition, true);
-      window.removeEventListener('resize', reposition);
-    };
-  }, [open]);
+  const coords = usePopoverPosition(open, triggerRef, popoverRef, width, 'end');
 
   useEffect(() => {
     if (!open) return;

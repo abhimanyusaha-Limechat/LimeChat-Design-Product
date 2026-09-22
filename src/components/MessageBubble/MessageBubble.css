@@ -18,8 +18,6 @@
   --lc-bubble-customer-card-bg: #f3fafd;
   --lc-bubble-note-bg: #faefdb;
   --lc-bubble-blocked-bg: #fcf3f3;
-  --lc-bubble-blocked-chip-bg: #f5c7c8;
-  --lc-bubble-blocked-text: #a1171c;
   --lc-bubble-blocked-banner-text: #da1b21;
 
   --lc-text-title: #3c492c;
@@ -27,14 +25,26 @@
   --lc-text-gray-4: #a8aca6;
   --lc-text-secondary-alpha: rgba(0, 0, 0, 0.5);
 
-  --lc-pimask-bg: #f5f5f5;
-  --lc-pimask-border: #d9d9d9;
-  --lc-pimask-unlocked-text: #34540d;
-
   max-width: 490px;
   font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   display: flex;
   flex-direction: column;
+  animation: lc-message-bubble-in 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes lc-message-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-message-bubble {
+    animation: none;
+  }
 }
 .lc-message-bubble[data-side='agent'] {
   align-items: flex-end;
@@ -43,6 +53,44 @@
 .lc-message-bubble[data-side='customer'] {
   align-items: flex-start;
   align-self: flex-start;
+}
+
+/* --- Vertical rhythm between consecutive messages ------------------------
+   Grouped messages from the same sender sit close together; a sender change
+   gets a bigger gap so the conversation reads as distinct turns. */
+.lc-message-bubble {
+  margin-top: 14px;
+}
+.lc-message-bubble:first-child {
+  margin-top: 0;
+}
+.lc-message-bubble[data-side='agent'] + .lc-message-bubble[data-side='agent'],
+.lc-message-bubble[data-side='customer'] + .lc-message-bubble[data-side='customer'] {
+  margin-top: 3px;
+}
+
+/* --- Day divider ----------------------------------------------------------- */
+.lc-message-bubble__date-divider {
+  display: flex;
+  justify-content: center;
+  margin: 18px 0 4px;
+  padding-bottom: 12px;
+}
+.lc-message-bubble__date-divider:first-child {
+  margin-top: 0;
+}
+.lc-message-bubble__date-divider + .lc-message-bubble {
+  margin-top: 0;
+}
+.lc-message-bubble__date-divider span {
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: #ffffff;
+  color: var(--lc-text-dimmed, #808975);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  white-space: nowrap;
 }
 
 .lc-message-bubble__row {
@@ -128,23 +176,30 @@
   color: var(--lc-text-title);
   white-space: pre-wrap;
   word-break: break-word;
-  /* Figma's "Side padding" (50px spacer, 2px row gap) and "Bottom padding" (20px
-     spacer, 2px column gap) reserve room for the absolutely-positioned time/tick
-     footer without a separate spacer element — 52px right, 22px bottom. */
-  padding-right: 52px;
-  padding-bottom: 22px;
+  padding-right: 8px;
+  padding-bottom: 4px;
 }
 [data-variant='quote'] .lc-message-bubble__text {
-  padding: 2px 60px 22px 8px;
+  padding: 2px 8px 4px;
 }
 [data-variant='media'] .lc-message-bubble__text,
 [data-variant='link'] .lc-message-bubble__text,
 [data-variant='attachment'] .lc-message-bubble__text {
   padding: 2px 8px 14px;
 }
-[data-variant='blocked'] .lc-message-bubble__text {
-  padding-right: 52px;
-  padding-bottom: 22px;
+
+/* Trailing inline reserve for the time/tick footer — sized to the wider
+   agent case (has a tick) vs. the customer case (time only). Sits inline
+   after the text so it wraps to its own line only when the last line
+   doesn't have room, instead of reserving that space on every line. */
+.lc-message-bubble__text-spacer {
+  display: inline-block;
+  width: 40px;
+  height: 1px;
+  vertical-align: bottom;
+}
+[data-side='agent'] .lc-message-bubble__text-spacer {
+  width: 58px;
 }
 
 /* --- Footer: time + tick --------------------------------------------- */
@@ -446,65 +501,8 @@
   color: var(--lc-text-dimmed);
 }
 
-/* --- Blocked / profane ----------------------------------------------------- */
-.lc-message-bubble__profane {
-  padding: 0 2px;
-  background: var(--lc-bubble-blocked-chip-bg);
-  color: var(--lc-bubble-blocked-text);
-  font-size: 14px;
-  line-height: 20px;
-}
 [data-variant='blocked'] .lc-message-bubble__text {
   color: var(--lc-text-title);
-}
-
-/* --- PI masking chip ------------------------------------------------------ */
-.lc-message-bubble__pi-mask {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 20px;
-  padding: 4px 6px;
-  border-radius: var(--lc-bubble-radius-2xs);
-  border: none;
-  background: var(--lc-pimask-bg);
-  cursor: pointer;
-  vertical-align: middle;
-}
-.lc-message-bubble__pi-mask:hover {
-  filter: brightness(0.97);
-}
-.lc-message-bubble__pi-mask svg {
-  width: 12px;
-  height: 12px;
-  color: var(--lc-text-title);
-}
-.lc-message-bubble__pi-mask-dots {
-  display: inline-block;
-  width: 96px;
-  height: 4.5px;
-  border-radius: 2px;
-  background: repeating-linear-gradient(to right, var(--lc-text-gray-4) 0 3px, transparent 3px 6px);
-}
-.lc-message-bubble__pi-mask--unlocked {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 20px;
-  padding: 4px 6px;
-  border-radius: var(--lc-bubble-radius-2xs);
-  background: #ffffff;
-  border: 1px solid var(--lc-pimask-border);
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 12px;
-  color: var(--lc-pimask-unlocked-text);
-  vertical-align: middle;
-}
-.lc-message-bubble__pi-mask--unlocked svg {
-  width: 12px;
-  height: 12px;
-  color: var(--lc-pimask-unlocked-text);
 }
 
 /* --- Reaction chip -------------------------------------------------------- */

@@ -13,6 +13,7 @@
 import { forwardRef, useEffect, useLayoutEffect, useRef, useState, type HTMLAttributes } from 'react';
 import { Button } from '../Button';
 import './TicketComposer.css';
+import { iconProps } from '../iconProps';
 
 /** Line height (20px) × 6 visible lines + the textarea's own vertical padding (6px top + 6px bottom). */
 const MAX_TEXTAREA_HEIGHT = 20 * 6 + 12;
@@ -30,18 +31,6 @@ const MODE_PLACEHOLDER: Record<TicketComposerMode, string> = {
   note: 'Type in a private note visible only to team members',
   template: "Type a message or use '/' for quick replies.",
 };
-
-function iconProps() {
-  return {
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-    'aria-hidden': true,
-  };
-}
 
 const MicIcon = () => (
   <svg {...iconProps()}>

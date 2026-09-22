@@ -35,6 +35,8 @@ import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import { Modal } from '../Modal';
 import './OrdersPanel.css';
+import { iconProps } from '../iconProps';
+import { formatINR } from '../formatINR';
 
 type SortKey = 'recent' | 'oldest' | 'total_high_low' | 'total_low_high';
 
@@ -101,14 +103,6 @@ function buildStatusTimeline(order: Order): { status: OrderStatus; date: string 
   return CORE_STATUS_SEQUENCE.slice(0, idx + 1).map((status, i) => ({ status, date: dateAt(i) }));
 }
 
-function formatINR(amount: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(iso));
 }
@@ -162,18 +156,6 @@ function AnimatedSearchPlaceholder({ visible }: { visible: boolean }) {
       <span className="lc-op__search-caret" />
     </span>
   );
-}
-
-function iconProps() {
-  return {
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-    'aria-hidden': true,
-  };
 }
 
 const SearchIcon = () => (

@@ -11,6 +11,8 @@ import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
 import './CartPanel.css';
+import { iconProps } from '../iconProps';
+import { formatINR } from '../formatINR';
 
 interface CartLineItem {
   productId: string;
@@ -22,25 +24,6 @@ interface CartLineItem {
 
 const TAX_RATE = 12;
 
-function formatINR(amount: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-function iconProps() {
-  return {
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-    'aria-hidden': true,
-  };
-}
 const PlusIcon = () => (
   <svg {...iconProps()}>
     <path d="M12 5l0 14" />

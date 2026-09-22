@@ -3,25 +3,14 @@
  * component, `Property 1=Email zero state`).
  *
  * The default footer shown under an email ticket before a reply is started —
- * clicking Reply or Forward is what opens the full `EmailReplyComposer`.
+ * clicking Reply or Forward is what opens the full `EmailForwardComposer`.
  *
  *   <EmailComposerBar onMerge={merge} onNotes={openNotes} onReply={openReply} onForward={openForward} />
  */
 import { forwardRef, type HTMLAttributes } from 'react';
 import { Button } from '../Button';
 import './EmailMessage.css';
-
-function iconProps() {
-  return {
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-    'aria-hidden': true,
-  };
-}
+import { iconProps } from '../iconProps';
 
 const MergeIcon = () => (
   <svg {...iconProps()}>

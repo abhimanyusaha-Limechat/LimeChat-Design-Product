@@ -1,0 +1,8 @@
+/** Applied to a scrollable element to hide its native scrollbar while keeping it scrollable. */
+.lc-scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.lc-scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}

@@ -79,6 +79,10 @@
   border-bottom-color: transparent;
 }
 
+.lc-ticket-row[data-checked] {
+  background: var(--lc-tr-primary-light);
+}
+
 .lc-ticket-row:focus-visible {
   outline: 2px solid var(--lc-tr-primary);
   outline-offset: -2px;
@@ -106,8 +110,8 @@
 }
 
 .lc-ticket-row__checkbox[data-checked='true'] {
-  background: var(--lc-tr-primary);
-  border-color: var(--lc-tr-primary);
+  background: var(--lc-tr-primary, #6bac1b);
+  border-color: var(--lc-tr-primary, #6bac1b);
 }
 
 .lc-ticket-row__checkbox-icon {
@@ -164,6 +168,10 @@
   font-weight: 700;
   line-height: 18px;
   color: var(--lc-tr-title);
+}
+
+.lc-ticket-row__avatars {
+  flex-shrink: 0;
 }
 
 /* --- Badges ------------------------------------------------------------- */
