@@ -278,9 +278,3 @@ export function automationCanvas(options: AutomationCanvasOptions = {}): Partial
   };
 }
 
-export const canvasPresets = {
-  marketing: marketingCanvas,
-  automation: automationCanvas,
-} as const;
-
-export type CanvasProduct = keyof typeof canvasPresets;
