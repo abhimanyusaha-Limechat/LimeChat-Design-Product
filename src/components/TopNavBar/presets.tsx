@@ -11,9 +11,10 @@
  *     account={{ name: 'Nonucare12' }}
  *   />
  */
-import type { ReactNode } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 import type { TopNavBarProps } from './TopNavBar';
 import { TopNavIcon, type TopNavIconName } from './icons';
+import { CreateTicketMenu, type TicketInboxOption } from './CreateTicketMenu';
 import { Button } from '../Button';
 import campaignsWordmark from './assets/campaigns.png';
 import helpDeskWordmark from './assets/helpdesk.svg';
@@ -39,21 +40,24 @@ export interface TopNavButtonProps {
  * the same component the Figma top-nav CTAs are Code-Connected to. Prefer using
  * `<Button>` directly; this is kept for the preset API.
  */
-export function TopNavButton({ children, onClick, icon, type = 'button', ...rest }: TopNavButtonProps) {
-  return (
-    <Button
-      variant="default"
-      size="sm"
-      type={type}
-      textTransform="none"
-      onClick={onClick}
-      leftSection={icon ? <TopNavIcon name={icon} /> : undefined}
-      {...rest}
-    >
-      {children}
-    </Button>
-  );
-}
+export const TopNavButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, TopNavButtonProps>(
+  function TopNavButton({ children, onClick, icon, type = 'button', ...rest }, ref) {
+    return (
+      <Button
+        ref={ref}
+        variant="default"
+        size="sm"
+        type={type}
+        textTransform="none"
+        onClick={onClick}
+        leftSection={icon ? <TopNavIcon name={icon} /> : undefined}
+        {...rest}
+      >
+        {children}
+      </Button>
+    );
+  },
+);
 
 export interface TopNavSelectProps {
   label: ReactNode;
@@ -108,16 +112,33 @@ export function campaignsTopNav(options: CampaignsTopNavOptions = {}): Partial<T
   };
 }
 
+const DEFAULT_TICKET_INBOXES: TicketInboxOption[] = [
+  { id: 'whatsapp-support', name: 'Whatsapp Support', type: 'whatsapp' },
+  { id: 'whatsapp-sales', name: 'Whatsapp Sales', type: 'whatsapp' },
+  { id: 'email-support', name: 'Support Email', type: 'email' },
+  { id: 'email-billing', name: 'Billing Email', type: 'email' },
+];
+
 export interface HelpDeskTopNavOptions {
   onVoiceCall?: () => void;
+  /** @deprecated Pass `onSelectTicketInbox` instead — "+ Ticket" now opens an inbox picker. */
   onCreateTicket?: () => void;
+  /** Inboxes listed in the "+ Ticket" popover. Defaults to a sample Whatsapp/Email set. */
+  ticketInboxes?: TicketInboxOption[];
+  onSelectTicketInbox?: (inbox: TicketInboxOption) => void;
   onAppsMenuClick?: () => void;
   /** Show the "Voice call" / "Ticket" CTAs — only relevant on the Tickets section. Default `true`. */
   showActions?: boolean;
 }
 
 export function helpDeskTopNav(options: HelpDeskTopNavOptions = {}): Partial<TopNavBarProps> {
-  const { onVoiceCall, onCreateTicket, onAppsMenuClick, showActions = true } = options;
+  const {
+    onVoiceCall,
+    ticketInboxes = DEFAULT_TICKET_INBOXES,
+    onSelectTicketInbox,
+    onAppsMenuClick,
+    showActions = true,
+  } = options;
   return {
     logo: wordmark(helpDeskWordmark, 'HelpDesk', 'helpdesk'),
     actions: showActions && (
@@ -125,9 +146,7 @@ export function helpDeskTopNav(options: HelpDeskTopNavOptions = {}): Partial<Top
         <TopNavButton icon="phone" onClick={onVoiceCall}>
           Voice call
         </TopNavButton>
-        <TopNavButton icon="plus" onClick={onCreateTicket}>
-          Ticket
-        </TopNavButton>
+        <CreateTicketMenu inboxes={ticketInboxes} onSelectInbox={(inbox) => onSelectTicketInbox?.(inbox)} />
       </>
     ),
     showAppsMenu: true,

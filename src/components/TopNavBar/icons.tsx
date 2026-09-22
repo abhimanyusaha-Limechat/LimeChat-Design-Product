@@ -15,7 +15,9 @@ export type TopNavIconName =
   | 'phone'
   | 'plus'
   | 'grid-dots'
-  | 'whatsapp';
+  | 'whatsapp'
+  | 'email'
+  | 'search';
 
 const PATHS: Record<TopNavIconName, string[]> = {
   'chevron-down': ['M6 9l6 6l6 -6'],
@@ -43,6 +45,8 @@ const PATHS: Record<TopNavIconName, string[]> = {
     'M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9',
     'M9 10a0.5 .5 0 0 0 1 0v-1a0.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a0.5 .5 0 0 0 0 -1h-1a0.5 .5 0 0 0 -1 0',
   ],
+  email: ['M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z', 'M3 7l9 6l9 -6'],
+  search: ['M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0', 'M21 21l-6 -6'],
 };
 
 type IconProps = SVGProps<SVGSVGElement> & { name: TopNavIconName };

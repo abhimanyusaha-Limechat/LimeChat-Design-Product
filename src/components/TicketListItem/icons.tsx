@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react';
 
-export type TicketIconName = 'whatsapp' | 'email' | 'instagram' | 'sms' | 'share' | 'dots-vertical' | 'check';
+export type TicketIconName = 'whatsapp' | 'email' | 'instagram' | 'sms' | 'share' | 'dots-vertical' | 'dots-horizontal' | 'check';
 
 const PATHS: Record<TicketIconName, string[]> = {
   whatsapp: [
@@ -22,11 +22,17 @@ const PATHS: Record<TicketIconName, string[]> = {
     'M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
     'M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
   ],
+  'dots-horizontal': [
+    'M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+    'M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+    'M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+  ],
   check: ['M5 12l5 5l10 -10'],
 };
 
 const FILLED: Partial<Record<TicketIconName, boolean>> = {
   'dots-vertical': true,
+  'dots-horizontal': true,
   check: true,
 };
 

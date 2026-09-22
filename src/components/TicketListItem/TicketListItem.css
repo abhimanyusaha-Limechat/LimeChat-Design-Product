@@ -217,28 +217,21 @@
   pointer-events: none;
 }
 
+/* The trigger is a 24x24 `.lc-menu__trigger` button (fixed size), so it's
+   positioned by its own edge — not stretched via `inset` — to land flush
+   against the meta box's right edge (the row's extreme right). */
 .lc-ticket-row__more {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  border: none;
-  background: transparent;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
   color: var(--lc-tr-title);
-  padding: 0;
   opacity: 0;
   pointer-events: none;
-  cursor: pointer;
-  transition: opacity 100ms ease;
 }
 .lc-ticket-row:hover .lc-ticket-row__more {
   opacity: 1;
   pointer-events: auto;
-}
-.lc-ticket-row__more svg {
-  width: 20px;
-  height: 20px;
 }
 .lc-ticket-row__more:hover {
   color: var(--lc-tr-primary);
