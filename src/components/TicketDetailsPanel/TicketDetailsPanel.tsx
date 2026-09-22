@@ -543,17 +543,17 @@ function Section({ section }: { section: TicketDetailsSection }) {
             ? section.items.map((item, i) =>
                 item.duration != null ? (
                   // eslint-disable-next-line react/no-array-index-key
-                  <div key={i} className="lc-tdp__item lc-tdp__voice-item">
-                    <div className="lc-tdp__voice-row">
-                      <span className="lc-tdp__voice-caller">
-                        {item.icon ?? <PhoneIcon />}
-                        <span>{item.title}</span>
-                      </span>
-                      {item.timestamp && <span className="lc-tdp__voice-time">{item.timestamp}</span>}
-                    </div>
-                    <div className="lc-tdp__voice-row">
-                      <span className="lc-tdp__voice-duration">{item.duration}</span>
-                      <span className="lc-tdp__voice-transcript">See transcript</span>
+                  <div key={i} className="lc-tdp__item">
+                    <span className="lc-tdp__item-icon">{item.icon ?? <PhoneIcon />}</span>
+                    <div className="lc-tdp__item-text">
+                      <div className="lc-tdp__item-title-row">
+                        <span className="lc-tdp__item-title">{item.title}</span>
+                        {item.timestamp && <span className="lc-tdp__item-timestamp">{item.timestamp}</span>}
+                      </div>
+                      <div className="lc-tdp__item-title-row">
+                        <span className="lc-tdp__item-preview">{item.duration}</span>
+                        <span className="lc-tdp__voice-transcript">See transcript</span>
+                      </div>
                     </div>
                   </div>
                 ) : (
