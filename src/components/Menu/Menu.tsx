@@ -62,10 +62,14 @@ export interface MenuProps {
   /** Menu width in px. Default `190`. */
   width?: number;
   className?: string;
+  /** Rendered above the item list, e.g. a search input — stays put while `items` is filtered. */
+  header?: ReactNode;
+  /** Shown in place of `items` when the list is empty (e.g. "No results"). */
+  emptyState?: ReactNode;
 }
 
 /** The shared trigger + portal-positioned dropdown. Closes on outside click, Escape, scroll, or resize-driven reposition. */
-export function Menu({ items, trigger, ariaLabel, align = 'end', width = 190, className }: MenuProps) {
+export function Menu({ items, trigger, ariaLabel, align = 'end', width = 190, className, header, emptyState }: MenuProps) {
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -124,6 +128,8 @@ export function Menu({ items, trigger, ariaLabel, align = 'end', width = 190, cl
             aria-label={ariaLabel}
             style={{ width, ...(coords ? { top: coords.top, left: coords.left } : { visibility: 'hidden' as const }) }}
           >
+            {header}
+            {items.length === 0 && emptyState}
             {items.map((item, i) => (
               <button
                 key={item.key ?? i}

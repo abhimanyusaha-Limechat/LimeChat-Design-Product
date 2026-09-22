@@ -1066,15 +1066,6 @@ const SHOWCASE_MESSAGES: Array<{ id: string } & ComponentProps<typeof MessageBub
     note: { ticketId: '123456' },
     children: 'Internal note — only the team can see this.',
   },
-  {
-    id: 's-9',
-    side: 'customer',
-    variant: 'blocked',
-    time: '09:04',
-    warningLabel: 'Message blocked — flagged content',
-    children: 'stupid',
-  },
-  { id: 's-10', side: 'agent', variant: 'deleted', time: '09:04' },
   { id: 's-11', side: 'customer', variant: 'opened', time: '09:05' },
   { id: 's-12', side: 'agent', variant: 'viewOnce', time: '09:05', children: 'Photo' },
   {
@@ -1090,7 +1081,6 @@ const SHOWCASE_MESSAGES: Array<{ id: string } & ComponentProps<typeof MessageBub
     side: 'customer',
     variant: 'text',
     time: '09:06',
-    reaction: { emoji: '❤️', count: 2 },
     children: "That's the whole set — thanks!",
   },
 ];
@@ -1293,7 +1283,7 @@ const TOP_NAV_BY_PRODUCT = {
   helpdesk: (selected: string) =>
     helpDeskTopNav({
       onVoiceCall: () => alert('Voice call'),
-      onCreateTicket: () => alert('New ticket'),
+      onSelectTicketInbox: (inbox) => alert(`New ticket in: ${inbox.name}`),
       showActions: selected === 'tickets',
     }),
   marketing: () => campaignsTopNav({ onChannelChange: () => alert('Pick channel') }),
@@ -2259,7 +2249,9 @@ export function App() {
                       unreadCount={ticket.unreadCount}
                       selected={selectedTicketId === ticket.id}
                       showCheckbox={false}
-                      onMoreActions={() => alert(`More actions: ${ticket.user}`)}
+                      onSelect={() => alert(`Select ticket: ${ticket.user}`)}
+                      onSelectAll={() => alert('Select all tickets')}
+                      onMarkAsStarred={() => alert(`Mark as starred: ${ticket.user}`)}
                       onClick={() => setSelectedTicketId(ticket.id)}
                     />
                   ))}

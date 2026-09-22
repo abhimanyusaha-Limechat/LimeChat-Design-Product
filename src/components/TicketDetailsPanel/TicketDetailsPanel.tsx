@@ -17,14 +17,13 @@
 import {
   forwardRef,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
   type HTMLAttributes,
   type ReactNode,
 } from 'react';
-import { createPortal } from 'react-dom';
 import { NativeSelect } from '../Select';
+import { Menu } from '../Menu';
 import { Tooltip } from '../Tooltip';
 import { ProductsPanel } from '../ProductsPanel';
 import { OrdersPanel } from '../OrdersPanel';
@@ -241,112 +240,55 @@ function DetailRow({
 
 /** Trigger + popover with a search box — used to assign an agent/team from a long, searchable name list. */
 function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (next: string) => void }) {
-  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const popoverRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [coords, setCoords] = useState<{ top: number; left: number; width: number } | null>(null);
-
-  useLayoutEffect(() => {
-    if (!open) return;
-    const reposition = () => {
-      const rect = triggerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      setCoords({ top: rect.bottom + 4, left: rect.left, width: Math.max(rect.width, 200) });
-    };
-    reposition();
-    window.addEventListener('scroll', reposition, true);
-    window.addEventListener('resize', reposition);
-    return () => {
-      window.removeEventListener('scroll', reposition, true);
-      window.removeEventListener('resize', reposition);
-    };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    inputRef.current?.focus();
-    const onPointerDown = (e: PointerEvent) => {
-      const target = e.target as Node;
-      if (!triggerRef.current?.contains(target) && !popoverRef.current?.contains(target)) {
-        setOpen(false);
-        setQuery('');
-      }
-    };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOpen(false);
-        setQuery('');
-      }
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [open]);
+  const wasOpenRef = useRef(false);
 
   const filtered = RANDOM_AGENT_NAMES.filter((name) => name.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
-    <>
-      <button
-        ref={triggerRef}
-        type="button"
-        className="lc-tdp__assignee-trigger"
-        data-placeholder={!value || undefined}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
-      >
-        <span className="lc-tdp__assignee-trigger-value">{value || 'Select...'}</span>
-        <ChevronIcon open={open} />
-      </button>
-      {open &&
-        typeof document !== 'undefined' &&
-        createPortal(
-          <div
-            ref={popoverRef}
-            className="lc-tdp__assignee-popover"
-            style={coords ? { top: coords.top, left: coords.left, width: coords.width } : { visibility: 'hidden' }}
+    <Menu
+      ariaLabel="Select an assignee"
+      align="start"
+      width={220}
+      header={
+        <div className="lc-tdp__assignee-search-row">
+          <input
+            type="text"
+            className="lc-tdp__assignee-search"
+            placeholder="Search agents..."
+            value={query}
+            autoFocus
+            onChange={(e) => setQuery(e.currentTarget.value)}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      }
+      emptyState={<p className="lc-tdp__assignee-empty">No agents found.</p>}
+      items={filtered.map((name) => ({
+        key: name,
+        label: name,
+        selected: name === value,
+        onClick: () => onChange(name),
+      }))}
+      trigger={({ ref, onClick, open }) => {
+        if (wasOpenRef.current && !open && query) setQuery('');
+        wasOpenRef.current = open;
+        return (
+          <button
+            ref={ref}
+            type="button"
+            className="lc-tdp__assignee-trigger"
+            data-placeholder={!value || undefined}
+            aria-haspopup="listbox"
+            aria-expanded={open}
+            onClick={onClick}
           >
-            <input
-              ref={inputRef}
-              type="text"
-              className="lc-tdp__assignee-search"
-              placeholder="Search agents..."
-              value={query}
-              onChange={(e) => setQuery(e.currentTarget.value)}
-            />
-            <div className="lc-tdp__assignee-list" role="listbox">
-              {filtered.length === 0 ? (
-                <p className="lc-tdp__assignee-empty">No agents found.</p>
-              ) : (
-                filtered.map((name) => (
-                  <button
-                    key={name}
-                    type="button"
-                    role="option"
-                    aria-selected={name === value}
-                    data-selected={name === value || undefined}
-                    className="lc-tdp__assignee-option"
-                    onClick={() => {
-                      onChange(name);
-                      setOpen(false);
-                      setQuery('');
-                    }}
-                  >
-                    {name}
-                  </button>
-                ))
-              )}
-            </div>
-          </div>,
-          document.body,
-        )}
-    </>
+            <span className="lc-tdp__assignee-trigger-value">{value || 'Select...'}</span>
+            <ChevronIcon open={open} />
+          </button>
+        );
+      }}
+    />
   );
 }
 

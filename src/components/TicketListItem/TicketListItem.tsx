@@ -23,6 +23,7 @@
  */
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { TicketIcon, type TicketIconName } from './icons';
+import { ActionMenu } from '../Menu';
 import './TicketListItem.css';
 
 export type TicketChannel = 'whatsapp' | 'email' | 'instagram' | 'sms';
@@ -62,8 +63,14 @@ export interface TicketListItemProps extends Omit<HTMLAttributes<HTMLDivElement>
   showCheckbox?: boolean;
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
-  /** Shown in place of the timestamp on hover/focus. Omit to keep the timestamp always visible. */
-  onMoreActions?: () => void;
+  /**
+   * "More actions" popover, shown in place of the timestamp on hover/focus.
+   * Provide at least one handler to enable the trigger; omit all to keep the
+   * timestamp always visible instead.
+   */
+  onSelect?: () => void;
+  onSelectAll?: () => void;
+  onMarkAsStarred?: () => void;
   onClick?: () => void;
 }
 
@@ -109,7 +116,9 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
     showCheckbox = true,
     checked = false,
     onCheckedChange,
-    onMoreActions,
+    onSelect,
+    onSelectAll,
+    onMarkAsStarred,
     onClick,
     className,
     ...rest
@@ -155,22 +164,33 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
           </div>
 
           <div className="lc-ticket-row__meta">
-            <span className="lc-ticket-row__timestamp" data-hidden-on-hover={onMoreActions != null || undefined}>
-              {timestamp}
-            </span>
-            {onMoreActions && (
-              <button
-                type="button"
-                className="lc-ticket-row__more"
-                aria-label="More actions"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onMoreActions();
-                }}
-              >
-                <TicketIcon name="dots-vertical" />
-              </button>
-            )}
+            {(() => {
+              const hasMoreActions = onSelect != null || onSelectAll != null || onMarkAsStarred != null;
+              return (
+                <>
+                  <span className="lc-ticket-row__timestamp" data-hidden-on-hover={hasMoreActions || undefined}>
+                    {timestamp}
+                  </span>
+                  {hasMoreActions && (
+                    <span onClick={(e) => e.stopPropagation()}>
+                      <ActionMenu
+                        ariaLabel="Ticket actions"
+                        tooltip="More actions"
+                        align="start"
+                        width={170}
+                        triggerClassName="lc-ticket-row__more"
+                        icon={<TicketIcon name="dots-horizontal" />}
+                        items={[
+                          { key: 'select', label: 'Select', onClick: () => onSelect?.() },
+                          { key: 'select-all', label: 'Select all', onClick: () => onSelectAll?.() },
+                          { key: 'star', label: 'Mark as starred', onClick: () => onMarkAsStarred?.() },
+                        ]}
+                      />
+                    </span>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
 
