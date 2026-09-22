@@ -31,6 +31,7 @@ import { CartPanel } from '../CartPanel';
 import { Modal, ModalTextarea, ModalCheckbox } from '../Modal';
 import { Button } from '../Button';
 import './TicketDetailsPanel.css';
+import { iconProps } from '../iconProps';
 
 const RANDOM_AGENT_NAMES = [
   'Aditi Sharma',
@@ -46,18 +47,6 @@ const RANDOM_AGENT_NAMES = [
   'Divya Menon',
   'Rohan Kulkarni',
 ];
-
-function iconProps() {
-  return {
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-    'aria-hidden': true,
-  };
-}
 
 const PlusIcon = () => (
   <svg {...iconProps()}>
@@ -249,7 +238,7 @@ function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (n
     <Menu
       ariaLabel="Select an assignee"
       align="start"
-      width={220}
+      width={198}
       header={
         <div className="lc-tdp__assignee-search-row">
           <input

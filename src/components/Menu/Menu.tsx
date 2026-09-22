@@ -21,16 +21,10 @@
  * `ActionMenu` bundles the common case: a dots-vertical trigger with a
  * "More actions" tooltip.
  */
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-  type Ref,
-} from 'react';
+import { useEffect, useRef, useState, type ReactNode, type Ref } from 'react';
 import { createPortal } from 'react-dom';
 import { Tooltip } from '../Tooltip';
+import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 import './Menu.css';
 
 export interface MenuItemData {
@@ -66,12 +60,23 @@ export interface MenuProps {
   header?: ReactNode;
   /** Shown in place of `items` when the list is empty (e.g. "No results"). */
   emptyState?: ReactNode;
+  /** Keep the menu open after an item is clicked — for multi-select lists. Default `true`. */
+  closeOnItemClick?: boolean;
 }
 
 /** The shared trigger + portal-positioned dropdown. Closes on outside click, Escape, scroll, or resize-driven reposition. */
-export function Menu({ items, trigger, ariaLabel, align = 'end', width = 190, className, header, emptyState }: MenuProps) {
+export function Menu({
+  items,
+  trigger,
+  ariaLabel,
+  align = 'end',
+  width = 190,
+  className,
+  header,
+  emptyState,
+  closeOnItemClick = true,
+}: MenuProps) {
   const [open, setOpen] = useState(false);
-  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -79,24 +84,7 @@ export function Menu({ items, trigger, ariaLabel, align = 'end', width = 190, cl
   // context even at rest — a menu positioned inside its own row can end up
   // painted behind a later row's stacking context despite z-index. Portalling
   // to <body> (like Tooltip already does) sidesteps that entirely.
-  useLayoutEffect(() => {
-    if (!open) return;
-    const reposition = () => {
-      const rect = triggerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      setCoords({
-        top: rect.bottom + 6,
-        left: align === 'end' ? rect.right - width : rect.left,
-      });
-    };
-    reposition();
-    window.addEventListener('scroll', reposition, true);
-    window.addEventListener('resize', reposition);
-    return () => {
-      window.removeEventListener('scroll', reposition, true);
-      window.removeEventListener('resize', reposition);
-    };
-  }, [open, align, width]);
+  const coords = usePopoverPosition(open, triggerRef, menuRef, width, align);
 
   useEffect(() => {
     if (!open) return;
@@ -129,26 +117,28 @@ export function Menu({ items, trigger, ariaLabel, align = 'end', width = 190, cl
             style={{ width, ...(coords ? { top: coords.top, left: coords.left } : { visibility: 'hidden' as const }) }}
           >
             {header}
-            {items.length === 0 && emptyState}
-            {items.map((item, i) => (
-              <button
-                key={item.key ?? i}
-                type="button"
-                role="menuitem"
-                className={`lc-menu__item${item.danger ? ' lc-menu__item--danger' : ''}${item.selected ? ' lc-menu__item--selected' : ''}`}
-                disabled={item.disabled}
-                onClick={() => {
-                  setOpen(false);
-                  item.onClick?.();
-                }}
-              >
-                {item.icon && <span className="lc-menu__item-icon">{item.icon}</span>}
-                <span className="lc-menu__item-label">{item.label}</span>
-                {item.trailingIcon && (
-                  <span className="lc-menu__item-icon lc-menu__item-icon--trailing">{item.trailingIcon}</span>
-                )}
-              </button>
-            ))}
+            <div className="lc-menu__items">
+              {items.length === 0 && emptyState}
+              {items.map((item, i) => (
+                <button
+                  key={item.key ?? i}
+                  type="button"
+                  role="menuitem"
+                  className={`lc-menu__item${item.danger ? ' lc-menu__item--danger' : ''}${item.selected ? ' lc-menu__item--selected' : ''}`}
+                  disabled={item.disabled}
+                  onClick={() => {
+                    if (closeOnItemClick) setOpen(false);
+                    item.onClick?.();
+                  }}
+                >
+                  {item.icon && <span className="lc-menu__item-icon">{item.icon}</span>}
+                  <span className="lc-menu__item-label">{item.label}</span>
+                  {item.trailingIcon && (
+                    <span className="lc-menu__item-icon lc-menu__item-icon--trailing">{item.trailingIcon}</span>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>,
           document.body,
         )}

@@ -16,7 +16,10 @@
 import { forwardRef, useCallback, useEffect, useId, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Menu } from '../Menu';
+import { TicketIcon, TicketRowCheckbox, type TicketChannel } from '../TicketListItem';
 import './TicketsSection.css';
+import '../scrollbar-hidden.css';
+import { iconProps } from '../iconProps';
 
 /**
  * Tracks `listRef`'s scroll position into a thumb top/height (in px) and drives a
@@ -121,18 +124,6 @@ function useScrollThumb() {
   return { listRef, thumb, visible: visible || dragging, dragging, onScroll, onMouseEnter, onMouseLeave, onThumbPointerDown };
 }
 
-function iconProps() {
-  return {
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-    'aria-hidden': true,
-  };
-}
-
 const ChevronDownIcon = () => (
   <svg {...iconProps()}>
     <path d="M6 9l6 6l6 -6" />
@@ -144,6 +135,11 @@ const SearchIcon = () => (
     <path d="M21 21l-6 -6" />
   </svg>
 );
+// Weighted so WhatsApp (the primary channel) still dominates the list — mirrors
+// App.tsx's own INBOX_TYPES channel mix, since this filter has no real channel data.
+const INBOX_ICON_TYPES: TicketChannel[] = ['whatsapp', 'whatsapp', 'whatsapp', 'email', 'instagram', 'sms'];
+const inboxIconType = (index: number): TicketChannel => INBOX_ICON_TYPES[index % INBOX_ICON_TYPES.length];
+
 const FilterIcon = () => (
   <svg {...iconProps()}>
     <path d="M4 6h16" />
@@ -180,6 +176,19 @@ export const TICKETS_SORT_OPTIONS = [
 
 export type TicketsSortOption = (typeof TICKETS_SORT_OPTIONS)[number];
 
+export const TICKETS_STATUS_OPTIONS = [
+  'Open',
+  'Closed',
+  'Resolved',
+  'Waiting',
+  'Follow up',
+  'Bot',
+  'Voice bot',
+  'Outbound',
+] as const;
+
+export type TicketsStatusOption = (typeof TICKETS_STATUS_OPTIONS)[number];
+
 export interface TicketsSectionTab {
   id: string;
   label: string;
@@ -189,6 +198,8 @@ export interface TicketsSectionProps extends HTMLAttributes<HTMLDivElement> {
   title?: string;
   status?: string;
   onStatusClick?: () => void;
+  statusOptions?: readonly string[];
+  onStatusChange?: (status: string) => void;
   searchValue?: string;
   onSearchChange?: (value: string) => void;
   onFilterClick?: () => void;
@@ -197,6 +208,10 @@ export interface TicketsSectionProps extends HTMLAttributes<HTMLDivElement> {
   onDateRangeClick?: () => void;
   inboxLabel?: string;
   onInboxClick?: () => void;
+  /** Inbox filter options — presence (with `inboxLabel`) renders a searchable multi-select popover instead of a plain button. */
+  inboxOptions?: string[];
+  selectedInboxes?: string[];
+  onSelectedInboxesChange?: (next: string[]) => void;
   tabs?: TicketsSectionTab[];
   activeTab?: string;
   onTabChange?: (id: string) => void;
@@ -209,6 +224,14 @@ export interface TicketsSectionProps extends HTMLAttributes<HTMLDivElement> {
   onLoadMore?: () => void;
   loadMoreLabel?: string;
   loadMoreLoading?: boolean;
+  /**
+   * Shows a "Select All (N)" + "Modify" bar above the list when set (bulk-select
+   * mode). Omit to hide the bar entirely.
+   */
+  selectedCount?: number;
+  allSelected?: boolean;
+  onSelectAllChange?: (checked: boolean) => void;
+  onModify?: () => void;
 }
 
 export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(function TicketsSection(
@@ -216,6 +239,8 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
     title = 'Tickets',
     status,
     onStatusClick,
+    statusOptions = TICKETS_STATUS_OPTIONS,
+    onStatusChange,
     searchValue,
     onSearchChange,
     onFilterClick,
@@ -224,6 +249,9 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
     onDateRangeClick,
     inboxLabel,
     onInboxClick,
+    inboxOptions,
+    selectedInboxes = [],
+    onSelectedInboxesChange,
     tabs,
     activeTab,
     onTabChange,
@@ -235,6 +263,10 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
     onLoadMore,
     loadMoreLabel = 'Load more tickets',
     loadMoreLoading = false,
+    selectedCount,
+    allSelected = false,
+    onSelectAllChange,
+    onModify,
     className,
     ...rest
   },
@@ -243,6 +275,16 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
   const { listRef, thumb, visible, dragging, onScroll, onMouseEnter, onMouseLeave, onThumbPointerDown } =
     useScrollThumb();
   const listId = useId();
+  const [inboxQuery, setInboxQuery] = useState('');
+  const filteredInboxOptions = (inboxOptions ?? []).filter((name) =>
+    name.toLowerCase().includes(inboxQuery.trim().toLowerCase()),
+  );
+  const toggleInbox = (name: string) => {
+    const next = selectedInboxes.includes(name)
+      ? selectedInboxes.filter((n) => n !== name)
+      : [...selectedInboxes, name];
+    onSelectedInboxesChange?.(next);
+  };
 
   return (
     <div {...rest} ref={ref} className={`lc-tickets-section${className ? ` ${className}` : ''}`}>
@@ -250,10 +292,33 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
         <div className="lc-tickets-section__header">
           <span className="lc-tickets-section__title">{title}</span>
           {status && (
-            <button type="button" className="lc-tickets-section__status" onClick={onStatusClick}>
-              {status}
-              <ChevronDownIcon />
-            </button>
+            <Menu
+              ariaLabel="Filter by status"
+              align="start"
+              width={180}
+              items={statusOptions.map((option) => ({
+                key: option,
+                label: option,
+                selected: option === status,
+                trailingIcon: option === status ? <CheckIcon /> : undefined,
+                onClick: () => {
+                  onStatusChange?.(option);
+                  onStatusClick?.();
+                },
+              }))}
+              trigger={({ ref, onClick }) => (
+                <button
+                  ref={ref}
+                  type="button"
+                  className="lc-tickets-section__status"
+                  data-status={status}
+                  onClick={onClick}
+                >
+                  {status}
+                  <ChevronDownIcon />
+                </button>
+              )}
+            />
           )}
         </div>
 
@@ -283,11 +348,49 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
                 <ChevronDownIcon />
               </button>
             )}
-            {inboxLabel && (
-              <button type="button" className="lc-tickets-section__filter-select" onClick={onInboxClick}>
-                <span>{inboxLabel}</span>
-                <ChevronDownIcon />
-              </button>
+            {inboxLabel && inboxOptions ? (
+              <Menu
+                ariaLabel="Filter by inbox"
+                align="start"
+                width={240}
+                className="lc-create-ticket-menu"
+                closeOnItemClick={false}
+                header={
+                  <div className="lc-create-ticket-menu__search">
+                    <SearchIcon />
+                    <input
+                      type="text"
+                      placeholder="Search inboxes"
+                      value={inboxQuery}
+                      autoFocus
+                      onChange={(e) => setInboxQuery(e.currentTarget.value)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                }
+                emptyState={<div className="lc-create-ticket-menu__empty">No inboxes found</div>}
+                items={filteredInboxOptions.map((name) => ({
+                  key: name,
+                  label: name,
+                  icon: <TicketIcon name={inboxIconType((inboxOptions ?? []).indexOf(name))} />,
+                  selected: selectedInboxes.includes(name),
+                  trailingIcon: selectedInboxes.includes(name) ? <CheckIcon /> : undefined,
+                  onClick: () => toggleInbox(name),
+                }))}
+                trigger={({ ref, onClick }) => (
+                  <button ref={ref} type="button" className="lc-tickets-section__filter-select" onClick={onClick}>
+                    <span>{inboxLabel}</span>
+                    <ChevronDownIcon />
+                  </button>
+                )}
+              />
+            ) : (
+              inboxLabel && (
+                <button type="button" className="lc-tickets-section__filter-select" onClick={onInboxClick}>
+                  <span>{inboxLabel}</span>
+                  <ChevronDownIcon />
+                </button>
+              )
             )}
           </div>
         )}
@@ -337,8 +440,20 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
         />
       )}
 
+      {selectedCount != null && (
+        <div className="lc-tickets-section__selection-bar">
+          <TicketRowCheckbox checked={allSelected} onChange={(next) => onSelectAllChange?.(next)} />
+          <span className="lc-tickets-section__selection-label">
+            Select All <span className="lc-tickets-section__selection-count">{selectedCount}</span>
+          </span>
+          <Button variant="filled" color="primary" size="xs" textTransform="none" onClick={onModify}>
+            MODIFY
+          </Button>
+        </div>
+      )}
+
       <div className="lc-tickets-section__list-wrap" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-        <div id={listId} className="lc-tickets-section__list" ref={listRef} onScroll={onScroll}>
+        <div id={listId} className="lc-tickets-section__list lc-scrollbar-hidden" ref={listRef} onScroll={onScroll}>
           {children}
           {onLoadMore && (
             <div className="lc-tickets-section__load-more">

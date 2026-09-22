@@ -145,8 +145,6 @@ const PATHS: Record<SidebarIconName, string[]> = {
   ],
 };
 
-export const SIDEBAR_ICON_NAMES = Object.keys(PATHS) as SidebarIconName[];
-
 export function SidebarIcon({ name, ...props }: IconProps) {
   return (
     <svg

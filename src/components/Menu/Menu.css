@@ -28,6 +28,12 @@
   height: 16px;
 }
 
+.lc-menu__items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .lc-menu {
   position: fixed;
   z-index: 2000;

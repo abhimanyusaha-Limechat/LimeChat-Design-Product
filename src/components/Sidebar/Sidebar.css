@@ -94,11 +94,6 @@
   padding: var(--lc-sidebar-nav-offset) 0 0;
   list-style: none;
   overflow-y: auto;
-  scrollbar-width: none;
-}
-
-.lc-sidebar__nav::-webkit-scrollbar {
-  display: none;
 }
 
 .lc-sidebar__footer {

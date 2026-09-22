@@ -16,6 +16,7 @@ import { Tooltip } from '../Tooltip';
 import { Avatar } from '../Avatar';
 import { useDismiss } from '../../hooks/useDismiss';
 import './Sidebar.css';
+import '../scrollbar-hidden.css';
 
 export interface SidebarMenuItem {
   id: string;
@@ -231,7 +232,12 @@ export function Sidebar({
     <div className={`lc-sidebar${className ? ` ${className}` : ''}`} style={style}>
       <SidebarLogo logo={logo} />
 
-      <nav className="lc-sidebar__nav" aria-label={ariaLabel} id={navId} aria-orientation="vertical">
+      <nav
+        className="lc-sidebar__nav lc-scrollbar-hidden"
+        aria-label={ariaLabel}
+        id={navId}
+        aria-orientation="vertical"
+      >
         {items.map((item) => (
           <SidebarEntry
             key={item.id}

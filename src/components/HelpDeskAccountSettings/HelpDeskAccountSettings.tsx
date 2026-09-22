@@ -161,7 +161,7 @@ export interface FileTypeOption {
   group?: string;
 }
 
-export const FILE_TYPE_OPTIONS: FileTypeOption[] = [
+const FILE_TYPE_OPTIONS: FileTypeOption[] = [
   { id: 'allDocuments', label: 'All Documents' },
   { id: 'pdfDocuments', label: 'PDF Documents', group: 'allDocuments' },
   { id: 'wordDocuments', label: 'Word Documents', group: 'allDocuments' },

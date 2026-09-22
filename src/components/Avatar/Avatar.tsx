@@ -28,8 +28,6 @@ export type AvatarVariant = 'light' | 'filled' | 'outline';
 export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type AvatarRadius = 'xs' | 'xl';
 
-const SIZE_PX: Record<AvatarSize, number> = { xs: 16, sm: 24, md: 36, lg: 56, xl: 84 };
-
 export interface AvatarProps extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
   /** Image URL — renders the image type. */
   src?: string;
@@ -151,5 +149,4 @@ function AvatarGroup({ limit, size, radius, children, className, ...rest }: Avat
 
 export const Avatar = Object.assign(AvatarBase, { Group: AvatarGroup });
 export { AvatarGroup };
-export { SIZE_PX as AVATAR_SIZE_PX };
 export default Avatar;

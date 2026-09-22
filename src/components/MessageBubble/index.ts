@@ -1,4 +1,4 @@
-export { MessageBubble, PiMask, ProfaneWord, default } from './MessageBubble';
+export { MessageBubble, MessageDateDivider, default } from './MessageBubble';
 export type {
   MessageBubbleProps,
   MessageBubbleSide,
@@ -11,6 +11,4 @@ export type {
   AttachmentData,
   LocationData,
   NoteData,
-  PiMaskProps,
-  ProfaneWordProps,
 } from './MessageBubble';

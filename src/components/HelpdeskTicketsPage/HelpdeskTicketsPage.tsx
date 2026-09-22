@@ -18,8 +18,9 @@
  *     detailsPanel={<TicketDetailsPanel ... />}
  *   />
  */
-import { forwardRef, useCallback, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { Children, forwardRef, useCallback, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
 import './HelpdeskTicketsPage.css';
+import '../scrollbar-hidden.css';
 
 /**
  * A column width draggable via a handle on one edge, clamped to [min, max].
@@ -118,6 +119,17 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
   const list = useResizableWidth(defaultListWidth, minListWidth, maxListWidth, 1);
   const details = useResizableWidth(defaultDetailsWidth, minDetailsWidth, maxDetailsWidth, -1);
 
+  const conversationRef = useRef<HTMLDivElement>(null);
+  const messageCount = Children.count(conversation);
+  useEffect(() => {
+    const el = conversationRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+    // Re-run only when the message count changes (ticket switch, new message) — not on
+    // every parent re-render (e.g. composer keystrokes), which would yank the scroll
+    // position away from an agent reading earlier history.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageCount]);
+
   return (
     <div {...rest} ref={ref} className={`lc-hd-tickets${className ? ` ${className}` : ''}`}>
       <div className="lc-hd-tickets__list" style={{ width: list.width }}>
@@ -135,8 +147,12 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
 
       <div className="lc-hd-tickets__main">
         {conversationTopBar && <div className="lc-hd-tickets__topbar">{conversationTopBar}</div>}
-        <div className="lc-hd-tickets__conversation" data-align={conversationAlign}>
-          {conversation}
+        <div
+          className="lc-hd-tickets__conversation lc-scrollbar-hidden"
+          data-align={conversationAlign}
+          ref={conversationRef}
+        >
+          <div className="lc-hd-tickets__conversation-inner">{conversation}</div>
         </div>
         {composer && <div className="lc-hd-tickets__composer">{composer}</div>}
       </div>
