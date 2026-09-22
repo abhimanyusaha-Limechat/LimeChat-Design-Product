@@ -16,6 +16,7 @@ import { Tooltip } from '../Tooltip';
 import { ProductSwitcher, type ProductSwitcherItem } from '../ProductSwitcher';
 import { AccountSwitcher, type AccountSwitcherProps } from '../AccountSwitcher';
 import { Avatar } from '../Avatar';
+import { useDismiss } from '../../hooks/useDismiss';
 import './TopNavBar.css';
 
 export interface TopNavCrumb {
@@ -217,25 +218,10 @@ export function TopNavBar({
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
 
-  useEffect(() => {
-    if (!switcherOpen && !accountMenuOpen) return;
-    const onDown = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (switcherOpen && !appsWrapRef.current?.contains(t)) setSwitcherOpen(false);
-      if (accountMenuOpen && !accountWrapRef.current?.contains(t)) setAccountMenuOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      setSwitcherOpen(false);
-      setAccountMenuOpen(false);
-    };
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [switcherOpen, accountMenuOpen]);
+  useDismiss([
+    { open: switcherOpen, ref: appsWrapRef, onClose: () => setSwitcherOpen(false) },
+    { open: accountMenuOpen, ref: accountWrapRef, onClose: () => setAccountMenuOpen(false) },
+  ]);
 
   return (
     <header className={`lc-topnav${className ? ` ${className}` : ''}`} style={style}>

@@ -10,10 +10,11 @@
  * `items`, the `selectedId`, and an `onSelect` handler (or per-item `href`s for
  * link-based routing). Product presets live in `./presets`.
  */
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useId, useRef, useState, type ReactNode } from 'react';
 import { LimeChatLogo, SidebarIcon, type SidebarIconName } from './icons';
 import { Tooltip } from '../Tooltip';
 import { Avatar } from '../Avatar';
+import { useDismiss } from '../../hooks/useDismiss';
 import './Sidebar.css';
 
 export interface SidebarMenuItem {
@@ -222,21 +223,9 @@ export function Sidebar({
   const profileWrapRef = useRef<HTMLDivElement>(null);
   const hasProfileMenu = !!profile?.menuItems && profile.menuItems.length > 0;
 
-  useEffect(() => {
-    if (!profileMenuOpen) return;
-    const onDocPointer = (e: MouseEvent) => {
-      if (!profileWrapRef.current?.contains(e.target as Node)) setProfileMenuOpen(false);
-    };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setProfileMenuOpen(false);
-    };
-    document.addEventListener('mousedown', onDocPointer);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', onDocPointer);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [profileMenuOpen]);
+  useDismiss([
+    { open: profileMenuOpen, ref: profileWrapRef, onClose: () => setProfileMenuOpen(false) },
+  ]);
 
   return (
     <div className={`lc-sidebar${className ? ` ${className}` : ''}`} style={style}>

@@ -28,6 +28,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { Avatar } from '../Avatar';
 import { Tooltip, type TooltipPosition } from '../Tooltip';
 import { CanvasIcon, type CanvasIconName } from './icons';
+import { useDismiss } from '../../hooks/useDismiss';
 import './CanvasChrome.css';
 
 export interface CanvasFlow {
@@ -781,27 +782,11 @@ export function CanvasChrome({
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  useEffect(() => {
-    if (!menuOpen && !paletteOpen && !searchOpen) return;
-    const onDown = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (menuOpen && !menuWrapRef.current?.contains(t)) setMenuOpen(false);
-      if (paletteOpen && !paletteWrapRef.current?.contains(t)) setPaletteOpen(false);
-      if (searchOpen && !searchWrapRef.current?.contains(t)) setSearchOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      setMenuOpen(false);
-      setPaletteOpen(false);
-      setSearchOpen(false);
-    };
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [menuOpen, paletteOpen, searchOpen]);
+  useDismiss([
+    { open: menuOpen, ref: menuWrapRef, onClose: () => setMenuOpen(false) },
+    { open: paletteOpen, ref: paletteWrapRef, onClose: () => setPaletteOpen(false) },
+    { open: searchOpen, ref: searchWrapRef, onClose: () => setSearchOpen(false) },
+  ]);
 
   // Single-key tool shortcuts (e.g. V → move, H → pan). Ignored while typing.
   useEffect(() => {

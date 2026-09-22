@@ -12,16 +12,8 @@ export type {
   CanvasBroadcastSchedule,
   CanvasBroadcastSegment,
 } from './CanvasChrome';
-export { CanvasIcon, CANVAS_ICON_NAMES } from './icons';
-export type { CanvasIconName } from './icons';
 export {
   marketingCanvas,
   automationCanvas,
-  canvasPresets,
   flowNodePalette,
-} from './presets';
-export type {
-  MarketingCanvasOptions,
-  AutomationCanvasOptions,
-  CanvasProduct,
 } from './presets';
