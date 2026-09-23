@@ -20,6 +20,7 @@ import { ActionMenu, Menu } from '../Menu';
 import { TicketIcon, type TicketChannel } from '../TicketListItem';
 import './ConversationTopBar.css';
 import { iconProps } from '../iconProps';
+import { ChevronDownIcon } from '../icons';
 
 const PhoneIcon = () => (
   <svg {...iconProps()}>
@@ -30,11 +31,6 @@ const WhatsAppIcon = () => (
   <svg {...iconProps()}>
     <path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9" />
     <path d="M9 10a0.5 .5 0 0 0 1 0v-1a0.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a0.5 .5 0 0 0 0 -1h-1a0.5 .5 0 0 0 -1 0" />
-  </svg>
-);
-const ChevronDownIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M6 9l6 6l6 -6" />
   </svg>
 );
 const DotsVerticalIcon = () => (

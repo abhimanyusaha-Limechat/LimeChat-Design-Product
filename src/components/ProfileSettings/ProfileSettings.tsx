@@ -23,13 +23,8 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
+import { CheckIcon } from '../icons';
 import './ProfileSettings.css';
-
-const CheckIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M5 12l5 5l10 -10" />
-  </svg>
-);
 
 const CopyIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

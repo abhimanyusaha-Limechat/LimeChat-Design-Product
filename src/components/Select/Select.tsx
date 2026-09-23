@@ -19,6 +19,7 @@
  *   />
  */
 import { forwardRef, useId, type ReactNode, type SelectHTMLAttributes } from 'react';
+import { ChevronDownIcon } from '../icons';
 import './Select.css';
 
 export type SelectVariant = 'default' | 'filled' | 'unstyled';
@@ -160,9 +161,7 @@ export const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(fun
           )}
         </select>
         <span className="lc-select__chevron" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 9l6 6l6 -6" />
-          </svg>
+          <ChevronDownIcon />
         </span>
       </div>
 

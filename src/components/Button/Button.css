@@ -15,7 +15,7 @@
  *   soft  = background/<c>/light  · soft-hover  = …/light-hover
  *   text  = text/<c>/default      · border      = border/<c>/default
  *
- * Disabled uses background/disabled/default #f0f0f0 + text/disabled/default #bfbfbf
+ * Disabled uses background/disabled/default var(--lc-color-gray-150) + text/disabled/default var(--lc-color-gray-400)
  * (Figma defines it for the Filled variant; generalised to every variant here).
  */
 .lc-btn {
@@ -91,12 +91,12 @@
 
 /* --- Colour tokens ------------------------------------------------- */
 .lc-btn[data-color='primary'] {
-  --c-solid: #6bac1b;
-  --c-solid-hover: #508014;
-  --c-soft: #f1f7e9;
-  --c-soft-hover: #edf5e3;
-  --c-text: #6bac1b;
-  --c-border: #6bac1b;
+  --c-solid: var(--lc-color-green-500);
+  --c-solid-hover: var(--lc-color-green-700);
+  --c-soft: var(--lc-color-green-50);
+  --c-soft-hover: var(--lc-color-green-75);
+  --c-text: var(--lc-color-green-500);
+  --c-border: var(--lc-color-green-500);
 }
 .lc-btn[data-color='green'] {
   --c-solid: #16a34a;
@@ -107,34 +107,34 @@
   --c-border: #16a34a;
 }
 .lc-btn[data-color='gray'] {
-  --c-solid: #bfbfbf;
-  --c-solid-hover: #8c8c8c;
-  --c-soft: #f3f4f3;
+  --c-solid: var(--lc-color-gray-400);
+  --c-solid-hover: var(--lc-color-gray-500);
+  --c-soft: var(--lc-color-gray-100);
   --c-soft-hover: #f0f0ef;
-  --c-text: #8c8c8c;
-  --c-border: #d9d9d9;
+  --c-text: var(--lc-color-gray-500);
+  --c-border: var(--lc-color-gray-300);
 }
 .lc-btn[data-color='red'] {
-  --c-solid: #e5484d;
-  --c-solid-hover: #da1b21;
-  --c-soft: #fceaea;
+  --c-solid: var(--lc-color-red-500);
+  --c-solid-hover: var(--lc-color-red-600);
+  --c-soft: var(--lc-color-red-50);
   --c-soft-hover: #fae5e5;
-  --c-text: #da1b21;
-  --c-border: #e5484d;
+  --c-text: var(--lc-color-red-600);
+  --c-border: var(--lc-color-red-500);
 }
 .lc-btn[data-color='yellow'] {
-  --c-solid: #e8a325;
-  --c-solid-hover: #c68610;
+  --c-solid: var(--lc-color-amber-500);
+  --c-solid-hover: var(--lc-color-amber-600);
   --c-soft: #fcf2e7;
   --c-soft-hover: #faeee1;
-  --c-text: #c68610;
-  --c-border: #e8a325;
+  --c-text: var(--lc-color-amber-600);
+  --c-border: var(--lc-color-amber-500);
 }
 
 /* --- Variants ---------------------------------------------------- */
 .lc-btn[data-variant='filled'] {
   background: var(--c-solid);
-  color: #ffffff;
+  color: var(--lc-color-white);
 }
 .lc-btn[data-variant='light'] {
   background: var(--c-soft);
@@ -150,14 +150,14 @@
   color: var(--c-text);
 }
 .lc-btn[data-variant='white'] {
-  background: #ffffff;
+  background: var(--lc-color-white);
   color: var(--c-text);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .lc-btn[data-variant='default'] {
-  background: #ffffff;
-  color: #3c492c;
-  border-color: #d9d9d9;
+  background: var(--lc-color-white);
+  color: var(--lc-color-green-900);
+  border-color: var(--lc-color-gray-300);
 }
 
 /* hover — only when interactive */
@@ -173,7 +173,7 @@
 }
 .lc-btn[data-variant='white']:not(:disabled):not([data-disabled]):not([data-loading]):hover,
 .lc-btn[data-variant='default']:not(:disabled):not([data-disabled]):not([data-loading]):hover {
-  background: #fafafa;
+  background: var(--lc-color-gray-50);
 }
 
 /* --- Disabled --------------------------------------------------- */
@@ -184,15 +184,15 @@
 }
 .lc-btn:disabled,
 .lc-btn[data-disabled] {
-  background: #f0f0f0;
-  color: #bfbfbf;
-  border-color: #f0f0f0;
+  background: var(--lc-color-gray-150);
+  color: var(--lc-color-gray-400);
+  border-color: var(--lc-color-gray-150);
   box-shadow: none;
 }
 
 /* --- Focus ---------------------------------------------------- */
 .lc-btn:focus-visible {
-  outline: 2px solid var(--c-border, #6bac1b);
+  outline: 2px solid var(--c-border, var(--lc-color-green-500));
   outline-offset: 2px;
 }
 
@@ -227,7 +227,7 @@
   border: 2px solid currentColor;
   border-right-color: transparent;
   border-radius: 50%;
-  color: #bfbfbf;
+  color: var(--lc-color-gray-400);
   animation: lc-btn-spin 0.6s linear infinite;
 }
 

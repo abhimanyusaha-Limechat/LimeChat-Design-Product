@@ -1,0 +1,55 @@
+/**
+ * Shared design tokens — the color palette actually reused across components
+ * (each of these appears 5+ times as a hardcoded hex today). Component CSS
+ * should reference these instead of repeating the hex value; colors used
+ * only within one component (brand/illustration colors, etc.) stay local.
+ */
+:root {
+  /* Brand green */
+  --lc-color-green-900: #3c492c;
+  --lc-color-green-800: #34540d;
+  --lc-color-green-700: #508014;
+  --lc-color-green-500: #6bac1b;
+  --lc-color-green-200: #cdf0a2;
+  --lc-color-green-100: #e5f7cf;
+  --lc-color-green-75: #edf5e3;
+  --lc-color-green-50: #f1f7e9;
+  --lc-color-green-25: #fafdf6;
+
+  /* Sage / muted olive */
+  --lc-color-sage-500: #808975;
+  --lc-color-sage-600: #6b7268;
+
+  /* Neutrals */
+  --lc-color-white: #ffffff;
+  --lc-color-stone-600: #57534e;
+  --lc-color-stone-100: #f5f5f4;
+  --lc-color-stone-50: #fafaf9;
+  --lc-color-stone-25: #faf9f5;
+  --lc-color-stone-150: #f0efe9;
+  --lc-color-gray-500: #8c8c8c;
+  --lc-color-gray-400: #bfbfbf;
+  --lc-color-gray-300: #d9d9d9;
+  --lc-color-gray-250: #e0e0e0;
+  --lc-color-gray-225: #e8e8e8;
+  --lc-color-gray-200: #ececea;
+  --lc-color-gray-150: #f0f0f0;
+  --lc-color-gray-125: #eef0ee;
+  --lc-color-gray-100: #f3f4f3;
+  --lc-color-gray-50: #fafafa;
+
+  /* Semantic: danger */
+  --lc-color-red-700: #c92a2a;
+  --lc-color-red-600: #da1b21;
+  --lc-color-red-500: #e5484d;
+  --lc-color-red-50: #fceaea;
+
+  /* Semantic: warning */
+  --lc-color-amber-600: #c68610;
+  --lc-color-amber-500: #e8a325;
+
+  /* Semantic: info */
+  --lc-color-blue-900: #003b56;
+  --lc-color-blue-600: #097ba3;
+  --lc-color-blue-50: #e7f2f6;
+}

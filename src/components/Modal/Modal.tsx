@@ -23,6 +23,7 @@ import {
   type TextareaHTMLAttributes,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { CloseIcon, ChevronDownIcon } from '../icons';
 import './Modal.css';
 
 const Icon = ({ d }: { d: string | string[] }) => (
@@ -32,9 +33,7 @@ const Icon = ({ d }: { d: string | string[] }) => (
     ))}
   </svg>
 );
-const CLOSE = ['M18 6l-12 12', 'M6 6l12 12'];
 const CHEV_UP = ['M6 15l6 -6l6 6'];
-const CHEV_DOWN = ['M6 9l6 6l6 -6'];
 
 export interface ModalProps {
   open: boolean;
@@ -141,7 +140,7 @@ export function Modal({
             {description != null && <p className="lc-modal__description">{description}</p>}
           </div>
           <button type="button" className="lc-modal__close" aria-label="Close" onClick={onClose}>
-            <Icon d={CLOSE} />
+            <CloseIcon />
           </button>
         </div>
 
@@ -363,7 +362,7 @@ export function ModalStepper({
             <Icon d={CHEV_UP} />
           </button>
           <button type="button" aria-label="Decrease" disabled={disabled} onClick={() => onStep(-1)}>
-            <Icon d={CHEV_DOWN} />
+            <ChevronDownIcon />
           </button>
         </span>
       </div>

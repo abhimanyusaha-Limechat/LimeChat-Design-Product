@@ -4,24 +4,24 @@
  * Panel: current-account header · search · scrollable account list · pagination.
  *
  * Tokens:
- *   panel   bg #fff · border/gray/light #d9d9d9 · radius/2xs 4px · p padding/sm 12px
+ *   panel   bg var(--lc-color-white) · border/gray/light var(--lc-color-gray-300) · radius/2xs 4px · p padding/sm 12px
  *           shadow  0 1px 1.5px #0000000D, 0 20px 12.5px #0000001A, 0 10px 5px #0000000A · w 280
- *   header  border-bottom #d9d9d9 · pb padding/xs 8px · gap 12px
- *           name  Heading/h6  16/20 bold  text/title #3c492c
- *           id    Text SemiBold/xs  12/16  text/dimmed #808975
+ *   header  border-bottom var(--lc-color-gray-300) · pb padding/xs 8px · gap 12px
+ *           name  Heading/h6  16/20 bold  text/title var(--lc-color-green-900)
+ *           id    Text SemiBold/xs  12/16  text/dimmed var(--lc-color-sage-500)
  *   row     gap 12px · p padding/xs 8px · radius/3xs 2px
- *           name  Heading/h7  12/16 bold  text/default #3c492c
- *           id    Text SemiBold/xs  12/16  text/dimmed #808975
- *           hover bg gray/10 #fafafa · selected bg ~green/green-0 #fafdf6
- *   pager   icon 20px (border #d9d9d9, radius 4) · active 24px #6bac1b / #fff
+ *           name  Heading/h7  12/16 bold  text/default var(--lc-color-green-900)
+ *           id    Text SemiBold/xs  12/16  text/dimmed var(--lc-color-sage-500)
+ *           hover bg gray/10 var(--lc-color-gray-50) · selected bg ~green/green-0 var(--lc-color-green-25)
+ *   pager   icon 20px (border var(--lc-color-gray-300), radius 4) · active 24px var(--lc-color-green-500) / var(--lc-color-white)
  */
 .lc-account-switcher {
-  --lc-as-border: #d9d9d9;
-  --lc-as-title: #3c492c;
-  --lc-as-dimmed: #808975;
-  --lc-as-hover-bg: #fafafa;
-  --lc-as-selected-bg: #fafdf6;
-  --lc-as-accent: #6bac1b;
+  --lc-as-border: var(--lc-color-gray-300);
+  --lc-as-title: var(--lc-color-green-900);
+  --lc-as-dimmed: var(--lc-color-sage-500);
+  --lc-as-hover-bg: var(--lc-color-gray-50);
+  --lc-as-selected-bg: var(--lc-color-green-25);
+  --lc-as-accent: var(--lc-color-green-500);
   --lc-as-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
 
@@ -34,7 +34,7 @@
   padding: 12px;
   border: 1px solid var(--lc-as-border);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   box-shadow:
     0 1px 1.5px rgba(0, 0, 0, 0.05),
     0 20px 12.5px rgba(0, 0, 0, 0.1),
@@ -98,14 +98,14 @@
   padding: 0 12px 0 34px;
   border: 1px solid var(--lc-as-border);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
   color: var(--lc-as-title);
 }
 .lc-account-switcher__search input::placeholder {
-  color: #8c8c8c;
+  color: var(--lc-color-gray-500);
 }
 .lc-account-switcher__search input:focus-visible {
   outline: none;
@@ -129,7 +129,7 @@
 .lc-account-switcher__list:hover,
 .lc-account-switcher__list:focus-within {
   scrollbar-width: thin;
-  scrollbar-color: #d9d9d9 transparent;
+  scrollbar-color: var(--lc-color-gray-300) transparent;
 }
 .lc-account-switcher__list::-webkit-scrollbar {
   width: 0;
@@ -140,7 +140,7 @@
   width: 6px;
 }
 .lc-account-switcher__list::-webkit-scrollbar-thumb {
-  background: #d9d9d9;
+  background: var(--lc-color-gray-300);
   border-radius: 3px;
 }
 
@@ -209,16 +209,16 @@
   padding: 0;
   border: 1px solid var(--lc-as-border);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   color: var(--lc-as-title);
   cursor: pointer;
 }
 .lc-account-switcher__pager-btn:disabled {
-  color: #bfbfbf;
+  color: var(--lc-color-gray-400);
   cursor: not-allowed;
 }
 .lc-account-switcher__pager-btn:not(:disabled):hover {
-  background: #fafafa;
+  background: var(--lc-color-gray-50);
 }
 .lc-account-switcher__pager-btn svg {
   width: 12px;
@@ -234,7 +234,7 @@
   padding: 0 4px;
   border: 1px solid var(--lc-as-border);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   color: var(--lc-as-title);
   font-family: inherit;
   font-size: 12px;
@@ -246,7 +246,7 @@
   height: 24px;
   border-color: var(--lc-as-accent);
   background: var(--lc-as-accent);
-  color: #ffffff;
+  color: var(--lc-color-white);
   font-size: 14px;
   font-weight: 700;
 }

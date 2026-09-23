@@ -2,13 +2,13 @@
  * Modal — LimeChat design system dialog shell (Figma nodes 135:8061 / 195:59804).
  *
  * Tokens:
- *   card    bg #fff · radius/xs 8 · p padding/xl 24 · gap spacing/lg 24
+ *   card    bg var(--lc-color-white) · radius/xs 8 · p padding/xl 24 · gap spacing/lg 24
  *           shadow 0 7px 3.5px #0000000A, 0 10px 7.5px #0000001A, 0 1px 1.5px #0000000D
- *   title   Heading/h6  16/20 bold  text/title #3c492c
- *   desc    Text/xs     12/16       text/dimmed #808975
- *   field   label Text SemiBold/xs 12/16 #3c492c · required *  #e5484d
- *           input h 32 · border border/gray/light #d9d9d9 · radius/2xs 4
- *   switch  track 36x20 · on background/primary/filled #6bac1b · off #d9d9d9 · thumb 16 #fff
+ *   title   Heading/h6  16/20 bold  text/title var(--lc-color-green-900)
+ *   desc    Text/xs     12/16       text/dimmed var(--lc-color-sage-500)
+ *   field   label Text SemiBold/xs 12/16 var(--lc-color-green-900) · required *  var(--lc-color-red-500)
+ *           input h 32 · border border/gray/light var(--lc-color-gray-300) · radius/2xs 4
+ *   switch  track 36x20 · on background/primary/filled var(--lc-color-green-500) · off var(--lc-color-gray-300) · thumb 16 var(--lc-color-white)
  */
 .lc-modal__overlay {
   --lc-modal-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -35,12 +35,12 @@
 }
 
 .lc-modal {
-  --lc-modal-fg: #3c492c;
-  --lc-modal-dimmed: #808975;
-  --lc-modal-border: #d9d9d9;
-  --lc-modal-accent: #6bac1b;
-  --lc-modal-hover-bg: #f5f5f4;
-  --lc-modal-danger: #e5484d;
+  --lc-modal-fg: var(--lc-color-green-900);
+  --lc-modal-dimmed: var(--lc-color-sage-500);
+  --lc-modal-border: var(--lc-color-gray-300);
+  --lc-modal-accent: var(--lc-color-green-500);
+  --lc-modal-hover-bg: var(--lc-color-stone-100);
+  --lc-modal-danger: var(--lc-color-red-500);
   --lc-modal-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
 
@@ -51,7 +51,7 @@
   max-width: 100%;
   padding: 24px;
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   box-shadow:
     0 1px 1.5px rgba(0, 0, 0, 0.05),
     0 10px 7.5px rgba(0, 0, 0, 0.1),
@@ -169,7 +169,7 @@
   padding: 0 12px;
   border: 1px solid var(--lc-modal-border);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -177,7 +177,7 @@
 }
 .lc-modal__input::placeholder,
 .lc-modal__textarea::placeholder {
-  color: #8c8c8c;
+  color: var(--lc-color-gray-500);
 }
 .lc-modal__input:disabled {
   background: var(--lc-modal-hover-bg);
@@ -243,7 +243,7 @@
   padding: 8px 12px;
   border: 1px solid var(--lc-modal-border);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -287,7 +287,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--lc-color-white);
   transition: transform 120ms ease;
 }
 .lc-modal__switch-track[aria-checked='true'] .lc-modal__switch-thumb {
@@ -306,7 +306,7 @@
   height: 32px;
   border: 1px solid var(--lc-modal-border);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--lc-color-white);
 }
 .lc-modal__stepper[data-disabled] {
   background: var(--lc-modal-hover-bg);
@@ -388,7 +388,7 @@
   flex-shrink: 0;
   border: 1.5px solid var(--lc-modal-border);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   cursor: pointer;
 }
 .lc-modal__checkbox-input:checked {
@@ -402,7 +402,7 @@
   top: 1px;
   width: 5px;
   height: 9px;
-  border: solid #ffffff;
+  border: solid var(--lc-color-white);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
@@ -441,13 +441,13 @@
   padding: 8px 12px;
   border: 1px solid var(--lc-modal-border);
   border-radius: 8px;
-  background: #fafafa;
+  background: var(--lc-color-gray-50);
   cursor: pointer;
   text-align: left;
 }
 .lc-modal__radio-option[data-checked] {
   border-color: var(--lc-modal-accent);
-  background: #fafdf6;
+  background: var(--lc-color-green-25);
 }
 .lc-modal__radio-main {
   display: flex;
@@ -471,7 +471,7 @@
   flex-shrink: 0;
   border: 1.5px solid var(--lc-modal-border);
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--lc-color-white);
   cursor: pointer;
 }
 .lc-modal__radio-input:checked {
@@ -521,7 +521,7 @@
   padding: 16px;
   border: 1px solid var(--lc-modal-border);
   border-radius: 8px;
-  background: #fafafa;
+  background: var(--lc-color-gray-50);
 }
 .lc-modal__card-controls {
   display: flex;
@@ -552,7 +552,7 @@
   min-width: 0;
   font-size: 12px;
   line-height: 16px;
-  color: #003b56;
+  color: var(--lc-color-blue-900);
 }
 .lc-modal__banner-action {
   display: inline-flex;
@@ -565,7 +565,7 @@
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: #003b56;
+  color: var(--lc-color-blue-900);
   cursor: pointer;
 }
 .lc-modal__banner-action:hover {
@@ -597,9 +597,9 @@
 .lc-modal__callout {
   width: 100%;
   padding: 4px 8px;
-  border: 1px solid #e5f7cf;
+  border: 1px solid var(--lc-color-green-100);
   border-radius: 8px;
-  background: #f1f7e9;
+  background: var(--lc-color-green-50);
 }
 
 /* --- Chip list (added phone numbers / emails) ------------------ */

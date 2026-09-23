@@ -8,12 +8,12 @@
  */
 
 .lc-ps {
-  --lc-ps-border: #d9d9d9;
-  --lc-ps-divider: #ececea;
-  --lc-ps-text-title: #3c492c;
-  --lc-ps-text-dimmed: #808975;
-  --lc-ps-primary: #508014;
-  --lc-ps-bg-subtle: #fafaf9;
+  --lc-ps-border: var(--lc-color-gray-300);
+  --lc-ps-divider: var(--lc-color-gray-200);
+  --lc-ps-text-title: var(--lc-color-green-900);
+  --lc-ps-text-dimmed: var(--lc-color-sage-500);
+  --lc-ps-primary: var(--lc-color-green-700);
+  --lc-ps-bg-subtle: var(--lc-color-stone-50);
   --lc-ps-radius: 8px;
   --lc-ps-radius-sm: 4px;
   --lc-ps-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -148,7 +148,7 @@
   padding: 0;
   border: 1px solid var(--lc-ps-border);
   border-radius: var(--lc-ps-radius-sm);
-  background: #ffffff;
+  background: var(--lc-color-white);
   color: var(--lc-ps-text-dimmed);
   cursor: pointer;
   transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease,
@@ -174,7 +174,7 @@
   padding: 0 12px;
   border: 1px solid var(--lc-ps-border);
   border-radius: var(--lc-ps-radius-sm);
-  background: #ffffff;
+  background: var(--lc-color-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -183,7 +183,7 @@
 }
 
 .lc-ps__input::placeholder {
-  color: #8c8c8c;
+  color: var(--lc-color-gray-500);
 }
 
 .lc-ps__input:focus-visible {

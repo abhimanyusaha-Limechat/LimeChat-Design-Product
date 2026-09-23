@@ -9,11 +9,11 @@
  */
 
 .lc-dss {
-  --lc-dss-divider: #ececea;
-  --lc-dss-text-title: #3c492c;
-  --lc-dss-text-dimmed: #808975;
-  --lc-dss-primary: #508014;
-  --lc-dss-bg-subtle: #fafaf9;
+  --lc-dss-divider: var(--lc-color-gray-200);
+  --lc-dss-text-title: var(--lc-color-green-900);
+  --lc-dss-text-dimmed: var(--lc-color-sage-500);
+  --lc-dss-primary: var(--lc-color-green-700);
+  --lc-dss-bg-subtle: var(--lc-color-stone-50);
   --lc-dss-radius-sm: 4px;
   --lc-dss-label-col: minmax(180px, 300px);
 
@@ -195,9 +195,9 @@
   min-width: 0;
   height: 32px;
   padding: 0 12px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--lc-color-gray-300);
   border-radius: var(--lc-dss-radius-sm);
-  background: #ffffff;
+  background: var(--lc-color-white);
   font-family: inherit;
   font-size: 14px;
   color: var(--lc-dss-text-title);
@@ -229,7 +229,7 @@
   gap: 12px;
   padding: 8px 10px;
   border-radius: var(--lc-dss-radius-sm);
-  background: #fceaea;
+  background: var(--lc-color-red-50);
   border: 0;
 }
 
@@ -241,7 +241,7 @@
   white-space: nowrap;
   font-size: 14px;
   font-weight: 600;
-  color: #da1b21;
+  color: var(--lc-color-red-600);
 }
 
 .lc-dss__profanity-match {
@@ -272,7 +272,7 @@
 
 .lc-dss__profanity-match button[data-active='true'] {
   background: var(--lc-dss-primary);
-  color: #ffffff;
+  color: var(--lc-color-white);
 }
 
 .lc-dss__profanity-remove {
@@ -328,14 +328,14 @@
   width: 40px;
   height: 22px;
   border-radius: 999px;
-  background: #d9d9d9;
+  background: var(--lc-color-gray-300);
   transition: background-color 150ms ease;
 }
 
 .lc-dss__switch-track[data-checked='true'] {
   /* Design-system primary green (matches every other active toggle/filled
      control), not the darker --lc-dss-primary used for text/border accents. */
-  background: #6bac1b;
+  background: var(--lc-color-green-500);
 }
 
 .lc-dss__switch-thumb {
@@ -345,7 +345,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--lc-color-white);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   transition: transform 150ms ease;
 }

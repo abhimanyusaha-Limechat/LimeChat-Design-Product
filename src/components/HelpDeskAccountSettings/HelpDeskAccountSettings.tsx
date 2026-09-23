@@ -23,13 +23,8 @@
  *   />
  */
 import { useId, useState, type ReactNode } from 'react';
+import { ChevronDownIcon as ChevronIcon } from '../icons';
 import './HelpDeskAccountSettings.css';
-
-const ChevronIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M6 9l6 6l6 -6" />
-  </svg>
-);
 
 /** One label(+description) | control settings row. */
 function Row({

@@ -2,10 +2,10 @@
  * SelectUserSegmentModal — LimeChat design system (Figma node 258:13354).
  */
 .lc-segment-modal {
-  --lc-segment-green: #6bac1b;
-  --lc-segment-green-soft: #edf5e3;
-  --lc-segment-red: #da1b21;
-  --lc-segment-red-soft: #fceaea;
+  --lc-segment-green: var(--lc-color-green-500);
+  --lc-segment-green-soft: var(--lc-color-green-75);
+  --lc-segment-red: var(--lc-color-red-600);
+  --lc-segment-red-soft: var(--lc-color-red-50);
   height: 607px;
 }
 .lc-segment-modal .lc-modal__body {
@@ -97,7 +97,7 @@
 }
 .lc-segment-modal__body:hover,
 .lc-segment-modal__body:focus-within {
-  scrollbar-color: #d9d9d9 transparent;
+  scrollbar-color: var(--lc-color-gray-300) transparent;
 }
 .lc-segment-modal__body::-webkit-scrollbar {
   width: 6px;
@@ -111,7 +111,7 @@
 }
 .lc-segment-modal__body:hover::-webkit-scrollbar-thumb,
 .lc-segment-modal__body:focus-within::-webkit-scrollbar-thumb {
-  background: #d9d9d9;
+  background: var(--lc-color-gray-300);
 }
 .lc-segment-modal__row {
   display: grid;
@@ -122,10 +122,10 @@
   transition: background-color 120ms ease;
 }
 .lc-segment-modal__row + .lc-segment-modal__row {
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--lc-color-gray-150);
 }
 .lc-segment-modal__body .lc-segment-modal__row:hover {
-  background: #fafafa;
+  background: var(--lc-color-gray-50);
 }
 .lc-segment-modal__body .lc-segment-modal__row[data-choice='include']:hover {
   background: var(--lc-segment-green-soft-hover, #e3f0d6);
@@ -135,13 +135,13 @@
 }
 .lc-segment-modal__row--head {
   padding: 8px 20px 8px 16px;
-  background: #e7f2f6;
+  background: var(--lc-color-blue-50);
   font-size: 10px;
   font-weight: 400;
   line-height: 12.5px;
   text-transform: none;
   letter-spacing: 0;
-  color: #003b56;
+  color: var(--lc-color-blue-900);
 }
 .lc-segment-modal__row[data-choice='include'] {
   background: var(--lc-segment-green-soft);
@@ -228,10 +228,10 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border: 1px solid #e8a325;
+  border: 1px solid var(--lc-color-amber-500);
   border-radius: 4px;
   background: #fcf2e7;
-  color: #c68610;
+  color: var(--lc-color-amber-600);
   font-size: 12px;
   font-weight: 500;
 }

@@ -20,12 +20,8 @@ import { forwardRef, useState, type HTMLAttributes, type ReactNode } from 'react
 import { ActionMenu } from '../Menu';
 import './EmailMessage.css';
 import { iconProps } from '../iconProps';
+import { ChevronDownIcon } from '../icons';
 
-const ChevronDownIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M6 9l6 6l6 -6" />
-  </svg>
-);
 const DotsVerticalIcon = () => (
   <svg {...iconProps()}>
     <circle cx="12" cy="12" r="0.5" fill="currentColor" />

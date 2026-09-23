@@ -19,12 +19,8 @@ import { Menu } from '../Menu';
 import { TicketIcon, TicketRowCheckbox, type TicketChannel } from '../TicketListItem';
 import './TicketsSection.css';
 import { iconProps } from '../iconProps';
+import { ChevronDownIcon, CheckIcon } from '../icons';
 
-const ChevronDownIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M6 9l6 6l6 -6" />
-  </svg>
-);
 const SearchIcon = () => (
   <svg {...iconProps()}>
     <circle cx="10" cy="10" r="7" />
@@ -55,11 +51,6 @@ const SortIcon = () => (
     <path d="M7 5l0 14" />
     <path d="M21 15l-4 4l-4 -4" />
     <path d="M17 19l0 -14" />
-  </svg>
-);
-const CheckIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M5 12l5 5l10 -10" />
   </svg>
 );
 

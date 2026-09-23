@@ -13,6 +13,7 @@ import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
 import './ProductsPanel.css';
 import { iconProps } from '../iconProps';
+import { CloseIcon as ClearIcon, CheckIcon } from '../icons';
 import { formatINR } from '../formatINR';
 import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 
@@ -102,12 +103,6 @@ const SearchIcon = () => (
     <path d="M21 21l-6 -6" />
   </svg>
 );
-const ClearIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M18 6l-12 12" />
-    <path d="M6 6l12 12" />
-  </svg>
-);
 const FilterIcon = () => (
   <svg {...iconProps()}>
     <path d="M4 6h16" />
@@ -140,11 +135,6 @@ const ShareIcon = () => (
     <circle cx="18" cy="18" r="2" />
     <path d="M8 10.5l8 -4" />
     <path d="M8 13.5l8 4" />
-  </svg>
-);
-const CheckIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M5 12l5 5l10 -10" />
   </svg>
 );
 const CartIcon = () => (

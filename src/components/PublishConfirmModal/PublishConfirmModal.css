@@ -12,9 +12,9 @@
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--lc-color-gray-300);
   border-radius: 8px;
-  background: #fafaf9;
+  background: var(--lc-color-stone-50);
 }
 
 .lc-publish-confirm__section-header {
@@ -28,11 +28,11 @@
   align-items: center;
   padding: 2px 10px;
   border-radius: 999px;
-  background: #eef0ee;
+  background: var(--lc-color-gray-125);
   font-size: 11px;
   line-height: 16px;
   font-weight: 700;
-  color: #6b7268;
+  color: var(--lc-color-sage-600);
   text-transform: uppercase;
   letter-spacing: 0.2px;
 }
@@ -49,13 +49,13 @@
   font-size: 12px;
   line-height: 16px;
   font-weight: 700;
-  color: #808975;
+  color: var(--lc-color-sage-500);
   cursor: pointer;
   transition: color 150ms ease;
 }
 
 .lc-publish-confirm__edit:hover {
-  color: #3c492c;
+  color: var(--lc-color-green-900);
   text-decoration: underline;
 }
 
@@ -75,7 +75,7 @@
   font-size: 16px;
   line-height: 20px;
   font-weight: 700;
-  color: #3c492c;
+  color: var(--lc-color-green-900);
 }
 
 /* --- Rolling number (audience count) -------------------------------------- */
@@ -120,7 +120,7 @@
 .lc-publish-confirm__desc {
   font-size: 12px;
   line-height: 16px;
-  color: #808975;
+  color: var(--lc-color-sage-500);
 }
 
 .lc-publish-confirm__segments {
@@ -174,7 +174,7 @@
 .lc-publish-confirm__segment-name {
   flex: 1;
   min-width: 0;
-  color: #3c492c;
+  color: var(--lc-color-green-900);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -183,7 +183,7 @@
 .lc-publish-confirm__segment-count {
   flex-shrink: 0;
   font-weight: 600;
-  color: #3c492c;
+  color: var(--lc-color-green-900);
 }
 
 .lc-publish-confirm__note {
