@@ -305,54 +305,26 @@
 }
 
 .lc-tickets-section__list-wrap {
-  position: relative;
   flex: 1 1 0;
   min-height: 0;
+  overflow: hidden;
 }
 
-/* Native scrollbar is hidden entirely (it always reserves gutter width from its
-   own content box, which would shrink rows below the panel's full width) — a
-   custom overlay thumb in `__scroll-thumb` provides the visual affordance instead
-   without taking up any layout space; see `.lc-scrollbar-hidden` on the element. */
+/* The list is widened past its wrapper by the scrollbar's own width and padded back
+   in by the same amount, so the native scrollbar's gutter sits outside the visible
+   area (clipped by `__list-wrap`'s `overflow: hidden`) instead of shrinking rows. */
 .lc-tickets-section__list {
-  width: 100%;
+  width: calc(100% + 16px);
   height: 100%;
+  padding-right: 16px;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-color: #d4d4d1 transparent;
+  scrollbar-width: thin;
 }
 
 .lc-tickets-section__load-more {
   display: flex;
   justify-content: center;
   padding: 16px 12px;
-}
-
-.lc-tickets-section__scroll-thumb {
-  --lc-ts-scrollbar-ease: cubic-bezier(0.23, 1, 0.32, 1);
-
-  position: absolute;
-  top: 0;
-  left: 2px;
-  width: 4px;
-  border-radius: 100px;
-  background: #d4d4d1;
-  opacity: 0;
-  cursor: grab;
-  transition: opacity 180ms var(--lc-ts-scrollbar-ease), width 150ms var(--lc-ts-scrollbar-ease),
-    background-color 150ms ease;
-}
-.lc-tickets-section__scroll-thumb[data-visible] {
-  opacity: 1;
-  transition: opacity 220ms var(--lc-ts-scrollbar-ease), width 150ms var(--lc-ts-scrollbar-ease),
-    background-color 150ms ease;
-}
-.lc-tickets-section__scroll-thumb:hover {
-  width: 6px;
-  background: #bcbcb8;
-}
-.lc-tickets-section__scroll-thumb[data-dragging] {
-  width: 6px;
-  background: #9a9a95;
-  cursor: grabbing;
-  transition: width 150ms var(--lc-ts-scrollbar-ease), background-color 150ms ease;
 }
