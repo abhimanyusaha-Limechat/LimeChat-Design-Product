@@ -16,6 +16,7 @@
  *   />
  */
 import { useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { ChevronDownIcon, CloseIcon } from '../icons';
 import './TagsInput.css';
 
 export interface TagsInputProps {
@@ -122,10 +123,7 @@ export function TagsInput({
                   aria-label={`Remove ${tag}`}
                   onClick={() => removeTag(tag)}
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M18 6l-12 12" />
-                    <path d="M6 6l12 12" />
-                  </svg>
+                  <CloseIcon />
                 </button>
               )}
             </span>
@@ -161,9 +159,7 @@ export function TagsInput({
             setOpen((o) => !o);
           }}
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 9l6 6l6 -6" />
-          </svg>
+          <ChevronDownIcon />
         </button>
 
         {open && !disabled && options.length > 0 && (

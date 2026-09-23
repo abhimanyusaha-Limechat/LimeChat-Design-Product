@@ -8,16 +8,16 @@
   --lc-tags-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
   --lc-tags-radius: 4px;
-  --lc-tags-border: #d9d9d9;
-  --lc-tags-bg: #ffffff;
-  --lc-tags-value: #3c492c;
+  --lc-tags-border: var(--lc-color-gray-300);
+  --lc-tags-bg: var(--lc-color-white);
+  --lc-tags-value: var(--lc-color-green-900);
   --lc-tags-placeholder: #b3b3b3;
-  --lc-tags-icon: #8c8c8c;
-  --lc-tags-label: #3c492c;
-  --lc-tags-helper: #808975;
-  --lc-tags-focus: #6bac1b;
-  --lc-tags-pill-bg: #f5f5f4;
-  --lc-tags-pill-fg: #3c492c;
+  --lc-tags-icon: var(--lc-color-gray-500);
+  --lc-tags-label: var(--lc-color-green-900);
+  --lc-tags-helper: var(--lc-color-sage-500);
+  --lc-tags-focus: var(--lc-color-green-500);
+  --lc-tags-pill-bg: var(--lc-color-stone-100);
+  --lc-tags-pill-fg: var(--lc-color-green-900);
 
   box-sizing: border-box;
   display: flex;
@@ -210,7 +210,7 @@
   list-style: none;
   border: 1px solid var(--lc-tags-border);
   border-radius: var(--lc-tags-radius);
-  background: #ffffff;
+  background: var(--lc-color-white);
   box-shadow:
     0 1px 1.5px rgba(0, 0, 0, 0.05),
     0 20px 12.5px rgba(0, 0, 0, 0.1),
@@ -236,12 +236,12 @@
 }
 
 .lc-tags-input__option:hover {
-  background: #f5f5f4;
+  background: var(--lc-color-stone-100);
 }
 
 .lc-tags-input[data-disabled] .lc-tags-input__field {
-  background: #f0f0f0;
-  color: #bfbfbf;
+  background: var(--lc-color-gray-150);
+  color: var(--lc-color-gray-400);
   cursor: not-allowed;
 }
 

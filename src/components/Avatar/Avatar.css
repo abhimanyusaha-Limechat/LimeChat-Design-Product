@@ -7,10 +7,10 @@
  * Initials font (bold Lato): xs 10/12 (SemiBold, uppercase) · sm 12/16 · md 16/20 · lg 32/40 · xl 40/48
  * Radius:  xs → radius/2xs 4px   ·   xl → circle
  * Variants (colour family: primary):
- *   light   → bg background/primary/light #f1f7e9 · fg text/primary/default #6bac1b
- *   filled  → bg background/primary/filled #6bac1b · fg neutral/white #ffffff
- *   outline → transparent · 1px border/primary/default #6bac1b · fg #6bac1b
- *   image   → fg over a text/dimmed #808975 fallback fill
+ *   light   → bg background/primary/light var(--lc-color-green-50) · fg text/primary/default var(--lc-color-green-500)
+ *   filled  → bg background/primary/filled var(--lc-color-green-500) · fg neutral/white var(--lc-color-white)
+ *   outline → transparent · 1px border/primary/default var(--lc-color-green-500) · fg var(--lc-color-green-500)
+ *   image   → fg over a text/dimmed var(--lc-color-sage-500) fallback fill
  */
 .lc-avatar {
   --lc-avatar-size: 36px;
@@ -21,12 +21,12 @@
   --lc-avatar-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
 
-  --lc-avatar-light-bg: #f1f7e9;
-  --lc-avatar-filled-bg: #6bac1b;
-  --lc-avatar-outline-border: #6bac1b;
-  --lc-avatar-fg-on-color: #ffffff;
-  --lc-avatar-fg-accent: #6bac1b;
-  --lc-avatar-image-fallback: #808975;
+  --lc-avatar-light-bg: var(--lc-color-green-50);
+  --lc-avatar-filled-bg: var(--lc-color-green-500);
+  --lc-avatar-outline-border: var(--lc-color-green-500);
+  --lc-avatar-fg-on-color: var(--lc-color-white);
+  --lc-avatar-fg-accent: var(--lc-color-green-500);
+  --lc-avatar-image-fallback: var(--lc-color-sage-500);
 
   box-sizing: border-box;
   display: inline-flex;
@@ -106,7 +106,7 @@
      would otherwise reset background-clip to border-box). */
   background-color: var(--lc-avatar-image-fallback);
   background-clip: padding-box;
-  color: #ffffff;
+  color: var(--lc-color-white);
 }
 .lc-avatar__img {
   width: 100%;
@@ -134,13 +134,13 @@
   align-items: center;
 }
 .lc-avatar-group > .lc-avatar {
-  border-color: #ffffff;
+  border-color: var(--lc-color-white);
   margin-left: calc(-0.28 * var(--lc-avatar-size, 36px));
 }
 .lc-avatar-group > .lc-avatar:first-child {
   margin-left: 0;
 }
 .lc-avatar-group__overflow {
-  background: var(--lc-avatar-light-bg, #f1f7e9);
-  color: var(--lc-avatar-fg-accent, #6bac1b);
+  background: var(--lc-avatar-light-bg, var(--lc-color-green-50));
+  color: var(--lc-avatar-fg-accent, var(--lc-color-green-500));
 }

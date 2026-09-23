@@ -14,6 +14,7 @@ import { forwardRef, useEffect, useLayoutEffect, useRef, useState, type HTMLAttr
 import { Button } from '../Button';
 import './TicketComposer.css';
 import { iconProps } from '../iconProps';
+import { CheckIcon } from '../icons';
 
 /** Line height (20px) × 6 visible lines + the textarea's own vertical padding (6px top + 6px bottom). */
 const MAX_TEXTAREA_HEIGHT = 20 * 6 + 12;
@@ -51,11 +52,6 @@ const SmileIcon = () => (
     <path d="M9 10l.01 0" />
     <path d="M15 10l.01 0" />
     <path d="M9.5 15a3.5 3.5 0 0 0 5 0" />
-  </svg>
-);
-const CheckIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M5 12l5 5l10 -10" />
   </svg>
 );
 

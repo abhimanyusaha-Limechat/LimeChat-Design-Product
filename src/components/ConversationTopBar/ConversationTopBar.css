@@ -2,11 +2,11 @@
  * ConversationTopBar — LimeChat design system (Figma node 8984:34679).
  */
 .lc-conv-top {
-  --lc-ct-title: #3c492c;
-  --lc-ct-dimmed: #808975;
-  --lc-ct-primary: #6bac1b;
-  --lc-ct-primary-light: #f1f7e9;
-  --lc-ct-border: #d9d9d9;
+  --lc-ct-title: var(--lc-color-green-900);
+  --lc-ct-dimmed: var(--lc-color-sage-500);
+  --lc-ct-primary: var(--lc-color-green-500);
+  --lc-ct-primary-light: var(--lc-color-green-50);
+  --lc-ct-border: var(--lc-color-gray-300);
 
   box-sizing: border-box;
   display: flex;
@@ -14,7 +14,7 @@
   justify-content: space-between;
   width: 100%;
   padding: 8px 12px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   border-radius: 8px;
   box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1), 0px 1px 1.5px rgba(0, 0, 0, 0.05);
   font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -108,7 +108,7 @@
   transition: background-color 150ms ease, color 150ms ease;
 }
 .lc-conv-top__icon-btn:hover {
-  background: #f3f4f3;
+  background: var(--lc-color-gray-100);
   color: var(--lc-ct-title);
 }
 .lc-conv-top__icon-btn svg {
@@ -136,7 +136,7 @@
   gap: 3px;
   padding: 1px 6px;
   border-radius: 100px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   color: var(--lc-ct-primary);
   font-size: 9px;
   font-weight: 700;
@@ -166,7 +166,7 @@
   color: var(--lc-ct-dimmed);
 }
 .lc-conv-top__split .lc-conv-top__icon-btn:hover {
-  background: #f3f4f3;
+  background: var(--lc-color-gray-100);
   color: var(--lc-ct-title);
 }
 .lc-conv-top__split .lc-conv-top__icon-btn svg {

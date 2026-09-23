@@ -6,10 +6,10 @@
  */
 
 .lc-ihp {
-  --lc-ihp-text-title: #3c492c;
-  --lc-ihp-text-dimmed: #57534e;
-  --lc-ihp-tile-bg: #f5f5f4;
-  --lc-ihp-tile-bg-hover: #ececea;
+  --lc-ihp-text-title: var(--lc-color-green-900);
+  --lc-ihp-text-dimmed: var(--lc-color-stone-600);
+  --lc-ihp-tile-bg: var(--lc-color-stone-100);
+  --lc-ihp-tile-bg-hover: var(--lc-color-gray-200);
   --lc-ihp-radius: 8px;
 
   display: flex;
@@ -60,7 +60,7 @@
 }
 
 .lc-ihp__tile:focus-visible {
-  outline: 2px solid #508014;
+  outline: 2px solid var(--lc-color-green-700);
   outline-offset: 2px;
 }
 
@@ -85,7 +85,7 @@
 .lc-ihp__icon-text {
   font-size: 15px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--lc-color-white);
   letter-spacing: 0.02em;
 }
 

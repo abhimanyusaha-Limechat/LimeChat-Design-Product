@@ -7,18 +7,18 @@
  */
 
 .lc-ib {
-  --lc-ib-border: #d9d9d9;
-  --lc-ib-border-dark: #e8e8e8;
-  --lc-ib-text-title: #3c492c;
-  --lc-ib-text-dimmed: #808975;
-  --lc-ib-secondary-dark: #57534e;
-  --lc-ib-text-light: #808975;
-  --lc-ib-text-placeholder: #8c8c8c;
-  --lc-ib-primary: #6bac1b;
-  --lc-ib-table-head-bg: #e7f2f6;
-  --lc-ib-row-hover: #f1f7e9;
-  --lc-ib-chip-bg: #eef0ee;
-  --lc-ib-chip-text: #6b7268;
+  --lc-ib-border: var(--lc-color-gray-300);
+  --lc-ib-border-dark: var(--lc-color-gray-225);
+  --lc-ib-text-title: var(--lc-color-green-900);
+  --lc-ib-text-dimmed: var(--lc-color-sage-500);
+  --lc-ib-secondary-dark: var(--lc-color-stone-600);
+  --lc-ib-text-light: var(--lc-color-sage-500);
+  --lc-ib-text-placeholder: var(--lc-color-gray-500);
+  --lc-ib-primary: var(--lc-color-green-500);
+  --lc-ib-table-head-bg: var(--lc-color-blue-50);
+  --lc-ib-row-hover: var(--lc-color-green-50);
+  --lc-ib-chip-bg: var(--lc-color-gray-125);
+  --lc-ib-chip-text: var(--lc-color-sage-600);
   --lc-ib-radius: 4px;
   --lc-ib-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --lc-ib-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
@@ -118,7 +118,7 @@
 }
 
 .lc-ib__table[data-scrolling='true'] {
-  scrollbar-color: #e0e0e0 transparent;
+  scrollbar-color: var(--lc-color-gray-250) transparent;
 }
 
 .lc-ib__table::-webkit-scrollbar {
@@ -137,7 +137,7 @@
 }
 
 .lc-ib__table[data-scrolling='true']::-webkit-scrollbar-thumb {
-  background: #e0e0e0;
+  background: var(--lc-color-gray-250);
 }
 
 .lc-ib__row {

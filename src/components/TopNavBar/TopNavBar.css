@@ -3,34 +3,34 @@
  *
  * Design tokens mirror "LimeChat Design System — V3" (Figma node 8847:4018):
  *  - bar height ........ 56px
- *  - bar fill .......... background/default            #ffffff
- *  - bottom border ..... border/gray/light            #d9d9d9
+ *  - bar fill .......... background/default            var(--lc-color-white)
+ *  - bottom border ..... border/gray/light            var(--lc-color-gray-300)
  *  - control radius .... radius/2xs                    4px
- *  - crumb text ........ text/dimmed #808975 / current text/default #3c492c
- *  - info badge ........ bg background/secondary/light #e7f2f6 · text #003b56
- *  - draft badge ....... bg #e1eff4 · text/secondary/default #097ba3
- *  - account name ...... text/primary/dark            #34540d
- *  - company avatar .... ~green/green-2 #cdf0a2 · ~green/green-6-anchor #6bac1b
+ *  - crumb text ........ text/dimmed var(--lc-color-sage-500) / current text/default var(--lc-color-green-900)
+ *  - info badge ........ bg background/secondary/light var(--lc-color-blue-50) · text var(--lc-color-blue-900)
+ *  - draft badge ....... bg #e1eff4 · text/secondary/default var(--lc-color-blue-600)
+ *  - account name ...... text/primary/dark            var(--lc-color-green-800)
+ *  - company avatar .... ~green/green-2 var(--lc-color-green-200) · ~green/green-6-anchor var(--lc-color-green-500)
  *  - shadow ............ 0 1px 1px rgba(0,0,0,.05)
  */
 .lc-topnav {
   --lc-topnav-height: 56px;
-  --lc-topnav-bg: #ffffff;
-  --lc-topnav-border: #d9d9d9;
+  --lc-topnav-bg: var(--lc-color-white);
+  --lc-topnav-border: var(--lc-color-gray-300);
   --lc-topnav-radius: 4px;
-  --lc-topnav-fg: #3c492c;
-  --lc-topnav-fg-dimmed: #808975;
+  --lc-topnav-fg: var(--lc-color-green-900);
+  --lc-topnav-fg-dimmed: var(--lc-color-sage-500);
   --lc-topnav-fg-muted: #595959;
-  --lc-topnav-separator: #bfbfbf;
-  --lc-topnav-info-badge-bg: #e7f2f6;
-  --lc-topnav-info-badge-fg: #003b56;
+  --lc-topnav-separator: var(--lc-color-gray-400);
+  --lc-topnav-info-badge-bg: var(--lc-color-blue-50);
+  --lc-topnav-info-badge-fg: var(--lc-color-blue-900);
   --lc-topnav-draft-badge-bg: #e1eff4;
-  --lc-topnav-draft-badge-fg: #097ba3;
-  --lc-topnav-updated-fg: #097ba3;
-  --lc-topnav-account-fg: #34540d;
-  --lc-topnav-avatar-bg: #cdf0a2;
-  --lc-topnav-avatar-fg: #6bac1b;
-  --lc-topnav-hover-bg: #f5f5f4;
+  --lc-topnav-draft-badge-fg: var(--lc-color-blue-600);
+  --lc-topnav-updated-fg: var(--lc-color-blue-600);
+  --lc-topnav-account-fg: var(--lc-color-green-800);
+  --lc-topnav-avatar-bg: var(--lc-color-green-200);
+  --lc-topnav-avatar-fg: var(--lc-color-green-500);
+  --lc-topnav-hover-bg: var(--lc-color-stone-100);
   /* Account chip hover — one notch up the grey palette from the shared hover fill. */
   --lc-topnav-account-hover-bg: #e7e5e4;
   --lc-topnav-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
@@ -193,7 +193,7 @@ button.lc-topnav__crumb-link--copyable:hover {
 }
 .lc-topnav__crumb-link--copied,
 .lc-topnav__crumb-link--copied:hover {
-  color: var(--lc-topnav-avatar-fg); /* primary green #6bac1b */
+  color: var(--lc-topnav-avatar-fg); /* primary green var(--lc-color-green-500) */
 }
 
 .lc-topnav__separator {
@@ -406,8 +406,8 @@ button.lc-topnav__account:hover {
 }
 /* The shared <Avatar>, tinted to the account chip's green-2 chip look. */
 .lc-topnav__account-avatar {
-  --lc-avatar-light-bg: var(--lc-topnav-avatar-bg); /* #cdf0a2 */
-  --lc-avatar-fg-accent: var(--lc-topnav-avatar-fg); /* #6bac1b */
+  --lc-avatar-light-bg: var(--lc-topnav-avatar-bg); /* var(--lc-color-green-200) */
+  --lc-avatar-fg-accent: var(--lc-topnav-avatar-fg); /* var(--lc-color-green-500) */
   --lc-avatar-image-fallback: var(--lc-topnav-avatar-bg);
 }
 .lc-topnav__account-avatar .lc-avatar__initials {

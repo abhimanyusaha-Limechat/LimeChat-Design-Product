@@ -15,6 +15,7 @@
  *   />
  */
 import { Tooltip } from '../Tooltip';
+import { CheckIcon as SharedCheckIcon } from '../icons';
 import './BotCsatSettings.css';
 
 function StarIcon() {
@@ -35,11 +36,7 @@ function StarIcon() {
 }
 
 function CheckIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M5 12l5 5l10 -10" />
-    </svg>
-  );
+  return <SharedCheckIcon strokeWidth={3} />;
 }
 
 function InfoIcon() {

@@ -6,24 +6,24 @@
  */
 
 .lc-fh {
-  --lc-fh-border: #d9d9d9;
-  --lc-fh-border-dark: #e8e8e8;
-  --lc-fh-text-title: #3c492c;
-  --lc-fh-text-dimmed: #808975;
-  --lc-fh-secondary-dark: #57534e;
-  --lc-fh-text-light: #808975;
-  --lc-fh-text-placeholder: #8c8c8c;
-  --lc-fh-primary: #6bac1b;
-  --lc-fh-primary-dark: #34540d;
-  --lc-fh-green-2: #cdf0a2;
-  --lc-fh-table-head-bg: #e7f2f6;
-  --lc-fh-row-hover: #f1f7e9;
-  --lc-fh-retry-bg: #f1f7e9;
+  --lc-fh-border: var(--lc-color-gray-300);
+  --lc-fh-border-dark: var(--lc-color-gray-225);
+  --lc-fh-text-title: var(--lc-color-green-900);
+  --lc-fh-text-dimmed: var(--lc-color-sage-500);
+  --lc-fh-secondary-dark: var(--lc-color-stone-600);
+  --lc-fh-text-light: var(--lc-color-sage-500);
+  --lc-fh-text-placeholder: var(--lc-color-gray-500);
+  --lc-fh-primary: var(--lc-color-green-500);
+  --lc-fh-primary-dark: var(--lc-color-green-800);
+  --lc-fh-green-2: var(--lc-color-green-200);
+  --lc-fh-table-head-bg: var(--lc-color-blue-50);
+  --lc-fh-row-hover: var(--lc-color-green-50);
+  --lc-fh-retry-bg: var(--lc-color-green-50);
   --lc-fh-retry-text: #7cb535;
-  --lc-fh-secondary-light-bg: #eef0ee;
-  --lc-fh-secondary-light-text: #6b7268;
+  --lc-fh-secondary-light-bg: var(--lc-color-gray-125);
+  --lc-fh-secondary-light-text: var(--lc-color-sage-600);
   --lc-fh-warning: #e8a112;
-  --lc-fh-bg: #faf9f5;
+  --lc-fh-bg: var(--lc-color-stone-25);
   --lc-fh-radius: 4px;
   --lc-fh-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
@@ -255,7 +255,7 @@
 }
 
 .lc-fh__table[data-scrolling='true'] {
-  scrollbar-color: #e0e0e0 transparent;
+  scrollbar-color: var(--lc-color-gray-250) transparent;
 }
 
 .lc-fh__table::-webkit-scrollbar {
@@ -274,7 +274,7 @@
 }
 
 .lc-fh__table[data-scrolling='true']::-webkit-scrollbar-thumb {
-  background: #e0e0e0;
+  background: var(--lc-color-gray-250);
 }
 
 .lc-fh__row {
@@ -532,7 +532,7 @@
 }
 
 .lc-fh__action-btn:hover {
-  background: #f0efe9;
+  background: var(--lc-color-stone-150);
   color: var(--lc-fh-text-title);
 }
 
@@ -576,7 +576,7 @@
 }
 
 .lc-fh__page-item:hover {
-  background: #f5f5f4;
+  background: var(--lc-color-stone-100);
 }
 
 .lc-fh__page-item[data-active='true'] {

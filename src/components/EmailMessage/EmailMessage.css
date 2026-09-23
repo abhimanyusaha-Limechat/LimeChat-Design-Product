@@ -7,15 +7,15 @@
 .lc-email-reply,
 .lc-email-composer-bar,
 .lc-email-forward {
-  --lc-email-title: #3c492c;
-  --lc-email-dimmed: #808975;
-  --lc-email-border: #d9d9d9;
+  --lc-email-title: var(--lc-color-green-900);
+  --lc-email-dimmed: var(--lc-color-sage-500);
+  --lc-email-border: var(--lc-color-gray-300);
   --lc-email-gray-bg: #f7f8f6;
-  --lc-email-gray-light-bg: #f3f4f3;
+  --lc-email-gray-light-bg: var(--lc-color-gray-100);
   --lc-email-blue: #1b83ac;
-  --lc-email-badge-bg: #f1f7e9;
-  --lc-email-badge-text: #6bac1b;
-  --lc-email-primary: #6bac1b;
+  --lc-email-badge-bg: var(--lc-color-green-50);
+  --lc-email-badge-text: var(--lc-color-green-500);
+  --lc-email-primary: var(--lc-color-green-500);
   --lc-email-star: #f2b705;
 
   font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -29,7 +29,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 12px 24px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   border: 1px solid var(--lc-email-border);
   border-radius: 12px;
 }
@@ -59,7 +59,7 @@
   align-items: center;
   justify-content: center;
   background: var(--lc-email-dimmed);
-  color: #ffffff;
+  color: var(--lc-color-white);
   font-size: 11px;
   font-weight: 700;
 }
@@ -207,7 +207,7 @@
   border: 1px solid var(--lc-email-border);
   border-radius: 4px;
   overflow: hidden;
-  background: #ffffff;
+  background: var(--lc-color-white);
 }
 .lc-email-message__detail-row {
   display: flex;
@@ -316,7 +316,7 @@
   flex-direction: column;
   gap: 16px;
   padding: 8px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   border: 2px solid var(--lc-email-primary);
   border-radius: 8px;
   box-shadow: 0px 7px 7px rgba(0, 0, 0, 0.04), 0px 10px 15px -5px rgba(0, 0, 0, 0.1), 0px 1px 3px rgba(0, 0, 0, 0.05);
@@ -373,7 +373,7 @@
   border: none;
   border-radius: 4px;
   background: var(--lc-email-gray-light-bg);
-  color: #8c8c8c;
+  color: var(--lc-color-gray-500);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -473,7 +473,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 8px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   border-radius: 8px;
   box-shadow: 0 7px 3.5px rgba(0, 0, 0, 0.04), 0 10px 7.5px rgba(0, 0, 0, 0.1),
     0 1px 1.5px rgba(0, 0, 0, 0.05);
@@ -516,7 +516,7 @@
   gap: 3px;
   width: 100%;
   padding: 2px;
-  background: #e5f7cf;
+  background: var(--lc-color-green-100);
   border-radius: 4px;
 }
 .lc-email-forward[data-maximized] {
@@ -569,7 +569,7 @@
   gap: 16px;
   width: 100%;
   padding: 8px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   border-radius: 8px;
   box-shadow: 0 7px 3.5px rgba(0, 0, 0, 0.04), 0 10px 7.5px rgba(0, 0, 0, 0.1),
     0 1px 1.5px rgba(0, 0, 0, 0.05);
@@ -607,7 +607,7 @@
   gap: 8px;
   height: 24px;
   padding: 0 12px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   border: 1px solid var(--lc-email-border);
   border-radius: 4px;
   font-size: 12px;
@@ -639,7 +639,7 @@
   color: var(--lc-email-title);
 }
 .lc-email-forward__recipient-input::placeholder {
-  color: var(--text-placeholder, #8c8c8c);
+  color: var(--text-placeholder, var(--lc-color-gray-500));
 }
 
 .lc-email-forward__input-row {

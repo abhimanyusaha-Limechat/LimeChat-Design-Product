@@ -6,12 +6,12 @@
  */
 
 .lc-as {
-  --lc-as-border: #d9d9d9;
-  --lc-as-divider: #ececea;
-  --lc-as-text-title: #3c492c;
-  --lc-as-text-dimmed: #808975;
-  --lc-as-primary: #508014;
-  --lc-as-bg-subtle: #fafaf9;
+  --lc-as-border: var(--lc-color-gray-300);
+  --lc-as-divider: var(--lc-color-gray-200);
+  --lc-as-text-title: var(--lc-color-green-900);
+  --lc-as-text-dimmed: var(--lc-color-sage-500);
+  --lc-as-primary: var(--lc-color-green-700);
+  --lc-as-bg-subtle: var(--lc-color-stone-50);
   --lc-as-radius: 8px;
   --lc-as-radius-sm: 4px;
   --lc-as-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -131,7 +131,7 @@
   padding: 0 12px;
   border: 1px solid var(--lc-as-border);
   border-radius: var(--lc-as-radius-sm);
-  background: #ffffff;
+  background: var(--lc-color-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -140,7 +140,7 @@
 }
 
 .lc-as__input::placeholder {
-  color: #8c8c8c;
+  color: var(--lc-color-gray-500);
 }
 
 .lc-as__input:focus-visible {
@@ -167,7 +167,7 @@
   padding: 0 32px 0 12px;
   border: 1px solid var(--lc-as-border);
   border-radius: var(--lc-as-radius-sm);
-  background: #ffffff;
+  background: var(--lc-color-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;

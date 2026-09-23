@@ -4,7 +4,7 @@
  *
  * Bubble radius/sm: 12px · nested card radius: 8px · avatar/image radius: 4px
  * Balloon drop shadow: 0px 1px 1px rgba(0,0,0,.1), 0px 1px 1.5px rgba(0,0,0,.05)
- * Text/sm 14/20 (title #3c492c) · Text/xxs 10/12.5 (dimmed #808975)
+ * Text/sm 14/20 (title var(--lc-color-green-900)) · Text/xxs 10/12.5 (dimmed var(--lc-color-sage-500))
  */
 .lc-message-bubble {
   --lc-bubble-radius: 12px;
@@ -12,16 +12,16 @@
   --lc-bubble-radius-2xs: 4px;
   --lc-bubble-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1), 0px 1px 1.5px rgba(0, 0, 0, 0.05);
 
-  --lc-bubble-agent-bg: #e5f7cf;
-  --lc-bubble-agent-card-bg: #cdf0a2;
-  --lc-bubble-customer-bg: #ffffff;
+  --lc-bubble-agent-bg: var(--lc-color-green-100);
+  --lc-bubble-agent-card-bg: var(--lc-color-green-200);
+  --lc-bubble-customer-bg: var(--lc-color-white);
   --lc-bubble-customer-card-bg: #f3fafd;
   --lc-bubble-note-bg: #faefdb;
   --lc-bubble-blocked-bg: #fcf3f3;
-  --lc-bubble-blocked-banner-text: #da1b21;
+  --lc-bubble-blocked-banner-text: var(--lc-color-red-600);
 
-  --lc-text-title: #3c492c;
-  --lc-text-dimmed: #808975;
+  --lc-text-title: var(--lc-color-green-900);
+  --lc-text-dimmed: var(--lc-color-sage-500);
   --lc-text-gray-4: #a8aca6;
   --lc-text-secondary-alpha: rgba(0, 0, 0, 0.5);
 
@@ -85,8 +85,8 @@
 .lc-message-bubble__date-divider span {
   padding: 4px 12px;
   border-radius: 100px;
-  background: #ffffff;
-  color: var(--lc-text-dimmed, #808975);
+  background: var(--lc-color-white);
+  color: var(--lc-text-dimmed, var(--lc-color-sage-500));
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;
@@ -545,7 +545,7 @@
   gap: 7px;
   padding: 3px 8px 2.5px 9px;
   border-radius: 13px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   border: 1px solid #f5f5f5;
   box-shadow: 0px 0.66px 0px rgba(0, 0, 0, 0.06);
   font-family: inherit;
@@ -580,9 +580,9 @@ button.lc-message-bubble__reaction:hover {
   width: 22px;
   height: 22px;
   padding: 0;
-  border: 1px solid #ececea;
+  border: 1px solid var(--lc-color-gray-200);
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   color: var(--lc-text-dimmed);
   cursor: pointer;
   opacity: 0;
@@ -601,7 +601,7 @@ button.lc-message-bubble__reaction:hover {
 }
 .lc-message-bubble__react-trigger:hover {
   color: var(--lc-text-title);
-  background: #f3f4f3;
+  background: var(--lc-color-gray-100);
 }
 .lc-message-bubble__react-trigger svg {
   width: 14px;
@@ -619,9 +619,9 @@ button.lc-message-bubble__reaction:hover {
   right: 4px;
   width: 22px;
   height: 22px;
-  border: 1px solid #ececea;
+  border: 1px solid var(--lc-color-gray-200);
   border-radius: 999px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   color: var(--lc-text-dimmed);
   opacity: 0;
   pointer-events: none;
@@ -635,7 +635,7 @@ button.lc-message-bubble__reaction:hover {
 }
 .lc-menu__trigger.lc-message-bubble__menu-trigger:hover {
   color: var(--lc-text-title);
-  background: #f3f4f3;
+  background: var(--lc-color-gray-100);
 }
 .lc-menu__trigger.lc-message-bubble__menu-trigger svg {
   width: 14px;
@@ -682,12 +682,12 @@ button.lc-message-bubble__reaction:hover {
   transform: scale(1.1);
 }
 .lc-message-bubble__reaction-option[data-active] {
-  background: color-mix(in srgb, #508014 10%, white);
+  background: color-mix(in srgb, var(--lc-color-green-700) 10%, white);
 }
 .lc-message-bubble__reaction-option--remove {
   margin-left: 4px;
   padding-left: 4px;
-  border-left: 1px solid #ececea;
+  border-left: 1px solid var(--lc-color-gray-200);
   border-radius: 0 999px 999px 0;
   color: var(--lc-text-dimmed);
 }
@@ -697,6 +697,6 @@ button.lc-message-bubble__reaction:hover {
 }
 .lc-message-bubble__reaction-option--remove:hover {
   background: #fff0f0;
-  color: #c92a2a;
+  color: var(--lc-color-red-700);
   transform: none;
 }

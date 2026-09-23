@@ -36,6 +36,7 @@ import { NativeSelect } from '../Select';
 import { Modal } from '../Modal';
 import './OrdersPanel.css';
 import { iconProps } from '../iconProps';
+import { CloseIcon as ClearIcon, TrashIcon, CheckIcon } from '../icons';
 import { formatINR } from '../formatINR';
 
 type SortKey = 'recent' | 'oldest' | 'total_high_low' | 'total_low_high';
@@ -164,12 +165,6 @@ const SearchIcon = () => (
     <path d="M21 21l-6 -6" />
   </svg>
 );
-const ClearIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M18 6l-12 12" />
-    <path d="M6 6l12 12" />
-  </svg>
-);
 const SortIcon = () => (
   <svg {...iconProps()}>
     <path d="M4 8l4 -4l4 4" />
@@ -189,15 +184,6 @@ const PlusIcon = () => (
     <path d="M5 12l14 0" />
   </svg>
 );
-const TrashIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M4 7l16 0" />
-    <path d="M10 11l0 6" />
-    <path d="M14 11l0 6" />
-    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-  </svg>
-);
 const LinkIcon = () => (
   <svg {...iconProps()}>
     <path d="M9 15l6 -6" />
@@ -209,11 +195,6 @@ const CopyIcon = () => (
   <svg {...iconProps()}>
     <rect x="8" y="8" width="12" height="12" rx="2" />
     <path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2" />
-  </svg>
-);
-const CheckIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M5 12l5 5l10 -10" />
   </svg>
 );
 function OrderStatusPill({ status }: { status: OrderStatus }) {
@@ -273,7 +254,7 @@ function ProductsCostCard({ order }: { order: Order }) {
 }
 
 /** Copy-to-clipboard value, mirroring ProductsPanel's CopyableValue pattern. */
-function CopyableValue({ value }: { value: string }) {
+function CopyableValue({ value, ariaLabel }: { value: string; ariaLabel?: string }) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
@@ -293,6 +274,7 @@ function CopyableValue({ value }: { value: string }) {
     <button
       type="button"
       className={`lc-op__detail-value--copyable${copied ? ' lc-op__detail-value--copied' : ''}`}
+      aria-label={ariaLabel && !copied ? ariaLabel : undefined}
       onClick={handleClick}
     >
       {copied ? 'Copied' : value}
@@ -943,9 +925,8 @@ function OrderDetailView({
         )}
 
         <div className="lc-op__detail-header">
-          <div className="lc-op__detail-row">
-            <span className="lc-op__detail-row-label">Order ID</span>
-            <CopyableValue value={orderNumber(order.id)} />
+          <div className="lc-op__detail-row lc-op__detail-row--id">
+            <CopyableValue value={orderNumber(order.id)} ariaLabel={`Order ID ${orderNumber(order.id)}`} />
           </div>
           <div className="lc-op__detail-row">
             <span className="lc-op__detail-row-label">Status</span>

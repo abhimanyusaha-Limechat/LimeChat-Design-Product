@@ -3,10 +3,10 @@
  *
  * Design tokens mirror "LimeChat Design System — V3" (Figma node 8773:1123):
  *  - rail width ....... 64px
- *  - rail fill ........ background/primary/filled-hover  #508014
- *  - selected fill .... ~green/green-8                   #34540d
- *  - icon / logo ...... ~green/green-0                   #fafdf6
- *  - avatar fallback .. text/dimmed                      #808975
+ *  - rail fill ........ background/primary/filled-hover  var(--lc-color-green-700)
+ *  - selected fill .... ~green/green-8                   var(--lc-color-green-800)
+ *  - icon / logo ...... ~green/green-0                   var(--lc-color-green-25)
+ *  - avatar fallback .. text/dimmed                      var(--lc-color-sage-500)
  *  - control radius ... radius/2xs                       4px
  *  - padding .......... top 12px · bottom/x 20px/8px
  *  - horizontal pad ... padding/xs                       8px
@@ -15,13 +15,13 @@
  */
 .lc-sidebar {
   --lc-sidebar-width: 64px;
-  --lc-sidebar-bg: #508014;
-  --lc-sidebar-item-selected-bg: #34540d;
+  --lc-sidebar-bg: var(--lc-color-green-700);
+  --lc-sidebar-item-selected-bg: var(--lc-color-green-800);
   --lc-sidebar-item-hover-bg: rgba(255, 255, 255, 0.1);
-  --lc-sidebar-fg: #fafdf6;
+  --lc-sidebar-fg: var(--lc-color-green-25);
   /* Idle (unselected) nav/footer icon stroke — ~green/green-2. */
-  --lc-sidebar-icon-idle: #cdf0a2;
-  --lc-sidebar-avatar-bg: #808975;
+  --lc-sidebar-icon-idle: var(--lc-color-green-200);
+  --lc-sidebar-avatar-bg: var(--lc-color-sage-500);
   --lc-sidebar-radius: 4px;
   --lc-sidebar-pad-y: 20px;
   --lc-sidebar-pad-top: 12px;
@@ -171,7 +171,7 @@
   min-width: 188px;
   padding: 6px;
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   box-shadow:
     0 1px 1.5px rgba(0, 0, 0, 0.05),
     0 20px 12.5px rgba(0, 0, 0, 0.1),
@@ -197,14 +197,14 @@
   font-family: inherit;
   font-size: 13px;
   line-height: 16px;
-  color: #3c492c;
+  color: var(--lc-color-green-900);
   text-align: left;
   cursor: pointer;
   transition: background-color 120ms ease, transform 120ms ease;
 }
 
 .lc-sidebar__profile-menu-item:hover {
-  background: #f5f5f4;
+  background: var(--lc-color-stone-100);
 }
 
 .lc-sidebar__profile-menu-item:active {

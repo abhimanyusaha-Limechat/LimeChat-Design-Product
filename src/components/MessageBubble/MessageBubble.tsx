@@ -35,6 +35,7 @@ import { ActionMenu, type MenuItemData, type MenuTriggerRenderProps } from '../M
 import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 import './MessageBubble.css';
 import { iconProps } from '../iconProps';
+import { TrashIcon, CloseIcon as RemoveReactionIcon } from '../icons';
 
 const DEFAULT_REACTION_OPTIONS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 
@@ -108,15 +109,6 @@ const LockIcon = () => (
     <path d="M8 11v-4a4 4 0 0 1 8 0v4" />
   </svg>
 );
-const TrashIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M4 7h16" />
-    <path d="M10 11v6" />
-    <path d="M14 11v6" />
-    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-  </svg>
-);
 const EyeIcon = () => (
   <svg {...iconProps()}>
     <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
@@ -153,12 +145,6 @@ const ReactIcon = () => (
     <path d="M9 10l.01 0" />
     <path d="M15 10l.01 0" />
     <path d="M9.5 15a3.5 3.5 0 0 0 5 0" />
-  </svg>
-);
-const RemoveReactionIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M18 6l-12 12" />
-    <path d="M6 6l12 12" />
   </svg>
 );
 const DotsHorizontalIcon = () => (

@@ -17,6 +17,7 @@
 import {
   forwardRef,
   useEffect,
+  useId,
   useRef,
   useState,
   type HTMLAttributes,
@@ -32,6 +33,7 @@ import { Modal, ModalTextarea, ModalCheckbox } from '../Modal';
 import { Button } from '../Button';
 import './TicketDetailsPanel.css';
 import { iconProps } from '../iconProps';
+import { ChevronDownIcon, CloseIcon as TagCloseIcon } from '../icons';
 
 const RANDOM_AGENT_NAMES = [
   'Aditi Sharma',
@@ -55,15 +57,7 @@ const PlusIcon = () => (
   </svg>
 );
 const ChevronIcon = ({ open }: { open: boolean }) => (
-  <svg {...iconProps()} style={{ transform: open ? 'rotate(180deg)' : undefined, transition: 'transform 150ms ease' }}>
-    <path d="M6 9l6 6l6 -6" />
-  </svg>
-);
-const TagCloseIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M18 6l-12 12" />
-    <path d="M6 6l12 12" />
-  </svg>
+  <ChevronDownIcon style={{ transform: open ? 'rotate(180deg)' : undefined, transition: 'transform 150ms ease' }} />
 );
 const MailIcon = () => (
   <svg {...iconProps()}>
@@ -196,6 +190,7 @@ function CopyableDetailValue({ value }: { value: string }) {
         className={`lc-tdp__detail-value lc-tdp__detail-value--copyable${
           copied ? ' lc-tdp__detail-value--copied' : ''
         }`}
+        aria-live="polite"
         onClick={handleClick}
       >
         {copied ? 'Copied' : value}
@@ -244,7 +239,8 @@ function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (n
           <input
             type="text"
             className="lc-tdp__assignee-search"
-            placeholder="Search agents..."
+            aria-label="Search agents"
+            placeholder="Search agents…"
             value={query}
             autoFocus
             onChange={(e) => setQuery(e.currentTarget.value)}
@@ -345,8 +341,10 @@ function SelectField({ field }: { field: TicketDetailsField }) {
 function CascadingField({ field }: { field: TicketDetailsField }) {
   const [path, setPath] = useState<string[]>([]);
   const level1 = field.options ?? [];
-  const level2 = level1.find((o) => o.value === path[0])?.children ?? [];
-  const level3 = level2.find((o) => o.value === path[1])?.children ?? [];
+  const level1Selected = level1.find((o) => o.value === path[0]);
+  const level2 = level1Selected?.children ?? [];
+  const level2Selected = level2.find((o) => o.value === path[1]);
+  const level3 = level2Selected?.children ?? [];
 
   return (
     <div className="lc-tdp__field">
@@ -354,7 +352,8 @@ function CascadingField({ field }: { field: TicketDetailsField }) {
       <div className="lc-tdp__cascade">
         <NativeSelect
           size="sm"
-          placeholder="Select..."
+          aria-label={field.label}
+          placeholder="Select…"
           data={level1.map((o) => ({ value: o.value, label: o.label }))}
           value={path[0] ?? ''}
           onChange={(e) => setPath([e.currentTarget.value])}
@@ -362,7 +361,8 @@ function CascadingField({ field }: { field: TicketDetailsField }) {
         {path[0] && level2.length > 0 && (
           <NativeSelect
             size="sm"
-            placeholder="Select..."
+            aria-label={`${field.label}: ${level1Selected?.label}`}
+            placeholder="Select…"
             data={level2.map((o) => ({ value: o.value, label: o.label }))}
             value={path[1] ?? ''}
             onChange={(e) => setPath([path[0], e.currentTarget.value])}
@@ -371,7 +371,8 @@ function CascadingField({ field }: { field: TicketDetailsField }) {
         {path[1] && level3.length > 0 && (
           <NativeSelect
             size="sm"
-            placeholder="Select..."
+            aria-label={`${field.label}: ${level2Selected?.label}`}
+            placeholder="Select…"
             data={level3.map((o) => ({ value: o.value, label: o.label }))}
             value={path[2] ?? ''}
             onChange={(e) => setPath([path[0], path[1], e.currentTarget.value])}
@@ -479,31 +480,20 @@ function Section({ section }: { section: TicketDetailsSection }) {
   const toggle = () => setOpen((v) => !v);
   return (
     <div className="lc-tdp__section">
-      <div
-        className="lc-tdp__section-header"
-        role="button"
-        tabIndex={0}
-        aria-expanded={open}
-        onClick={toggle}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            toggle();
-          }
-        }}
-      >
-        <div className="lc-tdp__section-title" data-open={open || undefined}>
-          <span>{section.label}</span>
-          {section.count != null && <span className="lc-tdp__badge">{section.count}</span>}
-        </div>
+      <div className="lc-tdp__section-header">
+        <button type="button" className="lc-tdp__section-toggle" aria-expanded={open} onClick={toggle}>
+          <span className="lc-tdp__section-title" data-open={open || undefined}>
+            <span>{section.label}</span>
+            {section.count != null && <span className="lc-tdp__badge">{section.count}</span>}
+          </span>
+        </button>
         <div className="lc-tdp__section-actions">
           {!section.hideAdd && (
             <button
               type="button"
               className="lc-tdp__icon-btn"
               aria-label={`Add ${section.label}`}
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 if (section.id === 'sub-tickets') {
                   setSubTicketModalOpen(true);
                 } else {
@@ -587,6 +577,16 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   ref,
 ) {
   const resolvedActiveTab = activeTab ?? tabs[0];
+  const idBase = useId();
+  const tabId = (tab: string) => `${idBase}-tab-${tab}`;
+  const panelId = (tab: string) => `${idBase}-panel-${tab}`;
+  const panelProps = {
+    className: 'lc-tdp__body',
+    id: panelId(resolvedActiveTab),
+    role: 'tabpanel' as const,
+    'aria-labelledby': tabId(resolvedActiveTab),
+    tabIndex: 0,
+  };
 
   return (
     <div {...rest} ref={ref} className={`lc-tdp${className ? ` ${className}` : ''}`}>
@@ -597,8 +597,10 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
             <Tooltip key={tab} label={tab} position="bottom">
               <button
                 type="button"
+                id={tabId(tab)}
                 role="tab"
                 aria-selected={resolvedActiveTab === tab}
+                aria-controls={panelId(tab)}
                 aria-label={tab}
                 className="lc-tdp__tab"
                 data-active={resolvedActiveTab === tab || undefined}
@@ -612,7 +614,7 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
       </div>
 
       {resolvedActiveTab === 'Overview' && (
-        <div className="lc-tdp__body">
+        <div {...panelProps}>
           {(ticketId || agent || team) && (
             <div className="lc-tdp__info">
               {ticketId && <DetailRow label="Ticket Id" value={ticketId} copyable />}
@@ -630,19 +632,19 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
       )}
 
       {resolvedActiveTab === 'Products' && (
-        <div className="lc-tdp__body">
+        <div {...panelProps}>
           <ProductsPanel />
         </div>
       )}
 
       {resolvedActiveTab === 'Orders' && (
-        <div className="lc-tdp__body">
+        <div {...panelProps}>
           <OrdersPanel />
         </div>
       )}
 
       {resolvedActiveTab === 'Cart' && (
-        <div className="lc-tdp__body">
+        <div {...panelProps}>
           <CartPanel />
         </div>
       )}
