@@ -18,11 +18,20 @@
  *   <MessageBubble side="agent" variant="media" media={[{ src: '/photo.jpg' }]} time="12:00" />
  *   <MessageBubble side="agent" variant="deleted" time="12:00" />
  */
-import { forwardRef, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  forwardRef,
+  memo,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type HTMLAttributes,
+  type ReactNode,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { Avatar } from '../Avatar';
 import { Button } from '../Button';
-import { type MenuTriggerRenderProps } from '../Menu';
+import { ActionMenu, type MenuItemData, type MenuTriggerRenderProps } from '../Menu';
 import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 import './MessageBubble.css';
 import { iconProps } from '../iconProps';
@@ -152,6 +161,13 @@ const RemoveReactionIcon = () => (
     <path d="M6 6l12 12" />
   </svg>
 );
+const DotsHorizontalIcon = () => (
+  <svg {...iconProps()}>
+    <circle cx="5" cy="12" r="1" fill="currentColor" />
+    <circle cx="12" cy="12" r="1" fill="currentColor" />
+    <circle cx="19" cy="12" r="1" fill="currentColor" />
+  </svg>
+);
 const DocIcon = ({ label = 'file' }: { label?: string }) => (
   <div className="lc-message-bubble__doc-icon" aria-hidden="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
@@ -226,6 +242,10 @@ export interface MessageBubbleProps extends Omit<HTMLAttributes<HTMLDivElement>,
    * an existing `reaction` chip clickable to change or remove it.
    */
   onReact?: (emoji: string) => void;
+  /** Quick-actions menu (Reply, Forward, Delete, …) — presence enables a hover-reveal
+   * "more actions" (⋯) trigger fixed to the bubble's top-right corner, same side for
+   * agent and customer messages. Omit to hide the trigger entirely. */
+  menuItems?: MenuItemData[];
   tail?: boolean;
   quote?: QuoteData;
   media?: MediaItem[];
@@ -346,7 +366,7 @@ function ReactionPicker({
   );
 }
 
-export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(function MessageBubble(
+export const MessageBubble = memo(forwardRef<HTMLDivElement, MessageBubbleProps>(function MessageBubble(
   {
     side = 'agent',
     variant = 'text',
@@ -365,6 +385,7 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(func
     reaction,
     reactionOptions = DEFAULT_REACTION_OPTIONS,
     onReact,
+    menuItems,
     tail = true,
     quote,
     media,
@@ -409,6 +430,17 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(func
         )}
 
         <div className="lc-message-bubble__bubble">
+          {menuItems && menuItems.length > 0 && (
+            <ActionMenu
+              ariaLabel="Message actions"
+              tooltip="More actions"
+              align={side === 'customer' ? 'start' : 'end'}
+              icon={<DotsHorizontalIcon />}
+              items={menuItems}
+              triggerClassName="lc-message-bubble__menu-trigger"
+            />
+          )}
+
           {senderName && side === 'customer' && (
             <p className="lc-message-bubble__sender" style={{ color: accentColor }}>
               {senderName}
@@ -601,12 +633,12 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(func
       )}
     </div>
   );
-});
+}));
 
 /** Centered pill separating a day's messages from the next — e.g. "September 20, 2026". */
-export function MessageDateDivider({ label }: { label: string }) {
+export function MessageDateDivider({ label, style }: { label: string; style?: CSSProperties }) {
   return (
-    <div className="lc-message-bubble__date-divider">
+    <div className="lc-message-bubble__date-divider" style={style}>
       <span>{label}</span>
     </div>
   );

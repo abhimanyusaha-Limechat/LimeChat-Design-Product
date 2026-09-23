@@ -18,9 +18,38 @@
  *     detailsPanel={<TicketDetailsPanel ... />}
  *   />
  */
-import { Children, forwardRef, useCallback, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  Children,
+  forwardRef,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type HTMLAttributes,
+  type ReactNode,
+} from 'react';
+import { Virtuoso, type ItemProps, type VirtuosoHandle } from 'react-virtuoso';
 import './HelpdeskTicketsPage.css';
 import '../scrollbar-hidden.css';
+
+export interface ConversationItem {
+  id: string;
+  node: ReactNode;
+}
+
+/**
+ * Virtuoso wraps every item in its own plain `<div>`, breaking two things a real message
+ * bubble (`MessageBubble`) relies on when it's a direct child of a flex column: its
+ * `align-self` (left/right per side) has no effect outside a flex container, and its
+ * `margin-top` spacing can collapse through a plain block wrapper. Rendering that wrapper
+ * as a flex column itself fixes both, matching the non-virtualized conversation's layout.
+ */
+function VirtuosoItem({ item: _item, ...rest }: ItemProps<ConversationItem>) {
+  return (
+    <div {...rest} style={{ ...rest.style, display: 'flex', flexDirection: 'column', padding: '0 4px' }} />
+  );
+}
 
 /**
  * A column width draggable via a handle on one edge, clamped to [min, max].
@@ -78,6 +107,18 @@ export interface HelpdeskTicketsPageProps extends HTMLAttributes<HTMLDivElement>
   ticketsSection: ReactNode;
   conversationTopBar?: ReactNode;
   conversation?: ReactNode;
+  /**
+   * Windowed alternative to `conversation` for threads that can grow long (e.g. a live
+   * ticket's message history) — pass stable-keyed items instead of raw children and only
+   * the visible rows mount, instead of the whole thread at once. Takes priority over
+   * `conversation` when both are given. Bottom-anchored like chat: stays pinned to the
+   * newest item and jumps there on ticket switch (keyed internally by the item list).
+   */
+  conversationItems?: ConversationItem[];
+  /** Remounts the virtualized list (jumping fresh to the bottom) when it changes — pass the
+   * thread's own id (e.g. the ticket id) so switching threads doesn't carry over scroll
+   * position from the previous one. Only used with `conversationItems`. */
+  conversationKey?: string;
   composer?: ReactNode;
   detailsPanel?: ReactNode;
   /** Initial width of the ticket list column, in px. Default `336`. */
@@ -102,6 +143,8 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
     ticketsSection,
     conversationTopBar,
     conversation,
+    conversationItems,
+    conversationKey,
     composer,
     detailsPanel,
     defaultListWidth = 336,
@@ -122,6 +165,7 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
   const conversationRef = useRef<HTMLDivElement>(null);
   const messageCount = Children.count(conversation);
   useEffect(() => {
+    if (conversationItems) return; // the virtualized list below handles its own scroll position
     const el = conversationRef.current;
     if (el) el.scrollTop = el.scrollHeight;
     // Re-run only when the message count changes (ticket switch, new message) — not on
@@ -129,6 +173,16 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
     // position away from an agent reading earlier history.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageCount]);
+
+  // Kept mounted across thread switches (no `key` remount, which forced a full re-measure
+  // and flashed the list blank) — jump straight to the bottom on `conversationKey` change
+  // instead, and let `followOutput` below handle new messages arriving in the same thread.
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
+  useLayoutEffect(() => {
+    if (!conversationItems) return;
+    virtuosoRef.current?.scrollToIndex({ index: conversationItems.length - 1, align: 'end' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationKey]);
 
   return (
     <div {...rest} ref={ref} className={`lc-hd-tickets${className ? ` ${className}` : ''}`}>
@@ -147,13 +201,28 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
 
       <div className="lc-hd-tickets__main">
         {conversationTopBar && <div className="lc-hd-tickets__topbar">{conversationTopBar}</div>}
-        <div
-          className="lc-hd-tickets__conversation lc-scrollbar-hidden"
-          data-align={conversationAlign}
-          ref={conversationRef}
-        >
-          <div className="lc-hd-tickets__conversation-inner">{conversation}</div>
-        </div>
+        {conversationItems ? (
+          <Virtuoso
+            ref={virtuosoRef}
+            className="lc-hd-tickets__conversation lc-hd-tickets__conversation--virtual lc-scrollbar-hidden"
+            style={{ paddingTop: 8, paddingBottom: 8 }}
+            data={conversationItems}
+            computeItemKey={(_, item) => item.id}
+            itemContent={(_, item) => item.node}
+            components={{ Item: VirtuosoItem }}
+            initialTopMostItemIndex={conversationItems.length - 1}
+            followOutput="smooth"
+            alignToBottom
+          />
+        ) : (
+          <div
+            className="lc-hd-tickets__conversation lc-scrollbar-hidden"
+            data-align={conversationAlign}
+            ref={conversationRef}
+          >
+            <div className="lc-hd-tickets__conversation-inner">{conversation}</div>
+          </div>
+        )}
         {composer && <div className="lc-hd-tickets__composer">{composer}</div>}
       </div>
 

@@ -90,6 +90,17 @@
   margin-top: 0;
 }
 
+/* The virtualized (react-virtuoso) conversation is itself the scroller — it needs a plain
+   block root instead of `.lc-hd-tickets__conversation`'s flex column. Its vertical padding is
+   set inline on the component; horizontal padding is set per-item instead (on Virtuoso's own
+   `Item` wrapper) because giving the scroller itself horizontal padding made Virtuoso size
+   items to its full padding-box width, bleeding content (e.g. the avatar) past the clipped
+   edge by the padding amount. */
+.lc-hd-tickets__conversation--virtual {
+  display: block;
+  padding: 0;
+}
+
 .lc-hd-tickets__composer {
   flex-shrink: 0;
 }
