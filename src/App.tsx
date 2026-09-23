@@ -92,7 +92,7 @@ import { HelpdeskTicketsPage } from './components/HelpdeskTicketsPage';
 import { TicketsSection } from './components/TicketsSection';
 import { TicketsBulkModifyModal } from './components/TicketsBulkModifyModal';
 import { ConversationTopBar } from './components/ConversationTopBar';
-import { MessageBubble, MessageDateDivider } from './components/MessageBubble';
+import { MessageBubble, MessageDateDivider, type ReactionData } from './components/MessageBubble';
 import { TicketComposer, type TicketComposerMode } from './components/TicketComposer';
 import { EmailMessage, EmailComposerBar, EmailForwardComposer } from './components/EmailMessage';
 import { TicketDetailsPanel, type TicketDetailsField, type TicketDetailsSection } from './components/TicketDetailsPanel';
@@ -923,7 +923,7 @@ const CONVERSATIONS: Record<string, ConversationEntry[]> = {
     { id: 'm-12', side: 'agent', text: 'Of course! You’ll get a tracking notification once it’s out for delivery.', time: '10:08', date: '2026-09-20' },
     { id: 'm-13', side: 'customer', text: 'One more thing — can I change the delivery address at this point?', time: '10:10', date: '2026-09-20' },
     { id: 'm-14', side: 'agent', text: 'Since it’s already out for delivery, we can’t redirect it, unfortunately.', time: '10:11', date: '2026-09-20' },
-    { id: 'm-15', side: 'agent', text: 'But if the courier misses you, they’ll leave a reattempt slip with a reschedule option.', time: '10:12', date: '2026-09-20' },
+    { id: 'm-15', side: 'agent', text: 'But if the courier misses you, they’ll leave a reattempt slip with a reschedule option. You can also reschedule it yourself from the tracking link once it’s generated, without needing to wait for the slip. Just make sure someone’s available at the address for the next attempt, since after two missed attempts the order gets sent back to the warehouse.', time: '10:12', date: '2026-09-20' },
     { id: 'm-16', side: 'customer', text: 'Got it, that works. Thanks for clarifying!', time: '10:13', date: '2026-09-20' },
     { id: 'm-17', side: 'agent', text: 'Happy to help! Is there anything else I can do for you today?', time: '10:14', date: '2026-09-20' },
     { id: 'm-18', side: 'customer', text: 'Nope, that’s all. Thanks again!', time: '10:15', date: '2026-09-20' },
@@ -1390,6 +1390,7 @@ export function App() {
   const [savingHelpdeskSettings, setSavingHelpdeskSettings] = useState(false);
   const [selectedTicketId, setSelectedTicketId] = useState(TICKETS[0].id);
   const selectedTicket = TICKETS.find((ticket) => ticket.id === selectedTicketId);
+  const [ticketReactions, setTicketReactions] = useState<Record<string, ReactionData>>({});
   const [ticketsTab, setTicketsTab] = useState('queued');
   const [ticketsSearch, setTicketsSearch] = useState('');
   const [ticketsSort, setTicketsSort] = useState('Newly created');
@@ -2344,22 +2345,34 @@ export function App() {
                     />
                   ))
                 ) : (
-                  (CONVERSATIONS[selectedTicketId] ?? []).map((entry, i, entries) => (
-                    <Fragment key={entry.id}>
-                      {entry.date !== entries[i - 1]?.date && <MessageDateDivider label={formatDateChip(entry.date)} />}
-                      <MessageBubble
-                        side={entry.side}
-                        time={entry.time}
-                        status="read"
-                        variant={entry.quote ? 'quote' : 'text'}
-                        quote={entry.quote}
-                        avatar={entry.side === 'agent'}
-                        avatarInitial={selectedTicket?.assignee?.charAt(0) ?? 'A'}
-                      >
-                        {entry.text}
-                      </MessageBubble>
-                    </Fragment>
-                  ))
+                  (CONVERSATIONS[selectedTicketId] ?? []).map((entry, i, entries) => {
+                    const reactionKey = `${selectedTicketId}:${entry.id}`;
+                    return (
+                      <Fragment key={entry.id}>
+                        {entry.date !== entries[i - 1]?.date && <MessageDateDivider label={formatDateChip(entry.date)} />}
+                        <MessageBubble
+                          side={entry.side}
+                          time={entry.time}
+                          status="read"
+                          variant={entry.quote ? 'quote' : 'text'}
+                          quote={entry.quote}
+                          avatar={entry.side === 'agent'}
+                          avatarInitial={selectedTicket?.assignee?.charAt(0) ?? 'A'}
+                          reaction={ticketReactions[reactionKey]}
+                          onReact={(emoji) =>
+                            setTicketReactions((prev) => {
+                              const next = { ...prev };
+                              if (prev[reactionKey]?.emoji === emoji) delete next[reactionKey];
+                              else next[reactionKey] = { emoji };
+                              return next;
+                            })
+                          }
+                        >
+                          {entry.text}
+                        </MessageBubble>
+                      </Fragment>
+                    );
+                  })
                 )
               }
               composer={

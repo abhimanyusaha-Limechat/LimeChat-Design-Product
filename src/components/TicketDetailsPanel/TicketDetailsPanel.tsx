@@ -332,6 +332,7 @@ function SelectField({ field }: { field: TicketDetailsField }) {
     <NativeSelect
       label={field.label}
       size="sm"
+      wrapperClassName="lc-tdp__select-field"
       placeholder="Select..."
       data={(field.options ?? []).map((o) => ({ value: o.value, label: o.label }))}
       value={value}

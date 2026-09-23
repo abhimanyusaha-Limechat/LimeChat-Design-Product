@@ -5,7 +5,7 @@
  * tabs, and a sort row. Renders `<TicketListItem />` rows as `children`.
  *
  *   <TicketsSection
- *     status="Open" onStatusClick={() => {}}
+ *     status="Open" onStatusChange={setStatus}
  *     searchValue={q} onSearchChange={setQ}
  *     tabs={[{ id: 'mine', label: 'Mine' }, { id: 'queued', label: 'Queued' }, { id: 'all', label: 'All' }]}
  *     activeTab={tab} onTabChange={setTab}
@@ -13,116 +13,12 @@
  *     {tickets.map((t) => <TicketListItem key={t.id} {...t} />)}
  *   </TicketsSection>
  */
-import { forwardRef, useCallback, useEffect, useId, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useId, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Menu } from '../Menu';
 import { TicketIcon, TicketRowCheckbox, type TicketChannel } from '../TicketListItem';
 import './TicketsSection.css';
-import '../scrollbar-hidden.css';
 import { iconProps } from '../iconProps';
-
-/**
- * Tracks `listRef`'s scroll position into a thumb top/height (in px) and drives a
- * lightweight, fully custom scrollbar — a stand-in for the native one that:
- *  - never reserves layout width (so rows stay full-bleed to the edge)
- *  - stays visible for as long as the pointer rests over the list, not just a
- *    fixed timeout (scrolling and hovering are tracked independently)
- *  - is itself draggable, like a real scrollbar thumb, not purely decorative
- */
-function useScrollThumb() {
-  const listRef = useRef<HTMLDivElement>(null);
-  const [thumb, setThumb] = useState<{ top: number; height: number } | null>(null);
-  const [visible, setVisible] = useState(false);
-  const [dragging, setDragging] = useState(false);
-  const hovering = useRef(false);
-  const hideTimer = useRef<ReturnType<typeof setTimeout>>();
-  const dragState = useRef<{ startY: number; startScrollTop: number } | null>(null);
-
-  const update = useCallback(() => {
-    const el = listRef.current;
-    if (!el) return;
-    const { scrollTop, scrollHeight, clientHeight } = el;
-    if (scrollHeight <= clientHeight) {
-      setThumb(null);
-      return;
-    }
-    const height = Math.max(28, (clientHeight / scrollHeight) * clientHeight);
-    const top = (scrollTop / (scrollHeight - clientHeight)) * (clientHeight - height);
-    setThumb({ top, height });
-  }, []);
-
-  const scheduleHide = useCallback(() => {
-    clearTimeout(hideTimer.current);
-    hideTimer.current = setTimeout(() => {
-      if (!hovering.current && !dragState.current) setVisible(false);
-    }, 600);
-  }, []);
-
-  const onScroll = useCallback(() => {
-    update();
-    setVisible(true);
-    scheduleHide();
-  }, [update, scheduleHide]);
-
-  const onMouseEnter = useCallback(() => {
-    hovering.current = true;
-    clearTimeout(hideTimer.current);
-    setVisible(true);
-  }, []);
-
-  const onMouseLeave = useCallback(() => {
-    hovering.current = false;
-    scheduleHide();
-  }, [scheduleHide]);
-
-  const onThumbPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    const el = listRef.current;
-    if (!el) return;
-    e.preventDefault();
-    (e.target as HTMLDivElement).setPointerCapture(e.pointerId);
-    dragState.current = { startY: e.clientY, startScrollTop: el.scrollTop };
-    setDragging(true);
-  }, []);
-
-  useEffect(() => {
-    if (!dragging) return;
-    const onMove = (e: PointerEvent) => {
-      const el = listRef.current;
-      const drag = dragState.current;
-      if (!el || !drag) return;
-      const { scrollHeight, clientHeight } = el;
-      const trackable = clientHeight - Math.max(28, (clientHeight / scrollHeight) * clientHeight);
-      if (trackable <= 0) return;
-      const deltaY = e.clientY - drag.startY;
-      const deltaScroll = (deltaY / trackable) * (scrollHeight - clientHeight);
-      el.scrollTop = drag.startScrollTop + deltaScroll;
-    };
-    const onUp = () => {
-      dragState.current = null;
-      setDragging(false);
-      if (!hovering.current) scheduleHide();
-    };
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
-    return () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-    };
-  }, [dragging, scheduleHide]);
-
-  useEffect(() => {
-    update();
-    const el = listRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver(update);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [update]);
-
-  useEffect(() => () => clearTimeout(hideTimer.current), []);
-
-  return { listRef, thumb, visible: visible || dragging, dragging, onScroll, onMouseEnter, onMouseLeave, onThumbPointerDown };
-}
 
 const ChevronDownIcon = () => (
   <svg {...iconProps()}>
@@ -197,7 +93,6 @@ export interface TicketsSectionTab {
 export interface TicketsSectionProps extends HTMLAttributes<HTMLDivElement> {
   title?: string;
   status?: string;
-  onStatusClick?: () => void;
   statusOptions?: readonly string[];
   onStatusChange?: (status: string) => void;
   searchValue?: string;
@@ -206,9 +101,8 @@ export interface TicketsSectionProps extends HTMLAttributes<HTMLDivElement> {
   onTagsClick?: () => void;
   dateRangeLabel?: string;
   onDateRangeClick?: () => void;
+  /** Renders a searchable multi-select popover for filtering by inbox. */
   inboxLabel?: string;
-  onInboxClick?: () => void;
-  /** Inbox filter options — presence (with `inboxLabel`) renders a searchable multi-select popover instead of a plain button. */
   inboxOptions?: string[];
   selectedInboxes?: string[];
   onSelectedInboxesChange?: (next: string[]) => void;
@@ -216,7 +110,6 @@ export interface TicketsSectionProps extends HTMLAttributes<HTMLDivElement> {
   activeTab?: string;
   onTabChange?: (id: string) => void;
   sortLabel?: string;
-  onSortClick?: () => void;
   sortOptions?: readonly string[];
   onSortChange?: (option: string) => void;
   children?: ReactNode;
@@ -238,7 +131,6 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
   {
     title = 'Tickets',
     status,
-    onStatusClick,
     statusOptions = TICKETS_STATUS_OPTIONS,
     onStatusChange,
     searchValue,
@@ -248,7 +140,6 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
     dateRangeLabel,
     onDateRangeClick,
     inboxLabel,
-    onInboxClick,
     inboxOptions,
     selectedInboxes = [],
     onSelectedInboxesChange,
@@ -256,7 +147,6 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
     activeTab,
     onTabChange,
     sortLabel,
-    onSortClick,
     sortOptions = TICKETS_SORT_OPTIONS,
     onSortChange,
     children,
@@ -272,8 +162,6 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
   },
   ref,
 ) {
-  const { listRef, thumb, visible, dragging, onScroll, onMouseEnter, onMouseLeave, onThumbPointerDown } =
-    useScrollThumb();
   const listId = useId();
   const [inboxQuery, setInboxQuery] = useState('');
   const filteredInboxOptions = (inboxOptions ?? []).filter((name) =>
@@ -301,10 +189,7 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
                 label: option,
                 selected: option === status,
                 trailingIcon: option === status ? <CheckIcon /> : undefined,
-                onClick: () => {
-                  onStatusChange?.(option);
-                  onStatusClick?.();
-                },
+                onClick: () => onStatusChange?.(option),
               }))}
               trigger={({ ref, onClick }) => (
                 <button
@@ -348,7 +233,7 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
                 <ChevronDownIcon />
               </button>
             )}
-            {inboxLabel && inboxOptions ? (
+            {inboxLabel && inboxOptions && (
               <Menu
                 ariaLabel="Filter by inbox"
                 align="start"
@@ -384,13 +269,6 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
                   </button>
                 )}
               />
-            ) : (
-              inboxLabel && (
-                <button type="button" className="lc-tickets-section__filter-select" onClick={onInboxClick}>
-                  <span>{inboxLabel}</span>
-                  <ChevronDownIcon />
-                </button>
-              )
             )}
           </div>
         )}
@@ -424,10 +302,7 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
             label: option,
             selected: option === sortLabel,
             trailingIcon: option === sortLabel ? <CheckIcon /> : undefined,
-            onClick: () => {
-              onSortChange?.(option);
-              onSortClick?.();
-            },
+            onClick: () => onSortChange?.(option),
           }))}
           trigger={({ ref, onClick }) => (
             <button ref={ref} type="button" className="lc-tickets-section__sort" onClick={onClick}>
@@ -452,8 +327,8 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
         </div>
       )}
 
-      <div className="lc-tickets-section__list-wrap" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-        <div id={listId} className="lc-tickets-section__list lc-scrollbar-hidden" ref={listRef} onScroll={onScroll}>
+      <div className="lc-tickets-section__list-wrap">
+        <div id={listId} className="lc-tickets-section__list">
           {children}
           {onLoadMore && (
             <div className="lc-tickets-section__load-more">
@@ -463,18 +338,6 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
             </div>
           )}
         </div>
-        {thumb && (
-          <div
-            className="lc-tickets-section__scroll-thumb"
-            data-visible={visible || undefined}
-            data-dragging={dragging || undefined}
-            style={{ top: thumb.top, height: thumb.height }}
-            onPointerDown={onThumbPointerDown}
-            role="scrollbar"
-            aria-orientation="vertical"
-            aria-controls={listId}
-          />
-        )}
       </div>
     </div>
   );

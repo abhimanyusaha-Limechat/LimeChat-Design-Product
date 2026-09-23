@@ -18,11 +18,16 @@
  *   <MessageBubble side="agent" variant="media" media={[{ src: '/photo.jpg' }]} time="12:00" />
  *   <MessageBubble side="agent" variant="deleted" time="12:00" />
  */
-import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { Avatar } from '../Avatar';
 import { Button } from '../Button';
+import { type MenuTriggerRenderProps } from '../Menu';
+import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 import './MessageBubble.css';
 import { iconProps } from '../iconProps';
+
+const DEFAULT_REACTION_OPTIONS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 
 export type MessageBubbleSide = 'agent' | 'customer';
 export type MessageStatus = 'sent' | 'delivered' | 'read';
@@ -133,6 +138,20 @@ const ArrowRightIcon = () => (
     <path d="M13 6l6 6" />
   </svg>
 );
+const ReactIcon = () => (
+  <svg {...iconProps()}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9 10l.01 0" />
+    <path d="M15 10l.01 0" />
+    <path d="M9.5 15a3.5 3.5 0 0 0 5 0" />
+  </svg>
+);
+const RemoveReactionIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M18 6l-12 12" />
+    <path d="M6 6l12 12" />
+  </svg>
+);
 const DocIcon = ({ label = 'file' }: { label?: string }) => (
   <div className="lc-message-bubble__doc-icon" aria-hidden="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
@@ -199,6 +218,14 @@ export interface MessageBubbleProps extends Omit<HTMLAttributes<HTMLDivElement>,
   warningLabel?: string;
   onlyVisibleToMe?: boolean;
   reaction?: ReactionData;
+  /** Quick-reaction emoji set for the picker. Defaults to a WhatsApp-style set. */
+  reactionOptions?: string[];
+  /**
+   * Called with the picked emoji when the agent reacts (or re-picks the current one, to
+   * remove it). Presence enables a hover-reveal reaction trigger on the bubble and makes
+   * an existing `reaction` chip clickable to change or remove it.
+   */
+  onReact?: (emoji: string) => void;
   tail?: boolean;
   quote?: QuoteData;
   media?: MediaItem[];
@@ -214,6 +241,108 @@ function Banner({ icon, text, tone = 'dimmed' }: { icon: ReactNode; text: string
       <span className="lc-message-bubble__banner-icon">{icon}</span>
       <p>{text}</p>
     </div>
+  );
+}
+
+/**
+ * Horizontal emoji-strip popover for picking a reaction. Near-duplicates
+ * `Menu`'s trigger/portal/outside-click/Escape mechanics (and shares its
+ * `usePopoverPosition` hook) rather than reusing `Menu` itself — `Menu`'s
+ * `items` render as a vertical icon+label list, which doesn't fit a compact
+ * row of plain emoji buttons (same reasoning as `ProductsPanel`'s
+ * `FilterPopover`).
+ */
+function ReactionPicker({
+  options,
+  active,
+  onPick,
+  trigger,
+  align = 'start',
+}: {
+  options: string[];
+  active?: string;
+  onPick: (emoji: string) => void;
+  trigger: (props: MenuTriggerRenderProps) => ReactNode;
+  align?: 'start' | 'end';
+}) {
+  const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const width = options.length * 32 + 16 + (active ? 32 : 0);
+  const coords = usePopoverPosition(open, triggerRef, popoverRef, width, align);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (!triggerRef.current?.contains(target) && !popoverRef.current?.contains(target)) setOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  // Portalling to `document.body` moves the popover out of the trigger's place in the
+  // DOM, so Tab order wouldn't naturally reach it — move focus in on open (to the
+  // active/first option) and back to the trigger on close, rather than relying on it.
+  useEffect(() => {
+    if (!open) return;
+    const activeButton = popoverRef.current?.querySelector<HTMLButtonElement>('[data-active]');
+    const firstButton = popoverRef.current?.querySelector<HTMLButtonElement>('button');
+    (activeButton ?? firstButton)?.focus();
+    return () => triggerRef.current?.focus();
+  }, [open]);
+
+  return (
+    <>
+      {trigger({ ref: triggerRef, onClick: () => setOpen((o) => !o), open })}
+      {open &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            ref={popoverRef}
+            className="lc-message-bubble__reaction-picker"
+            role="group"
+            aria-label="Pick a reaction"
+            style={{ width, ...(coords ? { top: coords.top, left: coords.left } : { visibility: 'hidden' as const }) }}
+          >
+            {options.map((emoji) => (
+              <button
+                key={emoji}
+                type="button"
+                className="lc-message-bubble__reaction-option"
+                data-active={emoji === active || undefined}
+                onClick={() => {
+                  setOpen(false);
+                  onPick(emoji);
+                }}
+              >
+                {emoji}
+              </button>
+            ))}
+            {active && (
+              <button
+                type="button"
+                className="lc-message-bubble__reaction-option lc-message-bubble__reaction-option--remove"
+                aria-label="Remove reaction"
+                onClick={() => {
+                  setOpen(false);
+                  onPick(active);
+                }}
+              >
+                <RemoveReactionIcon />
+              </button>
+            )}
+          </div>,
+          document.body,
+        )}
+    </>
   );
 }
 
@@ -234,6 +363,8 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(func
     warningLabel,
     onlyVisibleToMe = false,
     reaction,
+    reactionOptions = DEFAULT_REACTION_OPTIONS,
+    onReact,
     tail = true,
     quote,
     media,
@@ -255,6 +386,13 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(func
     ) : avatar || null;
 
   const showText = children != null && variant !== 'deleted' && variant !== 'opened' && variant !== 'viewOnce';
+
+  const reactionChipContent = reaction && (
+    <>
+      <span className="lc-message-bubble__reaction-emoji">{reaction.emoji}</span>
+      {reaction.count != null && <span className="lc-message-bubble__reaction-count">{reaction.count}</span>}
+    </>
+  );
 
   return (
     <div
@@ -387,6 +525,33 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(func
             {side === 'agent' && <Tick status={status} />}
           </div>
 
+          {onReact && !reaction && (
+            <ReactionPicker
+              options={reactionOptions}
+              onPick={onReact}
+              // The trigger sits just outside the bubble's outer edge (right for customer,
+              // left for agent — see `.lc-message-bubble__react-trigger` CSS), so the
+              // popover must extend back *toward* the bubble, not off the panel edge:
+              // 'end' anchors its right edge to the trigger (extends left) for customer,
+              // 'start' anchors its left edge (extends right) for agent.
+              align={side === 'customer' ? 'end' : 'start'}
+              trigger={({ ref: triggerRef, onClick }) => (
+                <button
+                  ref={triggerRef}
+                  type="button"
+                  className="lc-message-bubble__react-trigger"
+                  aria-label="React to message"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClick();
+                  }}
+                >
+                  <ReactIcon />
+                </button>
+              )}
+            />
+          )}
+
           {onlyVisibleToMe && (
             <div className="lc-message-bubble__private">
               <PrivateIcon />
@@ -404,10 +569,34 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(func
 
       {reaction && (
         <div className="lc-message-bubble__reaction-row">
-          <span className="lc-message-bubble__reaction">
-            <span className="lc-message-bubble__reaction-emoji">{reaction.emoji}</span>
-            {reaction.count != null && <span className="lc-message-bubble__reaction-count">{reaction.count}</span>}
-          </span>
+          {onReact ? (
+            <ReactionPicker
+              options={reactionOptions}
+              active={reaction.emoji}
+              onPick={onReact}
+              // The chip sits near the *inner* edge of the row (left, under the
+              // customer-side padding; right otherwise — see `.lc-message-bubble__reaction-row`
+              // CSS) — the opposite edge from the corner trigger above — so the align
+              // direction is mirrored from it: 'start' for customer, 'end' for agent.
+              align={side === 'customer' ? 'start' : 'end'}
+              trigger={({ ref: triggerRef, onClick }) => (
+                <button
+                  ref={triggerRef}
+                  type="button"
+                  className="lc-message-bubble__reaction"
+                  aria-label="Change reaction"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClick();
+                  }}
+                >
+                  {reactionChipContent}
+                </button>
+              )}
+            />
+          ) : (
+            <span className="lc-message-bubble__reaction">{reactionChipContent}</span>
+          )}
         </div>
       )}
     </div>

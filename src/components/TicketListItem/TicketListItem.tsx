@@ -124,6 +124,7 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
 ) {
   const resolvedMessageIcon =
     messageIcon === false ? null : (messageIcon ?? <TicketIcon name="share" className="lc-ticket-row__message-icon" />);
+  const hasMoreActions = onSelect != null || onSelectAll != null || onMarkAsStarred != null;
 
   return (
     <div
@@ -170,33 +171,26 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
           </div>
 
           <div className="lc-ticket-row__meta">
-            {(() => {
-              const hasMoreActions = onSelect != null || onSelectAll != null || onMarkAsStarred != null;
-              return (
-                <>
-                  <span className="lc-ticket-row__timestamp" data-hidden-on-hover={hasMoreActions || undefined}>
-                    {timestamp}
-                  </span>
-                  {hasMoreActions && (
-                    <span onClick={(e) => e.stopPropagation()}>
-                      <ActionMenu
-                        ariaLabel="Ticket actions"
-                        tooltip="More actions"
-                        align="start"
-                        width={170}
-                        triggerClassName="lc-ticket-row__more"
-                        icon={<TicketIcon name="dots-horizontal" />}
-                        items={[
-                          { key: 'select', label: 'Select', onClick: () => onSelect?.() },
-                          { key: 'select-all', label: 'Select all', onClick: () => onSelectAll?.() },
-                          { key: 'star', label: 'Mark as starred', onClick: () => onMarkAsStarred?.() },
-                        ]}
-                      />
-                    </span>
-                  )}
-                </>
-              );
-            })()}
+            <span className="lc-ticket-row__timestamp" data-hidden-on-hover={hasMoreActions || undefined}>
+              {timestamp}
+            </span>
+            {hasMoreActions && (
+              <span onClick={(e) => e.stopPropagation()}>
+                <ActionMenu
+                  ariaLabel="Ticket actions"
+                  tooltip="More actions"
+                  align="start"
+                  width={170}
+                  triggerClassName="lc-ticket-row__more"
+                  icon={<TicketIcon name="dots-horizontal" />}
+                  items={[
+                    { key: 'select', label: 'Select', onClick: () => onSelect?.() },
+                    { key: 'select-all', label: 'Select all', onClick: () => onSelectAll?.() },
+                    { key: 'star', label: 'Mark as starred', onClick: () => onMarkAsStarred?.() },
+                  ]}
+                />
+              </span>
+            )}
           </div>
         </div>
 

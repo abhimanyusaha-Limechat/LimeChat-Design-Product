@@ -12,14 +12,15 @@ import { TicketsSection } from './components/TicketsSection';
 import { TicketListItem } from './components/TicketListItem';
 
 <TicketsSection
-  status="Open" onStatusClick={() => {}}
+  status="Open" onStatusChange={setStatus}
   searchValue={q} onSearchChange={setQ}
   onFilterClick={() => {}} onTagsClick={() => {}}
   dateRangeLabel="Last 7 days" onDateRangeClick={() => {}}
-  inboxLabel="All inboxes" onInboxClick={() => {}}
+  inboxLabel="All inboxes" inboxOptions={inboxNames}
+  selectedInboxes={selectedInboxes} onSelectedInboxesChange={setSelectedInboxes}
   tabs={[{ id: 'mine', label: 'Mine' }, { id: 'queued', label: 'Queued' }, { id: 'all', label: 'All' }]}
   activeTab={tab} onTabChange={setTab}
-  sortLabel="Newly created" onSortClick={() => {}}
+  sortLabel="Newly created" onSortChange={setSort}
 >
   {tickets.map((t) => (
     <TicketListItem key={t.id} {...t} selected={t.id === selectedId} onClick={() => select(t.id)} />

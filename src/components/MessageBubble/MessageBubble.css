@@ -99,6 +99,24 @@
   gap: 8px;
   min-width: 0;
 }
+/* The reaction trigger sits 30px outside the bubble's edge (see
+   `.lc-message-bubble__react-trigger`) — without this, moving the cursor from the
+   bubble toward it crosses a dead zone outside `__row`'s own box, which un-hovers
+   the row (hiding the trigger) before the cursor ever reaches it. This invisible
+   padding extends `__row`'s hoverable box to exactly cover that gap. */
+[data-side='customer'] .lc-message-bubble__row {
+  padding-right: 30px;
+}
+/* For agent, the bubble is the row's *first* child (avatar follows it), so
+   extending with plain `padding-left` would push the bubble+avatar 30px right,
+   visibly shifting the message. The margin/padding pair grows the box 30px to
+   the left while keeping the content at its original position (negative margin
+   shifts the box left, the matching padding pushes content back by the same
+   amount). */
+[data-side='agent'] .lc-message-bubble__row {
+  margin-left: -30px;
+  padding-left: 30px;
+}
 
 .lc-message-bubble__avatar {
   flex-shrink: 0;
@@ -506,12 +524,20 @@
 }
 
 /* --- Reaction chip -------------------------------------------------------- */
+/* Pulled up to overlap the bubble's bottom edge (like WhatsApp's reaction pill)
+   instead of sitting as a fully separate row underneath it. `.lc-message-bubble__bubble`
+   is `position: relative`, which promotes it into the "positioned" paint layer — that
+   layer always paints above plain static siblings regardless of DOM order, so without
+   `position` + `z-index` here too, the bubble would paint over this pill instead of
+   under it. */
 .lc-message-bubble__reaction-row {
+  position: relative;
+  z-index: 1;
   padding: 0 32px;
-  margin-top: -6px;
+  margin-top: -14px;
 }
 [data-side='customer'] .lc-message-bubble__reaction-row {
-  padding-left: 32px;
+  padding-left: 24px;
 }
 .lc-message-bubble__reaction {
   display: inline-flex;
@@ -522,6 +548,14 @@
   background: #ffffff;
   border: 1px solid #f5f5f5;
   box-shadow: 0px 0.66px 0px rgba(0, 0, 0, 0.06);
+  font-family: inherit;
+}
+button.lc-message-bubble__reaction {
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+button.lc-message-bubble__reaction:hover {
+  background: #f9f9f8;
 }
 .lc-message-bubble__reaction-emoji {
   font-size: 16px;
@@ -531,4 +565,104 @@
   font-size: 14px;
   line-height: 20px;
   color: var(--lc-text-secondary-alpha);
+}
+
+/* --- Reaction trigger (hover-revealed, sits outside the bubble's outer edge,
+   vertically centered on it — "the same line as the message") ------------- */
+.lc-message-bubble__react-trigger {
+  position: absolute;
+  top: 50%;
+  right: -30px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #ececea;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--lc-text-dimmed);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.08);
+  transition: opacity 120ms ease, color 120ms ease, background-color 120ms ease;
+}
+[data-side='agent'] .lc-message-bubble__react-trigger {
+  right: auto;
+  left: -30px;
+}
+.lc-message-bubble__row:hover .lc-message-bubble__react-trigger,
+.lc-message-bubble__react-trigger:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lc-message-bubble__react-trigger:hover {
+  color: var(--lc-text-title);
+  background: #f3f4f3;
+}
+.lc-message-bubble__react-trigger svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* --- Reaction picker popover (portaled) ----------------------------------- */
+.lc-message-bubble__reaction-picker {
+  position: fixed;
+  z-index: 2000;
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 999px;
+  background: white;
+  box-shadow:
+    0 1px 1.5px rgba(0, 0, 0, 0.05),
+    0 20px 12.5px rgba(0, 0, 0, 0.1),
+    0 10px 5px rgba(0, 0, 0, 0.04);
+  transition: opacity 150ms ease, transform 150ms ease;
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+.lc-message-bubble__reaction-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+.lc-message-bubble__reaction-option:hover {
+  background: #f4f4f0;
+  transform: scale(1.1);
+}
+.lc-message-bubble__reaction-option[data-active] {
+  background: color-mix(in srgb, #508014 10%, white);
+}
+.lc-message-bubble__reaction-option--remove {
+  margin-left: 4px;
+  padding-left: 4px;
+  border-left: 1px solid #ececea;
+  border-radius: 0 999px 999px 0;
+  color: var(--lc-text-dimmed);
+}
+.lc-message-bubble__reaction-option--remove svg {
+  width: 16px;
+  height: 16px;
+}
+.lc-message-bubble__reaction-option--remove:hover {
+  background: #fff0f0;
+  color: #c92a2a;
+  transform: none;
 }
