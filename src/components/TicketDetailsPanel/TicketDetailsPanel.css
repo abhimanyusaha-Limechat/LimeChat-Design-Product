@@ -420,6 +420,12 @@ button.lc-tdp__detail-value--copyable:hover {
   outline: none;
   border-color: var(--lc-tdp-primary);
 }
+/* Select-type detail fields (e.g. Priority) read smaller than free-text/date
+   fields in this compact panel — override just the value size, not the whole
+   `sm` scale other `NativeSelect` usages across the app share. */
+.lc-select.lc-tdp__select-field[data-size='sm'] {
+  --value-fz: 12px;
+}
 .lc-tdp__cascade {
   display: flex;
   flex-direction: column;
