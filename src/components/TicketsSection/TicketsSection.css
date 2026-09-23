@@ -2,21 +2,21 @@
  * TicketsSection — LimeChat design system (Figma node 8977:4521's list wrapper).
  */
 .lc-tickets-section {
-  --lc-ts-title: #3c492c;
-  --lc-ts-dimmed: #808975;
-  --lc-ts-primary: #6bac1b;
-  --lc-ts-primary-light: #f1f7e9;
-  --lc-ts-border: #ececea;
-  --lc-ts-input-border: #d9d9d9;
-  --lc-ts-placeholder: #8c8c8c;
-  --lc-ts-header-bg: #fafdf6;
+  --lc-ts-title: var(--lc-color-green-900);
+  --lc-ts-dimmed: var(--lc-color-sage-500);
+  --lc-ts-primary: var(--lc-color-green-500);
+  --lc-ts-primary-light: var(--lc-color-green-50);
+  --lc-ts-border: var(--lc-color-gray-200);
+  --lc-ts-input-border: var(--lc-color-gray-300);
+  --lc-ts-placeholder: var(--lc-color-gray-500);
+  --lc-ts-header-bg: var(--lc-color-green-25);
 
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: #ffffff;
+  background: var(--lc-color-white);
   font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   overflow: hidden;
 }
@@ -63,7 +63,7 @@
   padding: 4px 8px 4px 10px;
   border: none;
   border-radius: 100px;
-  background: var(--lc-ts-status-bg, #f0f0f0);
+  background: var(--lc-ts-status-bg, var(--lc-color-gray-150));
   font-family: inherit;
   font-size: 13px;
   font-weight: 700;
@@ -90,7 +90,7 @@
   background: #ececec;
 }
 .lc-tickets-section__status[data-status='Voice bot'] {
-  border: 1px solid #ececea;
+  border: 1px solid var(--lc-color-gray-200);
 }
 .lc-tickets-section__status[data-status='Waiting'],
 .lc-tickets-section__status[data-status='Follow up'] {
@@ -122,7 +122,7 @@
   padding: 0 12px;
   border: 1px solid var(--lc-ts-input-border);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   color: var(--lc-ts-placeholder);
 }
 .lc-tickets-section__search svg {
@@ -152,12 +152,12 @@
   height: 32px;
   border: 1px solid var(--lc-ts-input-border);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   color: var(--lc-ts-title);
   cursor: pointer;
 }
 .lc-tickets-section__icon-btn:hover {
-  background: #f3f4f3;
+  background: var(--lc-color-gray-100);
 }
 .lc-tickets-section__icon-btn svg {
   width: 16px;
@@ -180,7 +180,7 @@
   padding: 0 12px;
   border: 1px solid var(--lc-ts-input-border);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--lc-color-white);
   font-family: inherit;
   font-size: 14px;
   color: var(--lc-ts-title);
@@ -233,7 +233,7 @@
   transition: background-color 150ms ease, color 150ms ease;
 }
 .lc-tickets-section__tab:not([data-active]):hover {
-  background: #f3f4f3;
+  background: var(--lc-color-gray-100);
   color: var(--lc-ts-title);
 }
 .lc-tickets-section__tab[data-active] {
@@ -259,7 +259,7 @@
   transition: background-color 150ms ease;
 }
 .lc-tickets-section__sort:hover {
-  background: #f3f4f3;
+  background: var(--lc-color-gray-100);
 }
 .lc-tickets-section__sort-value {
   font-weight: 700;
@@ -292,7 +292,7 @@
   padding: 2px 6px;
   border-radius: 100px;
   background: var(--lc-ts-primary);
-  color: #ffffff;
+  color: var(--lc-color-white);
   font-size: 10px;
   font-weight: 600;
   line-height: 12px;
@@ -321,6 +321,19 @@
   overflow-x: hidden;
   scrollbar-color: #d4d4d1 transparent;
   scrollbar-width: thin;
+}
+.lc-tickets-section__list::-webkit-scrollbar {
+  width: 6px;
+}
+.lc-tickets-section__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.lc-tickets-section__list::-webkit-scrollbar-thumb {
+  background-color: #d4d4d1;
+  border-radius: 999px;
+}
+.lc-tickets-section__list::-webkit-scrollbar-thumb:hover {
+  background-color: var(--lc-color-gray-400);
 }
 
 .lc-tickets-section__load-more {

@@ -100,7 +100,28 @@ function useResizableWidth(defaultWidth: number, min: number, max: number, direc
     [width],
   );
 
-  return { width, dragging, onMouseDown };
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      const step = e.shiftKey ? 32 : 8;
+      const grow = direction === 1 ? 1 : -1;
+      if (e.key === 'ArrowLeft') {
+        setWidth((w) => Math.min(max, Math.max(min, w - step * grow)));
+        e.preventDefault();
+      } else if (e.key === 'ArrowRight') {
+        setWidth((w) => Math.min(max, Math.max(min, w + step * grow)));
+        e.preventDefault();
+      } else if (e.key === 'Home') {
+        setWidth(min);
+        e.preventDefault();
+      } else if (e.key === 'End') {
+        setWidth(max);
+        e.preventDefault();
+      }
+    },
+    [direction, min, max],
+  );
+
+  return { width, dragging, onMouseDown, onKeyDown };
 }
 
 export interface HelpdeskTicketsPageProps extends HTMLAttributes<HTMLDivElement> {
@@ -168,11 +189,12 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
     if (conversationItems) return; // the virtualized list below handles its own scroll position
     const el = conversationRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-    // Re-run only when the message count changes (ticket switch, new message) — not on
-    // every parent re-render (e.g. composer keystrokes), which would yank the scroll
+    // Re-run when the message count changes (new message) or conversationKey changes
+    // (ticket switch, even to a ticket with the same message count) — not on every
+    // parent re-render (e.g. composer keystrokes), which would yank the scroll
     // position away from an agent reading earlier history.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messageCount]);
+  }, [messageCount, conversationKey]);
 
   // Kept mounted across thread switches (no `key` remount, which forced a full re-measure
   // and flashed the list blank) — jump straight to the bottom on `conversationKey` change
@@ -196,7 +218,12 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
         role="separator"
         aria-orientation="vertical"
         aria-label="Resize ticket list"
+        aria-valuenow={list.width}
+        aria-valuemin={minListWidth}
+        aria-valuemax={maxListWidth}
+        tabIndex={0}
         onMouseDown={list.onMouseDown}
+        onKeyDown={list.onKeyDown}
       />
 
       <div className="lc-hd-tickets__main">
@@ -234,7 +261,12 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
             role="separator"
             aria-orientation="vertical"
             aria-label="Resize details panel"
+            aria-valuenow={details.width}
+            aria-valuemin={minDetailsWidth}
+            aria-valuemax={maxDetailsWidth}
+            tabIndex={0}
             onMouseDown={details.onMouseDown}
+            onKeyDown={details.onKeyDown}
           />
           <div className="lc-hd-tickets__details" style={{ width: details.width }}>
             {detailsPanel}
