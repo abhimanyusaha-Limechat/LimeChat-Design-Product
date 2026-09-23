@@ -54,6 +54,13 @@ import { MessageBubble, PiMask, ProfaneWord } from './components/MessageBubble';
 <MessageBubble side="agent" time="12:00" reaction={{ emoji: '❤️', count: 2 }}>
   Glad that helped!
 </MessageBubble>
+
+{/* Agent reacting to an incoming message — hover the bubble for the trigger,
+    or click an existing reaction to change/remove it. */}
+<MessageBubble side="customer" senderName="Aditi Rao" time="12:04"
+  reaction={reaction} onReact={(emoji) => setReaction((r) => (r?.emoji === emoji ? undefined : { emoji }))}>
+  Is my order shipped?
+</MessageBubble>
 ```
 
 ## Props
@@ -75,6 +82,8 @@ import { MessageBubble, PiMask, ProfaneWord } from './components/MessageBubble';
 | `warningLabel`    | `string` — banner used by `variant="blocked"`                                                     | —         |
 | `onlyVisibleToMe` | `boolean`                                                                                           | `false`   |
 | `reaction`        | `{ emoji, count? }`                                                                                | —         |
+| `reactionOptions` | `string[]` — emoji offered by the reaction picker                                                  | 👍❤️😂😮😢🙏 |
+| `onReact`         | `(emoji: string) => void` — enables the hover reaction trigger + makes an existing chip clickable | —         |
 | `tail`            | `boolean`                                                                                           | `true`    |
 | `quote`           | `{ name, text, color? }` — for `variant="quote"`                                                  | —         |
 | `media`           | `{ src?, alt? }[]` (1–4) — for `variant="media"`                                                   | —         |
