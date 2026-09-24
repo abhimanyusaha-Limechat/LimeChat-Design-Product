@@ -11,6 +11,7 @@ import { createPortal } from 'react-dom';
 import { MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockProducts';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
+import { NativeSelect } from '../Select';
 import './ProductsPanel.css';
 import { iconProps } from '../iconProps';
 import { CloseIcon as ClearIcon, CheckIcon } from '../icons';
@@ -267,31 +268,6 @@ function RowShareButton({ product }: { product: Product }) {
   );
 }
 
-/** Icon-only add-to-cart CTA shown on `.lc-pp__row` hover, mirroring DetailCtas' add-to-cart behavior. */
-function RowAddToCartButton({ product }: { product: Product }) {
-  const [added, setAdded] = useState(false);
-  const timer = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  const handleAddToCart = (e: MouseEvent) => {
-    e.stopPropagation();
-    setAdded(true);
-    window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setAdded(false), 1500);
-  };
-
-  return (
-    <button
-      type="button"
-      className="lc-pp__row-cart"
-      aria-label={`Add ${product.name} to cart`}
-      onClick={handleAddToCart}
-    >
-      {added ? <CheckIcon /> : <CartIcon />}
-    </button>
-  );
-}
-
 function ProductRow({
   product,
   search,
@@ -309,6 +285,7 @@ function ProductRow({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onClick();
@@ -329,7 +306,6 @@ function ProductRow({
         </span>
       </span>
       <span className="lc-pp__row-actions">
-        <RowAddToCartButton product={product} />
         <RowShareButton product={product} />
       </span>
     </div>
@@ -437,7 +413,12 @@ function TruncatedDescription({ text }: { text: string }) {
   );
 }
 
+const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
+
 function ProductDetailView({ product, onBack }: { product: Product; onBack: () => void }) {
+  const [selectedSize, setSelectedSize] = useState(product.variants?.[0] ?? '');
+  const [selectedColor, setSelectedColor] = useState(COLOR_OPTIONS[0]);
+
   return (
     <div className="lc-pp__detail">
       <button type="button" className="lc-pp__detail-back" onClick={onBack}>
@@ -459,6 +440,25 @@ function ProductDetailView({ product, onBack }: { product: Product; onBack: () =
             <RatingStars rating={product.rating} count={product.ratingCount} />
           </div>
         </div>
+
+        {product.variants && product.variants.length > 0 && (
+          <div className="lc-pp__detail-variants">
+            <NativeSelect
+              size="sm"
+              label="Size"
+              data={product.variants}
+              value={selectedSize}
+              onChange={(e) => setSelectedSize(e.currentTarget.value)}
+            />
+            <NativeSelect
+              size="sm"
+              label="Color"
+              data={COLOR_OPTIONS}
+              value={selectedColor}
+              onChange={(e) => setSelectedColor(e.currentTarget.value)}
+            />
+          </div>
+        )}
 
         <div className="lc-pp__detail-section">
           <p className="lc-pp__detail-section-title">Pricing</p>

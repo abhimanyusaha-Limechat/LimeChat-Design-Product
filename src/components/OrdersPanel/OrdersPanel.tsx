@@ -35,6 +35,7 @@ import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
 import { AddProductMenu } from '../AddProductMenu';
 import { Modal } from '../Modal';
+import { NativeSelect } from '../Select';
 import './OrdersPanel.css';
 import { iconProps } from '../iconProps';
 import { CloseIcon as ClearIcon, TrashIcon, CheckIcon } from '../icons';
@@ -253,15 +254,20 @@ interface ExtraChargeEditable {
   onAmountChange: (amount: string) => void;
 }
 
+const SIZE_OPTIONS = ['UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11', 'S', 'M', 'L', 'XL'];
+const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
+
 function ProductsCostCard({
   data,
   onQtyChange,
+  onVariantChange,
   onAddProduct,
   discountEditable,
   extraChargeEditable,
 }: {
   data: CostSummaryData;
   onQtyChange?: (index: number, quantity: number) => void;
+  onVariantChange?: (index: number, patch: { size?: string; color?: string }) => void;
   onAddProduct?: (product: Product) => void;
   discountEditable?: DiscountEditable;
   extraChargeEditable?: ExtraChargeEditable;
@@ -280,6 +286,34 @@ function ProductsCostCard({
             {onQtyChange && <Stepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />}
           </div>
           <p className="lc-op__cost-item-sku">SKU: {item.sku}</p>
+
+          {onVariantChange ? (
+            <div className="lc-op__cost-item-variants">
+              <NativeSelect
+                size="xs"
+                placeholder="Size"
+                aria-label={`${item.name} size`}
+                data={SIZE_OPTIONS}
+                value={item.size ?? ''}
+                onChange={(e) => onVariantChange(i, { size: e.currentTarget.value })}
+              />
+              <NativeSelect
+                size="xs"
+                placeholder="Color"
+                aria-label={`${item.name} color`}
+                data={COLOR_OPTIONS}
+                value={item.color ?? ''}
+                onChange={(e) => onVariantChange(i, { color: e.currentTarget.value })}
+              />
+            </div>
+          ) : (
+            (item.size || item.color) && (
+              <p className="lc-op__cost-item-sku">
+                {[item.size, item.color].filter(Boolean).join(' · ')}
+              </p>
+            )
+          )}
+
           <div className="lc-op__cost-item-qty">
             <span>Quantity {item.quantity}</span>
             <span>{formatINR(item.unitPrice)}</span>
@@ -757,11 +791,27 @@ function addressesEqual(a: Address, b: Address): boolean {
 /**
  * Saved-address picker: pick a saved address, edit one of them in place, or
  * add a new address with an option to save it for reuse next time.
+ * `savedAddresses`/`onSavedAddressesChange` are lifted to the caller so
+ * Shipping and Billing pickers on the same order share one list.
  */
-function AddressPicker({ value, onChange }: { value: Address; onChange: (next: Address) => void }) {
+function AddressPicker({
+  value,
+  onChange,
+  savedAddresses,
+  onSavedAddressesChange,
+}: {
+  value: Address;
+  onChange: (next: Address) => void;
+  savedAddresses: SavedAddress[];
+  onSavedAddressesChange: Dispatch<SetStateAction<SavedAddress[]>>;
+}) {
   const groupName = useId();
-  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>(DEFAULT_SAVED_ADDRESSES);
   const matchedSaved = savedAddresses.find((saved) => addressesEqual(saved.address, value));
+  // `mode`/`selectedId` are seeded from `value` once at mount and never
+  // resynced — correct only because the caller (OrderFormFields) fully
+  // unmounts/remounts this component each time an edit session starts, so
+  // `value` never changes under a mounted AddressPicker. If that ever
+  // stops being true, this needs a `useEffect` (or a `key`) to resync.
   const [mode, setMode] = useState<'saved' | 'new' | 'edit'>(matchedSaved ? 'saved' : 'new');
   const [selectedId, setSelectedId] = useState<string | null>(matchedSaved?.id ?? null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -782,7 +832,7 @@ function AddressPicker({ value, onChange }: { value: Address; onChange: (next: A
 
   const saveNewAddress = () => {
     const id = `addr-${Date.now()}`;
-    setSavedAddresses((prev) => [...prev, { id, label: newLabel.trim() || 'New address', address: draftAddress }]);
+    onSavedAddressesChange((prev) => [...prev, { id, label: newLabel.trim() || 'New address', address: draftAddress }]);
     setMode('saved');
     setSelectedId(id);
     onChange(draftAddress);
@@ -790,7 +840,7 @@ function AddressPicker({ value, onChange }: { value: Address; onChange: (next: A
 
   const saveEdit = () => {
     if (!editingId) return;
-    setSavedAddresses((prev) => prev.map((s) => (s.id === editingId ? { ...s, address: draftAddress } : s)));
+    onSavedAddressesChange((prev) => prev.map((s) => (s.id === editingId ? { ...s, address: draftAddress } : s)));
     if (selectedId === editingId) onChange(draftAddress);
     setMode('saved');
     setEditingId(null);
@@ -942,6 +992,10 @@ function OrderFormFields({
   setDraft: Dispatch<SetStateAction<OrderDraft>>;
   costSummaryMode?: boolean;
 }) {
+  // Shared across the Shipping and Billing pickers below, so saving/editing
+  // an address from one shows up in the other's list too.
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>(DEFAULT_SAVED_ADDRESSES);
+
   return (
     <>
       {!costSummaryMode && (
@@ -982,6 +1036,9 @@ function OrderFormFields({
             }}
             onQtyChange={(index, quantity) =>
               setDraft((d) => ({ ...d, items: d.items.map((item, i) => (i === index ? { ...item, quantity } : item)) }))
+            }
+            onVariantChange={(index, patch) =>
+              setDraft((d) => ({ ...d, items: d.items.map((item, i) => (i === index ? { ...item, ...patch } : item)) }))
             }
             onAddProduct={(product) =>
               setDraft((d) => ({
@@ -1078,6 +1135,8 @@ function OrderFormFields({
         <AddressPicker
           value={draft.shippingAddress}
           onChange={(shippingAddress) => setDraft((d) => ({ ...d, shippingAddress }))}
+          savedAddresses={savedAddresses}
+          onSavedAddressesChange={setSavedAddresses}
         />
       </div>
 
@@ -1099,6 +1158,8 @@ function OrderFormFields({
           <AddressPicker
             value={draft.billingAddress}
             onChange={(billingAddress) => setDraft((d) => ({ ...d, billingAddress }))}
+            savedAddresses={savedAddresses}
+            onSavedAddressesChange={setSavedAddresses}
           />
         )}
       </div>
@@ -1236,6 +1297,7 @@ function OrderDetailView({
 
   const totals = computeDraftTotals(draft);
   const valid = isDraftValid(draft);
+  const canEdit = EDITABLE_STATUSES.includes(order.status);
 
   const handleSave = () => {
     if (!valid) return;
@@ -1349,9 +1411,11 @@ function OrderDetailView({
               <div className="lc-op__detail-section-title-row">
                 <p className="lc-op__detail-section-title">Cost summary</p>
                 <span className="lc-op__detail-section-actions">
-                  <button type="button" className="lc-op__address-copy" aria-label="Edit cost summary" onClick={() => setEditing(true)}>
-                    <EditIcon />
-                  </button>
+                  {canEdit && (
+                    <button type="button" className="lc-op__address-copy" aria-label="Edit cost summary" onClick={() => setEditing(true)}>
+                      <EditIcon />
+                    </button>
+                  )}
                 </span>
               </div>
               <ProductsCostCard data={order} />
@@ -1379,9 +1443,11 @@ function OrderDetailView({
                 <p className="lc-op__detail-section-title">Shipping address</p>
                 <span className="lc-op__detail-section-actions">
                   <CopyIconButton value={formatAddressForCopy(order.shippingAddress)} label="Copy address" />
-                  <button type="button" className="lc-op__address-copy" aria-label="Edit shipping address" onClick={() => setEditing(true)}>
-                    <EditIcon />
-                  </button>
+                  {canEdit && (
+                    <button type="button" className="lc-op__address-copy" aria-label="Edit shipping address" onClick={() => setEditing(true)}>
+                      <EditIcon />
+                    </button>
+                  )}
                 </span>
               </div>
               <AddressBlock address={order.shippingAddress} />
@@ -1394,9 +1460,11 @@ function OrderDetailView({
                   {!order.billingSameAsShipping && (
                     <CopyIconButton value={formatAddressForCopy(order.billingAddress)} label="Copy address" />
                   )}
-                  <button type="button" className="lc-op__address-copy" aria-label="Edit billing address" onClick={() => setEditing(true)}>
-                    <EditIcon />
-                  </button>
+                  {canEdit && (
+                    <button type="button" className="lc-op__address-copy" aria-label="Edit billing address" onClick={() => setEditing(true)}>
+                      <EditIcon />
+                    </button>
+                  )}
                 </span>
               </div>
               {order.billingSameAsShipping ? (
@@ -1411,9 +1479,11 @@ function OrderDetailView({
                 <p className="lc-op__detail-section-title">Notes</p>
                 <span className="lc-op__detail-section-actions">
                   {order.notes && <CopyIconButton value={order.notes} label="Copy notes" />}
-                  <button type="button" className="lc-op__address-copy" aria-label="Edit notes" onClick={() => setEditing(true)}>
-                    <EditIcon />
-                  </button>
+                  {canEdit && (
+                    <button type="button" className="lc-op__address-copy" aria-label="Edit notes" onClick={() => setEditing(true)}>
+                      <EditIcon />
+                    </button>
+                  )}
                 </span>
               </div>
               <p className="lc-op__detail-notes lc-op__detail-card">{order.notes || 'No notes added.'}</p>

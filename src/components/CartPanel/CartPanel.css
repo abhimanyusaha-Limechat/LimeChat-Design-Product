@@ -10,6 +10,7 @@
   --lc-cp-border: var(--lc-color-gray-200);
   --lc-cp-danger: var(--lc-color-red-700);
   --lc-cp-danger-light: #fdecec;
+  --lc-cp-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   display: flex;
   flex-direction: column;
@@ -43,6 +44,27 @@
   width: 100%;
 }
 
+/* Collapses via CSS grid's `fr` unit so the row's height doesn't need to be
+   measured in JS — animating `grid-template-rows` still triggers layout, but
+   this is the one case where that's the only way to animate height at all. */
+.lc-cp__item-wrap {
+  display: grid;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition: grid-template-rows 200ms var(--lc-cp-ease-out), opacity 200ms var(--lc-cp-ease-out),
+    margin-top 200ms var(--lc-cp-ease-out);
+}
+.lc-cp__item-wrap > .lc-cp__item-row {
+  min-height: 0;
+  overflow: hidden;
+}
+.lc-cp__item-wrap[data-removing] {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  margin-top: -8px;
+  transition-duration: 180ms;
+}
+
 .lc-cp__item-row {
   display: flex;
   align-items: flex-start;
@@ -53,11 +75,21 @@
   border-radius: 8px;
   background: var(--lc-color-white);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  transition: box-shadow 160ms ease, border-color 160ms ease;
+  opacity: 1;
+  transform: scale(1);
+  transition: box-shadow 160ms ease, border-color 160ms ease, opacity 200ms var(--lc-cp-ease-out),
+    transform 200ms var(--lc-cp-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.97);
+  }
 }
-.lc-cp__item-row:hover {
-  border-color: #ddd8cf;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+@media (hover: hover) and (pointer: fine) {
+  .lc-cp__item-row:hover {
+    border-color: #ddd8cf;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
 }
 
 .lc-cp__item-thumb {
@@ -89,7 +121,7 @@
 }
 .lc-cp__item-top {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
 }
@@ -103,6 +135,11 @@
   white-space: nowrap;
 }
 .lc-cp__item-sku {
+  font-size: 11px;
+  color: var(--lc-cp-dimmed);
+}
+.lc-cp__item-variants {
+  margin: 4px 0 0;
   font-size: 11px;
   color: var(--lc-cp-dimmed);
 }
@@ -139,12 +176,14 @@
   cursor: pointer;
   transition: transform 120ms ease-out, background-color 120ms ease, color 120ms ease;
 }
-.lc-cp__item-remove:hover {
-  background: var(--lc-cp-danger-light);
-  color: var(--lc-cp-danger);
+@media (hover: hover) and (pointer: fine) {
+  .lc-cp__item-remove:hover {
+    background: var(--lc-cp-danger-light);
+    color: var(--lc-cp-danger);
+  }
 }
 .lc-cp__item-remove:active {
-  transform: scale(0.92);
+  transform: scale(0.96);
 }
 .lc-cp__item-remove svg {
   width: 14px;
@@ -177,12 +216,14 @@
   cursor: pointer;
   transition: transform 120ms ease-out, background-color 120ms ease, color 120ms ease;
 }
-.lc-cp__stepper button:hover {
-  background: var(--lc-cp-primary-light);
-  color: var(--lc-cp-primary);
+@media (hover: hover) and (pointer: fine) {
+  .lc-cp__stepper button:hover {
+    background: var(--lc-cp-primary-light);
+    color: var(--lc-cp-primary);
+  }
 }
 .lc-cp__stepper button:active {
-  transform: scale(0.9);
+  transform: scale(0.96);
 }
 .lc-cp__stepper-value {
   min-width: 14px;
@@ -199,7 +240,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 40px 16px;
+  padding: 40px 16px 8px;
   text-align: center;
   color: var(--lc-cp-dimmed);
 }
@@ -246,4 +287,11 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--lc-cp-title);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-cp__item-wrap,
+  .lc-cp__item-row {
+    transition-property: opacity;
+  }
 }

@@ -592,6 +592,15 @@
   font-size: 13px;
   color: var(--lc-op-title);
 }
+.lc-op__cost-item-variants {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+}
+.lc-op__cost-item-variants .lc-select {
+  min-width: 0;
+}
 .lc-op__cost-item-qty {
   display: flex;
   align-items: center;
