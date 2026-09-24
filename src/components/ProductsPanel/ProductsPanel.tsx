@@ -146,36 +146,9 @@ const CartIcon = () => (
   </svg>
 );
 
-/**
- * ProductThumbnail — colored-initial tile. When `shareable`, hovering the
- * enclosing `.lc-pp__row` morphs the tile into a "Share product" CTA
- * (copies a shareable link, briefly confirms with a checkmark).
- */
-function ProductThumbnail({
-  product,
-  size = 'sm',
-  shareable = false,
-}: {
-  product: Product;
-  size?: 'sm' | 'lg';
-  shareable?: boolean;
-}) {
+/** ProductThumbnail — colored-initial tile, or the product image when available. */
+function ProductThumbnail({ product, size = 'sm' }: { product: Product; size?: 'sm' | 'lg' }) {
   const palette = THUMB_PALETTE[hashString(product.id) % THUMB_PALETTE.length];
-  const [copied, setCopied] = useState(false);
-  const timer = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  const handleShare = async (e: MouseEvent) => {
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(`${window.location.origin}/products/${product.id}`);
-    } catch {
-      // Clipboard access denied/unavailable — the link simply won't confirm.
-    }
-    setCopied(true);
-    window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setCopied(false), 1000);
-  };
 
   return (
     <span
@@ -188,11 +161,6 @@ function ProductThumbnail({
         <span className="lc-pp__thumb-initial" aria-hidden="true">
           {product.name.charAt(0)}
         </span>
-      )}
-      {shareable && (
-        <button type="button" className="lc-pp__thumb-share" aria-label="Share product" onClick={handleShare}>
-          {copied ? <CheckIcon /> : <ShareIcon />}
-        </button>
       )}
     </span>
   );
@@ -274,6 +242,56 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
   );
 }
 
+/** Icon-only share CTA shown on `.lc-pp__row` hover, mirroring DetailCtas' share behavior. */
+function RowShareButton({ product }: { product: Product }) {
+  const [copied, setCopied] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const handleShare = async (e: MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/products/${product.id}`);
+    } catch {
+      // Clipboard access denied/unavailable — the link simply won't confirm.
+    }
+    setCopied(true);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setCopied(false), 1000);
+  };
+
+  return (
+    <button type="button" className="lc-pp__row-share" aria-label="Share product" onClick={handleShare}>
+      {copied ? <CheckIcon /> : <ShareIcon />}
+    </button>
+  );
+}
+
+/** Icon-only add-to-cart CTA shown on `.lc-pp__row` hover, mirroring DetailCtas' add-to-cart behavior. */
+function RowAddToCartButton({ product }: { product: Product }) {
+  const [added, setAdded] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const handleAddToCart = (e: MouseEvent) => {
+    e.stopPropagation();
+    setAdded(true);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setAdded(false), 1500);
+  };
+
+  return (
+    <button
+      type="button"
+      className="lc-pp__row-cart"
+      aria-label={`Add ${product.name} to cart`}
+      onClick={handleAddToCart}
+    >
+      {added ? <CheckIcon /> : <CartIcon />}
+    </button>
+  );
+}
+
 function ProductRow({
   product,
   search,
@@ -297,7 +315,7 @@ function ProductRow({
         }
       }}
     >
-      <ProductThumbnail product={product} shareable />
+      <ProductThumbnail product={product} />
       <span className="lc-pp__row-body">
         <span className="lc-pp__row-heading">
           <span className="lc-pp__row-name">
@@ -309,6 +327,10 @@ function ProductRow({
           <PriceBlock product={product} />
           <StatusPill availability={product.availability} stockCount={product.stockCount} />
         </span>
+      </span>
+      <span className="lc-pp__row-actions">
+        <RowAddToCartButton product={product} />
+        <RowShareButton product={product} />
       </span>
     </div>
   );

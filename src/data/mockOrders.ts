@@ -43,6 +43,8 @@ export interface Order {
   taxRate: number;
   taxAmount: number;
   shippingCost: number;
+  extraChargeLabel?: string;
+  extraChargeAmount?: number;
   total: number;
   trackingLink?: string;
   shippingAddress: Address;
@@ -63,7 +65,7 @@ const BLR_ADDRESS: Address = {
 };
 
 const MUM_ADDRESS: Address = {
-  name: 'Rohan Mehta',
+  name: 'Ananya Rao',
   line1: 'B-402, Sunrise Heights, Andheri West',
   city: 'Mumbai',
   state: 'Maharashtra',
@@ -73,7 +75,7 @@ const MUM_ADDRESS: Address = {
 };
 
 const DEL_ADDRESS: Address = {
-  name: 'Simran Kaur',
+  name: 'Ananya Rao',
   line1: '14/6 Hauz Khas Enclave',
   city: 'New Delhi',
   state: 'Delhi',
@@ -83,7 +85,7 @@ const DEL_ADDRESS: Address = {
 };
 
 const PUN_ADDRESS: Address = {
-  name: 'Aditya Deshmukh',
+  name: 'Ananya Rao',
   line1: '7, Kalyani Nagar Society',
   line2: 'Opposite City Pride Mall',
   city: 'Pune',
@@ -134,7 +136,7 @@ export const MOCK_ORDERS: Order[] = [
   }),
   buildOrder({
     id: 'ORD-10238',
-    invoiceName: 'Rohan Mehta',
+    invoiceName: 'Ananya Rao',
     placedAt: '2026-09-17',
     status: 'processing',
     items: [
@@ -151,7 +153,7 @@ export const MOCK_ORDERS: Order[] = [
   }),
   buildOrder({
     id: 'ORD-10231',
-    invoiceName: 'Simran Kaur',
+    invoiceName: 'Ananya Rao',
     placedAt: '2026-09-15',
     status: 'shipped',
     items: [{ productId: 'prod_006', name: 'Reebok Classic Leather', sku: 'RB-CL-CHK', quantity: 1, unitPrice: 4549 }],
@@ -165,7 +167,7 @@ export const MOCK_ORDERS: Order[] = [
   }),
   buildOrder({
     id: 'ORD-10226',
-    invoiceName: 'Aditya Deshmukh',
+    invoiceName: 'Ananya Rao',
     placedAt: '2026-09-12',
     status: 'delivered',
     items: [

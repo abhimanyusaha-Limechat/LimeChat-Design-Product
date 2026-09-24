@@ -8,8 +8,8 @@
  */
 import { useMemo, useState } from 'react';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
-import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
+import { AddProductMenu } from '../AddProductMenu';
 import './CartPanel.css';
 import { iconProps } from '../iconProps';
 import { TrashIcon } from '../icons';
@@ -74,26 +74,23 @@ function Stepper({ value, onChange }: { value: number; onChange: (next: number) 
   );
 }
 
-function AddProductMenu({ onAdd, excludeSkus }: { onAdd: (product: Product) => void; excludeSkus: string[] }) {
-  const available = MOCK_PRODUCTS.filter((p) => !excludeSkus.includes(p.sku));
-  const items: MenuItemData[] = available.length
-    ? available.map((p) => ({
-        key: p.id,
-        label: `${p.name} · ${formatINR(p.discountedPrice)}`,
-        onClick: () => onAdd(p),
-      }))
-    : [{ key: 'none', label: 'All products already added', disabled: true }];
-
+function CartAddProductMenu({ onAdd, excludeSkus }: { onAdd: (product: Product) => void; excludeSkus: string[] }) {
   return (
-    <Menu
-      items={items}
-      ariaLabel="Add product to cart"
-      width={240}
+    <AddProductMenu
+      onAdd={onAdd}
+      excludeSkus={excludeSkus}
       trigger={({ ref, onClick }) => (
-        <button ref={ref} type="button" className="lc-cp__add-item-btn" onClick={onClick}>
-          <PlusIcon />
+        <Button
+          ref={ref}
+          variant="outline"
+          color="primary"
+          size="xs"
+          style={{ width: 120, alignSelf: 'center' }}
+          leftSection={<PlusIcon />}
+          onClick={onClick}
+        >
           Add product
-        </button>
+        </Button>
       )}
     />
   );
@@ -106,7 +103,6 @@ export function CartPanel() {
   const removeItem = (index: number) => setItems((prev) => prev.filter((_, i) => i !== index));
   const setQty = (index: number, quantity: number) =>
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, quantity } : item)));
-  const clearCart = () => setItems([]);
 
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0), [items]);
   const taxAmount = Math.round((subtotal * TAX_RATE) / 100);
@@ -114,18 +110,6 @@ export function CartPanel() {
 
   return (
     <div className="lc-cp">
-      <div className="lc-cp__header">
-        <div className="lc-cp__header-title">
-          <span>Cart</span>
-          {items.length > 0 && <span className="lc-cp__badge">{items.length}</span>}
-        </div>
-        {items.length > 0 && (
-          <button type="button" className="lc-cp__clear-btn" onClick={clearCart}>
-            Clear cart
-          </button>
-        )}
-      </div>
-
       <div className="lc-cp__body">
         {items.length === 0 ? (
           <div className="lc-cp__empty">
@@ -172,7 +156,7 @@ export function CartPanel() {
             ))}
           </div>
         )}
-        <AddProductMenu onAdd={addProduct} excludeSkus={items.map((i) => i.sku)} />
+        <CartAddProductMenu onAdd={addProduct} excludeSkus={items.map((i) => i.sku)} />
       </div>
 
       {items.length > 0 && (

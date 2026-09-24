@@ -53,3 +53,27 @@
   --lc-color-blue-600: #097ba3;
   --lc-color-blue-50: #e7f2f6;
 }
+
+/**
+ * Shared "sleek and light" scrollbar look, reused ad hoc (with hardcoded
+ * colors) across a dozen+ component stylesheets. Apply this class directly
+ * to whichever element actually scrolls (scrollbar styling never inherits
+ * through ancestors) instead of repeating the rules below.
+ */
+.lc-scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--lc-color-gray-250) transparent;
+}
+.lc-scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.lc-scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.lc-scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--lc-color-gray-250);
+  border-radius: 999px;
+}
+.lc-scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #cfcfcf;
+}

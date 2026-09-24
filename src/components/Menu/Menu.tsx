@@ -117,7 +117,7 @@ export function Menu({
             style={{ width, ...(coords ? { top: coords.top, left: coords.left } : { visibility: 'hidden' as const }) }}
           >
             {header}
-            <div className="lc-menu__items">
+            <div className="lc-menu__items lc-scrollbar-thin">
               {items.length === 0 && emptyState}
               {items.map((item, i) => (
                 <button
