@@ -3,13 +3,12 @@
  */
 .lc-tickets-section {
   --lc-ts-title: var(--lc-color-green-900);
-  --lc-ts-dimmed: var(--lc-color-sage-500);
-  --lc-ts-primary: var(--lc-color-green-500);
-  --lc-ts-primary-light: var(--lc-color-green-50);
+  --lc-ts-dimmed: var(--lc-text-secondary);
+  --lc-ts-primary: var(--lc-action-primary);
   --lc-ts-border: var(--lc-color-gray-200);
   --lc-ts-input-border: var(--lc-color-gray-300);
   --lc-ts-placeholder: var(--lc-color-gray-500);
-  --lc-ts-header-bg: var(--lc-color-green-25);
+  --lc-ts-header-bg: var(--lc-color-stone-50);
 
   box-sizing: border-box;
   display: flex;
@@ -74,14 +73,19 @@
 .lc-tickets-section__status:hover {
   background: #e4e4e4;
 }
-.lc-tickets-section__status[data-status='Open'],
+/* Status colours are semantic, not brand: "Open" (work to do) and "Resolved"
+   (done) previously shared the brand-green pill and were indistinguishable. */
+.lc-tickets-section__status[data-status='Open'] {
+  background: var(--lc-status-open-bg);
+  color: var(--lc-status-open-text);
+}
 .lc-tickets-section__status[data-status='Resolved'] {
-  background: #eaf4db;
-  color: var(--lc-ts-primary);
+  background: var(--lc-status-success-bg);
+  color: var(--lc-status-success-text);
 }
 .lc-tickets-section__status[data-status='Open']:hover,
 .lc-tickets-section__status[data-status='Resolved']:hover {
-  background: #dcedc4;
+  filter: brightness(0.97);
 }
 .lc-tickets-section__status[data-status='Closed'] {
   background: #f5f5f5;
@@ -94,8 +98,8 @@
 }
 .lc-tickets-section__status[data-status='Waiting'],
 .lc-tickets-section__status[data-status='Follow up'] {
-  background: #fffbeb;
-  color: #a16207;
+  background: var(--lc-status-warning-bg);
+  color: var(--lc-status-warning-text);
 }
 .lc-tickets-section__status[data-status='Waiting']:hover,
 .lc-tickets-section__status[data-status='Follow up']:hover {
@@ -237,8 +241,7 @@
   color: var(--lc-ts-title);
 }
 .lc-tickets-section__tab[data-active] {
-  color: var(--lc-ts-primary);
-  background: var(--lc-ts-header-bg);
+  color: var(--lc-ts-title);
   font-weight: 700;
   border-bottom-color: var(--lc-ts-primary);
 }
@@ -272,7 +275,7 @@
   transition: color 150ms ease;
 }
 .lc-tickets-section__sort:hover svg {
-  color: var(--lc-ts-primary);
+  color: var(--lc-ts-title);
 }
 
 .lc-tickets-section__selection-bar {
@@ -281,7 +284,7 @@
   gap: 8px;
   flex-shrink: 0;
   padding: 10px 16px;
-  background: var(--lc-ts-primary-light);
+  background: var(--lc-surface-selected);
   border-bottom: 1px solid var(--lc-ts-border);
 }
 .lc-tickets-section__selection-count {

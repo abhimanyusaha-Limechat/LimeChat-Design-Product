@@ -56,7 +56,7 @@ export interface TicketListItemProps extends Omit<HTMLAttributes<HTMLDivElement>
   /** Assignee mention, shown in the secondary/teal accent color. */
   assignee?: string;
   unreadCount?: number;
-  /** Highlights the row (open ticket) with a green left accent bar and no bottom border. */
+  /** Highlights the row (open ticket) with a neutral fill, a brand left accent bar and no bottom border. */
   selected?: boolean;
   showCheckbox?: boolean;
   checked?: boolean;
@@ -125,6 +125,7 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
   const resolvedMessageIcon =
     messageIcon === false ? null : (messageIcon ?? <TicketIcon name="share" className="lc-ticket-row__message-icon" />);
   const hasMoreActions = onSelect != null || onSelectAll != null || onMarkAsStarred != null;
+  const unread = unreadCount != null && unreadCount > 0;
 
   return (
     <div
@@ -132,6 +133,7 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
       ref={ref}
       className={`lc-ticket-row${className ? ` ${className}` : ''}`}
       data-selected={selected || undefined}
+      data-unread={unread || undefined}
       data-checked={(showCheckbox && checked) || undefined}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -201,8 +203,13 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
           </div>
           <div className="lc-ticket-row__mention">
             {assignee && <span className="lc-ticket-row__assignee">{assignee}</span>}
-            {unreadCount != null && unreadCount > 0 && (
-              <span className="lc-ticket-row__badge lc-ticket-row__badge--count">{unreadCount}</span>
+            {unread && (
+              <span
+                className="lc-ticket-row__badge lc-ticket-row__badge--count"
+                aria-label={`${unreadCount} unread message${unreadCount === 1 ? '' : 's'}`}
+              >
+                {unreadCount}
+              </span>
             )}
           </div>
         </div>

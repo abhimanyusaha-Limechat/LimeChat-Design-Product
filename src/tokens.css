@@ -52,6 +52,41 @@
   --lc-color-blue-900: #003b56;
   --lc-color-blue-600: #097ba3;
   --lc-color-blue-50: #e7f2f6;
+
+  /* Semantic: success — deliberately a different green from the brand so
+     "resolved/delivered" never reads as "LimeChat primary". */
+  --lc-color-success-700: #15803d;
+  --lc-color-success-50: #ecfdf3;
+  --lc-color-amber-700: #b45309;
+  --lc-color-amber-50: #fffbeb;
+
+  /* ---------------------------------------------------------------------
+   * Semantic roles. New/changed component CSS should reference these rather
+   * than a palette step, so a colour decision is made once per role (and a
+   * future dark theme only has to remap this block). Contrast notes are
+   * against the surface each role is used on.
+   * ------------------------------------------------------------------- */
+  --lc-action-primary: var(--lc-color-green-700); /* white text 4.7:1 (green-500 was 2.8:1) */
+  --lc-action-primary-hover: var(--lc-color-green-800);
+  --lc-action-primary-text: var(--lc-color-green-700); /* brand text/outline on white, 4.7:1 */
+
+  --lc-text-primary: var(--lc-color-green-900);
+  --lc-text-secondary: var(--lc-color-sage-600); /* 5.0:1 on white (sage-500 was 3.7:1) */
+
+  --lc-surface-hover: var(--lc-color-gray-50);
+  --lc-surface-selected: var(--lc-color-stone-150); /* neutral; the accent bar carries the brand */
+  --lc-border-subtle: var(--lc-color-gray-200);
+
+  --lc-indicator-unread: var(--lc-action-primary);
+
+  --lc-status-open-bg: var(--lc-color-blue-50);
+  --lc-status-open-text: #086a8d; /* 5.3:1 on blue-50 */
+  --lc-status-success-bg: var(--lc-color-success-50);
+  --lc-status-success-text: var(--lc-color-success-700);
+  --lc-status-warning-bg: var(--lc-color-amber-50);
+  --lc-status-warning-text: #a16207;
+  --lc-status-neutral-bg: var(--lc-color-gray-150);
+  --lc-status-neutral-text: var(--lc-color-stone-600);
 }
 
 /**

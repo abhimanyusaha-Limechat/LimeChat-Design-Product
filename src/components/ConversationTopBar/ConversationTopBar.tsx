@@ -22,11 +22,6 @@ import './ConversationTopBar.css';
 import { iconProps } from '../iconProps';
 import { ChevronDownIcon } from '../icons';
 
-const PhoneIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
-  </svg>
-);
 const WhatsAppIcon = () => (
   <svg {...iconProps()}>
     <path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9" />
@@ -123,13 +118,10 @@ export const ConversationTopBar = forwardRef<HTMLDivElement, ConversationTopBarP
       </div>
 
       <div className="lc-conv-top__actions">
-        <button type="button" className="lc-conv-top__icon-btn lc-conv-top__icon-btn--outline" aria-label="Call">
-          <PhoneIcon />
-        </button>
-
         <div className="lc-conv-top__call-wrap">
           {callAvailable && <span className="lc-conv-top__available">available</span>}
-          <Button size="sm" variant="outline" color="primary" leftSection={<WhatsAppIcon />} onClick={onCall}>
+          {/* Neutral, so the filled Resolve stays the header's single brand-coloured action. */}
+          <Button size="sm" variant="default" leftSection={<WhatsAppIcon />} onClick={onCall}>
             Voice call
           </Button>
         </div>
@@ -141,8 +133,10 @@ export const ConversationTopBar = forwardRef<HTMLDivElement, ConversationTopBarP
           <Menu
             ariaLabel="Resolve status"
             width={160}
-            items={RESOLVE_STATUSES.map((status) => ({
-              label: status,
+            // "Resolve" is already the primary button; the menu only offers the other statuses,
+            // applied immediately, so the primary never changes meaning under the agent's cursor.
+            items={RESOLVE_STATUSES.filter((status) => status !== 'Resolve').map((status) => ({
+              label: `Mark as ${status.toLowerCase()}`,
               onClick: () => onResolveStatusChange?.(status),
             }))}
             trigger={({ ref, onClick }) => (
