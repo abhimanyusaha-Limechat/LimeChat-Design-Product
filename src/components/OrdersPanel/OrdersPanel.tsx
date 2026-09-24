@@ -477,6 +477,10 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
 }
 
 function OrderRow({ order, search, onClick }: { order: Order; search: string; onClick: () => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasMore = order.items.length > 2;
+  const visibleItems = expanded ? order.items : order.items.slice(0, 2);
+
   return (
     <div
       className="lc-op__row"
@@ -484,6 +488,7 @@ function OrderRow({ order, search, onClick }: { order: Order; search: string; on
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onClick();
@@ -500,7 +505,7 @@ function OrderRow({ order, search, onClick }: { order: Order; search: string; on
         <OrderStatusPill status={order.status} size="sm" />
       </div>
       <div className="lc-op__row-items">
-        {order.items.slice(0, 2).map((item, i) => (
+        {visibleItems.map((item, i) => (
           <span key={`${item.sku}-${i}`} className="lc-op__row-item">
             <span className="lc-op__row-item-name">
               <HighlightMatch text={item.name} query={search} />
@@ -508,13 +513,22 @@ function OrderRow({ order, search, onClick }: { order: Order; search: string; on
             <span className="lc-op__row-item-qty">×{item.quantity}</span>
           </span>
         ))}
-        {order.items.length > 2 && (
-          <span className="lc-op__row-item-more">+{order.items.length - 2} more</span>
-        )}
       </div>
       <div className="lc-op__row-footer">
         <span className="lc-op__row-count">
           {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+          {hasMore && (
+            <button
+              type="button"
+              className="lc-op__row-item-more"
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded((v) => !v);
+              }}
+            >
+              {expanded ? 'Show less' : 'Show all'}
+            </button>
+          )}
         </span>
         <span className="lc-op__row-total">{formatINR(order.total)}</span>
       </div>

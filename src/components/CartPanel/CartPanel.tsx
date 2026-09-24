@@ -9,7 +9,6 @@
 import { useMemo, useState } from 'react';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
 import { Button } from '../Button';
-import { AddProductMenu } from '../AddProductMenu';
 import { NativeSelect } from '../Select';
 import './CartPanel.css';
 import { iconProps } from '../iconProps';
@@ -28,12 +27,6 @@ interface CartLineItem {
 
 const TAX_RATE = 12;
 
-const PlusIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M12 5l0 14" />
-    <path d="M5 12l14 0" />
-  </svg>
-);
 const EmptyCartIcon = () => (
   <svg {...iconProps()} width="40" height="40">
     <circle cx="6" cy="19" r="2" />
@@ -61,34 +54,6 @@ const PRODUCT_BY_ID: Record<string, Product> = Object.fromEntries(MOCK_PRODUCTS.
 /** Mirrors ProductsPanel's color picker — the catalog has no per-product color variant list. */
 const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
 
-/** SKUs encode a trailing color code (e.g. `NK-PG41-BLK` → Black) — decode it for display. */
-const SKU_COLOR_SUFFIX: Record<string, string> = {
-  BLK: 'Black',
-  WHT: 'White',
-  GRY: 'Grey',
-  NVY: 'Navy',
-  RED: 'Red',
-  BLU: 'Blue',
-  GRN: 'Green',
-  CHK: 'Chalk',
-};
-function colorFromSku(sku: string): string | undefined {
-  const suffix = sku.split('-').pop()?.toUpperCase();
-  return suffix ? SKU_COLOR_SUFFIX[suffix] : undefined;
-}
-
-function productToLineItem(product: Product): CartLineItem {
-  return {
-    productId: product.id,
-    name: product.name,
-    sku: product.sku,
-    unitPrice: product.discountedPrice,
-    quantity: 1,
-    size: product.variants?.[0],
-    color: colorFromSku(product.sku),
-  };
-}
-
 const INITIAL_CART: CartLineItem[] = [];
 
 function Stepper({ value, onChange }: { value: number; onChange: (next: number) => void }) {
@@ -105,35 +70,12 @@ function Stepper({ value, onChange }: { value: number; onChange: (next: number) 
   );
 }
 
-function CartAddProductMenu({ onAdd, excludeSkus }: { onAdd: (product: Product) => void; excludeSkus: string[] }) {
-  return (
-    <AddProductMenu
-      onAdd={onAdd}
-      excludeSkus={excludeSkus}
-      trigger={({ ref, onClick }) => (
-        <Button
-          ref={ref}
-          variant="outline"
-          color="primary"
-          size="xs"
-          style={{ width: 120, alignSelf: 'center' }}
-          leftSection={<PlusIcon />}
-          onClick={onClick}
-        >
-          Add product
-        </Button>
-      )}
-    />
-  );
-}
-
 const REMOVE_ANIM_MS = 180;
 
 export function CartPanel() {
   const [items, setItems] = useState<CartLineItem[]>(INITIAL_CART);
   const [removingKeys, setRemovingKeys] = useState<Set<string>>(new Set());
 
-  const addProduct = (product: Product) => setItems((prev) => [...prev, productToLineItem(product)]);
   const removeItem = (index: number, key: string) => {
     setRemovingKeys((prev) => new Set(prev).add(key));
     window.setTimeout(() => {
@@ -236,7 +178,6 @@ export function CartPanel() {
             })}
           </div>
         )}
-        <CartAddProductMenu onAdd={addProduct} excludeSkus={items.map((i) => i.sku)} />
       </div>
 
       {items.length > 0 && (

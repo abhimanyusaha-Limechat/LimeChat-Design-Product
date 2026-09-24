@@ -37,14 +37,17 @@
   outline-offset: 2px;
 }
 
-/* --- Tabs ------------------------------------------------------------ */
+/* --- Tabs (segmented control) ----------------------------------------- */
 .lc-tdp__tabs {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   flex-shrink: 0;
-  padding: 8px 12px 0;
-  border-bottom: 1px solid var(--lc-color-gray-200);
+  margin: 8px 12px 0;
+  padding: 2px;
+  background: var(--lc-color-gray-100);
+  border-radius: 7px;
+  border-bottom: none;
 }
 .lc-tdp__tabs .lc-tooltip-anchor {
   flex: 1 1 0;
@@ -53,35 +56,34 @@
 .lc-tdp__tab {
   flex: 1 1 0;
   min-width: 0;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px;
+  padding: 4px 8px;
   border: none;
-  border-bottom: 2px solid transparent;
-  border-radius: 4px 4px 0 0;
+  border-radius: 5px;
   background: transparent;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--lc-tdp-dimmed);
   cursor: pointer;
   text-align: center;
-  transition: background-color 150ms ease, color 150ms ease;
+  transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
 }
 .lc-tdp__tab svg {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 .lc-tdp__tab:not([data-active]):hover {
-  background: var(--lc-color-gray-100);
   color: var(--lc-tdp-title);
 }
 .lc-tdp__tab[data-active] {
-  color: var(--lc-tdp-primary);
-  background: var(--lc-color-green-25);
+  color: var(--lc-color-gray-500);
+  background: var(--lc-color-white);
   font-weight: 700;
-  border-bottom-color: var(--lc-tdp-primary);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 
 .lc-tdp__body {
@@ -111,7 +113,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin: 12px 20px;
+  margin: 12px 12px;
   padding: 10px;
   background: #f3fafd;
   border: 1px solid var(--lc-tdp-border);
