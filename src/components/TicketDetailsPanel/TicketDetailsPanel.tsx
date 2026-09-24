@@ -223,11 +223,22 @@ function DetailRow({
 }
 
 /** Trigger + popover with a search box — used to assign an agent/team from a long, searchable name list. */
-function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (next: string) => void }) {
+function AssigneeSearchSelect({
+  value,
+  options,
+  noun,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  /** Plural noun for the search copy, e.g. "agents" / "teams". */
+  noun: string;
+  onChange: (next: string) => void;
+}) {
   const [query, setQuery] = useState('');
   const wasOpenRef = useRef(false);
 
-  const filtered = RANDOM_AGENT_NAMES.filter((name) => name.toLowerCase().includes(query.trim().toLowerCase()));
+  const filtered = options.filter((name) => name.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
     <Menu
@@ -239,8 +250,8 @@ function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (n
           <input
             type="text"
             className="lc-tdp__assignee-search"
-            aria-label="Search agents"
-            placeholder="Search agents…"
+            aria-label={`Search ${noun}`}
+            placeholder={`Search ${noun}…`}
             value={query}
             autoFocus
             onChange={(e) => setQuery(e.currentTarget.value)}
@@ -248,7 +259,7 @@ function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (n
           />
         </div>
       }
-      emptyState={<p className="lc-tdp__assignee-empty">No agents found.</p>}
+      emptyState={<p className="lc-tdp__assignee-empty">No {noun} found.</p>}
       items={filtered.map((name) => ({
         key: name,
         label: name,
@@ -268,7 +279,7 @@ function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (n
             aria-expanded={open}
             onClick={onClick}
           >
-            <span className="lc-tdp__assignee-trigger-value">{value || 'Select...'}</span>
+            <span className="lc-tdp__assignee-trigger-value">{value || 'Unassigned'}</span>
             <ChevronIcon open={open} />
           </button>
         );
@@ -277,14 +288,29 @@ function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (n
   );
 }
 
-function AssignmentRow({ icon, label, field }: { icon?: ReactNode; label: string; field: AssignmentField }) {
+function AssignmentRow({
+  icon,
+  label,
+  noun,
+  field,
+}: {
+  icon?: ReactNode;
+  label: string;
+  noun: string;
+  field: AssignmentField;
+}) {
   return (
     <div className="lc-tdp__assignment-row">
       <span className="lc-tdp__assignment-label">
         {icon != null && <span className="lc-tdp__detail-icon">{icon}</span>}
         {label}
       </span>
-      <AssigneeSearchSelect value={field.value} onChange={(next) => field.onChange?.(next)} />
+      <AssigneeSearchSelect
+        value={field.value}
+        options={field.options}
+        noun={noun}
+        onChange={(next) => field.onChange?.(next)}
+      />
     </div>
   );
 }
@@ -618,8 +644,8 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
           {(ticketId || agent || team) && (
             <div className="lc-tdp__info">
               {ticketId && <DetailRow label="Ticket Id" value={ticketId} copyable />}
-              {agent && <AssignmentRow label="Assign Agent" field={agent} />}
-              {team && <AssignmentRow label="Assign Team" field={team} />}
+              {agent && <AssignmentRow label="Assign Agent" noun="agents" field={agent} />}
+              {team && <AssignmentRow label="Assign Team" noun="teams" field={team} />}
             </div>
           )}
 

@@ -92,6 +92,10 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
   const [focused, setFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isNote = mode === 'note';
+  const cannotSend = sendDisabled || value.trim() === '';
+  const send = () => {
+    if (!cannotSend) onSend?.();
+  };
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -124,6 +128,14 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
+          // Modifier+Enter rather than bare Enter: agents write multi-line replies, and a
+          // bare-Enter send is the most common accidental-send path in chat tools.
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+              e.preventDefault();
+              send();
+            }
+          }}
           placeholder={placeholder ?? MODE_PLACEHOLDER[mode]}
           rows={1}
           maxLength={maxLength}
@@ -185,13 +197,21 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
               color="yellow"
               size="sm"
               leftSection={<CheckIcon />}
-              onClick={onSend}
-              disabled={sendDisabled}
+              onClick={send}
+              disabled={cannotSend}
+              title="Save note (⌘/Ctrl + Enter)"
             >
               {sendLabel ?? 'Save'}
             </Button>
           ) : (
-            <Button variant="filled" color="primary" size="sm" onClick={onSend} disabled={sendDisabled}>
+            <Button
+              variant="filled"
+              color="primary"
+              size="sm"
+              onClick={send}
+              disabled={cannotSend}
+              title="Send (⌘/Ctrl + Enter)"
+            >
               {sendLabel ?? 'Reply'}
             </Button>
           )}
