@@ -242,7 +242,7 @@
   animation: lc-pp-row-in 200ms ease both;
 }
 .lc-pp__row:hover {
-  background: var(--lc-pp-primary-light);
+  background: var(--lc-color-gray-50);
 }
 .lc-pp__row:active {
   transform: scale(0.99);

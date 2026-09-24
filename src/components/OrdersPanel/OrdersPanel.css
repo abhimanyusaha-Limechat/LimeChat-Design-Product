@@ -288,7 +288,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 4px;
 }
 .lc-op__row-id-group {
   display: flex;
@@ -308,6 +308,35 @@
 }
 .lc-op__row-date {
   flex-shrink: 0;
+  font-size: 12px;
+  color: var(--lc-op-dimmed);
+}
+.lc-op__row-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lc-op__row-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.lc-op__row-item-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--lc-op-title);
+}
+.lc-op__row-item-qty {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--lc-op-dimmed);
+}
+.lc-op__row-item-more {
   font-size: 12px;
   color: var(--lc-op-dimmed);
 }
@@ -709,7 +738,7 @@
   padding: 8px 12px;
   border: 1px solid var(--lc-op-border);
   border-radius: 4px;
-  background: var(--lc-op-primary-light);
+  background: #f5f5f3;
 }
 .lc-op__status-card-main {
   display: flex;
@@ -927,8 +956,8 @@
   padding: 6px 10px;
   border: none;
   border-radius: 6px;
-  background: var(--lc-op-info-light);
-  color: var(--lc-op-info);
+  background: #f5f5f3;
+  color: var(--lc-op-title);
   font-family: inherit;
   font-size: 13px;
   font-weight: 600;
@@ -936,7 +965,7 @@
   transition: background-color 120ms ease, opacity 120ms ease;
 }
 .lc-op__tracking-add:hover {
-  background: color-mix(in srgb, var(--lc-op-info-light) 60%, var(--lc-op-info) 10%);
+  background: var(--lc-color-gray-150);
 }
 .lc-op__tracking-add svg {
   flex-shrink: 0;
