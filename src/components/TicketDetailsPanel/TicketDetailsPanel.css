@@ -566,3 +566,53 @@ button.lc-tdp__detail-value--copyable:hover {
   width: 10px;
   height: 10px;
 }
+
+/* --- See more (paginated items) ------------------------------------------- */
+.lc-tdp__see-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 30px;
+  margin-top: 2px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lc-tdp-dimmed);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.lc-tdp__see-more:hover:not(:disabled) {
+  background: var(--lc-tdp-fill);
+  color: var(--lc-tdp-title);
+}
+.lc-tdp__see-more:disabled {
+  cursor: progress;
+}
+.lc-tdp__see-more:focus-visible {
+  outline: 2px solid var(--lc-tdp-primary);
+  outline-offset: 1px;
+}
+.lc-tdp__see-more-icon {
+  width: 14px;
+  height: 14px;
+}
+.lc-tdp__see-more-icon[data-up] {
+  transform: rotate(180deg);
+}
+.lc-tdp__see-more-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--lc-color-gray-300);
+  border-top-color: var(--lc-tdp-dimmed);
+  border-radius: 50%;
+  animation: lc-tdp-spin 700ms linear infinite;
+}
+@keyframes lc-tdp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1281,11 +1281,21 @@ const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
     defaultOpen: true,
     label: 'Previous tickets',
     hideAdd: true,
+    // Same paging as the Vue app's previous conversations: 1 shown, 5 fetched per page.
+    pagination: { collapsedCount: 1, pageSize: 5 },
     items: [
-      { title: 'Email_Sales', timestamp: '6 months ago', preview: 'Hi, Looks like you are away from our...' },
-      { title: 'WhatsApp_Support', timestamp: '4 months ago', preview: 'My order hasn\'t arrived yet, can you...' },
-      { title: 'Email_Billing', timestamp: '2 months ago', preview: 'I was charged twice for my last order...' },
       { title: 'WhatsApp_Support', timestamp: '3 weeks ago', preview: 'Thanks for the quick resolution earlier!' },
+      { title: 'Email_Billing', timestamp: '2 months ago', preview: 'I was charged twice for my last order...' },
+      { title: 'WhatsApp_Support', timestamp: '4 months ago', preview: 'My order hasn\'t arrived yet, can you...' },
+      { title: 'Email_Sales', timestamp: '6 months ago', preview: 'Hi, Looks like you are away from our...' },
+      { title: 'Instagram_DM', timestamp: '7 months ago', preview: 'Is the navy jacket available in XL?' },
+      { title: 'WhatsApp_Support', timestamp: '8 months ago', preview: 'Need to change my delivery address please.' },
+      { title: 'Email_Returns', timestamp: '9 months ago', preview: 'Return label hasn\'t arrived in my inbox.' },
+      { title: 'WhatsApp_Support', timestamp: '10 months ago', preview: 'Can I use two coupon codes together?' },
+      { title: 'SMS_Alerts', timestamp: '11 months ago', preview: 'Stop sending promo messages please.' },
+      { title: 'Email_Billing', timestamp: '1 year ago', preview: 'GST invoice needed for order #31022.' },
+      { title: 'WhatsApp_Support', timestamp: '1 year ago', preview: 'Size exchange for the running shoes.' },
+      { title: 'Email_Sales', timestamp: '1 year ago', preview: 'Do you offer bulk pricing for teams?' },
     ],
   },
   {
@@ -2601,9 +2611,7 @@ export function App() {
               }
               detailsPanel={
                 <TicketDetailsPanel
-                  // No Cart tab: carts only exist for Shopify-connected accounts and only once the
-                  // customer adds something, so a permanent tab was usually empty.
-                  tabs={['Overview', 'Orders', 'Products']}
+                  tabs={['Overview', 'Orders', 'Products', 'Cart']}
                   activeTab={detailsTab}
                   onTabChange={setDetailsTab}
                   ticketId={selectedTicket?.ticketId ?? ''}

@@ -150,6 +150,10 @@ export interface TicketDetailsSection {
   /** Sections sharing a group render under one small heading (e.g. "Tickets", "Tags"),
    * in order of first appearance. Ungrouped sections render without a heading. */
   group?: string;
+  /** "See more (N)" paging for `items`, ported from the Vue app's previous-conversations list:
+   * shows `collapsedCount` items, the first "See more" expands to the already-fetched page, each
+   * later click fetches the next `pageSize`, and "See less" collapses once everything is loaded. */
+  pagination?: { collapsedCount: number; pageSize: number; total?: number };
 }
 
 export interface AssignmentField {
@@ -505,7 +509,93 @@ function SubTicketModal({ open, onClose }: { open: boolean; onClose: () => void 
 
 /** What a collapsed header counts: explicit `count`, else items/tags/fields present. */
 function sectionCount(section: TicketDetailsSection): number {
-  return section.count ?? section.items?.length ?? section.tags?.length ?? section.fields?.length ?? 0;
+  return (
+    section.count ??
+    section.pagination?.total ??
+    section.items?.length ??
+    section.tags?.length ??
+    section.fields?.length ??
+    0
+  );
+}
+
+/** Simulated fetch time for the next page of items. */
+const SEE_MORE_DELAY_MS = 450;
+
+function PaginatedItems({
+  items,
+  pagination,
+}: {
+  items: TicketDetailsSectionItem[];
+  pagination: NonNullable<TicketDetailsSection['pagination']>;
+}) {
+  const { collapsedCount, pageSize } = pagination;
+  const total = pagination.total ?? items.length;
+  const [expanded, setExpanded] = useState(false);
+  // The first page arrives with the section; later pages are "fetched" on demand.
+  const [loadedCount, setLoadedCount] = useState(Math.min(pageSize, total));
+  const [fetching, setFetching] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const canLoadMore = loadedCount < total;
+  const hasMoreThanCollapsed = loadedCount > collapsedCount;
+  const showButton = hasMoreThanCollapsed || canLoadMore;
+  const showingAll = expanded && hasMoreThanCollapsed && !canLoadMore;
+  const remaining = expanded ? total - loadedCount : total - collapsedCount;
+  const visible = items.slice(0, expanded ? loadedCount : collapsedCount);
+
+  const onClick = () => {
+    if (showingAll) {
+      setExpanded(false);
+      return;
+    }
+    // No fetch on the first click — that page is already loaded; fetch from the second on.
+    if (canLoadMore && expanded) {
+      setFetching(true);
+      timer.current = window.setTimeout(() => {
+        setLoadedCount((c) => Math.min(total, c + pageSize));
+        setFetching(false);
+      }, SEE_MORE_DELAY_MS);
+    }
+    setExpanded(true);
+  };
+
+  return (
+    <>
+      {visible.map((item, i) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <SectionItem key={i} item={item} />
+      ))}
+      {showButton && (
+        <button
+          type="button"
+          className="lc-tdp__see-more"
+          onClick={onClick}
+          disabled={fetching}
+          aria-busy={fetching || undefined}
+        >
+          {fetching ? (
+            <>
+              <span className="lc-tdp__see-more-spinner" aria-hidden="true" />
+              Loading…
+            </>
+          ) : showingAll ? (
+            <>
+              See less
+              <ChevronDownIcon className="lc-tdp__see-more-icon" data-up="" />
+            </>
+          ) : (
+            <>
+              See more
+              <span className="lc-tdp__badge">{remaining}</span>
+              <ChevronDownIcon className="lc-tdp__see-more-icon" />
+            </>
+          )}
+        </button>
+      )}
+    </>
+  );
 }
 
 function SectionItem({ item }: { item: TicketDetailsSectionItem }) {
@@ -577,10 +667,12 @@ function Section({ section }: { section: TicketDetailsSection }) {
           )}
           {section.tags && <TagList tags={section.tags} />}
           {section.items && section.items.length > 0
-            ? section.items.map((item, i) => (
-                // eslint-disable-next-line react/no-array-index-key
-                <SectionItem key={i} item={item} />
-              ))
+            ? section.pagination
+              ? <PaginatedItems items={section.items} pagination={section.pagination} />
+              : section.items.map((item, i) => (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <SectionItem key={i} item={item} />
+                ))
             : !section.fields?.length &&
               !section.tags &&
               section.emptyText && <p className="lc-tdp__empty">{section.emptyText}</p>}
@@ -608,7 +700,7 @@ function groupSections(sections: TicketDetailsSection[]) {
 
 export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelProps>(function TicketDetailsPanel(
   {
-    tabs = ['Overview', 'Orders', 'Products'],
+    tabs = ['Overview', 'Orders', 'Products', 'Cart'],
     activeTab,
     onTabChange,
     ticketId,
