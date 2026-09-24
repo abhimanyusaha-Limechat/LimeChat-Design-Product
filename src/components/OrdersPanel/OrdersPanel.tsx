@@ -33,6 +33,7 @@ import {
 import { type Product } from '../../data/mockProducts';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
+import { LoadMore } from '../LoadMore';
 import { AddProductMenu } from '../AddProductMenu';
 import { Modal } from '../Modal';
 import { NativeSelect } from '../Select';
@@ -1591,6 +1592,11 @@ function CreateOrderView({
 
 /* --- Top-level panel -------------------------------------------------------- */
 
+/** Orders per "Load more" page (the real list is cursor-paginated by the API). */
+const ORDERS_PAGE_SIZE = 4;
+/** Stands in for the fetch round-trip so the loading state is visible. */
+const LOAD_MORE_DELAY_MS = 450;
+
 export function OrdersPanel() {
   const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
   const [loading, setLoading] = useState(true);
@@ -1599,11 +1605,34 @@ export function OrdersPanel() {
   const [viewMode, setViewMode] = useState<'list' | 'detail' | 'create'>('list');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [navDirection, setNavDirection] = useState<'forward' | 'back'>('forward');
+  const [visibleCount, setVisibleCount] = useState(ORDERS_PAGE_SIZE);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const loadMoreTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const t = window.setTimeout(() => setLoading(false), 500);
-    return () => window.clearTimeout(t);
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(loadMoreTimer.current);
+    };
   }, []);
+
+  useEffect(() => {
+    window.clearTimeout(loadMoreTimer.current);
+    setLoadingMore(false);
+    setVisibleCount(ORDERS_PAGE_SIZE);
+  }, [sortKey]);
+
+  const loadMore = () => {
+    setLoadingMore(true);
+    loadMoreTimer.current = window.setTimeout(() => {
+      setVisibleCount((n) => n + ORDERS_PAGE_SIZE);
+      setLoadingMore(false);
+    }, LOAD_MORE_DELAY_MS);
+  };
+
+  // As in the Vue panel, search shows every match and pagination is paused.
+  const searching = search.trim() !== '';
 
   const filteredSorted = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -1724,20 +1753,30 @@ export function OrdersPanel() {
           {loading ? (
             <SkeletonRows />
           ) : filteredSorted.length === 0 ? (
-            <EmptyState searching={search.trim() !== ''} />
+            <EmptyState searching={searching} />
           ) : (
-            filteredSorted.map((order) => (
-              <OrderRow
-                key={order.id}
-                order={order}
-                search={search}
-                onClick={() => {
-                  setNavDirection('forward');
-                  setSelectedOrderId(order.id);
-                  setViewMode('detail');
-                }}
-              />
-            ))
+            <>
+              {(searching ? filteredSorted : filteredSorted.slice(0, visibleCount)).map((order) => (
+                <OrderRow
+                  key={order.id}
+                  order={order}
+                  search={search}
+                  onClick={() => {
+                    setNavDirection('forward');
+                    setSelectedOrderId(order.id);
+                    setViewMode('detail');
+                  }}
+                />
+              ))}
+              {!searching && (
+                <LoadMore
+                  noun="orders"
+                  remaining={Math.max(0, filteredSorted.length - visibleCount)}
+                  loading={loadingMore}
+                  onLoadMore={loadMore}
+                />
+              )}
+            </>
           )}
         </div>
       </div>

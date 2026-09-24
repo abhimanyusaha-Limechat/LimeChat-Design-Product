@@ -9,7 +9,6 @@
 import { useMemo, useState } from 'react';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
 import { Button } from '../Button';
-import { AddProductMenu } from '../AddProductMenu';
 import './CartPanel.css';
 import { iconProps } from '../iconProps';
 import { TrashIcon } from '../icons';
@@ -27,12 +26,6 @@ interface CartLineItem {
 
 const TAX_RATE = 12;
 
-const PlusIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M12 5l0 14" />
-    <path d="M5 12l14 0" />
-  </svg>
-);
 const EmptyCartIcon = () => (
   <svg {...iconProps()} width="40" height="40">
     <circle cx="6" cy="19" r="2" />
@@ -84,7 +77,10 @@ function productToLineItem(product: Product): CartLineItem {
   };
 }
 
-const INITIAL_CART: CartLineItem[] = [];
+/** Demo seed: agents can't add products here — the cart mirrors the customer's store cart. */
+const INITIAL_CART: CartLineItem[] = MOCK_PRODUCTS.filter((p) => p.availability === 'in_stock')
+  .slice(0, 2)
+  .map((p, i) => ({ ...productToLineItem(p), quantity: i + 1 }));
 
 function Stepper({ value, onChange }: { value: number; onChange: (next: number) => void }) {
   return (
@@ -100,35 +96,12 @@ function Stepper({ value, onChange }: { value: number; onChange: (next: number) 
   );
 }
 
-function CartAddProductMenu({ onAdd, excludeSkus }: { onAdd: (product: Product) => void; excludeSkus: string[] }) {
-  return (
-    <AddProductMenu
-      onAdd={onAdd}
-      excludeSkus={excludeSkus}
-      trigger={({ ref, onClick }) => (
-        <Button
-          ref={ref}
-          variant="outline"
-          color="primary"
-          size="xs"
-          style={{ width: 120, alignSelf: 'center' }}
-          leftSection={<PlusIcon />}
-          onClick={onClick}
-        >
-          Add product
-        </Button>
-      )}
-    />
-  );
-}
-
 const REMOVE_ANIM_MS = 180;
 
 export function CartPanel() {
   const [items, setItems] = useState<CartLineItem[]>(INITIAL_CART);
   const [removingKeys, setRemovingKeys] = useState<Set<string>>(new Set());
 
-  const addProduct = (product: Product) => setItems((prev) => [...prev, productToLineItem(product)]);
   const removeItem = (index: number, key: string) => {
     setRemovingKeys((prev) => new Set(prev).add(key));
     window.setTimeout(() => {
@@ -154,7 +127,7 @@ export function CartPanel() {
           <div className="lc-cp__empty">
             <EmptyCartIcon />
             <p className="lc-cp__empty-title">Cart is empty</p>
-            <p className="lc-cp__empty-text">Add products from the catalog to build a cart for this customer.</p>
+            <p className="lc-cp__empty-text">Items the customer adds to their store cart show up here.</p>
           </div>
         ) : (
           <div className="lc-cp__items">
@@ -203,7 +176,6 @@ export function CartPanel() {
             })}
           </div>
         )}
-        <CartAddProductMenu onAdd={addProduct} excludeSkus={items.map((i) => i.sku)} />
       </div>
 
       {items.length > 0 && (
