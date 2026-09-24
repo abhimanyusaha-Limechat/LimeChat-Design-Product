@@ -332,11 +332,16 @@
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  padding: 1px 6px;
+  padding: 2px 8px;
   border-radius: 2px;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 700;
+}
+.lc-op__status[data-size='sm'] {
+  padding: 1px 6px;
   font-size: 10px;
   line-height: 14px;
-  font-weight: 700;
 }
 .lc-op__status[data-status='placed'] {
   color: var(--lc-op-info);
@@ -498,11 +503,56 @@
 
 .lc-op__detail-ctas {
   display: flex;
+  align-items: center;
   gap: 8px;
   padding: 16px 0 4px;
   border-top: 1px solid var(--lc-op-border);
 }
+.lc-op__detail-sticky .lc-op__detail-ctas {
+  padding: 12px 16px;
+  background: var(--lc-op-primary-light);
+  border-top: none;
+}
+.lc-op__detail-sticky .lc-op__detail-ctas--danger {
+  background: var(--lc-op-danger-light);
+}
+.lc-op__detail-sticky .lc-op__detail-ctas--warning {
+  background: var(--lc-op-warning-light);
+}
+.lc-op__detail-ctas--danger .lc-op__detail-ctas-label {
+  color: var(--lc-op-danger);
+}
+.lc-op__detail-ctas--warning .lc-op__detail-ctas-label {
+  color: var(--lc-op-warning);
+}
+.lc-op__detail-ctas-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lc-op-title);
+}
+.lc-op__detail-ctas-label svg {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
 
+.lc-op__detail-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--lc-color-white);
+}
+.lc-op__detail-section.lc-op__actions-row {
+  padding: 12px 16px;
+}
 .lc-op__actions-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -526,6 +576,12 @@
   display: flex;
   flex-direction: column;
 }
+.lc-op__cost-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .lc-op__cost-item-name {
   font-size: 14px;
   font-weight: 700;
@@ -535,6 +591,15 @@
   margin: 2px 0 0;
   font-size: 13px;
   color: var(--lc-op-title);
+}
+.lc-op__cost-item-variants {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+}
+.lc-op__cost-item-variants .lc-select {
+  min-width: 0;
 }
 .lc-op__cost-item-qty {
   display: flex;
@@ -567,6 +632,57 @@
 }
 .lc-op__cost-row span:last-child {
   color: var(--lc-op-title);
+}
+.lc-op__cost-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--lc-op-primary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lc-op__cost-add-btn:hover {
+  text-decoration: underline;
+}
+.lc-op__cost-add-btn svg {
+  width: 12px;
+  height: 12px;
+}
+.lc-op__cost-row-inline-edit-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.lc-op__cost-row-inline-edit-controls .lc-op__input {
+  width: 90px;
+  text-align: right;
+}
+.lc-op__cost-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--lc-op-dimmed);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.lc-op__cost-remove-btn:hover {
+  background: var(--lc-op-danger-light);
+  color: var(--lc-op-danger);
+}
+.lc-op__cost-remove-btn svg {
+  width: 14px;
+  height: 14px;
 }
 .lc-op__cost-total {
   display: flex;
@@ -737,6 +853,12 @@
 .lc-op__detail-section-title-row .lc-op__detail-section-title {
   margin: 0;
 }
+.lc-op__detail-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
 .lc-op__detail-row {
   display: flex;
   align-items: center;
@@ -836,9 +958,6 @@
   line-height: 18px;
   color: var(--lc-op-title);
 }
-.lc-op__address-name {
-  font-weight: 700;
-}
 .lc-op__address-phone {
   color: var(--lc-op-dimmed);
 }
@@ -870,9 +989,6 @@
 }
 
 /* --- Form fields ----------------------------------------------------- */
-.lc-op__form-row {
-  margin-bottom: 10px;
-}
 .lc-op__form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -883,6 +999,105 @@
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-top: 10px;
+}
+.lc-op__address-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lc-op__address-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--lc-op-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+.lc-op__address-option:hover {
+  border-color: var(--lc-op-primary);
+}
+.lc-op__address-option[data-selected] {
+  border-color: var(--lc-op-primary);
+  background: var(--lc-op-primary-light);
+}
+.lc-op__address-option input[type='radio'] {
+  flex-shrink: 0;
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--lc-op-border);
+  border-radius: 50%;
+  background: var(--lc-color-white);
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 120ms ease, border-width 120ms ease;
+}
+.lc-op__address-option input[type='radio']:checked {
+  border-width: 5px;
+  border-color: var(--lc-op-primary);
+}
+.lc-op__address-option-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.lc-op__address-option-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lc-op-title);
+}
+.lc-op__address-option-text {
+  font-size: 12px;
+  color: var(--lc-op-dimmed);
+}
+.lc-op__address-edit-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--lc-op-dimmed);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.lc-op__address-edit-btn:hover {
+  background: var(--lc-color-white);
+  color: var(--lc-op-primary);
+}
+.lc-op__address-edit-btn svg {
+  width: 14px;
+  height: 14px;
+}
+.lc-op__address-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+.lc-op__address-new {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px dashed var(--lc-op-border);
+  border-radius: 6px;
+}
+.lc-op__address-new-save {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lc-op__address-new-save .lc-op__input {
+  flex: 1 1 auto;
 }
 .lc-op__field {
   display: flex;

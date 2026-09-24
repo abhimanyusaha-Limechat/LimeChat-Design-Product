@@ -11,6 +11,7 @@ import { createPortal } from 'react-dom';
 import { MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockProducts';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
+import { NativeSelect } from '../Select';
 import './ProductsPanel.css';
 import { iconProps } from '../iconProps';
 import { CloseIcon as ClearIcon, CheckIcon } from '../icons';
@@ -146,36 +147,9 @@ const CartIcon = () => (
   </svg>
 );
 
-/**
- * ProductThumbnail — colored-initial tile. When `shareable`, hovering the
- * enclosing `.lc-pp__row` morphs the tile into a "Share product" CTA
- * (copies a shareable link, briefly confirms with a checkmark).
- */
-function ProductThumbnail({
-  product,
-  size = 'sm',
-  shareable = false,
-}: {
-  product: Product;
-  size?: 'sm' | 'lg';
-  shareable?: boolean;
-}) {
+/** ProductThumbnail — colored-initial tile, or the product image when available. */
+function ProductThumbnail({ product, size = 'sm' }: { product: Product; size?: 'sm' | 'lg' }) {
   const palette = THUMB_PALETTE[hashString(product.id) % THUMB_PALETTE.length];
-  const [copied, setCopied] = useState(false);
-  const timer = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  const handleShare = async (e: MouseEvent) => {
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(`${window.location.origin}/products/${product.id}`);
-    } catch {
-      // Clipboard access denied/unavailable — the link simply won't confirm.
-    }
-    setCopied(true);
-    window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setCopied(false), 1000);
-  };
 
   return (
     <span
@@ -188,11 +162,6 @@ function ProductThumbnail({
         <span className="lc-pp__thumb-initial" aria-hidden="true">
           {product.name.charAt(0)}
         </span>
-      )}
-      {shareable && (
-        <button type="button" className="lc-pp__thumb-share" aria-label="Share product" onClick={handleShare}>
-          {copied ? <CheckIcon /> : <ShareIcon />}
-        </button>
       )}
     </span>
   );
@@ -274,6 +243,31 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
   );
 }
 
+/** Icon-only share CTA shown on `.lc-pp__row` hover, mirroring DetailCtas' share behavior. */
+function RowShareButton({ product }: { product: Product }) {
+  const [copied, setCopied] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const handleShare = async (e: MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/products/${product.id}`);
+    } catch {
+      // Clipboard access denied/unavailable — the link simply won't confirm.
+    }
+    setCopied(true);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setCopied(false), 1000);
+  };
+
+  return (
+    <button type="button" className="lc-pp__row-share" aria-label="Share product" onClick={handleShare}>
+      {copied ? <CheckIcon /> : <ShareIcon />}
+    </button>
+  );
+}
+
 function ProductRow({
   product,
   search,
@@ -291,13 +285,14 @@ function ProductRow({
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => {
+        if (e.target !== e.currentTarget) return;
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           onClick();
         }
       }}
     >
-      <ProductThumbnail product={product} shareable />
+      <ProductThumbnail product={product} />
       <span className="lc-pp__row-body">
         <span className="lc-pp__row-heading">
           <span className="lc-pp__row-name">
@@ -309,6 +304,9 @@ function ProductRow({
           <PriceBlock product={product} />
           <StatusPill availability={product.availability} stockCount={product.stockCount} />
         </span>
+      </span>
+      <span className="lc-pp__row-actions">
+        <RowShareButton product={product} />
       </span>
     </div>
   );
@@ -415,7 +413,12 @@ function TruncatedDescription({ text }: { text: string }) {
   );
 }
 
+const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
+
 function ProductDetailView({ product, onBack }: { product: Product; onBack: () => void }) {
+  const [selectedSize, setSelectedSize] = useState(product.variants?.[0] ?? '');
+  const [selectedColor, setSelectedColor] = useState(COLOR_OPTIONS[0]);
+
   return (
     <div className="lc-pp__detail">
       <button type="button" className="lc-pp__detail-back" onClick={onBack}>
@@ -437,6 +440,25 @@ function ProductDetailView({ product, onBack }: { product: Product; onBack: () =
             <RatingStars rating={product.rating} count={product.ratingCount} />
           </div>
         </div>
+
+        {product.variants && product.variants.length > 0 && (
+          <div className="lc-pp__detail-variants">
+            <NativeSelect
+              size="sm"
+              label="Size"
+              data={product.variants}
+              value={selectedSize}
+              onChange={(e) => setSelectedSize(e.currentTarget.value)}
+            />
+            <NativeSelect
+              size="sm"
+              label="Color"
+              data={COLOR_OPTIONS}
+              value={selectedColor}
+              onChange={(e) => setSelectedColor(e.currentTarget.value)}
+            />
+          </div>
+        )}
 
         <div className="lc-pp__detail-section">
           <p className="lc-pp__detail-section-title">Pricing</p>

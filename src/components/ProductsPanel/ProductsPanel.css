@@ -242,12 +242,53 @@
   animation: lc-pp-row-in 200ms ease both;
 }
 .lc-pp__row:hover {
-  background: var(--lc-color-gray-50);
+  background: var(--lc-pp-primary-light);
 }
 .lc-pp__row:active {
   transform: scale(0.99);
 }
 
+.lc-pp__row-actions {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+.lc-pp__row:hover .lc-pp__row-actions,
+.lc-pp__row:focus-within .lc-pp__row-actions {
+  opacity: 1;
+}
+.lc-pp__row-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 100ms ease-out;
+}
+.lc-pp__row-actions button svg {
+  width: 14px;
+  height: 14px;
+}
+.lc-pp__row-actions button:active {
+  transform: scale(0.9);
+}
+.lc-pp__row-share {
+  border: 1px solid var(--lc-pp-primary);
+  background: var(--lc-pp-primary);
+  color: var(--lc-color-white);
+}
+.lc-pp__row-share:hover {
+  background: var(--lc-color-green-700);
+  border-color: var(--lc-color-green-700);
+}
 .lc-pp__row[data-availability='out_of_stock'] .lc-pp__thumb,
 .lc-pp__row[data-availability='discontinued'] .lc-pp__thumb {
   filter: grayscale(1);
@@ -292,6 +333,11 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  transition: padding-right 140ms ease;
+}
+.lc-pp__row:hover .lc-pp__row-body,
+.lc-pp__row:focus-within .lc-pp__row-body {
+  padding-right: 38px;
 }
 .lc-pp__row-heading {
   display: flex;
@@ -356,42 +402,6 @@
   object-fit: cover;
   display: block;
 }
-.lc-pp__thumb-initial {
-  transition: opacity 140ms ease;
-}
-.lc-pp__row:hover .lc-pp__thumb-initial {
-  opacity: 0;
-}
-.lc-pp__thumb-share {
-  position: absolute;
-  inset: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid transparent;
-  border-radius: inherit;
-  background: var(--lc-pp-primary-light);
-  color: var(--lc-pp-primary);
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 140ms ease, background-color 120ms ease, border-color 120ms ease, transform 100ms ease-out;
-}
-.lc-pp__row:hover .lc-pp__thumb-share {
-  opacity: 1;
-}
-.lc-pp__thumb-share:hover {
-  background: var(--lc-pp-primary);
-  border-color: var(--lc-pp-primary);
-  color: var(--lc-color-white);
-}
-.lc-pp__thumb-share:active {
-  transform: scale(0.9);
-}
-.lc-pp__thumb-share svg {
-  width: 16px;
-  height: 16px;
-}
-
 /* --- Pricing --------------------------------------------------------- */
 .lc-pp__price {
   display: inline-flex;
@@ -603,6 +613,21 @@
   display: flex;
   gap: 8px;
   padding-bottom: 4px;
+}
+
+.lc-pp__detail-variants {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid var(--lc-pp-border);
+}
+.lc-pp__detail-variants .lc-select {
+  min-width: 0;
+}
+.lc-pp__detail-variants .lc-select__label {
+  font-size: 12px;
+  color: var(--lc-pp-dimmed);
 }
 
 .lc-pp__detail-section {

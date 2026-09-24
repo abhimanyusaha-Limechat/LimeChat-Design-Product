@@ -18,6 +18,9 @@ export interface OrderLineItem {
   sku: string;
   quantity: number;
   unitPrice: number;
+  /** The specific variant ordered, e.g. shoe size / apparel size, garment color — free text, editable per line item. */
+  size?: string;
+  color?: string;
 }
 
 export interface Address {
@@ -43,6 +46,8 @@ export interface Order {
   taxRate: number;
   taxAmount: number;
   shippingCost: number;
+  extraChargeLabel?: string;
+  extraChargeAmount?: number;
   total: number;
   trackingLink?: string;
   shippingAddress: Address;
@@ -63,7 +68,7 @@ const BLR_ADDRESS: Address = {
 };
 
 const MUM_ADDRESS: Address = {
-  name: 'Rohan Mehta',
+  name: 'Ananya Rao',
   line1: 'B-402, Sunrise Heights, Andheri West',
   city: 'Mumbai',
   state: 'Maharashtra',
@@ -73,7 +78,7 @@ const MUM_ADDRESS: Address = {
 };
 
 const DEL_ADDRESS: Address = {
-  name: 'Simran Kaur',
+  name: 'Ananya Rao',
   line1: '14/6 Hauz Khas Enclave',
   city: 'New Delhi',
   state: 'Delhi',
@@ -83,7 +88,7 @@ const DEL_ADDRESS: Address = {
 };
 
 const PUN_ADDRESS: Address = {
-  name: 'Aditya Deshmukh',
+  name: 'Ananya Rao',
   line1: '7, Kalyani Nagar Society',
   line2: 'Opposite City Pride Mall',
   city: 'Pune',
@@ -123,7 +128,17 @@ export const MOCK_ORDERS: Order[] = [
     invoiceName: 'Ananya Rao',
     placedAt: '2026-09-18',
     status: 'placed',
-    items: [{ productId: 'prod_001', name: 'Nike Air Zoom Pegasus 41', sku: 'NK-PG41-BLK', quantity: 1, unitPrice: 4799 }],
+    items: [
+      {
+        productId: 'prod_001',
+        name: 'Nike Air Zoom Pegasus 41',
+        sku: 'NK-PG41-BLK',
+        quantity: 1,
+        unitPrice: 4799,
+        size: 'UK 9',
+        color: 'Black',
+      },
+    ],
     discountAmount: 0,
     taxRate: 12,
     shippingCost: 99,
@@ -134,11 +149,11 @@ export const MOCK_ORDERS: Order[] = [
   }),
   buildOrder({
     id: 'ORD-10238',
-    invoiceName: 'Rohan Mehta',
+    invoiceName: 'Ananya Rao',
     placedAt: '2026-09-17',
     status: 'processing',
     items: [
-      { productId: 'prod_002', name: 'Adidas Ultraboost 22', sku: 'AD-UB22-WHT', quantity: 1, unitPrice: 16999 },
+      { productId: 'prod_002', name: 'Adidas Ultraboost 22', sku: 'AD-UB22-WHT', quantity: 1, unitPrice: 16999, size: 'UK 8', color: 'White' },
       { productId: 'prod_010', name: 'Puma Cushioned Crew Socks (3-Pack)', sku: 'PM-SOCK-3PK', quantity: 2, unitPrice: 799 },
     ],
     discountAmount: 1000,
@@ -151,10 +166,10 @@ export const MOCK_ORDERS: Order[] = [
   }),
   buildOrder({
     id: 'ORD-10231',
-    invoiceName: 'Simran Kaur',
+    invoiceName: 'Ananya Rao',
     placedAt: '2026-09-15',
     status: 'shipped',
-    items: [{ productId: 'prod_006', name: 'Reebok Classic Leather', sku: 'RB-CL-CHK', quantity: 1, unitPrice: 4549 }],
+    items: [{ productId: 'prod_006', name: 'Reebok Classic Leather', sku: 'RB-CL-CHK', quantity: 1, unitPrice: 4549, size: 'UK 10', color: 'Chalk' }],
     discountAmount: 0,
     taxRate: 12,
     shippingCost: 99,
@@ -165,12 +180,12 @@ export const MOCK_ORDERS: Order[] = [
   }),
   buildOrder({
     id: 'ORD-10226',
-    invoiceName: 'Aditya Deshmukh',
+    invoiceName: 'Ananya Rao',
     placedAt: '2026-09-12',
     status: 'delivered',
     items: [
-      { productId: 'prod_004', name: 'Nike Dri-FIT Academy Jacket', sku: 'NK-DFDG-NVY', quantity: 1, unitPrice: 2799 },
-      { productId: 'prod_014', name: 'Adidas Essentials Training Shorts', sku: 'AD-SHORT-GRY', quantity: 1, unitPrice: 1599 },
+      { productId: 'prod_004', name: 'Nike Dri-FIT Academy Jacket', sku: 'NK-DFDG-NVY', quantity: 1, unitPrice: 2799, size: 'L', color: 'Navy' },
+      { productId: 'prod_014', name: 'Adidas Essentials Training Shorts', sku: 'AD-SHORT-GRY', quantity: 1, unitPrice: 1599, size: 'M', color: 'Grey' },
     ],
     discountAmount: 0,
     taxRate: 12,
@@ -200,7 +215,7 @@ export const MOCK_ORDERS: Order[] = [
     invoiceName: 'Rohan Mehta',
     placedAt: '2026-09-02',
     status: 'refunded',
-    items: [{ productId: 'prod_003', name: 'Puma RS-X Efekt', sku: 'PM-RSX-GRY', quantity: 1, unitPrice: 6299 }],
+    items: [{ productId: 'prod_003', name: 'Puma RS-X Efekt', sku: 'PM-RSX-GRY', quantity: 1, unitPrice: 6299, size: 'UK 9', color: 'Grey' }],
     discountAmount: 0,
     taxRate: 12,
     shippingCost: 99,
