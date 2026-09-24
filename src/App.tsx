@@ -1271,9 +1271,14 @@ const TICKET_CUSTOM_FIELDS: TicketDetailsField[] = [
   },
 ];
 
+// Grouped the way agents look for things: other tickets, then tags, then fields, then
+// call history. The two most-checked sections start open.
 const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
+  ] = [
   {
     id: 'previous-tickets',
+    group: 'Tickets',
+    defaultOpen: true,
     label: 'Previous tickets',
     hideAdd: true,
     items: [
@@ -1285,6 +1290,7 @@ const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
   },
   {
     id: 'sub-tickets',
+    group: 'Tickets',
     label: 'Sub tickets',
     emptyText: 'There are no sub tickets for this customer',
     items: [
@@ -1293,17 +1299,40 @@ const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
     ],
   },
   {
-    id: 'voice-logs',
-    label: 'Voice logs',
-    emptyText: 'There are no voice logs for this customer',
-    hideAdd: true,
+    id: 'crm-tickets',
+    group: 'Tickets',
+    label: 'CRM tickets',
+    emptyText: 'There are no CRM tickets for this customer',
     items: [
-      { title: 'Ananya Rao', timestamp: '5th Aug | 10:00 am', duration: '5 minutes 10 seconds' },
-      { title: 'Ananya Rao', timestamp: '2nd Aug | 3:45 pm', duration: '2 minutes 45 seconds' },
+      { title: 'Salesforce_Case_00931', timestamp: '3 months ago', preview: 'Escalated to account manager for loyalty credit...' },
+      { title: 'HubSpot_Ticket_4021', timestamp: '1 month ago', preview: 'Customer requested invoice copy for reimbursement...' },
     ],
   },
   {
+    id: 'conversation-tags',
+    group: 'Tags',
+    defaultOpen: true,
+    label: 'Conversation tags',
+    emptyText: 'There are no tags for this customer',
+    tags: ['Order delay', 'Delivery issue', 'Follow-up needed'],
+  },
+  {
+    id: 'contact-tags',
+    group: 'Tags',
+    label: 'Contact tags',
+    emptyText: 'There are no tags for this customer',
+    tags: ['Returning customer', 'VIP'],
+  },
+  {
+    id: 'shopify-tags',
+    group: 'Tags',
+    label: 'Shopify tags',
+    emptyText: 'There are no tags for this customer',
+    tags: ['Shopify Plus', 'High LTV'],
+  },
+  {
     id: 'conversation-fields',
+    group: 'Fields',
     label: 'Conversation fields',
     emptyText: 'There are no fields for this customer',
     hideAdd: true,
@@ -1311,36 +1340,21 @@ const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
   },
   {
     id: 'contact-fields',
+    group: 'Fields',
     label: 'Contact fields',
     emptyText: 'There are no fields for this customer',
     hideAdd: true,
     fields: TICKET_CUSTOM_FIELDS,
   },
   {
-    id: 'conversation-tags',
-    label: 'Conversation tags',
-    emptyText: 'There are no tags for this customer',
-    tags: ['Order delay', 'Delivery issue', 'Follow-up needed'],
-  },
-  {
-    id: 'contact-tags',
-    label: 'Contact tags',
-    emptyText: 'There are no tags for this customer',
-    tags: ['Returning customer', 'VIP'],
-  },
-  {
-    id: 'shopify-tags',
-    label: 'Shopify tags',
-    emptyText: 'There are no tags for this customer',
-    tags: ['Shopify Plus', 'High LTV'],
-  },
-  {
-    id: 'crm-tickets',
-    label: 'CRM tickets',
-    emptyText: 'There are no CRM tickets for this customer',
+    id: 'voice-logs',
+    group: 'Activity',
+    label: 'Voice logs',
+    emptyText: 'There are no voice logs for this customer',
+    hideAdd: true,
     items: [
-      { title: 'Salesforce_Case_00931', timestamp: '3 months ago', preview: 'Escalated to account manager for loyalty credit...' },
-      { title: 'HubSpot_Ticket_4021', timestamp: '1 month ago', preview: 'Customer requested invoice copy for reimbursement...' },
+      { title: 'Ananya Rao', timestamp: '5th Aug | 10:00 am', duration: '5 minutes 10 seconds' },
+      { title: 'Ananya Rao', timestamp: '2nd Aug | 3:45 pm', duration: '2 minutes 45 seconds' },
     ],
   },
 ];
