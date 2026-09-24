@@ -13,7 +13,7 @@
  *     {tickets.map((t) => <TicketListItem key={t.id} {...t} />)}
  *   </TicketsSection>
  */
-import { forwardRef, useId, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useEffect, useId, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Menu } from '../Menu';
 import { TicketIcon, TicketRowCheckbox, type TicketChannel } from '../TicketListItem';
@@ -154,6 +154,13 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
   ref,
 ) {
   const listId = useId();
+  const statusRowRef = useRef<HTMLDivElement>(null);
+  // Keep the active chip in view when it changes (e.g. via arrow keys past the fold).
+  useEffect(() => {
+    statusRowRef.current
+      ?.querySelector<HTMLElement>('[data-active]')
+      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [status]);
   const [inboxQuery, setInboxQuery] = useState('');
   const filteredInboxOptions = (inboxOptions ?? []).filter((name) =>
     name.toLowerCase().includes(inboxQuery.trim().toLowerCase()),
@@ -170,33 +177,47 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
       <div className="lc-tickets-section__header-filters">
         <div className="lc-tickets-section__header">
           <span className="lc-tickets-section__title">{title}</span>
-          {status && (
-            <Menu
-              ariaLabel="Filter by status"
-              align="start"
-              width={180}
-              items={statusOptions.map((option) => ({
-                key: option,
-                label: option,
-                selected: option === status,
-                trailingIcon: option === status ? <CheckIcon /> : undefined,
-                onClick: () => onStatusChange?.(option),
-              }))}
-              trigger={({ ref, onClick }) => (
-                <button
-                  ref={ref}
-                  type="button"
-                  className="lc-tickets-section__status"
-                  data-status={status}
-                  onClick={onClick}
-                >
-                  {status}
-                  <ChevronDownIcon />
-                </button>
-              )}
-            />
-          )}
         </div>
+
+        {status && (
+          // Laid out flat rather than in a dropdown: status is the filter agents flip most,
+          // and a visible row shows every queue at once and switches in one click.
+          <div
+            ref={statusRowRef}
+            className="lc-tickets-section__status-row"
+            role="radiogroup"
+            aria-label="Filter by status"
+          >
+            {statusOptions.map((option, i) => {
+              const active = option === status;
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  tabIndex={active ? 0 : -1}
+                  className="lc-tickets-section__status-chip"
+                  data-status={option}
+                  data-active={active || undefined}
+                  onClick={() => onStatusChange?.(option)}
+                  onKeyDown={(e) => {
+                    const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+                    if (!step) return;
+                    e.preventDefault();
+                    const next = (i + step + statusOptions.length) % statusOptions.length;
+                    onStatusChange?.(statusOptions[next]);
+                    const chips = statusRowRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]');
+                    chips?.[next]?.focus();
+                  }}
+                >
+                  <span className="lc-tickets-section__status-dot" aria-hidden="true" />
+                  {option}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <div className="lc-tickets-section__search-row">
           <div className="lc-tickets-section__search">

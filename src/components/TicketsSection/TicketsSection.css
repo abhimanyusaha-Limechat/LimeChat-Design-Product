@@ -55,60 +55,83 @@
   height: 18px;
   color: var(--lc-ts-primary);
 }
-.lc-tickets-section__status {
+/* Status filter: a horizontally scrolling single-select row. Chips share the
+   button radius (4px) so every control in the column has the same corner. */
+.lc-tickets-section__status-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* Fade the trailing edge so it reads as "more to scroll", not "cut off". */
+  mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+  padding-right: 24px;
+}
+.lc-tickets-section__status-row::-webkit-scrollbar {
+  display: none;
+}
+.lc-tickets-section__status-chip {
+  --chip-accent: var(--lc-color-gray-400);
+  --chip-bg: var(--lc-status-neutral-bg);
+  --chip-text: var(--lc-status-neutral-text);
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px 4px 10px;
-  border: none;
-  border-radius: 100px;
-  background: var(--lc-ts-status-bg, var(--lc-color-gray-150));
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--lc-ts-input-border);
+  border-radius: var(--lc-radius-control);
+  background: var(--lc-color-white);
   font-family: inherit;
   font-size: 13px;
-  font-weight: 700;
-  color: #595959;
+  font-weight: 600;
+  color: var(--lc-ts-dimmed);
+  white-space: nowrap;
   cursor: pointer;
-  transition: background-color 150ms ease;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
 }
-.lc-tickets-section__status:hover {
-  background: #e4e4e4;
+.lc-tickets-section__status-chip:hover {
+  background: var(--lc-surface-hover);
+  color: var(--lc-ts-title);
 }
-/* Status colours are semantic, not brand: "Open" (work to do) and "Resolved"
-   (done) previously shared the brand-green pill and were indistinguishable. */
-.lc-tickets-section__status[data-status='Open'] {
-  background: var(--lc-status-open-bg);
-  color: var(--lc-status-open-text);
+.lc-tickets-section__status-chip:focus-visible {
+  outline: 2px solid var(--lc-action-primary);
+  outline-offset: 1px;
 }
-.lc-tickets-section__status[data-status='Resolved'] {
-  background: var(--lc-status-success-bg);
-  color: var(--lc-status-success-text);
+/* The dot carries the status hue on every chip; the fill only on the active one. */
+.lc-tickets-section__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--chip-accent);
 }
-.lc-tickets-section__status[data-status='Open']:hover,
-.lc-tickets-section__status[data-status='Resolved']:hover {
-  filter: brightness(0.97);
+.lc-tickets-section__status-chip[data-active] {
+  background: var(--chip-bg);
+  border-color: color-mix(in srgb, var(--chip-text) 35%, transparent);
+  color: var(--chip-text);
+  font-weight: 700;
 }
-.lc-tickets-section__status[data-status='Closed'] {
-  background: #f5f5f5;
+.lc-tickets-section__status-chip[data-status='Open'] {
+  --chip-accent: var(--lc-status-open-text);
+  --chip-bg: var(--lc-status-open-bg);
+  --chip-text: var(--lc-status-open-text);
 }
-.lc-tickets-section__status[data-status='Closed']:hover {
-  background: #ececec;
+.lc-tickets-section__status-chip[data-status='Waiting'] {
+  --chip-accent: var(--lc-color-amber-500);
+  --chip-bg: var(--lc-status-warning-bg);
+  --chip-text: var(--lc-status-warning-text);
 }
-.lc-tickets-section__status[data-status='Voice bot'] {
-  border: 1px solid var(--lc-color-gray-200);
+.lc-tickets-section__status-chip[data-status='Follow up'] {
+  --chip-accent: var(--lc-status-followup-text);
+  --chip-bg: var(--lc-status-followup-bg);
+  --chip-text: var(--lc-status-followup-text);
 }
-.lc-tickets-section__status[data-status='Waiting'],
-.lc-tickets-section__status[data-status='Follow up'] {
-  background: var(--lc-status-warning-bg);
-  color: var(--lc-status-warning-text);
+.lc-tickets-section__status-chip[data-status='Resolved'] {
+  --chip-accent: var(--lc-status-success-text);
+  --chip-bg: var(--lc-status-success-bg);
+  --chip-text: var(--lc-status-success-text);
 }
-.lc-tickets-section__status[data-status='Waiting']:hover,
-.lc-tickets-section__status[data-status='Follow up']:hover {
-  background: #fef3c7;
-}
-.lc-tickets-section__status svg {
-  width: 14px;
-  height: 14px;
-}
+/* Closed, Bot, Voice bot, Outbound stay neutral: they're queues, not states that need attention. */
 
 .lc-tickets-section__search-row {
   display: flex;

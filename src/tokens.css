@@ -79,12 +79,27 @@
 
   --lc-indicator-unread: var(--lc-action-primary);
 
+  /* Channel identity: each app's own hue, darkened where needed to reach 3:1
+     on white. Recognition cue only — the glyph shape still carries meaning. */
+  --lc-channel-whatsapp: #1a9e4b;
+  --lc-channel-instagram: #d62976;
+  --lc-channel-email: #2563eb;
+  --lc-channel-sms: #e8590c;
+
+  /* One corner radius for every interactive control (buttons, chips, inputs). */
+  --lc-radius-control: 4px;
+  /* Chat thread ground: tinted just enough that white customer bubbles sit on
+     a surface instead of floating on the page. */
+  --lc-surface-thread: #efeee8;
+
   --lc-status-open-bg: var(--lc-color-blue-50);
   --lc-status-open-text: #086a8d; /* 5.3:1 on blue-50 */
   --lc-status-success-bg: var(--lc-color-success-50);
   --lc-status-success-text: var(--lc-color-success-700);
   --lc-status-warning-bg: var(--lc-color-amber-50);
   --lc-status-warning-text: #a16207;
+  --lc-status-followup-bg: #f0eefc;
+  --lc-status-followup-text: #5b3fb8; /* 6.5:1 on its bg */
   --lc-status-neutral-bg: var(--lc-color-gray-150);
   --lc-status-neutral-text: var(--lc-color-stone-600);
 }

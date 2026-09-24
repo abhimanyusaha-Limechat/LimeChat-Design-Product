@@ -236,13 +236,13 @@
   white-space: nowrap;
 }
 .lc-message-bubble__tick svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 10px;
   display: block;
   color: var(--lc-text-dimmed);
 }
 .lc-message-bubble__tick[data-status='read'] svg {
-  color: #4fa8e0;
+  color: #1f6fb2; /* 4.6:1 on the agent bubble; #4fa8e0 was 2.3:1 */
 }
 
 /* --- Only visible to you ------------------------------------------------ */

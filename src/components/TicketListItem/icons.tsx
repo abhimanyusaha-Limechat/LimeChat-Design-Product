@@ -37,10 +37,14 @@ const FILLED: Partial<Record<TicketIconName, boolean>> = {
 
 type IconProps = SVGProps<SVGSVGElement> & { name: TicketIconName };
 
-export function TicketIcon({ name, ...props }: IconProps) {
+const CHANNELS: ReadonlySet<TicketIconName> = new Set(['whatsapp', 'email', 'instagram', 'sms']);
+
+export function TicketIcon({ name, className, ...props }: IconProps) {
   const filled = FILLED[name];
   return (
     <svg
+      className={className ? `lc-ticket-icon ${className}` : 'lc-ticket-icon'}
+      data-channel={CHANNELS.has(name) ? name : undefined}
       viewBox="0 0 24 24"
       fill={filled ? 'currentColor' : 'none'}
       stroke="currentColor"

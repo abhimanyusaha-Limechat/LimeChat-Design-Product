@@ -2587,7 +2587,9 @@ export function App() {
               }
               detailsPanel={
                 <TicketDetailsPanel
-                  tabs={['Overview', 'Orders', 'Products', 'Cart']}
+                  // No Cart tab: carts only exist for Shopify-connected accounts and only once the
+                  // customer adds something, so a permanent tab was usually empty.
+                  tabs={['Overview', 'Orders', 'Products']}
                   activeTab={detailsTab}
                   onTabChange={setDetailsTab}
                   ticketId={selectedTicket?.ticketId ?? ''}

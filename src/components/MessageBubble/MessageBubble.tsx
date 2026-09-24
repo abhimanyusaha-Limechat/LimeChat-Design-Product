@@ -164,14 +164,17 @@ const DocIcon = ({ label = 'file' }: { label?: string }) => (
   </div>
 );
 
-/** Single check for `sent`; double (overlapping) check for `delivered`/`read` — the second turns blue via CSS when `read`. */
+const TICK_LABEL: Record<MessageStatus, string> = { sent: 'Sent', delivered: 'Delivered', read: 'Read' };
+
+/** Single check for `sent`; two side-by-side (non-overlapping) checks for `delivered`/`read` —
+ * the pair turns blue via CSS when `read`. Labelled so the status isn't visual-only. */
 function Tick({ status }: { status: MessageStatus }) {
   return (
-    <span className="lc-message-bubble__tick" data-status={status} aria-hidden="true">
-      <svg viewBox="0 0 16 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M1 5.5L4.5 9L11 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <span className="lc-message-bubble__tick" data-status={status} role="img" aria-label={TICK_LABEL[status]}>
+      <svg viewBox="0 0 20 11" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M1 5.5L3.75 8.5L8.5 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         {status !== 'sent' && (
-          <path d="M5.5 5.5L9 9L15.5 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M11 5.5L13.75 8.5L18.5 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         )}
       </svg>
     </span>

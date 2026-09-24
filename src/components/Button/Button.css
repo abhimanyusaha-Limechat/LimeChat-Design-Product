@@ -19,7 +19,7 @@
  * (Figma defines it for the Filled variant; generalised to every variant here).
  */
 .lc-btn {
-  --lc-btn-radius: 4px;
+  --lc-btn-radius: var(--lc-radius-control, 4px);
   --lc-btn-gap: 8px;
   --lc-btn-icon: 16px;
   --lc-btn-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,

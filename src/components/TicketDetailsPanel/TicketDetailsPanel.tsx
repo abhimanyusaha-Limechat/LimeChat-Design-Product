@@ -590,7 +590,7 @@ function Section({ section }: { section: TicketDetailsSection }) {
 
 export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelProps>(function TicketDetailsPanel(
   {
-    tabs = ['Overview', 'Orders', 'Products', 'Cart'],
+    tabs = ['Overview', 'Orders', 'Products'],
     activeTab,
     onTabChange,
     ticketId,

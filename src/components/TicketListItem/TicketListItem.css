@@ -299,3 +299,10 @@
   color: var(--lc-tr-secondary);
   white-space: nowrap;
 }
+
+/* Channel glyphs in their own app colours, wherever TicketIcon renders one
+   (list rows, conversation header, inbox pickers). */
+.lc-ticket-icon[data-channel='whatsapp'] { color: var(--lc-channel-whatsapp); }
+.lc-ticket-icon[data-channel='instagram'] { color: var(--lc-channel-instagram); }
+.lc-ticket-icon[data-channel='email'] { color: var(--lc-channel-email); }
+.lc-ticket-icon[data-channel='sms'] { color: var(--lc-channel-sms); }

@@ -47,7 +47,7 @@ export interface ConversationItem {
  */
 function VirtuosoItem({ item: _item, ...rest }: ItemProps<ConversationItem>) {
   return (
-    <div {...rest} style={{ ...rest.style, display: 'flex', flexDirection: 'column', padding: '0 4px' }} />
+    <div {...rest} style={{ ...rest.style, display: 'flex', flexDirection: 'column', padding: '0 12px' }} />
   );
 }
 
