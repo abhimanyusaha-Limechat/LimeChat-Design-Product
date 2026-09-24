@@ -499,6 +499,19 @@ function OrderRow({ order, search, onClick }: { order: Order; search: string; on
         </span>
         <OrderStatusPill status={order.status} size="sm" />
       </div>
+      <div className="lc-op__row-items">
+        {order.items.slice(0, 2).map((item, i) => (
+          <span key={`${item.sku}-${i}`} className="lc-op__row-item">
+            <span className="lc-op__row-item-name">
+              <HighlightMatch text={item.name} query={search} />
+            </span>
+            <span className="lc-op__row-item-qty">×{item.quantity}</span>
+          </span>
+        ))}
+        {order.items.length > 2 && (
+          <span className="lc-op__row-item-more">+{order.items.length - 2} more</span>
+        )}
+      </div>
       <div className="lc-op__row-footer">
         <span className="lc-op__row-count">
           {order.items.length} {order.items.length === 1 ? 'item' : 'items'}

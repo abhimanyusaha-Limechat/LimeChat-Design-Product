@@ -68,9 +68,9 @@
 .lc-cp__item-row {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   border: 1px solid var(--lc-cp-border);
   border-radius: 8px;
   background: var(--lc-color-white);
@@ -115,7 +115,7 @@
 .lc-cp__item-main {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
   flex: 1 1 0;
 }
@@ -139,15 +139,20 @@
   color: var(--lc-cp-dimmed);
 }
 .lc-cp__item-variants {
-  margin: 4px 0 0;
-  font-size: 11px;
-  color: var(--lc-cp-dimmed);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lc-cp__item-variants .lc-select {
+  width: auto;
 }
 .lc-cp__item-bottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  padding-top: 2px;
+  border-top: 1px dashed var(--lc-cp-border);
 }
 .lc-cp__item-actions {
   flex-shrink: 0;
