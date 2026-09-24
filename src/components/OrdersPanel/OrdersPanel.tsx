@@ -30,7 +30,7 @@ import {
   type OrderLineItem,
   type OrderStatus,
 } from '../../data/mockOrders';
-import { type Product } from '../../data/mockProducts';
+import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
 import { LoadMore } from '../LoadMore';
@@ -278,52 +278,73 @@ function ProductsCostCard({
     !!extraChargeEditable && Number(extraChargeEditable.amount) > 0,
   );
 
+  const editing = !!onQtyChange;
+
   return (
-    <div className="lc-op__cost-card">
-      {data.items.map((item, i) => (
-        <div key={`${item.sku}-${i}`} className="lc-op__cost-item">
-          <div className="lc-op__cost-item-top">
-            <span className="lc-op__cost-item-name">{item.name}</span>
-            {onQtyChange && <Stepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />}
-          </div>
-          <p className="lc-op__cost-item-sku">SKU: {item.sku}</p>
-
-          {onVariantChange ? (
-            <div className="lc-op__cost-item-variants">
-              <NativeSelect
-                size="xs"
-                placeholder="Size"
-                aria-label={`${item.name} size`}
-                data={SIZE_OPTIONS}
-                value={item.size ?? ''}
-                onChange={(e) => onVariantChange(i, { size: e.currentTarget.value })}
-              />
-              <NativeSelect
-                size="xs"
-                placeholder="Color"
-                aria-label={`${item.name} color`}
-                data={COLOR_OPTIONS}
-                value={item.color ?? ''}
-                onChange={(e) => onVariantChange(i, { color: e.currentTarget.value })}
-              />
-            </div>
-          ) : (
-            (item.size || item.color) && (
-              <p className="lc-op__cost-item-sku">
-                {[item.size, item.color].filter(Boolean).join(' · ')}
+    <div className="lc-op__cost-card" data-editing={editing || undefined}>
+      <div className="lc-op__cost-items">
+        {data.items.map((item, i) => (
+          <div key={`${item.sku}-${i}`} className="lc-op__cost-item">
+            <ItemThumb item={item} size="md" />
+            <div className="lc-op__cost-item-body">
+              <div className="lc-op__cost-item-top">
+                <span className="lc-op__cost-item-name" title={item.name}>
+                  {item.name}
+                </span>
+                <span className="lc-op__cost-item-total">{formatINR(item.unitPrice * item.quantity)}</span>
+              </div>
+              {/* One quiet meta line instead of separate SKU / variant / quantity rows. */}
+              <p className="lc-op__cost-item-meta">
+                {[
+                  item.sku,
+                  !onVariantChange && item.size,
+                  !onVariantChange && item.color,
+                  !editing && `${item.quantity} × ${formatINR(item.unitPrice)}`,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
               </p>
-            )
-          )}
-
-          <div className="lc-op__cost-item-qty">
-            <span>Quantity {item.quantity}</span>
-            <span>{formatINR(item.unitPrice)}</span>
+              {editing && (
+                <div className="lc-op__cost-item-controls">
+                  {onVariantChange && (
+                    <>
+                      <NativeSelect
+                        size="xs"
+                        placeholder="Size"
+                        aria-label={`${item.name} size`}
+                        data={SIZE_OPTIONS}
+                        value={item.size ?? ''}
+                        onChange={(e) => onVariantChange(i, { size: e.currentTarget.value })}
+                      />
+                      <NativeSelect
+                        size="xs"
+                        placeholder="Color"
+                        aria-label={`${item.name} color`}
+                        data={COLOR_OPTIONS}
+                        value={item.color ?? ''}
+                        onChange={(e) => onVariantChange(i, { color: e.currentTarget.value })}
+                      />
+                    </>
+                  )}
+                  <Stepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {onAddProduct && (
-        <AddProductMenu onAdd={onAddProduct} excludeSkus={data.items.map((item) => item.sku)} />
+        <AddProductMenu
+          onAdd={onAddProduct}
+          excludeSkus={data.items.map((item) => item.sku)}
+          trigger={({ ref, onClick }) => (
+            <button ref={ref} type="button" className="lc-op__cost-add-btn" onClick={onClick}>
+              <PlusIcon />
+              Add product
+            </button>
+          )}
+        />
       )}
 
       <div className="lc-op__cost-divider" />
@@ -343,7 +364,7 @@ function ProductsCostCard({
           <span>{data.shippingCost > 0 ? formatINR(data.shippingCost) : 'Free'}</span>
         </div>
 
-        {discountEditable && discountOpen ? (
+        {discountEditable && discountOpen && (
           <div className="lc-op__cost-row lc-op__cost-row-inline-edit">
             <span>Discount</span>
             <span className="lc-op__cost-row-inline-edit-controls">
@@ -351,6 +372,7 @@ function ProductsCostCard({
                 type="number"
                 min={0}
                 placeholder="Amount (₹)"
+                aria-label="Discount amount"
                 value={discountEditable.amount}
                 onChange={(e) => discountEditable.onAmountChange(e.currentTarget.value)}
               />
@@ -368,21 +390,15 @@ function ProductsCostCard({
               </button>
             </span>
           </div>
-        ) : discountEditable ? (
-          <button type="button" className="lc-op__cost-add-btn" onClick={() => setDiscountOpen(true)}>
-            <PlusIcon />
-            Add discount
-          </button>
-        ) : (
-          data.discountAmount > 0 && (
-            <div className="lc-op__cost-row">
-              <span>Discount{data.discountCode ? ` (${data.discountCode})` : ''}</span>
-              <span>−{formatINR(data.discountAmount)}</span>
-            </div>
-          )
+        )}
+        {!discountEditable && data.discountAmount > 0 && (
+          <div className="lc-op__cost-row">
+            <span>Discount{data.discountCode ? ` (${data.discountCode})` : ''}</span>
+            <span>−{formatINR(data.discountAmount)}</span>
+          </div>
         )}
 
-        {extraChargeEditable && extraChargeOpen ? (
+        {extraChargeEditable && extraChargeOpen && (
           <div className="lc-op__cost-row lc-op__cost-row-inline-edit">
             <span>Extra charge</span>
             <span className="lc-op__cost-row-inline-edit-controls">
@@ -390,6 +406,7 @@ function ProductsCostCard({
                 type="number"
                 min={0}
                 placeholder="Amount (₹)"
+                aria-label="Extra charge amount"
                 value={extraChargeEditable.amount}
                 onChange={(e) => extraChargeEditable.onAmountChange(e.currentTarget.value)}
               />
@@ -407,19 +424,29 @@ function ProductsCostCard({
               </button>
             </span>
           </div>
-        ) : extraChargeEditable ? (
-          <button type="button" className="lc-op__cost-add-btn" onClick={() => setExtraChargeOpen(true)}>
-            <PlusIcon />
-            Add extra charge
-          </button>
-        ) : (
-          !!data.extraChargeAmount &&
-          data.extraChargeAmount > 0 && (
-            <div className="lc-op__cost-row">
-              <span>{data.extraChargeLabel || 'Extra charge'}</span>
-              <span>{formatINR(data.extraChargeAmount)}</span>
-            </div>
-          )
+        )}
+        {!extraChargeEditable && !!data.extraChargeAmount && data.extraChargeAmount > 0 && (
+          <div className="lc-op__cost-row">
+            <span>{data.extraChargeLabel || 'Extra charge'}</span>
+            <span>{formatINR(data.extraChargeAmount)}</span>
+          </div>
+        )}
+
+        {((discountEditable && !discountOpen) || (extraChargeEditable && !extraChargeOpen)) && (
+          <div className="lc-op__cost-add-row">
+            {discountEditable && !discountOpen && (
+              <button type="button" className="lc-op__cost-add-btn" onClick={() => setDiscountOpen(true)}>
+                <PlusIcon />
+                Discount
+              </button>
+            )}
+            {extraChargeEditable && !extraChargeOpen && (
+              <button type="button" className="lc-op__cost-add-btn" onClick={() => setExtraChargeOpen(true)}>
+                <PlusIcon />
+                Extra charge
+              </button>
+            )}
+          </div>
         )}
       </div>
 
@@ -477,6 +504,43 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
   );
 }
 
+const PRODUCT_IMAGE_BY_ID = new Map(MOCK_PRODUCTS.map((p) => [p.id, p.imageUrl]));
+
+function ItemThumb({ item, size = 'sm' }: { item: OrderLineItem; size?: 'sm' | 'md' }) {
+  const image = item.productId ? PRODUCT_IMAGE_BY_ID.get(item.productId) : undefined;
+  return (
+    <span className="lc-op__item-thumb" data-size={size} aria-hidden="true">
+      {image ? <img src={image} alt="" /> : item.name.charAt(0)}
+    </span>
+  );
+}
+
+/** Rows preview this many line items; the rest collapse into "+N more". */
+const ROW_ITEM_PREVIEW = 2;
+
+function OrderRowItems({ items, search }: { items: OrderLineItem[]; search: string }) {
+  const shown = items.slice(0, ROW_ITEM_PREVIEW);
+  const hidden = items.length - shown.length;
+  return (
+    <ul className="lc-op__row-items">
+      {shown.map((item, i) => (
+        <li key={`${item.sku}-${i}`} className="lc-op__row-item">
+          <ItemThumb item={item} />
+          <span className="lc-op__row-item-name">
+            <HighlightMatch text={item.name} query={search} />
+          </span>
+          <span className="lc-op__row-item-qty">×{item.quantity}</span>
+        </li>
+      ))}
+      {hidden > 0 && (
+        <li className="lc-op__row-item-more">
+          +{hidden} more {hidden === 1 ? 'item' : 'items'}
+        </li>
+      )}
+    </ul>
+  );
+}
+
 function OrderRow({ order, search, onClick }: { order: Order; search: string; onClick: () => void }) {
   return (
     <div
@@ -500,6 +564,8 @@ function OrderRow({ order, search, onClick }: { order: Order; search: string; on
         </span>
         <OrderStatusPill status={order.status} size="sm" />
       </div>
+      {/* "What did they order?" is the first thing an agent checks — answer it on the row. */}
+      <OrderRowItems items={order.items} search={search} />
       <div className="lc-op__row-footer">
         <span className="lc-op__row-count">
           {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
@@ -818,6 +884,8 @@ function AddressPicker({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftAddress, setDraftAddress] = useState<Address>(value);
   const [newLabel, setNewLabel] = useState('');
+  // Collapsed to the chosen address by default — the full list is only needed to change it.
+  const [choosing, setChoosing] = useState(!matchedSaved && !value.line1);
 
   const startNew = () => {
     setMode('new');
@@ -836,6 +904,7 @@ function AddressPicker({
     onSavedAddressesChange((prev) => [...prev, { id, label: newLabel.trim() || 'New address', address: draftAddress }]);
     setMode('saved');
     setSelectedId(id);
+    setChoosing(false);
     onChange(draftAddress);
   };
 
@@ -865,6 +934,24 @@ function AddressPicker({
     );
   }
 
+  const selected = mode === 'saved' ? savedAddresses.find((s) => s.id === selectedId) : undefined;
+  const shown = selected?.address ?? value;
+  if (!choosing && shown.line1) {
+    return (
+      <div className="lc-op__address-summary">
+        <span className="lc-op__address-option-body">
+          <span className="lc-op__address-option-label">{selected?.label ?? 'On this order'}</span>
+          <span className="lc-op__address-option-text">
+            {shown.line1}, {shown.city}, {shown.state} {shown.postalCode}
+          </span>
+        </span>
+        <button type="button" className="lc-op__address-change" onClick={() => setChoosing(true)}>
+          Change
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="lc-op__address-picker">
       {savedAddresses.map((saved) => (
@@ -880,8 +967,11 @@ function AddressPicker({
             onChange={() => {
               setMode('saved');
               setSelectedId(saved.id);
+              setChoosing(false);
               onChange(saved.address);
             }}
+            // Re-picking the current address should close the list too (no change event fires).
+            onClick={() => setChoosing(false)}
           />
           <span className="lc-op__address-option-body">
             <span className="lc-op__address-option-label">{saved.label}</span>
@@ -1118,17 +1208,16 @@ function OrderFormFields({
 
       <div className="lc-op__detail-section">
         <p className="lc-op__detail-section-title">Tracking link</p>
-        <Field label="Tracking link (optional)">
-          <TextInput
-            type="url"
-            placeholder="https://..."
-            value={draft.trackingLink}
-            onChange={(e) => {
-              const trackingLink = e.currentTarget.value;
-              setDraft((d) => ({ ...d, trackingLink }));
-            }}
-          />
-        </Field>
+        <TextInput
+          type="url"
+          placeholder="Paste a tracking URL (optional)"
+          aria-label="Tracking link"
+          value={draft.trackingLink}
+          onChange={(e) => {
+            const trackingLink = e.currentTarget.value;
+            setDraft((d) => ({ ...d, trackingLink }));
+          }}
+        />
       </div>
 
       <div className="lc-op__detail-section">
