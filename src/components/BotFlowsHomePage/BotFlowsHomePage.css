@@ -364,7 +364,7 @@
 }
 
 .lc-bf__toggle:hover {
-  background: #c9c9c9;
+  background: #CFD1CD;
 }
 
 .lc-bf__toggle[data-checked] {
@@ -372,7 +372,7 @@
 }
 
 .lc-bf__toggle[data-checked]:hover {
-  background: #5c9518;
+  background: #508014;
 }
 
 .lc-bf__toggle-thumb {

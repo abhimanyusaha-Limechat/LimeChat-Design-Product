@@ -128,10 +128,10 @@
   background: var(--lc-color-gray-50);
 }
 .lc-segment-modal__body .lc-segment-modal__row[data-choice='include']:hover {
-  background: var(--lc-segment-green-soft-hover, #e3f0d6);
+  background: var(--lc-segment-green-soft-hover, #E5F7CF);
 }
 .lc-segment-modal__body .lc-segment-modal__row[data-choice='exclude']:hover {
-  background: #f9dcdc;
+  background: #F9E2E2;
 }
 .lc-segment-modal__row--head {
   padding: 8px 20px 8px 16px;
@@ -230,7 +230,7 @@
   padding: 8px 12px;
   border: 1px solid var(--lc-color-amber-500);
   border-radius: 4px;
-  background: #fcf2e7;
+  background: #FCF9F3;
   color: var(--lc-color-amber-600);
   font-size: 12px;
   font-weight: 500;

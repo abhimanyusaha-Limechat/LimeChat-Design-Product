@@ -18,6 +18,7 @@ import {
   forwardRef,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type HTMLAttributes,
@@ -29,6 +30,7 @@ import { Tooltip } from '../Tooltip';
 import { ProductsPanel } from '../ProductsPanel';
 import { OrdersPanel } from '../OrdersPanel';
 import { CartPanel } from '../CartPanel';
+import { CartProvider, useCart } from '../../context/CartContext';
 import { Modal, ModalTextarea, ModalCheckbox } from '../Modal';
 import { Button } from '../Button';
 import './TicketDetailsPanel.css';
@@ -562,6 +564,50 @@ function Section({ section }: { section: TicketDetailsSection }) {
   );
 }
 
+/** Cart tab button — needs its own component (rather than the shared tab-button JSX) to read the cart count via context. */
+function CartTabButton({
+  active,
+  id,
+  panelId,
+  onClick,
+  tabRef,
+}: {
+  active: boolean;
+  id: string;
+  panelId: string;
+  onClick: () => void;
+  tabRef: (el: HTMLButtonElement | null) => void;
+}) {
+  const { items } = useCart();
+  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+  const Icon = TAB_ICONS.Cart;
+  return (
+    <Tooltip label="Cart" position="bottom">
+      <button
+        ref={tabRef}
+        type="button"
+        id={id}
+        role="tab"
+        aria-selected={active}
+        aria-controls={panelId}
+        aria-label={count > 0 ? `Cart, ${count} item${count === 1 ? '' : 's'}` : 'Cart'}
+        className="lc-tdp__tab"
+        data-active={active || undefined}
+        onClick={onClick}
+      >
+        <span className="lc-tdp__tab-icon">
+          {Icon ? <Icon /> : 'Cart'}
+          {count > 0 && (
+            <span className="lc-tdp__tab-badge" aria-hidden="true">
+              {count > 99 ? '99+' : count}
+            </span>
+          )}
+        </span>
+      </button>
+    </Tooltip>
+  );
+}
+
 export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelProps>(function TicketDetailsPanel(
   {
     tabs = ['Overview', 'Orders', 'Products', 'Cart'],
@@ -580,6 +626,13 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   const idBase = useId();
   const tabId = (tab: string) => `${idBase}-tab-${tab}`;
   const panelId = (tab: string) => `${idBase}-panel-${tab}`;
+
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
+  useLayoutEffect(() => {
+    const el = tabRefs.current[resolvedActiveTab];
+    if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
+  }, [resolvedActiveTab]);
   const panelProps = {
     className: 'lc-tdp__body',
     id: panelId(resolvedActiveTab),
@@ -589,13 +642,38 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   };
 
   return (
+    <CartProvider>
     <div {...rest} ref={ref} className={`lc-tdp${className ? ` ${className}` : ''}`}>
       <div className="lc-tdp__tabs" role="tablist">
+        {indicator && (
+          <div
+            className="lc-tdp__tab-indicator"
+            style={{ transform: `translateX(${indicator.left}px)`, width: indicator.width }}
+            aria-hidden="true"
+          />
+        )}
         {tabs.map((tab) => {
+          if (tab === 'Cart') {
+            return (
+              <CartTabButton
+                key={tab}
+                active={resolvedActiveTab === tab}
+                id={tabId(tab)}
+                panelId={panelId(tab)}
+                onClick={() => onTabChange?.(tab)}
+                tabRef={(el) => {
+                  tabRefs.current[tab] = el;
+                }}
+              />
+            );
+          }
           const Icon = TAB_ICONS[tab];
           return (
             <Tooltip key={tab} label={tab} position="bottom">
               <button
+                ref={(el) => {
+                  tabRefs.current[tab] = el;
+                }}
                 type="button"
                 id={tabId(tab)}
                 role="tab"
@@ -649,6 +727,7 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
         </div>
       )}
     </div>
+    </CartProvider>
   );
 });
 

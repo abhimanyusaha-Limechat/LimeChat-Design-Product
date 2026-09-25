@@ -8,7 +8,7 @@
   --lc-pp-primary: var(--lc-color-green-500);
   --lc-pp-primary-light: var(--lc-color-green-50);
   --lc-pp-border: var(--lc-color-gray-200);
-  --lc-pp-warning: #b5762b;
+  --lc-pp-warning: #C68610;
   --lc-pp-danger: var(--lc-color-red-700);
 
   display: flex;
@@ -113,7 +113,7 @@
   overflow: hidden;
   white-space: nowrap;
   font-size: 13px;
-  color: #a3a29d;
+  color: #A8ACA6;
   pointer-events: none;
 }
 .lc-pp__search-caret {
@@ -121,7 +121,7 @@
   width: 1px;
   height: 13px;
   margin-left: 1px;
-  background: #a3a29d;
+  background: #A8ACA6;
   animation: lc-pp-caret-blink 900ms step-end infinite;
 }
 @keyframes lc-pp-caret-blink {
@@ -215,7 +215,7 @@
 }
 .lc-pp__list::-webkit-scrollbar-thumb:hover,
 .lc-pp__detail::-webkit-scrollbar-thumb:hover {
-  background: #cfcfcf;
+  background: #CFD1CD;
 }
 
 .lc-pp__list {
@@ -349,7 +349,7 @@
   color: var(--lc-pp-title);
 }
 .lc-pp__highlight {
-  background: #fff3b0;
+  background: #F6E0B6;
   color: inherit;
   border-radius: 2px;
 }
@@ -443,7 +443,7 @@
 .lc-pp__rating svg {
   width: 11px;
   height: 11px;
-  color: #e0a721;
+  color: #E8A325;
 }
 
 /* --- Status pill ------------------------------------------------------- */
@@ -463,11 +463,11 @@
 }
 .lc-pp__status[data-status='low_stock'] {
   color: var(--lc-pp-warning);
-  background: #fdf3e0;
+  background: #FAEFDB;
 }
 .lc-pp__status[data-status='out_of_stock'] {
   color: var(--lc-pp-danger);
-  background: #fdecec;
+  background: #FCF3F3;
 }
 .lc-pp__status[data-status='discontinued'] {
   color: var(--lc-pp-dimmed);
@@ -776,7 +776,7 @@
   cursor: pointer;
 }
 .lc-pp-filter__close:hover {
-  background: #f4f4f0;
+  background: #F0F0F0;
   color: var(--lc-pp-title);
 }
 .lc-pp-filter__close svg {

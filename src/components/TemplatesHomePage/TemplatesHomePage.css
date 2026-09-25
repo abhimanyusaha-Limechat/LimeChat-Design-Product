@@ -16,7 +16,7 @@
   --lc-th-text-light: var(--lc-color-sage-500);
   --lc-th-text-placeholder: var(--lc-color-gray-500);
   --lc-th-primary: var(--lc-color-green-500);
-  --lc-th-warning: #e8a112;
+  --lc-th-warning: #E8A325;
   --lc-th-danger: var(--lc-color-red-600);
   --lc-th-table-head-bg: var(--lc-color-blue-50);
   --lc-th-row-hover: var(--lc-color-green-50);
@@ -384,7 +384,7 @@
 
 .lc-th__status[data-status='in-review'] {
   color: var(--lc-th-warning);
-  background: #fdf3e0;
+  background: #FAEFDB;
 }
 
 .lc-th__status[data-status='active'] {
@@ -394,7 +394,7 @@
 
 .lc-th__status[data-status='rejected'] {
   color: var(--lc-th-danger);
-  background: #fdecec;
+  background: #FCF3F3;
 }
 
 .lc-th__status[data-status='paused'] {

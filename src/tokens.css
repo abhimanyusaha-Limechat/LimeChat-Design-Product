@@ -3,55 +3,61 @@
  * (each of these appears 5+ times as a hardcoded hex today). Component CSS
  * should reference these instead of repeating the hex value; colors used
  * only within one component (brand/illustration colors, etc.) stay local.
+ *
+ * Every value below is sourced from the design system's approved color
+ * primitives (Primitives/Value.tokens.json) — no invented hex values. Where
+ * an old value fell between two primitive steps, it's mapped to the nearest
+ * approved step (noted inline); variable names are unchanged so no consuming
+ * component needs to change.
  */
 :root {
-  /* Brand green */
-  --lc-color-green-900: #3c492c;
-  --lc-color-green-800: #34540d;
-  --lc-color-green-700: #508014;
-  --lc-color-green-500: #6bac1b;
-  --lc-color-green-200: #cdf0a2;
-  --lc-color-green-100: #e5f7cf;
-  --lc-color-green-75: #edf5e3;
-  --lc-color-green-50: #f1f7e9;
-  --lc-color-green-25: #fafdf6;
+  /* Brand green — primitives/~green + color/dark */
+  --lc-color-green-900: #3c492c; /* color/dark */
+  --lc-color-green-800: #34540d; /* green-8 */
+  --lc-color-green-700: #508014; /* green-7 */
+  --lc-color-green-500: #6bac1b; /* green-6-anchor */
+  --lc-color-green-200: #cdf0a2; /* green-2 */
+  --lc-color-green-100: #e5f7cf; /* green-1 */
+  --lc-color-green-75: #e5f7cf; /* green-1 (nearest approved step) */
+  --lc-color-green-50: #fafdf6; /* green-0 (nearest approved step) */
+  --lc-color-green-25: #fafdf6; /* green-0 */
 
-  /* Sage / muted olive */
-  --lc-color-sage-500: #808975;
-  --lc-color-sage-600: #6b7268;
+  /* Sage / muted olive — primitives/color/light + nearest neutral */
+  --lc-color-sage-500: #808975; /* color/light */
+  --lc-color-sage-600: #595d57; /* gray-7 (nearest approved step — no muted-olive step between light/dark) */
 
-  /* Neutrals */
-  --lc-color-white: #ffffff;
-  --lc-color-stone-600: #57534e;
-  --lc-color-stone-100: #f5f5f4;
-  --lc-color-stone-50: #fafaf9;
-  --lc-color-stone-25: #faf9f5;
-  --lc-color-stone-150: #f0efe9;
-  --lc-color-gray-500: #8c8c8c;
-  --lc-color-gray-400: #bfbfbf;
-  --lc-color-gray-300: #d9d9d9;
-  --lc-color-gray-250: #e0e0e0;
-  --lc-color-gray-225: #e8e8e8;
-  --lc-color-gray-200: #ececea;
-  --lc-color-gray-150: #f0f0f0;
-  --lc-color-gray-125: #eef0ee;
-  --lc-color-gray-100: #f3f4f3;
-  --lc-color-gray-50: #fafafa;
+  /* Neutrals — primitives/~dark, ~gray, color/white, color/yellow-background */
+  --lc-color-white: #ffffff; /* color/white */
+  --lc-color-stone-600: #595959; /* dark-6-anchor (nearest approved step) */
+  --lc-color-stone-100: #f5f5f5; /* dark-1 (nearest approved step) */
+  --lc-color-stone-50: #fafafa; /* dark-0 (nearest approved step) */
+  --lc-color-stone-25: #faf9f5; /* color/yellow-background */
+  --lc-color-stone-150: #f0f0f0; /* dark-2 (nearest approved step) */
+  --lc-color-gray-500: #8c8c8c; /* dark-5 */
+  --lc-color-gray-400: #bfbfbf; /* dark-4 */
+  --lc-color-gray-300: #d9d9d9; /* dark-3 */
+  --lc-color-gray-250: #d9d9d9; /* dark-3 (nearest approved step) */
+  --lc-color-gray-225: #f0f0f0; /* dark-2 (nearest approved step) */
+  --lc-color-gray-200: #f0f0f0; /* dark-2 (nearest approved step) */
+  --lc-color-gray-150: #f0f0f0; /* dark-2 */
+  --lc-color-gray-125: #f0f0f0; /* dark-2 (nearest approved step) */
+  --lc-color-gray-100: #f5f5f5; /* dark-1 (nearest approved step) */
+  --lc-color-gray-50: #fafafa; /* dark-0 */
 
-  /* Semantic: danger */
-  --lc-color-red-700: #c92a2a;
-  --lc-color-red-600: #da1b21;
-  --lc-color-red-500: #e5484d;
-  --lc-color-red-50: #fceaea;
+  /* Semantic: danger — primitives/~red-error */
+  --lc-color-red-700: #da1b21; /* red-error-7 (nearest approved step) */
+  --lc-color-red-600: #da1b21; /* red-error-7 */
+  --lc-color-red-500: #e5484d; /* red-error-6-anchor */
+  --lc-color-red-50: #f9e2e2; /* red-error-1 (nearest approved step) */
 
-  /* Semantic: warning */
-  --lc-color-amber-600: #c68610;
-  --lc-color-amber-500: #e8a325;
+  /* Semantic: warning — primitives/~yellow-warning */
+  --lc-color-amber-600: #c68610; /* yellow-warning-7 */
+  --lc-color-amber-500: #e8a325; /* yellow-warning-6-anchor */
 
-  /* Semantic: info */
-  --lc-color-blue-900: #003b56;
-  --lc-color-blue-600: #097ba3;
-  --lc-color-blue-50: #e7f2f6;
+  /* Semantic: info — primitives/~blue */
+  --lc-color-blue-900: #003b56; /* blue-8 */
+  --lc-color-blue-600: #097ba3; /* blue-6-anchor */
+  --lc-color-blue-50: #f3fafd; /* blue-0 (nearest approved step) */
 }
 
 /**
@@ -75,5 +81,5 @@
   border-radius: 999px;
 }
 .lc-scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #cfcfcf;
+  background: #cfd1cd; /* gray-2 (nearest approved step) */
 }

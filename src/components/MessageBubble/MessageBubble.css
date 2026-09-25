@@ -15,14 +15,14 @@
   --lc-bubble-agent-bg: var(--lc-color-green-100);
   --lc-bubble-agent-card-bg: var(--lc-color-green-200);
   --lc-bubble-customer-bg: var(--lc-color-white);
-  --lc-bubble-customer-card-bg: #f3fafd;
-  --lc-bubble-note-bg: #faefdb;
-  --lc-bubble-blocked-bg: #fcf3f3;
+  --lc-bubble-customer-card-bg: #F3FAFD;
+  --lc-bubble-note-bg: #FAEFDB;
+  --lc-bubble-blocked-bg: #FCF3F3;
   --lc-bubble-blocked-banner-text: var(--lc-color-red-600);
 
   --lc-text-title: var(--lc-color-green-900);
   --lc-text-dimmed: var(--lc-color-sage-500);
-  --lc-text-gray-4: #a8aca6;
+  --lc-text-gray-4: #A8ACA6;
   --lc-text-secondary-alpha: rgba(0, 0, 0, 0.5);
 
   max-width: 490px;
@@ -242,7 +242,7 @@
   color: var(--lc-text-dimmed);
 }
 .lc-message-bubble__tick[data-status='read'] svg {
-  color: #4fa8e0;
+  color: #5FA5C6;
 }
 
 /* --- Only visible to you ------------------------------------------------ */
@@ -423,7 +423,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #eb362b;
+  color: #DA1B21;
 }
 .lc-message-bubble__doc-icon svg {
   width: 22px;
@@ -448,8 +448,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #eef1f6;
-  color: #b7c0d8;
+  background: #EDF7FF;
+  color: #A7CFE4;
 }
 .lc-message-bubble__thumb-placeholder svg {
   width: 32%;
@@ -505,7 +505,7 @@
 .lc-message-bubble__note-divider {
   align-self: stretch;
   width: 1px;
-  background: #cfd1cd;
+  background: #CFD1CD;
 }
 .lc-message-bubble__note-header span:last-child {
   font-size: 12px;
@@ -546,7 +546,7 @@
   padding: 3px 8px 2.5px 9px;
   border-radius: 13px;
   background: var(--lc-color-white);
-  border: 1px solid #f5f5f5;
+  border: 1px solid #F5F5F5;
   box-shadow: 0px 0.66px 0px rgba(0, 0, 0, 0.06);
   font-family: inherit;
 }
@@ -555,7 +555,7 @@ button.lc-message-bubble__reaction {
   transition: background-color 120ms ease;
 }
 button.lc-message-bubble__reaction:hover {
-  background: #f9f9f8;
+  background: #FAFAFA;
 }
 .lc-message-bubble__reaction-emoji {
   font-size: 16px;
@@ -678,7 +678,7 @@ button.lc-message-bubble__reaction:hover {
   transition: background-color 120ms ease, transform 120ms ease;
 }
 .lc-message-bubble__reaction-option:hover {
-  background: #f4f4f0;
+  background: #F0F0F0;
   transform: scale(1.1);
 }
 .lc-message-bubble__reaction-option[data-active] {
@@ -696,7 +696,7 @@ button.lc-message-bubble__reaction:hover {
   height: 16px;
 }
 .lc-message-bubble__reaction-option--remove:hover {
-  background: #fff0f0;
+  background: #FCF3F3;
   color: var(--lc-color-red-700);
   transform: none;
 }

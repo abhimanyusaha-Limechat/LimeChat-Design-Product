@@ -176,7 +176,7 @@
   flex-shrink: 0;
   width: 18px;
   height: 18px;
-  border: 1.5px solid #c7cbc0;
+  border: 1.5px solid #CFD1CD;
   border-radius: 4px;
   background: var(--lc-color-white);
   color: var(--lc-color-white);
@@ -238,7 +238,7 @@
   flex-shrink: 0;
   width: 18px;
   height: 18px;
-  border: 1.5px solid #c7cbc0;
+  border: 1.5px solid #CFD1CD;
   border-radius: 50%;
   transition: border-color 120ms ease;
 }

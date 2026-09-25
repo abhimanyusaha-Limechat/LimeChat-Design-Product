@@ -8,22 +8,13 @@
  */
 import { useMemo, useState } from 'react';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
+import { useCart } from '../../context/CartContext';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import './CartPanel.css';
 import { iconProps } from '../iconProps';
 import { TrashIcon } from '../icons';
 import { formatINR } from '../formatINR';
-
-interface CartLineItem {
-  productId: string;
-  name: string;
-  sku: string;
-  unitPrice: number;
-  quantity: number;
-  size?: string;
-  color?: string;
-}
 
 const TAX_RATE = 12;
 
@@ -36,7 +27,7 @@ const EmptyCartIcon = () => (
   </svg>
 );
 
-const THUMB_PALETTE = ['#6bac1b', '#097ba3', '#b5762b', '#6949c9', '#c92a2a', '#2b9c8f'];
+const THUMB_PALETTE = ['#6BAC1B', '#097BA3', '#C68610', '#A045EC', '#DA1B21', '#269A99'];
 function hashString(value: string): number {
   let hash = 0;
   for (let i = 0; i < value.length; i++) hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
@@ -53,8 +44,6 @@ const PRODUCT_BY_ID: Record<string, Product> = Object.fromEntries(MOCK_PRODUCTS.
 
 /** Mirrors ProductsPanel's color picker — the catalog has no per-product color variant list. */
 const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
-
-const INITIAL_CART: CartLineItem[] = [];
 
 function Stepper({ value, onChange }: { value: number; onChange: (next: number) => void }) {
   return (
@@ -73,13 +62,14 @@ function Stepper({ value, onChange }: { value: number; onChange: (next: number) 
 const REMOVE_ANIM_MS = 180;
 
 export function CartPanel() {
-  const [items, setItems] = useState<CartLineItem[]>(INITIAL_CART);
+  const { items, removeItem: removeFromCart, clearCart, setQuantity, setSize: setItemSize, setColor: setItemColor } =
+    useCart();
   const [removingKeys, setRemovingKeys] = useState<Set<string>>(new Set());
 
   const removeItem = (index: number, key: string) => {
     setRemovingKeys((prev) => new Set(prev).add(key));
     window.setTimeout(() => {
-      setItems((prev) => prev.filter((_, i) => i !== index));
+      removeFromCart(index);
       setRemovingKeys((prev) => {
         const next = new Set(prev);
         next.delete(key);
@@ -87,12 +77,9 @@ export function CartPanel() {
       });
     }, REMOVE_ANIM_MS);
   };
-  const setQty = (index: number, quantity: number) =>
-    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, quantity } : item)));
-  const setSize = (index: number, size: string) =>
-    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, size } : item)));
-  const setColor = (index: number, color: string) =>
-    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, color } : item)));
+  const setQty = setQuantity;
+  const setSize = setItemSize;
+  const setColor = setItemColor;
 
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0), [items]);
   const taxAmount = Math.round((subtotal * TAX_RATE) / 100);
@@ -194,9 +181,14 @@ export function CartPanel() {
             <span>Total</span>
             <span>{formatINR(total)}</span>
           </div>
-          <Button variant="filled" color="primary" size="sm" fullWidth>
-            Create order
-          </Button>
+          <div className="lc-cp__summary-ctas">
+            <Button variant="default" size="sm" onClick={clearCart}>
+              Clear cart
+            </Button>
+            <Button variant="filled" color="primary" size="sm" style={{ flex: 1 }}>
+              Create order
+            </Button>
+          </div>
         </div>
       )}
     </div>

@@ -285,7 +285,7 @@ function ProductsCostCard({
             <span className="lc-op__cost-item-name">{item.name}</span>
             {onQtyChange && <Stepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />}
           </div>
-          <p className="lc-op__cost-item-sku">SKU: {item.sku}</p>
+          {!onVariantChange && <p className="lc-op__cost-item-sku">SKU: {item.sku}</p>}
 
           {onVariantChange ? (
             <div className="lc-op__cost-item-variants">
@@ -306,17 +306,13 @@ function ProductsCostCard({
                 onChange={(e) => onVariantChange(i, { color: e.currentTarget.value })}
               />
             </div>
-          ) : (
-            (item.size || item.color) && (
-              <p className="lc-op__cost-item-sku">
-                {[item.size, item.color].filter(Boolean).join(' · ')}
-              </p>
-            )
-          )}
+          ) : null}
 
           <div className="lc-op__cost-item-qty">
             <span>Quantity {item.quantity}</span>
-            <span>{formatINR(item.unitPrice)}</span>
+            <span>
+              {formatINR(item.unitPrice)} × {item.quantity}
+            </span>
           </div>
         </div>
       ))}
@@ -500,9 +496,9 @@ function OrderRow({ order, search, onClick }: { order: Order; search: string; on
           <span className="lc-op__row-id">
             <HighlightMatch text={orderNumber(order.id)} query={search} />
           </span>
-          <span className="lc-op__row-date">{formatDate(order.placedAt)}</span>
+          <OrderStatusPill status={order.status} size="sm" />
         </span>
-        <OrderStatusPill status={order.status} size="sm" />
+        <span className="lc-op__row-date">{formatDate(order.placedAt)}</span>
       </div>
       <div className="lc-op__row-items">
         {visibleItems.map((item, i) => (

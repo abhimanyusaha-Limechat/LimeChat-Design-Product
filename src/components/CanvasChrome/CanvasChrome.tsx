@@ -725,7 +725,7 @@ function CanvasMinimap({
           {/* scaled placeholder preview — Figma node rects (62:20304–62:20311),
               coordinates translated from the card into this panel */}
           <span className="lc-canvas__minimap-paper" style={{ left: 8, top: 35, width: 226, height: 70 }} />
-          <span className="lc-canvas__minimap-node" style={{ left: 29.5, top: 16.7, width: 29, height: 22.7, background: '#fafafa' }} />
+          <span className="lc-canvas__minimap-node" style={{ left: 29.5, top: 16.7, width: 29, height: 22.7, background: '#FAFAFA' }} />
           <span className="lc-canvas__minimap-node" style={{ left: 29.5, top: 35, width: 29, height: 4.4 }} />
           <span className="lc-canvas__minimap-node" style={{ left: 30, top: 41, width: 29, height: 52 }} />
           <span className="lc-canvas__minimap-node" style={{ left: 63, top: 53, width: 29, height: 46 }} />

@@ -10,7 +10,7 @@
   --lc-tc-secondary: var(--lc-color-blue-600);
   --lc-tc-secondary-light: var(--lc-color-blue-50);
   --lc-tc-warning: var(--lc-color-amber-500);
-  --lc-tc-warning-light: #faefdb;
+  --lc-tc-warning-light: #FAEFDB;
 
   box-sizing: border-box;
   display: flex;
@@ -25,7 +25,7 @@
   transition: background-color 150ms ease, border-color 150ms ease;
 }
 .lc-ticket-composer[data-mode='note'] {
-  background: #fcf9f3;
+  background: #FCF9F3;
   border-color: var(--lc-tc-warning);
 }
 .lc-ticket-composer[data-focused]:not([data-mode='note']) {
@@ -56,7 +56,7 @@
   line-height: 20px;
   color: var(--lc-tc-title);
   scrollbar-width: thin;
-  scrollbar-color: #e0e0de transparent;
+  scrollbar-color: #D9D9D9 transparent;
 }
 .lc-ticket-composer__textarea::placeholder {
   color: var(--lc-tc-dimmed);
@@ -68,11 +68,11 @@
   background: transparent;
 }
 .lc-ticket-composer__textarea::-webkit-scrollbar-thumb {
-  background: #e0e0de;
+  background: #D9D9D9;
   border-radius: 4px;
 }
 .lc-ticket-composer__textarea::-webkit-scrollbar-thumb:hover {
-  background: #cfcfcc;
+  background: #CFD1CD;
 }
 
 .lc-ticket-composer__options {
@@ -90,8 +90,8 @@
   gap: 2px;
   width: fit-content;
   padding: 3px;
-  background: #f5f6f5;
-  border: 1px solid #ebeceb;
+  background: #F5F5F5;
+  border: 1px solid #E3E5E1;
   border-radius: 4px;
 }
 /* Single sliding pill behind the tab labels — animates position/size instead of
