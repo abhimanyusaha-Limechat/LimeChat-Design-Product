@@ -28,7 +28,7 @@
 }
 
 .lc-tdp__tab:focus-visible,
-.lc-tdp__icon-btn:focus-visible,
+.lc-tdp__action-icon:focus-visible,
 .lc-tdp__section-toggle:focus-visible,
 .lc-tdp__assignee-trigger:focus-visible,
 .lc-tdp__tag-remove:focus-visible,
@@ -308,28 +308,74 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
 .lc-tdp__sections {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+  padding: 0 12px 12px;
+}
+
+.lc-tdp__section-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lc-tdp__section-group-label {
+  margin: 0;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 14px;
+  text-transform: uppercase;
+  color: var(--lc-tdp-dimmed);
+}
+
+.lc-tdp__section-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .lc-tdp__section {
+  border-radius: 8px;
   background: var(--lc-color-gray-50);
-  border-top: 1px solid var(--lc-color-gray-200);
+  overflow: hidden;
+  border: 1px solid transparent;
 }
 
 .lc-tdp__section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 20px;
-  background: var(--lc-color-white);
+  gap: 8px;
+  padding: 12px 12px 8px;
+  background: var(--lc-color-gray-50);
 }
 .lc-tdp__section-header:hover {
+  background: var(--lc-color-gray-100);
+}
+
+.lc-tdp__section[data-open] {
   background: var(--lc-color-gray-50);
+  border-color: var(--lc-tdp-border);
+}
+.lc-tdp__section[data-open] .lc-tdp__section-header {
+  background: var(--lc-color-gray-50);
+}
+.lc-tdp__section[data-open] .lc-tdp__section-header:hover {
+  background: var(--lc-color-gray-100);
+}
+.lc-tdp__section[data-open] .lc-tdp__section-body {
+  background: var(--lc-color-gray-50);
+}
+.lc-tdp__section[data-open] .lc-tdp__section-title {
+  color: var(--lc-tdp-dimmed);
 }
 
 .lc-tdp__section-toggle {
   flex: 1 1 0;
   min-width: 0;
   display: flex;
+  align-items: center;
+  gap: 8px;
   border: none;
   background: none;
   padding: 0;
@@ -338,65 +384,89 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
   cursor: pointer;
 }
 
+.lc-tdp__section-chevron {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--lc-tdp-dimmed);
+}
+.lc-tdp__section-chevron svg {
+  width: 16px;
+  height: 16px;
+}
+
 .lc-tdp__section-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  min-width: 0;
   font-size: 14px;
   font-weight: 700;
-  color: var(--lc-tdp-dimmed);
-}
-.lc-tdp__section-title[data-open] {
+  line-height: 18px;
   color: var(--lc-tdp-title);
 }
 
 .lc-tdp__badge {
   display: inline-flex;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--lc-tdp-primary-light);
-  color: var(--lc-tdp-primary);
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.lc-tdp__section-actions {
-  display: flex;
   align-items: center;
-  gap: 12px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--lc-color-gray-200);
+  color: var(--lc-tdp-dimmed);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
 }
 
-.lc-tdp__icon-btn {
+/* Section-header add (+) — matches CanvasChrome IconButton size xs (action icon). */
+.lc-tdp__action-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  padding: 0;
   border: none;
   border-radius: 4px;
   background: transparent;
-  color: var(--lc-tdp-title);
+  color: var(--lc-tdp-dimmed);
   cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, transform 120ms ease;
 }
-.lc-tdp__icon-btn:hover {
+.lc-tdp__action-icon:hover {
   background: var(--lc-color-gray-100);
+  color: var(--lc-tdp-title);
 }
-.lc-tdp__icon-btn svg {
-  width: 20px;
-  height: 20px;
+.lc-tdp__action-icon:active {
+  transform: scale(0.92);
+}
+.lc-tdp__action-icon svg {
+  width: 16px;
+  height: 16px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-tdp__action-icon {
+    transition: background-color 120ms ease, color 120ms ease;
+  }
+  .lc-tdp__action-icon:active {
+    transform: none;
+  }
 }
 
 .lc-tdp__section-body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px 8px 8px 16px;
+  gap: 2px;
+  padding: 0 8px 8px;
 }
 
 .lc-tdp__empty {
   margin: 0;
-  padding: 4px 12px;
+  padding: 0;
   font-size: 12px;
   line-height: 16px;
   color: var(--lc-tdp-dimmed);
@@ -404,34 +474,65 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
 
 .lc-tdp__item {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 4px;
+  box-sizing: border-box;
+  width: 100%;
   padding: 12px;
   background: var(--lc-color-white);
   border-radius: 4px;
-  border: 1px solid var(--lc-tdp-border);
-  transition: border-color 0.15s ease;
+  border: none;
+  border-bottom: 1px solid var(--lc-color-gray-200);
+  transition: background-color 0.15s ease;
+}
+.lc-tdp__item:last-child {
+  border-bottom: none;
 }
 .lc-tdp__item:hover {
-  border-color: var(--lc-tdp-primary);
+  background: var(--lc-color-gray-100);
 }
 .lc-tdp__item-icon {
+  grid-area: icon;
   flex-shrink: 0;
-  display: inline-flex;
-  width: 16px;
-  height: 16px;
-  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
   color: var(--lc-tdp-dimmed);
 }
 .lc-tdp__item-icon svg {
-  width: 100%;
-  height: 100%;
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
-.lc-tdp__item-text {
-  flex: 1 1 0;
+.lc-tdp__item-heading {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  grid-template-areas: 'icon title';
+  align-items: center;
+  column-gap: 8px;
+  width: 100%;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+}
+.lc-tdp__item-heading:has(.lc-tdp__item-timestamp) {
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  grid-template-areas: 'icon title time';
+}
+.lc-tdp__item-heading .lc-tdp__item-title {
+  grid-area: title;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lc-tdp__item-heading .lc-tdp__item-timestamp {
+  grid-area: time;
+}
+.lc-tdp__item-subline {
+  box-sizing: border-box;
+  width: 100%;
 }
 .lc-tdp__item-title-row {
   display: flex;
@@ -442,11 +543,13 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
 .lc-tdp__item-title {
   font-size: 14px;
   font-weight: 600;
+  line-height: 18px;
   color: var(--lc-tdp-title);
 }
 .lc-tdp__item-timestamp {
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: 10px;
+  line-height: 14px;
   color: var(--lc-tdp-dimmed);
 }
 .lc-tdp__item-preview {
@@ -454,6 +557,7 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
   font-size: 12px;
   line-height: 16px;
   color: var(--lc-tdp-dimmed);
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -469,7 +573,7 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 4px;
+  padding: 0;
 }
 .lc-tdp__fields .lc-select__label {
   font-weight: 400;
@@ -517,7 +621,7 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 4px;
+  padding: 0;
 }
 .lc-tdp__tag {
   display: inline-flex;
