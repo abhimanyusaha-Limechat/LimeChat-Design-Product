@@ -170,13 +170,12 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
           ))}
         </div>
 
-        {!isNote && (
-          <div className="lc-ticket-composer__counter">
-            {value.length} / {maxLength}
-          </div>
-        )}
-
         <div className="lc-ticket-composer__end">
+          {!isNote && (
+            <span className="lc-ticket-composer__counter" aria-live="polite">
+              {value.length}/{maxLength}
+            </span>
+          )}
           <div className="lc-ticket-composer__icons">
             {!isNote && (
               <button type="button" className="lc-ticket-composer__icon-btn" aria-label="Record voice note" onClick={onMic}>
