@@ -99,18 +99,18 @@
   --c-border: var(--lc-color-green-500);
 }
 .lc-btn[data-color='green'] {
-  --c-solid: #16a34a;
+  --c-solid: #16A34A;
   --c-solid-hover: #007729;
-  --c-soft: #e8f6ed;
-  --c-soft-hover: #e3f4e9;
-  --c-text: #16a34a;
-  --c-border: #16a34a;
+  --c-soft: #EDFBEF;
+  --c-soft-hover: #CDEED2;
+  --c-text: #16A34A;
+  --c-border: #16A34A;
 }
 .lc-btn[data-color='gray'] {
   --c-solid: var(--lc-color-gray-400);
   --c-solid-hover: var(--lc-color-gray-500);
   --c-soft: var(--lc-color-gray-100);
-  --c-soft-hover: #f0f0ef;
+  --c-soft-hover: #F0F0F0;
   --c-text: var(--lc-color-gray-500);
   --c-border: var(--lc-color-gray-300);
 }
@@ -118,15 +118,15 @@
   --c-solid: var(--lc-color-red-500);
   --c-solid-hover: var(--lc-color-red-600);
   --c-soft: var(--lc-color-red-50);
-  --c-soft-hover: #fae5e5;
+  --c-soft-hover: #F9E2E2;
   --c-text: var(--lc-color-red-600);
   --c-border: var(--lc-color-red-500);
 }
 .lc-btn[data-color='yellow'] {
   --c-solid: var(--lc-color-amber-500);
   --c-solid-hover: var(--lc-color-amber-600);
-  --c-soft: #fcf2e7;
-  --c-soft-hover: #faeee1;
+  --c-soft: #FCF9F3;
+  --c-soft-hover: #FAEFDB;
   --c-text: var(--lc-color-amber-600);
   --c-border: var(--lc-color-amber-500);
 }

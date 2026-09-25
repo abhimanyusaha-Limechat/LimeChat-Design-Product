@@ -9,13 +9,13 @@
   --lc-op-primary-light: var(--lc-color-green-50);
   --lc-op-border: var(--lc-color-gray-200);
   --lc-op-info: var(--lc-color-blue-600);
-  --lc-op-info-light: #e7f3f8;
-  --lc-op-warning: #b5762b;
-  --lc-op-warning-light: #fdf3e0;
-  --lc-op-violet: #6949c9;
-  --lc-op-violet-light: #f0eefc;
+  --lc-op-info-light: #EDF7FF;
+  --lc-op-warning: #C68610;
+  --lc-op-warning-light: #FAEFDB;
+  --lc-op-violet: #A045EC;
+  --lc-op-violet-light: #FCF2FF;
   --lc-op-danger: var(--lc-color-red-700);
-  --lc-op-danger-light: #fdecec;
+  --lc-op-danger-light: #FCF3F3;
 
   display: flex;
   flex-direction: column;
@@ -134,7 +134,7 @@
   overflow: hidden;
   white-space: nowrap;
   font-size: 13px;
-  color: #a3a29d;
+  color: #A8ACA6;
   pointer-events: none;
 }
 .lc-op__search-caret {
@@ -142,7 +142,7 @@
   width: 1px;
   height: 13px;
   margin-left: 1px;
-  background: #a3a29d;
+  background: #A8ACA6;
   animation: lc-op-caret-blink 900ms step-end infinite;
 }
 @keyframes lc-op-caret-blink {
@@ -236,7 +236,7 @@
 }
 .lc-op__list::-webkit-scrollbar-thumb:hover,
 .lc-op__detail::-webkit-scrollbar-thumb:hover {
-  background: #cfcfcf;
+  background: #CFD1CD;
 }
 
 .lc-op__list {
@@ -302,7 +302,7 @@
   color: var(--lc-op-title);
 }
 .lc-op__highlight {
-  background: #fff3b0;
+  background: #F6E0B6;
   color: inherit;
   border-radius: 2px;
 }
@@ -329,7 +329,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 12px;
-  color: var(--lc-op-title);
+  color: var(--lc-op-dimmed);
 }
 .lc-op__row-item-qty {
   flex-shrink: 0;
@@ -344,6 +344,7 @@
   background: transparent;
   font-family: inherit;
   font-size: 12px;
+  font-weight: 400;
   color: var(--lc-op-info);
   cursor: pointer;
 }
@@ -360,7 +361,8 @@
   display: inline-flex;
   align-items: center;
   font-size: 12px;
-  color: var(--lc-op-dimmed);
+  font-weight: 600;
+  color: var(--lc-op-title);
 }
 .lc-op__row-total {
   font-size: 14px;
@@ -611,7 +613,7 @@
   gap: 12px;
   padding: 12px;
   border-radius: 8px;
-  background: var(--lc-color-gray-50);
+  background: #f3fafd; /* blue-0 */
 }
 .lc-op__cost-item {
   display: flex;
@@ -624,14 +626,15 @@
   gap: 8px;
 }
 .lc-op__cost-item-name {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   color: #434343;
 }
 .lc-op__cost-item-sku {
   margin: 2px 0 0;
-  font-size: 13px;
-  color: var(--lc-op-title);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--lc-op-dimmed);
 }
 .lc-op__cost-item-variants {
   display: grid;
@@ -649,6 +652,7 @@
   gap: 10px;
   margin-top: 2px;
   font-size: 12px;
+  font-weight: 400;
   color: var(--lc-op-dimmed);
 }
 .lc-op__cost-item-qty span:last-child {
@@ -656,7 +660,7 @@
 }
 .lc-op__cost-divider {
   height: 1px;
-  border-top: 1px dashed var(--lc-color-gray-300);
+  background-image: repeating-linear-gradient(to right, var(--lc-color-gray-300) 0 6px, transparent 6px 12px);
 }
 .lc-op__cost-rows {
   display: flex;

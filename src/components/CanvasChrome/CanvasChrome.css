@@ -33,7 +33,7 @@
   --lc-canvas-accent-soft: var(--lc-color-green-75);
   --lc-canvas-hover-bg: var(--lc-color-stone-100);
   /* idle (unselected) icon-button glyph — a lighter grey than text/dimmed */
-  --lc-canvas-icon-idle: #a9b0a0;
+  --lc-canvas-icon-idle: #A8ACA6;
   --lc-canvas-divider: var(--lc-color-gray-150);
   --lc-canvas-disabled: var(--lc-color-gray-400);
   --lc-canvas-pill-radius: 8px;
@@ -107,8 +107,8 @@
 
 .lc-canvas__flow {
   /* 45° gradient stroke — dark at the ends, light in the middle */
-  --lc-canvas-flow-edge: #4d7c14;
-  --lc-canvas-flow-mid: #a9d878;
+  --lc-canvas-flow-edge: #508014;
+  --lc-canvas-flow-mid: #B6EA76;
 
   position: relative;
   display: flex;
@@ -131,17 +131,17 @@
 }
 /* inactive state — pale gradient stroke, grey badge (Figma 10653:17584) */
 .lc-canvas__flow[data-active='false'] {
-  --lc-canvas-flow-edge: #c9e7a0;
-  --lc-canvas-flow-mid: #eef8dd;
+  --lc-canvas-flow-edge: #CDF0A2;
+  --lc-canvas-flow-mid: #E5F7CF;
 }
 /* warm yellow tone — stroke follows the "Scheduled" badge (Broadcast) */
 .lc-canvas__flow[data-tone='warning'] {
   --lc-canvas-flow-edge: var(--lc-color-amber-600);
-  --lc-canvas-flow-mid: #f5d799;
+  --lc-canvas-flow-mid: #F2CF8C;
 }
 .lc-canvas__flow[data-tone='warning'][data-active='false'] {
-  --lc-canvas-flow-edge: #f1d9ac;
-  --lc-canvas-flow-mid: #fbf1e2;
+  --lc-canvas-flow-edge: #F6E0B6;
+  --lc-canvas-flow-mid: #FAEFDB;
 }
 .lc-canvas__flow-text {
   display: flex;
@@ -207,7 +207,7 @@
 /* warm yellow tone (e.g. Broadcast "Scheduled") — design-system yellow/warning family */
 .lc-canvas__flow-badge[data-tone='warning'] {
   border-color: var(--lc-color-amber-500);
-  background: #fcf2e7;
+  background: #FAEFDB;
   color: var(--lc-color-amber-600);
 }
 .lc-canvas__flow-badge[data-tone='warning']::before {
@@ -244,7 +244,7 @@
 }
 .lc-canvas__meta-card:last-child {
   /* background/secondary/light-hover */
-  background: #e1eff4;
+  background: #EDF7FF;
 }
 /* only clickable cards (e.g. schedule) dim on hover — cards with a popover (e.g.
    audience) stay put so the popover it opens reads on a clean white background */
@@ -504,9 +504,9 @@
   align-items: flex-start;
   gap: 10px;
   padding: 8px 10px;
-  border: 1px solid #f5f5f5;
+  border: 1px solid #F5F5F5;
   border-radius: 4px;
-  background: #f3fafd;
+  background: #F3FAFD;
 }
 .lc-canvas__segments-notice svg {
   flex-shrink: 0;
@@ -975,7 +975,7 @@
 }
 .lc-canvas__palette-body:hover,
 .lc-canvas__palette-body:focus-within {
-  scrollbar-color: #e3e5e1 transparent;
+  scrollbar-color: #E3E5E1 transparent;
 }
 .lc-canvas__palette-body::-webkit-scrollbar {
   width: 6px;
@@ -986,7 +986,7 @@
 }
 .lc-canvas__palette-body:hover::-webkit-scrollbar-thumb,
 .lc-canvas__palette-body:focus-within::-webkit-scrollbar-thumb {
-  background: #e3e5e1;
+  background: #E3E5E1;
 }
 .lc-canvas__palette-group {
   display: flex;

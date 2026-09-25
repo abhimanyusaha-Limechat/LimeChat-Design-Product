@@ -19,10 +19,10 @@
   --lc-bh-table-head-bg: var(--lc-color-blue-50);
   --lc-bh-row-hover: var(--lc-color-green-50);
   --lc-bh-retry-bg: var(--lc-color-green-50);
-  --lc-bh-retry-text: #7cb535;
+  --lc-bh-retry-text: #6BAC1B;
   --lc-bh-secondary-light-bg: var(--lc-color-gray-125);
   --lc-bh-secondary-light-text: var(--lc-color-sage-600);
-  --lc-bh-warning: #e8a112;
+  --lc-bh-warning: #E8A325;
   --lc-bh-bg: var(--lc-color-stone-25);
   --lc-bh-radius: 4px;
   --lc-bh-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,

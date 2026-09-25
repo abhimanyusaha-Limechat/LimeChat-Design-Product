@@ -72,34 +72,34 @@
   transition: background-color 150ms ease;
 }
 .lc-tickets-section__status:hover {
-  background: #e4e4e4;
+  background: #D9D9D9;
 }
 .lc-tickets-section__status[data-status='Open'],
 .lc-tickets-section__status[data-status='Resolved'] {
-  background: #eaf4db;
+  background: #E5F7CF;
   color: var(--lc-ts-primary);
 }
 .lc-tickets-section__status[data-status='Open']:hover,
 .lc-tickets-section__status[data-status='Resolved']:hover {
-  background: #dcedc4;
+  background: #E5F7CF;
 }
 .lc-tickets-section__status[data-status='Closed'] {
-  background: #f5f5f5;
+  background: #F5F5F5;
 }
 .lc-tickets-section__status[data-status='Closed']:hover {
-  background: #ececec;
+  background: #F0F0F0;
 }
 .lc-tickets-section__status[data-status='Voice bot'] {
   border: 1px solid var(--lc-color-gray-200);
 }
 .lc-tickets-section__status[data-status='Waiting'],
 .lc-tickets-section__status[data-status='Follow up'] {
-  background: #fffbeb;
-  color: #a16207;
+  background: #FCF9F3;
+  color: #8B5F0E;
 }
 .lc-tickets-section__status[data-status='Waiting']:hover,
 .lc-tickets-section__status[data-status='Follow up']:hover {
-  background: #fef3c7;
+  background: #FAEFDB;
 }
 .lc-tickets-section__status svg {
   width: 14px;
@@ -319,7 +319,7 @@
   padding-right: 16px;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-color: #d4d4d1 transparent;
+  scrollbar-color: #CFD1CD transparent;
   scrollbar-width: thin;
 }
 .lc-tickets-section__list::-webkit-scrollbar {
@@ -329,7 +329,7 @@
   background: transparent;
 }
 .lc-tickets-section__list::-webkit-scrollbar-thumb {
-  background-color: #d4d4d1;
+  background-color: #CFD1CD;
   border-radius: 999px;
 }
 .lc-tickets-section__list::-webkit-scrollbar-thumb:hover {

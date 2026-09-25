@@ -8,7 +8,7 @@
  *  - control radius .... radius/2xs                    4px
  *  - crumb text ........ text/dimmed var(--lc-color-sage-500) / current text/default var(--lc-color-green-900)
  *  - info badge ........ bg background/secondary/light var(--lc-color-blue-50) · text var(--lc-color-blue-900)
- *  - draft badge ....... bg #e1eff4 · text/secondary/default var(--lc-color-blue-600)
+ *  - draft badge ....... bg #EDF7FF · text/secondary/default var(--lc-color-blue-600)
  *  - account name ...... text/primary/dark            var(--lc-color-green-800)
  *  - company avatar .... ~green/green-2 var(--lc-color-green-200) · ~green/green-6-anchor var(--lc-color-green-500)
  *  - shadow ............ 0 1px 1px rgba(0,0,0,.05)
@@ -24,7 +24,7 @@
   --lc-topnav-separator: var(--lc-color-gray-400);
   --lc-topnav-info-badge-bg: var(--lc-color-blue-50);
   --lc-topnav-info-badge-fg: var(--lc-color-blue-900);
-  --lc-topnav-draft-badge-bg: #e1eff4;
+  --lc-topnav-draft-badge-bg: #EDF7FF;
   --lc-topnav-draft-badge-fg: var(--lc-color-blue-600);
   --lc-topnav-updated-fg: var(--lc-color-blue-600);
   --lc-topnav-account-fg: var(--lc-color-green-800);
@@ -32,7 +32,7 @@
   --lc-topnav-avatar-fg: var(--lc-color-green-500);
   --lc-topnav-hover-bg: var(--lc-color-stone-100);
   /* Account chip hover — one notch up the grey palette from the shared hover fill. */
-  --lc-topnav-account-hover-bg: #e7e5e4;
+  --lc-topnav-account-hover-bg: #E3E5E1;
   --lc-topnav-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
   /* Fixed wordmark slot — keeps the breadcrumb start position identical across products. */

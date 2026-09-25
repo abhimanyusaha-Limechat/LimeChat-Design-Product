@@ -9,6 +9,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockProducts';
+import { useCart } from '../../context/CartContext';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
 import './ProductsPanel.css';
@@ -35,11 +36,11 @@ const STATUS_LABEL: Record<Availability, string> = {
 };
 
 const THUMB_PALETTE = [
-  { bg: '#f1f7e9', fg: '#6bac1b' },
-  { bg: '#e7f3f8', fg: '#097ba3' },
-  { bg: '#fdf3e0', fg: '#b5762b' },
-  { bg: '#fdecec', fg: '#c92a2a' },
-  { bg: '#f0eefc', fg: '#6949c9' },
+  { bg: '#FAFDF6', fg: '#6BAC1B' },
+  { bg: '#EDF7FF', fg: '#097BA3' },
+  { bg: '#FAEFDB', fg: '#C68610' },
+  { bg: '#FCF3F3', fg: '#DA1B21' },
+  { bg: '#FCF2FF', fg: '#A045EC' },
 ];
 
 function hashString(value: string): number {
@@ -135,6 +136,12 @@ const ShareIcon = () => (
     <circle cx="18" cy="18" r="2" />
     <path d="M8 10.5l8 -4" />
     <path d="M8 13.5l8 4" />
+  </svg>
+);
+const ForwardIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M7 7l5 5l-5 5" />
+    <path d="M13 7l5 5l-5 5" />
   </svg>
 );
 const PhotoIcon = () => (
@@ -268,7 +275,7 @@ function RowShareButton({ product }: { product: Product }) {
 
   return (
     <button type="button" className="lc-pp__row-share" aria-label="Share product" onClick={handleShare}>
-      {copied ? <CheckIcon /> : <ShareIcon />}
+      {copied ? <CheckIcon /> : <ForwardIcon />}
     </button>
   );
 }
@@ -349,7 +356,8 @@ function EmptyState({ searching }: { searching: boolean }) {
 }
 
 /** Share + Add to cart CTAs shown in the product detail view. */
-function DetailCtas({ product }: { product: Product }) {
+function DetailCtas({ product, size, color }: { product: Product; size?: string; color?: string }) {
+  const { addItem } = useCart();
   const [shared, setShared] = useState(false);
   const [added, setAdded] = useState(false);
   const shareTimer = useRef<number | undefined>(undefined);
@@ -374,6 +382,7 @@ function DetailCtas({ product }: { product: Product }) {
   };
 
   const handleAddToCart = () => {
+    addItem({ productId: product.id, name: product.name, sku: product.sku, unitPrice: product.discountedPrice, size, color });
     setAdded(true);
     window.clearTimeout(addTimer.current);
     addTimer.current = window.setTimeout(() => setAdded(false), 1500);
@@ -494,7 +503,11 @@ function ProductDetailView({ product, onBack }: { product: Product; onBack: () =
           <PriceBlock product={product} />
         </div>
 
-        <DetailCtas product={product} />
+        <DetailCtas
+          product={product}
+          size={product.variants && product.variants.length > 0 ? selectedSize : undefined}
+          color={product.variants && product.variants.length > 0 ? selectedColor : undefined}
+        />
 
         <div className="lc-pp__detail-section">
           <p className="lc-pp__detail-section-title">Description</p>

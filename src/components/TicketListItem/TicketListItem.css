@@ -8,7 +8,7 @@
 .lc-ticket-row {
   --lc-tr-title: var(--lc-color-green-900);
   --lc-tr-dimmed: var(--lc-color-sage-500);
-  --lc-tr-border: #f5f5f5;
+  --lc-tr-border: #F5F5F5;
   --lc-tr-border-hover: var(--lc-color-gray-300);
   --lc-tr-primary: var(--lc-color-green-500);
   --lc-tr-primary-light: var(--lc-color-green-50);

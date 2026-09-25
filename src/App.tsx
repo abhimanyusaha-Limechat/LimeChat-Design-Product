@@ -99,7 +99,7 @@ import { EmailMessage, EmailComposerBar, EmailForwardComposer } from './componen
 import { TicketDetailsPanel, type TicketDetailsField, type TicketDetailsSection } from './components/TicketDetailsPanel';
 
 const WhatsAppIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#8C8C8C" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9" />
     <path d="M9 10a0.5 .5 0 0 0 1 0v-1a0.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a0.5 .5 0 0 0 0 -1h-1a0.5 .5 0 0 0 -1 0" />
   </svg>
@@ -1853,8 +1853,8 @@ export function App() {
             minWidth: 0,
             minHeight: 0,
             background: showCanvas
-              ? 'radial-gradient(circle, #dcdcd6 1px, transparent 1px) 0 0 / 20px 20px, #faf9f5'
-              : '#f5f5f4',
+              ? 'radial-gradient(circle, #D9D9D9 1px, transparent 1px) 0 0 / 20px 20px, #FAF9F5'
+              : '#F5F5F5',
             overflow: 'visible',
             cursor: canvasCursor,
           }}
@@ -2302,8 +2302,8 @@ export function App() {
                         width: '100%',
                         maxWidth: 640,
                         padding: i === 0 ? '0 0 16px' : '16px 0',
-                        borderTop: i === 0 ? 'none' : '1px solid #ececea',
-                        borderBottom: i === BOT_NAMES.length - 1 ? '1px solid #ececea' : 'none',
+                        borderTop: i === 0 ? 'none' : '1px solid #F0F0F0',
+                        borderBottom: i === BOT_NAMES.length - 1 ? '1px solid #F0F0F0' : 'none',
                       }}
                     >
                       <TagsInput
@@ -2568,7 +2568,7 @@ export function App() {
             <div style={{ padding: 24 }}>
                 <h1 style={{ marginTop: 0 }}>LimeChat App Shell</h1>
                 <p>Reusable rail navigation + top bar from the LimeChat Design System V3.</p>
-                <p style={{ color: '#57534e' }}>
+                <p style={{ color: '#595959' }}>
                   Product: <strong>{product}</strong> · nav item: <strong>{selected}</strong> —
                   open <strong>Flows</strong> in Marketing or Automation from the rail to see the
                   flow-builder canvas chrome.
