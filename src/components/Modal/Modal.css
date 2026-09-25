@@ -4,9 +4,9 @@
  * Tokens:
  *   card    bg var(--lc-color-white) · radius/xs 8 · p padding/xl 24 · gap spacing/lg 24
  *           shadow 0 7px 3.5px #0000000A, 0 10px 7.5px #0000001A, 0 1px 1.5px #0000000D
- *   title   Heading/h6  16/20 bold  text/title var(--lc-color-green-900)
+ *   title   Heading/h6  16/20 bold  text/title var(--lc-text-primary)
  *   desc    Text/xs     12/16       text/dimmed var(--lc-color-sage-500)
- *   field   label Text SemiBold/xs 12/16 var(--lc-color-green-900) · required *  var(--lc-color-red-500)
+ *   field   label Text SemiBold/xs 12/16 var(--lc-text-primary) · required *  var(--lc-color-red-500)
  *           input h 32 · border border/gray/light var(--lc-color-gray-300) · radius/2xs 4
  *   switch  track 36x20 · on background/primary/filled var(--lc-color-green-500) · off var(--lc-color-gray-300) · thumb 16 var(--lc-color-white)
  */
@@ -35,7 +35,7 @@
 }
 
 .lc-modal {
-  --lc-modal-fg: var(--lc-color-green-900);
+  --lc-modal-fg: var(--lc-text-primary);
   --lc-modal-dimmed: var(--lc-color-sage-500);
   --lc-modal-border: var(--lc-color-gray-300);
   --lc-modal-accent: var(--lc-color-green-500);

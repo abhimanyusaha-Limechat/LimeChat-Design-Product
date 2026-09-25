@@ -27,12 +27,15 @@
   background: var(--lc-color-white);
 }
 
+/* Invisible at rest — the white list and the carded details panel already
+   separate from the page ground, so a permanent rule was just extra line noise.
+   It still appears on hover/focus/drag so the resize affordance is findable. */
 .lc-hd-tickets__resize-handle {
   flex-shrink: 0;
   position: relative;
   width: 2px;
   height: 100%;
-  background: var(--lc-color-gray-200);
+  background: transparent;
   cursor: col-resize;
   touch-action: none;
   transition: background-color 150ms ease, width 150ms ease;
@@ -46,7 +49,7 @@
 .lc-hd-tickets__resize-handle[data-dragging],
 .lc-hd-tickets__resize-handle:focus-visible {
   width: 4px;
-  background: var(--lc-color-green-500);
+  background: var(--lc-color-gray-300);
 }
 
 .lc-hd-tickets__resize-handle:focus-visible {
@@ -74,7 +77,9 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 8px 4px;
+  padding: 8px 12px;
+  background: var(--lc-surface-thread);
+  border-radius: 8px;
   overflow-x: hidden;
   overflow-y: auto;
 }

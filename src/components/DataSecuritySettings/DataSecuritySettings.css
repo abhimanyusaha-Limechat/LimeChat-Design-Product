@@ -10,7 +10,7 @@
 
 .lc-dss {
   --lc-dss-divider: var(--lc-color-gray-200);
-  --lc-dss-text-title: var(--lc-color-green-900);
+  --lc-dss-text-title: var(--lc-text-primary);
   --lc-dss-text-dimmed: var(--lc-color-sage-500);
   --lc-dss-primary: var(--lc-color-green-700);
   --lc-dss-bg-subtle: var(--lc-color-stone-50);

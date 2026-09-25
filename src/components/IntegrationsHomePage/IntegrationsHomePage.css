@@ -6,7 +6,7 @@
  */
 
 .lc-ihp {
-  --lc-ihp-text-title: var(--lc-color-green-900);
+  --lc-ihp-text-title: var(--lc-text-primary);
   --lc-ihp-text-dimmed: var(--lc-color-stone-600);
   --lc-ihp-tile-bg: var(--lc-color-stone-100);
   --lc-ihp-tile-bg-hover: var(--lc-color-gray-200);

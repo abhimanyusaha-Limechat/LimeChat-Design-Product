@@ -10,7 +10,7 @@
   background: var(--lc-color-white);
   font-family: inherit;
   font-size: 13px;
-  color: var(--lc-color-green-900);
+  color: var(--lc-text-primary);
 }
 .lc-add-product__search-input:focus {
   outline: none;

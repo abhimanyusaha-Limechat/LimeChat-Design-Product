@@ -11,6 +11,7 @@ import { createPortal } from 'react-dom';
 import { MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockProducts';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
+import { LoadMore } from '../LoadMore';
 import './ProductsPanel.css';
 import { iconProps } from '../iconProps';
 import { CloseIcon as ClearIcon, CheckIcon, ChevronDownIcon } from '../icons';
@@ -128,13 +129,10 @@ const StarIcon = () => (
     <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
   </svg>
 );
+/** Forward arrow — same glyph as the Vue app's `share` icon (sends the product to the customer). */
 const ShareIcon = () => (
-  <svg {...iconProps()}>
-    <circle cx="6" cy="12" r="2" />
-    <circle cx="18" cy="6" r="2" />
-    <circle cx="18" cy="18" r="2" />
-    <path d="M8 10.5l8 -4" />
-    <path d="M8 13.5l8 4" />
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M21.2218 11.3782L13.6218 3.77815C13.4889 3.64533 13.3196 3.55488 13.1354 3.51824C12.9511 3.4816 12.7602 3.50042 12.5866 3.5723C12.413 3.64419 12.2647 3.76593 12.1603 3.92212C12.0559 4.07831 12.0001 4.26194 12.0001 4.44981V7.81759C9.40495 8.05775 6.99281 9.25768 5.23573 11.1826C3.47866 13.1074 2.50311 15.6187 2.5 18.225V19.65C2.50015 19.8472 2.56166 20.0394 2.67601 20.2001C2.79036 20.3608 2.95187 20.4819 3.13815 20.5466C3.32442 20.6113 3.52622 20.6165 3.71557 20.5614C3.90491 20.5063 4.0724 20.3936 4.19482 20.239C5.12554 19.1322 6.26751 18.222 7.554 17.5615C8.84049 16.901 10.2457 16.5036 11.6875 16.3924C11.735 16.3867 11.8538 16.3772 12.0001 16.3677V19.65C12.0001 19.8378 12.0559 20.0215 12.1603 20.1777C12.2647 20.3339 12.413 20.4556 12.5866 20.5275C12.7602 20.5994 12.9511 20.6182 13.1354 20.5815C13.3196 20.5449 13.4889 20.4544 13.6218 20.3216L21.2218 12.7215C21.4 12.5434 21.5 12.3018 21.5 12.0499C21.5 11.798 21.4 11.5564 21.2218 11.3782ZM13.9001 17.3566V15.3749C13.9001 15.123 13.8 14.8813 13.6219 14.7032C13.4437 14.525 13.2021 14.4249 12.9501 14.4249C12.7079 14.4249 11.7189 14.4724 11.4662 14.5057C8.90579 14.7416 6.46859 15.7143 4.44942 17.3063C4.6786 15.211 5.6726 13.2738 7.24108 11.8657C8.80956 10.4576 10.8423 9.67757 12.9501 9.67486C13.2021 9.67486 13.4437 9.57477 13.6219 9.39661C13.8 9.21845 13.9001 8.97681 13.9001 8.72485V6.74313L19.2069 12.0499L13.9001 17.3566Z" />
   </svg>
 );
 const PhotoIcon = () => (
@@ -182,8 +180,17 @@ function RatingStars({ rating, count, showCount = true }: { rating: number; coun
   );
 }
 
-function StatusPill({ availability, stockCount }: { availability: Availability; stockCount?: number }) {
-  if (availability === 'in_stock') return null;
+function StatusPill({
+  availability,
+  stockCount,
+  inList = false,
+}: {
+  availability: Availability;
+  stockCount?: number;
+  /** The list only distinguishes unavailable products; stock levels live on the detail view. */
+  inList?: boolean;
+}) {
+  if (availability === 'in_stock' || (inList && availability === 'low_stock')) return null;
   return (
     <span className="lc-pp__status" data-status={availability}>
       {availability === 'low_stock' && stockCount != null ? `${stockCount} left` : STATUS_LABEL[availability]}
@@ -248,27 +255,27 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
   );
 }
 
-/** Icon-only share CTA shown on `.lc-pp__row` hover, mirroring DetailCtas' share behavior. */
+/** Icon-only share CTA shown on `.lc-pp__row` hover — sends the product to the customer. */
 function RowShareButton({ product }: { product: Product }) {
-  const [copied, setCopied] = useState(false);
+  const [shared, setShared] = useState(false);
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
-  const handleShare = async (e: MouseEvent) => {
+  const handleShare = (e: MouseEvent) => {
     e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(`${window.location.origin}/products/${product.id}`);
-    } catch {
-      // Clipboard access denied/unavailable — the link simply won't confirm.
-    }
-    setCopied(true);
+    setShared(true);
     window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setCopied(false), 1000);
+    timer.current = window.setTimeout(() => setShared(false), 1000);
   };
 
   return (
-    <button type="button" className="lc-pp__row-share" aria-label="Share product" onClick={handleShare}>
-      {copied ? <CheckIcon /> : <ShareIcon />}
+    <button
+      type="button"
+      className="lc-pp__row-share"
+      aria-label={shared ? 'Shared' : `Share ${product.name} with the customer`}
+      onClick={handleShare}
+    >
+      {shared ? <CheckIcon /> : <ShareIcon />}
     </button>
   );
 }
@@ -307,7 +314,7 @@ function ProductRow({
         </span>
         <span className="lc-pp__row-footer">
           <PriceBlock product={product} />
-          <StatusPill availability={product.availability} stockCount={product.stockCount} />
+          <StatusPill availability={product.availability} stockCount={product.stockCount} inList />
         </span>
       </span>
       <span className="lc-pp__row-actions">
@@ -349,7 +356,7 @@ function EmptyState({ searching }: { searching: boolean }) {
 }
 
 /** Share + Add to cart CTAs shown in the product detail view. */
-function DetailCtas({ product }: { product: Product }) {
+function DetailCtas() {
   const [shared, setShared] = useState(false);
   const [added, setAdded] = useState(false);
   const shareTimer = useRef<number | undefined>(undefined);
@@ -362,12 +369,7 @@ function DetailCtas({ product }: { product: Product }) {
     [],
   );
 
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(`${window.location.origin}/products/${product.id}`);
-    } catch {
-      // Clipboard access denied/unavailable — the link simply won't confirm.
-    }
+  const handleShare = () => {
     setShared(true);
     window.clearTimeout(shareTimer.current);
     shareTimer.current = window.setTimeout(() => setShared(false), 1000);
@@ -382,17 +384,17 @@ function DetailCtas({ product }: { product: Product }) {
   return (
     <div className="lc-pp__detail-ctas">
       <Button
-        variant="outline"
+        variant="filled"
         color="primary"
         size="sm"
         style={{ flex: 1 }}
         leftSection={shared ? <CheckIcon /> : <ShareIcon />}
         onClick={handleShare}
       >
-        {shared ? 'Copied' : 'Share'}
+        {shared ? 'Shared' : 'Share'}
       </Button>
       <Button
-        variant="filled"
+        variant="outline"
         color="primary"
         size="sm"
         style={{ flex: 1 }}
@@ -494,7 +496,7 @@ function ProductDetailView({ product, onBack }: { product: Product; onBack: () =
           <PriceBlock product={product} />
         </div>
 
-        <DetailCtas product={product} />
+        <DetailCtas />
 
         <div className="lc-pp__detail-section">
           <p className="lc-pp__detail-section-title">Description</p>
@@ -711,6 +713,11 @@ function FilterPopover({
   );
 }
 
+/** Page size of the Vue product panel's "Load More Products". */
+const PRODUCTS_PAGE_SIZE = 8;
+/** Stands in for the fetch round-trip so the loading state is visible. */
+const LOAD_MORE_DELAY_MS = 450;
+
 export function ProductsPanel() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -718,11 +725,32 @@ export function ProductsPanel() {
   const [sortKey, setSortKey] = useState<SortKey>('relevance');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [navDirection, setNavDirection] = useState<'forward' | 'back'>('forward');
+  const [visibleCount, setVisibleCount] = useState(PRODUCTS_PAGE_SIZE);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const loadMoreTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const t = window.setTimeout(() => setLoading(false), 500);
-    return () => window.clearTimeout(t);
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(loadMoreTimer.current);
+    };
   }, []);
+
+  // A new query starts from the first page, as a fresh fetch would.
+  useEffect(() => {
+    window.clearTimeout(loadMoreTimer.current);
+    setLoadingMore(false);
+    setVisibleCount(PRODUCTS_PAGE_SIZE);
+  }, [search, filters, sortKey]);
+
+  const loadMore = () => {
+    setLoadingMore(true);
+    loadMoreTimer.current = window.setTimeout(() => {
+      setVisibleCount((n) => n + PRODUCTS_PAGE_SIZE);
+      setLoadingMore(false);
+    }, LOAD_MORE_DELAY_MS);
+  };
 
   const categories = useMemo(
     () => Array.from(new Set(MOCK_PRODUCTS.map((p) => p.category))).sort(),
@@ -856,17 +884,25 @@ export function ProductsPanel() {
         ) : filteredSorted.length === 0 ? (
           <EmptyState searching={search.trim() !== '' || filtersActive} />
         ) : (
-          filteredSorted.map((product) => (
-            <ProductRow
-              key={product.id}
-              product={product}
-              search={search}
-              onClick={() => {
-                setNavDirection('forward');
-                setSelectedProductId(product.id);
-              }}
+          <>
+            {filteredSorted.slice(0, visibleCount).map((product) => (
+              <ProductRow
+                key={product.id}
+                product={product}
+                search={search}
+                onClick={() => {
+                  setNavDirection('forward');
+                  setSelectedProductId(product.id);
+                }}
+              />
+            ))}
+            <LoadMore
+              noun="products"
+              remaining={Math.max(0, filteredSorted.length - visibleCount)}
+              loading={loadingMore}
+              onLoadMore={loadMore}
             />
-          ))
+          </>
         )}
       </div>
       </div>

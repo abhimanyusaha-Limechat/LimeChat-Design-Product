@@ -3,9 +3,9 @@
  * TicketDetailsPanel "Products" tab (a ~320-420px resizable sidebar column).
  */
 .lc-pp {
-  --lc-pp-title: var(--lc-color-green-900);
+  --lc-pp-title: var(--lc-text-primary);
   --lc-pp-dimmed: var(--lc-color-sage-500);
-  --lc-pp-primary: var(--lc-color-green-500);
+  --lc-pp-primary: var(--lc-action-primary);
   --lc-pp-primary-light: var(--lc-color-green-50);
   --lc-pp-border: var(--lc-color-gray-200);
   --lc-pp-warning: #b5762b;
@@ -286,8 +286,8 @@
   color: var(--lc-color-white);
 }
 .lc-pp__row-share:hover {
-  background: var(--lc-color-green-700);
-  border-color: var(--lc-color-green-700);
+  background: var(--lc-action-primary-hover);
+  border-color: var(--lc-action-primary-hover);
 }
 .lc-pp__row[data-availability='out_of_stock'] .lc-pp__thumb,
 .lc-pp__row[data-availability='discontinued'] .lc-pp__thumb {

@@ -19,7 +19,7 @@
  * (Figma defines it for the Filled variant; generalised to every variant here).
  */
 .lc-btn {
-  --lc-btn-radius: 4px;
+  --lc-btn-radius: var(--lc-radius-control, 4px);
   --lc-btn-gap: 8px;
   --lc-btn-icon: 16px;
   --lc-btn-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
@@ -90,13 +90,15 @@
 }
 
 /* --- Colour tokens ------------------------------------------------- */
+/* Primary = brand. Solid/text use the AA-passing role tokens: white on the old
+   green-500 fill was 2.8:1, below the 4.5:1 needed for button labels. */
 .lc-btn[data-color='primary'] {
-  --c-solid: var(--lc-color-green-500);
-  --c-solid-hover: var(--lc-color-green-700);
+  --c-solid: var(--lc-action-primary);
+  --c-solid-hover: var(--lc-action-primary-hover);
   --c-soft: var(--lc-color-green-50);
   --c-soft-hover: var(--lc-color-green-75);
-  --c-text: var(--lc-color-green-500);
-  --c-border: var(--lc-color-green-500);
+  --c-text: var(--lc-action-primary-text);
+  --c-border: var(--lc-action-primary-text);
 }
 .lc-btn[data-color='green'] {
   --c-solid: #16a34a;
@@ -123,8 +125,8 @@
   --c-border: var(--lc-color-red-500);
 }
 .lc-btn[data-color='yellow'] {
-  --c-solid: var(--lc-color-amber-500);
-  --c-solid-hover: var(--lc-color-amber-600);
+  --c-solid: var(--lc-color-amber-700); /* white label 5.0:1; amber-500 was 2.2:1 */
+  --c-solid-hover: #92400e;
   --c-soft: #fcf2e7;
   --c-soft-hover: #faeee1;
   --c-text: var(--lc-color-amber-600);
@@ -156,7 +158,7 @@
 }
 .lc-btn[data-variant='default'] {
   background: var(--lc-color-white);
-  color: var(--lc-color-green-900);
+  color: var(--lc-text-primary);
   border-color: var(--lc-color-gray-300);
 }
 

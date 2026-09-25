@@ -9,7 +9,7 @@
 .lc-sg {
   --lc-sg-border: var(--lc-color-gray-300);
   --lc-sg-border-dark: var(--lc-color-gray-225);
-  --lc-sg-text-title: var(--lc-color-green-900);
+  --lc-sg-text-title: var(--lc-text-primary);
   --lc-sg-text-dimmed: var(--lc-color-sage-500);
   --lc-sg-secondary-dark: var(--lc-color-stone-600);
   --lc-sg-text-light: var(--lc-color-sage-500);

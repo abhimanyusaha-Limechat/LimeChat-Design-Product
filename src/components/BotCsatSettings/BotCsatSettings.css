@@ -8,7 +8,7 @@
 
 .lc-csat {
   --lc-csat-divider: var(--lc-color-gray-200);
-  --lc-csat-text-title: var(--lc-color-green-900);
+  --lc-csat-text-title: var(--lc-text-primary);
   --lc-csat-text-dimmed: var(--lc-color-sage-500);
   --lc-csat-primary: var(--lc-color-green-700);
   --lc-csat-bg-subtle: var(--lc-color-stone-50);

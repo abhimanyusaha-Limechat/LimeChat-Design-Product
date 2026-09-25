@@ -54,7 +54,35 @@ const PRODUCT_BY_ID: Record<string, Product> = Object.fromEntries(MOCK_PRODUCTS.
 /** Mirrors ProductsPanel's color picker — the catalog has no per-product color variant list. */
 const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
 
-const INITIAL_CART: CartLineItem[] = [];
+/** SKUs encode a trailing color code (e.g. `NK-PG41-BLK` → Black). */
+const SKU_COLOR_SUFFIX: Record<string, string> = {
+  BLK: 'Black',
+  WHT: 'White',
+  GRY: 'Grey',
+  NVY: 'Navy',
+  RED: 'Red',
+  BLU: 'Blue',
+  GRN: 'Green',
+  CHK: 'Chalk',
+};
+
+function productToLineItem(product: Product): CartLineItem {
+  const suffix = product.sku.split('-').pop()?.toUpperCase();
+  return {
+    productId: product.id,
+    name: product.name,
+    sku: product.sku,
+    unitPrice: product.discountedPrice,
+    quantity: 1,
+    size: product.variants?.[0],
+    color: suffix ? SKU_COLOR_SUFFIX[suffix] : undefined,
+  };
+}
+
+/** Demo seed: agents can't add products here — the cart mirrors the customer's store cart. */
+const INITIAL_CART: CartLineItem[] = MOCK_PRODUCTS.filter((p) => p.availability === 'in_stock')
+  .slice(0, 2)
+  .map((p, i) => ({ ...productToLineItem(p), quantity: i + 1 }));
 
 function Stepper({ value, onChange }: { value: number; onChange: (next: number) => void }) {
   return (
@@ -105,7 +133,7 @@ export function CartPanel() {
           <div className="lc-cp__empty">
             <EmptyCartIcon />
             <p className="lc-cp__empty-title">Cart is empty</p>
-            <p className="lc-cp__empty-text">Add products from the catalog to build a cart for this customer.</p>
+            <p className="lc-cp__empty-text">Items the customer adds to their store cart show up here.</p>
           </div>
         ) : (
           <div className="lc-cp__items">

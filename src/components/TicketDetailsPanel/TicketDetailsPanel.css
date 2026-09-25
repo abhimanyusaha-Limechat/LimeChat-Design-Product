@@ -3,9 +3,14 @@
  * "right_hand_panel_conversation").
  */
 .lc-tdp {
-  --lc-tdp-title: var(--lc-color-green-900);
-  --lc-tdp-dimmed: var(--lc-color-sage-500);
-  --lc-tdp-primary: var(--lc-color-green-500);
+  --lc-tdp-title: var(--lc-text-primary);
+  --lc-tdp-dimmed: var(--lc-text-secondary);
+  --lc-tdp-primary: var(--lc-action-primary);
+  /* Mantine-style neutral ramp for the panel's surfaces. */
+  --lc-tdp-fill: var(--lc-color-stone-50);
+  --lc-tdp-fill-hover: var(--lc-color-stone-100);
+  --lc-tdp-line: var(--lc-color-gray-200);
+  --lc-tdp-radius: 8px;
   --lc-tdp-primary-light: var(--lc-color-green-50);
   --lc-tdp-border: var(--lc-color-gray-300);
   --lc-tdp-secondary: var(--lc-color-blue-600);
@@ -37,42 +42,65 @@
   outline-offset: 2px;
 }
 
-/* --- Tabs (segmented control) ----------------------------------------- */
+/* --- Tabs: segmented control ------------------------------------------ */
+.lc-tdp__tabs-wrap {
+  flex-shrink: 0;
+  padding: 12px 12px 4px;
+}
 .lc-tdp__tabs {
   display: flex;
-  align-items: center;
   gap: 2px;
-  flex-shrink: 0;
-  margin: 8px 12px 0;
-  padding: 2px;
-  background: var(--lc-color-gray-100);
-  border-radius: 7px;
-  border-bottom: none;
-}
-.lc-tdp__tabs .lc-tooltip-anchor {
-  flex: 1 1 0;
-  min-width: 0;
+  padding: 3px;
+  border-radius: var(--lc-tdp-radius);
+  background: var(--lc-color-stone-100);
 }
 .lc-tdp__tab {
   flex: 1 1 0;
   min-width: 0;
-  width: 100%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
+  gap: 0;
+  height: 30px;
+  padding: 0 8px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   background: transparent;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--lc-tdp-dimmed);
   cursor: pointer;
-  text-align: center;
-  transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  white-space: nowrap;
+  transition: flex-grow 200ms ease, gap 200ms ease, background-color 150ms ease, color 150ms ease,
+    box-shadow 150ms ease;
+}
+/* Only the selected tab shows its label; the others are icon-only and share the leftover width. */
+.lc-tdp__tab:not([data-active]) {
+  flex-grow: 0.6;
+}
+.lc-tdp__tab[data-active] {
+  flex-grow: 2;
+  gap: 6px;
+}
+.lc-tdp__tab-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  transition: max-width 200ms ease, opacity 150ms ease;
+}
+.lc-tdp__tab:not([data-active]) .lc-tdp__tab-label {
+  max-width: 0;
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-tdp__tab,
+  .lc-tdp__tab-label {
+    transition: none;
+  }
 }
 .lc-tdp__tab svg {
+  flex-shrink: 0;
   width: 16px;
   height: 16px;
 }
@@ -80,10 +108,9 @@
   color: var(--lc-tdp-title);
 }
 .lc-tdp__tab[data-active] {
-  color: var(--lc-color-gray-500);
   background: var(--lc-color-white);
-  font-weight: 700;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  color: var(--lc-tdp-title);
+  box-shadow: 0 1px 2px rgba(28, 25, 23, 0.08), 0 0 0 1px rgba(28, 25, 23, 0.04);
 }
 
 .lc-tdp__body {
@@ -108,29 +135,30 @@
   background-color: var(--lc-color-gray-400);
 }
 
-/* --- Ticket info ----------------------------------------------------- */
+/* --- Ticket info: neutral property list ----------------------------------- */
 .lc-tdp__info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 12px 12px;
-  padding: 10px;
+  gap: 6px;
+  margin: 8px 12px 4px;
+  padding: 10px 12px;
   background: #f3fafd;
-  border: 1px solid var(--lc-tdp-border);
-  border-radius: 8px;
+  border: 1px solid #e1eff5;
+  border-radius: var(--lc-tdp-radius);
 }
 
 .lc-tdp__detail-row {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-height: 28px;
 }
 .lc-tdp__detail-icon {
   flex-shrink: 0;
   display: inline-flex;
   width: 16px;
   height: 16px;
-  color: var(--lc-tdp-secondary-dark);
+  color: var(--lc-tdp-dimmed);
 }
 .lc-tdp__detail-icon svg {
   width: 100%;
@@ -139,20 +167,19 @@
 .lc-tdp__detail-label {
   flex: 1 1 0;
   min-width: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
   line-height: 20px;
-  color: var(--lc-tdp-secondary-dark);
+  color: var(--lc-tdp-dimmed);
 }
 .lc-tdp__detail-value {
   flex-shrink: 0;
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 4px;
-  background: var(--lc-color-white);
-  color: var(--lc-tdp-secondary-dark);
-  font-size: 14px;
+  background: transparent;
+  color: var(--lc-tdp-title);
+  font-size: 13px;
   font-weight: 600;
-  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -160,15 +187,14 @@
 button.lc-tdp__detail-value--copyable {
   border: none;
   font-family: inherit;
-  cursor: pointer;
+  cursor: copy;
 }
 button.lc-tdp__detail-value--copyable:hover {
-  background: var(--lc-tdp-primary-light);
+  background: var(--lc-tdp-fill-hover);
 }
 .lc-tdp__detail-value--copied,
 .lc-tdp__detail-value--copied:hover {
-  color: var(--lc-tdp-primary);
-  text-transform: none;
+  color: var(--lc-status-success-text);
 }
 
 .lc-tdp__assignment-row {
@@ -182,8 +208,8 @@ button.lc-tdp__detail-value--copyable:hover {
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 13px;
+  line-height: 20px;
   color: var(--lc-tdp-dimmed);
   white-space: nowrap;
 }
@@ -201,20 +227,21 @@ button.lc-tdp__detail-value--copyable:hover {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  width: 162px;
+  width: 170px;
   flex-shrink: 0;
-  height: 24px;
+  height: 28px;
   padding: 0 8px;
-  border: 1px solid var(--lc-tdp-border);
-  border-radius: 4px;
+  border: 1px solid var(--lc-tdp-line);
+  border-radius: var(--lc-radius-control);
   background: var(--lc-color-white);
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--lc-tdp-title);
   cursor: pointer;
+  transition: border-color 120ms ease;
 }
 .lc-tdp__assignee-trigger:hover {
-  border-color: var(--lc-tdp-primary);
+  border-color: var(--lc-color-gray-400);
 }
 .lc-tdp__assignee-trigger[data-placeholder] {
   color: var(--lc-color-gray-500);
@@ -262,115 +289,164 @@ button.lc-tdp__detail-value--copyable:hover {
   gap: 16px;
 }
 
-/* --- Collapsible sections ---------------------------------------------- */
+/* --- Grouped sections: Mantine "separated" accordion ----------------------
+   No rules between sections. Each is its own rounded block with 6px between
+   blocks; collapsed blocks sit on a light fill, an open block turns white with
+   a hairline border, so open vs closed reads at a glance. */
+.lc-tdp__group {
+  padding: 12px 12px 0;
+}
+.lc-tdp__group:last-child {
+  padding-bottom: 16px;
+}
+.lc-tdp__group-label {
+  margin: 0 0 6px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lc-color-gray-500);
+}
 .lc-tdp__sections {
   display: flex;
   flex-direction: column;
+  gap: 6px;
 }
 
 .lc-tdp__section {
-  background: var(--lc-color-gray-50);
-  border-top: 1px solid var(--lc-color-gray-200);
+  border: 1px solid transparent;
+  border-radius: var(--lc-tdp-radius);
+  background: var(--lc-tdp-fill);
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.lc-tdp__section:not([data-open]):hover {
+  background: var(--lc-tdp-fill-hover);
+}
+.lc-tdp__section[data-open] {
+  background: var(--lc-color-white);
+  border-color: var(--lc-tdp-line);
 }
 
 .lc-tdp__section-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 20px;
-  background: var(--lc-color-white);
-}
-.lc-tdp__section-header:hover {
-  background: var(--lc-color-gray-50);
+  gap: 4px;
+  padding: 2px 6px 2px 2px;
 }
 
 .lc-tdp__section-toggle {
   flex: 1 1 0;
   min-width: 0;
   display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 6px;
   border: none;
+  border-radius: 6px;
   background: none;
-  padding: 0;
   font-family: inherit;
   text-align: left;
   cursor: pointer;
 }
 
-.lc-tdp__section-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--lc-tdp-dimmed);
+.lc-tdp__chevron {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: var(--lc-color-gray-500);
+  transform: rotate(-90deg);
+  transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
 }
-.lc-tdp__section-title[data-open] {
+.lc-tdp__chevron svg {
+  width: 16px;
+  height: 16px;
+}
+.lc-tdp__section[data-open] .lc-tdp__chevron {
+  transform: none;
+}
+
+.lc-tdp__section-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--lc-tdp-title);
+}
+/* Empty sections recede: still reachable (to add), but not competing. */
+.lc-tdp__section[data-empty]:not([data-open]) .lc-tdp__section-title {
+  font-weight: 500;
+  color: var(--lc-tdp-dimmed);
 }
 
 .lc-tdp__badge {
-  display: inline-flex;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--lc-tdp-primary-light);
-  color: var(--lc-tdp-primary);
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.lc-tdp__section-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.lc-tdp__icon-btn {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--lc-color-gray-150);
+  color: var(--lc-color-stone-600);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.lc-tdp__icon-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   background: transparent;
-  color: var(--lc-tdp-title);
+  color: var(--lc-tdp-dimmed);
   cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
 }
 .lc-tdp__icon-btn:hover {
-  background: var(--lc-color-gray-100);
+  background: var(--lc-color-gray-150);
+  color: var(--lc-tdp-title);
 }
 .lc-tdp__icon-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 
 .lc-tdp__section-body {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 8px 8px 8px 16px;
+  padding: 0 8px 8px;
 }
 
 .lc-tdp__empty {
   margin: 0;
-  padding: 4px 12px;
+  padding: 4px 6px 2px;
   font-size: 12px;
   line-height: 16px;
   color: var(--lc-tdp-dimmed);
 }
 
+/* Items are filled rows, not bordered cards: the open section already draws
+   the outline, so a second border per item was box-in-box noise. */
 .lc-tdp__item {
   display: flex;
-  gap: 8px;
-  padding: 12px;
-  background: var(--lc-color-white);
-  border-radius: 4px;
-  border: 1px solid var(--lc-tdp-border);
-  transition: border-color 0.15s ease;
+  gap: 10px;
+  padding: 10px 10px;
+  background: var(--lc-tdp-fill);
+  border-radius: var(--lc-tdp-radius);
+
+  transition: background-color 120ms ease;
 }
 .lc-tdp__item:hover {
-  border-color: var(--lc-tdp-primary);
+  background: var(--lc-tdp-fill-hover);
 }
 .lc-tdp__item-icon {
   flex-shrink: 0;
@@ -398,7 +474,11 @@ button.lc-tdp__detail-value--copyable:hover {
   gap: 8px;
 }
 .lc-tdp__item-title {
-  font-size: 14px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
   font-weight: 600;
   color: var(--lc-tdp-title);
 }
@@ -420,7 +500,8 @@ button.lc-tdp__detail-value--copyable:hover {
 .lc-tdp__voice-transcript {
   flex-shrink: 0;
   font-size: 12px;
-  color: #1b83ac;
+  font-weight: 600;
+  color: var(--lc-status-open-text);
 }
 
 .lc-tdp__fields {
@@ -447,11 +528,11 @@ button.lc-tdp__detail-value--copyable:hover {
   width: 100%;
   height: 32px;
   padding: 0 12px;
-  border: 1px solid var(--lc-tdp-border);
-  border-radius: 4px;
+  border: 1px solid var(--lc-tdp-line);
+  border-radius: var(--lc-radius-control);
   background: var(--lc-color-white);
   font-family: inherit;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--lc-tdp-title);
 }
 .lc-tdp__field-input:focus-visible {
@@ -481,12 +562,12 @@ button.lc-tdp__detail-value--copyable:hover {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 6px 4px 10px;
-  border: 1px solid var(--lc-tdp-border);
-  border-radius: 999px;
-  background: var(--lc-color-white);
+  padding: 3px 4px 3px 8px;
+  border: 1px solid var(--lc-tdp-line);
+  border-radius: 6px;
+  background: var(--lc-tdp-fill);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--lc-tdp-title);
 }
 .lc-tdp__tag-remove {
@@ -509,4 +590,54 @@ button.lc-tdp__detail-value--copyable:hover {
 .lc-tdp__tag-remove svg {
   width: 10px;
   height: 10px;
+}
+
+/* --- See more (paginated items) ------------------------------------------- */
+.lc-tdp__see-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 30px;
+  margin-top: 2px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lc-tdp-dimmed);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.lc-tdp__see-more:hover:not(:disabled) {
+  background: var(--lc-tdp-fill);
+  color: var(--lc-tdp-title);
+}
+.lc-tdp__see-more:disabled {
+  cursor: progress;
+}
+.lc-tdp__see-more:focus-visible {
+  outline: 2px solid var(--lc-tdp-primary);
+  outline-offset: 1px;
+}
+.lc-tdp__see-more-icon {
+  width: 14px;
+  height: 14px;
+}
+.lc-tdp__see-more-icon[data-up] {
+  transform: rotate(180deg);
+}
+.lc-tdp__see-more-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--lc-color-gray-300);
+  border-top-color: var(--lc-tdp-dimmed);
+  border-radius: 50%;
+  animation: lc-tdp-spin 700ms linear infinite;
+}
+@keyframes lc-tdp-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

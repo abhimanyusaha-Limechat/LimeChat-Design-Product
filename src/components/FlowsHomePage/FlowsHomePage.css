@@ -8,7 +8,7 @@
 .lc-fh {
   --lc-fh-border: var(--lc-color-gray-300);
   --lc-fh-border-dark: var(--lc-color-gray-225);
-  --lc-fh-text-title: var(--lc-color-green-900);
+  --lc-fh-text-title: var(--lc-text-primary);
   --lc-fh-text-dimmed: var(--lc-color-sage-500);
   --lc-fh-secondary-dark: var(--lc-color-stone-600);
   --lc-fh-text-light: var(--lc-color-sage-500);

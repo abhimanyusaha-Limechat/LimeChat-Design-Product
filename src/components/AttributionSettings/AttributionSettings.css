@@ -8,7 +8,7 @@
 
 .lc-attr {
   --lc-attr-divider: var(--lc-color-gray-200);
-  --lc-attr-text-title: var(--lc-color-green-900);
+  --lc-attr-text-title: var(--lc-text-primary);
   --lc-attr-text-dimmed: var(--lc-color-sage-500);
   --lc-attr-primary: var(--lc-color-green-700);
   --lc-attr-bg-subtle: var(--lc-color-stone-50);

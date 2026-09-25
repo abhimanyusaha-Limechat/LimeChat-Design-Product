@@ -3,7 +3,7 @@
  * "Cart" tab (a ~320-420px resizable sidebar column).
  */
 .lc-cp {
-  --lc-cp-title: var(--lc-color-green-900);
+  --lc-cp-title: var(--lc-text-primary);
   --lc-cp-dimmed: var(--lc-color-sage-500);
   --lc-cp-primary: var(--lc-color-green-500);
   --lc-cp-primary-light: var(--lc-color-green-50);

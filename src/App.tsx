@@ -1,5 +1,5 @@
 /** Demo harness for the reusable components. Not part of the published components. */
-import { Fragment, memo, useCallback, useMemo, useState, type ComponentProps, type ReactNode } from 'react';
+import { Fragment, memo, useCallback, useEffect, useMemo, useState, type ComponentProps, type ReactNode } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { sidebarPresets, type SidebarProduct } from './components/Sidebar/presets';
 import { TopNavBar } from './components/TopNavBar';
@@ -1271,20 +1271,36 @@ const TICKET_CUSTOM_FIELDS: TicketDetailsField[] = [
   },
 ];
 
+// Grouped the way agents look for things: other tickets, then tags, then fields, then
+// call history. The two most-checked sections start open.
 const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
+  ] = [
   {
     id: 'previous-tickets',
+    group: 'Tickets',
+    defaultOpen: true,
     label: 'Previous tickets',
     hideAdd: true,
+    // Same paging as the Vue app's previous conversations: 1 shown, 5 fetched per page.
+    pagination: { collapsedCount: 1, pageSize: 5 },
     items: [
-      { title: 'Email_Sales', timestamp: '6 months ago', preview: 'Hi, Looks like you are away from our...' },
-      { title: 'WhatsApp_Support', timestamp: '4 months ago', preview: 'My order hasn\'t arrived yet, can you...' },
-      { title: 'Email_Billing', timestamp: '2 months ago', preview: 'I was charged twice for my last order...' },
       { title: 'WhatsApp_Support', timestamp: '3 weeks ago', preview: 'Thanks for the quick resolution earlier!' },
+      { title: 'Email_Billing', timestamp: '2 months ago', preview: 'I was charged twice for my last order...' },
+      { title: 'WhatsApp_Support', timestamp: '4 months ago', preview: 'My order hasn\'t arrived yet, can you...' },
+      { title: 'Email_Sales', timestamp: '6 months ago', preview: 'Hi, Looks like you are away from our...' },
+      { title: 'Instagram_DM', timestamp: '7 months ago', preview: 'Is the navy jacket available in XL?' },
+      { title: 'WhatsApp_Support', timestamp: '8 months ago', preview: 'Need to change my delivery address please.' },
+      { title: 'Email_Returns', timestamp: '9 months ago', preview: 'Return label hasn\'t arrived in my inbox.' },
+      { title: 'WhatsApp_Support', timestamp: '10 months ago', preview: 'Can I use two coupon codes together?' },
+      { title: 'SMS_Alerts', timestamp: '11 months ago', preview: 'Stop sending promo messages please.' },
+      { title: 'Email_Billing', timestamp: '1 year ago', preview: 'GST invoice needed for order #31022.' },
+      { title: 'WhatsApp_Support', timestamp: '1 year ago', preview: 'Size exchange for the running shoes.' },
+      { title: 'Email_Sales', timestamp: '1 year ago', preview: 'Do you offer bulk pricing for teams?' },
     ],
   },
   {
     id: 'sub-tickets',
+    group: 'Tickets',
     label: 'Sub tickets',
     emptyText: 'There are no sub tickets for this customer',
     items: [
@@ -1293,17 +1309,40 @@ const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
     ],
   },
   {
-    id: 'voice-logs',
-    label: 'Voice logs',
-    emptyText: 'There are no voice logs for this customer',
-    hideAdd: true,
+    id: 'crm-tickets',
+    group: 'Tickets',
+    label: 'CRM tickets',
+    emptyText: 'There are no CRM tickets for this customer',
     items: [
-      { title: 'Ananya Rao', timestamp: '5th Aug | 10:00 am', duration: '5 minutes 10 seconds' },
-      { title: 'Ananya Rao', timestamp: '2nd Aug | 3:45 pm', duration: '2 minutes 45 seconds' },
+      { title: 'Salesforce_Case_00931', timestamp: '3 months ago', preview: 'Escalated to account manager for loyalty credit...' },
+      { title: 'HubSpot_Ticket_4021', timestamp: '1 month ago', preview: 'Customer requested invoice copy for reimbursement...' },
     ],
   },
   {
+    id: 'conversation-tags',
+    group: 'Tags',
+    defaultOpen: true,
+    label: 'Conversation tags',
+    emptyText: 'There are no tags for this customer',
+    tags: ['Order delay', 'Delivery issue', 'Follow-up needed'],
+  },
+  {
+    id: 'contact-tags',
+    group: 'Tags',
+    label: 'Contact tags',
+    emptyText: 'There are no tags for this customer',
+    tags: ['Returning customer', 'VIP'],
+  },
+  {
+    id: 'shopify-tags',
+    group: 'Tags',
+    label: 'Shopify tags',
+    emptyText: 'There are no tags for this customer',
+    tags: ['Shopify Plus', 'High LTV'],
+  },
+  {
     id: 'conversation-fields',
+    group: 'Fields',
     label: 'Conversation fields',
     emptyText: 'There are no fields for this customer',
     hideAdd: true,
@@ -1311,36 +1350,21 @@ const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
   },
   {
     id: 'contact-fields',
+    group: 'Fields',
     label: 'Contact fields',
     emptyText: 'There are no fields for this customer',
     hideAdd: true,
     fields: TICKET_CUSTOM_FIELDS,
   },
   {
-    id: 'conversation-tags',
-    label: 'Conversation tags',
-    emptyText: 'There are no tags for this customer',
-    tags: ['Order delay', 'Delivery issue', 'Follow-up needed'],
-  },
-  {
-    id: 'contact-tags',
-    label: 'Contact tags',
-    emptyText: 'There are no tags for this customer',
-    tags: ['Returning customer', 'VIP'],
-  },
-  {
-    id: 'shopify-tags',
-    label: 'Shopify tags',
-    emptyText: 'There are no tags for this customer',
-    tags: ['Shopify Plus', 'High LTV'],
-  },
-  {
-    id: 'crm-tickets',
-    label: 'CRM tickets',
-    emptyText: 'There are no CRM tickets for this customer',
+    id: 'voice-logs',
+    group: 'Activity',
+    label: 'Voice logs',
+    emptyText: 'There are no voice logs for this customer',
+    hideAdd: true,
     items: [
-      { title: 'Salesforce_Case_00931', timestamp: '3 months ago', preview: 'Escalated to account manager for loyalty credit...' },
-      { title: 'HubSpot_Ticket_4021', timestamp: '1 month ago', preview: 'Customer requested invoice copy for reimbursement...' },
+      { title: 'Ananya Rao', timestamp: '5th Aug | 10:00 am', duration: '5 minutes 10 seconds' },
+      { title: 'Ananya Rao', timestamp: '2nd Aug | 3:45 pm', duration: '2 minutes 45 seconds' },
     ],
   },
 ];
@@ -1384,6 +1408,14 @@ const TOP_NAV_BY_PRODUCT = {
   marketing: () => campaignsTopNav({ onChannelChange: () => alert('Pick channel') }),
   automation: () => automationTopNav({ onChannelChange: () => alert('Pick channel') }),
 } as const;
+
+const TICKET_AGENTS = ['Aditi Rao', 'Jane Doe', 'Marcus Lee', 'John Adams'];
+const TICKET_TEAMS = ['Support', 'Sales', 'Marketing'];
+/** Demo rows carry first names (and "You"); the panel picker works in full names. */
+const AGENT_FULL_NAME: Record<string, string> = { You: 'Aditi Rao', Jane: 'Jane Doe', Marcus: 'Marcus Lee' };
+const INITIAL_ASSIGNMENTS: Record<string, { agent: string; team: string }> = Object.fromEntries(
+  TICKETS.map((t) => [t.id, { agent: t.assignee ? AGENT_FULL_NAME[t.assignee] ?? t.assignee : '', team: 'Support' }]),
+);
 
 
 export function App() {
@@ -1462,6 +1494,13 @@ export function App() {
   const [savingHelpdeskSettings, setSavingHelpdeskSettings] = useState(false);
   const [selectedTicketId, setSelectedTicketId] = useState(TICKETS[0].id);
   const selectedTicket = TICKETS.find((ticket) => ticket.id === selectedTicketId);
+  // Opening a conversation reads it — otherwise its unread badge lingers and the
+  // agent can't tell handled rows from untouched ones while working down the list.
+  const [readTicketIds, setReadTicketIds] = useState<Set<string>>(() => new Set([TICKETS[0].id]));
+  const openTicket = useCallback((id: string) => {
+    setSelectedTicketId(id);
+    setReadTicketIds((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
+  }, []);
   const [ticketReactions, setTicketReactions] = useState<Record<string, ReactionData>>({});
   const handleTicketReact = useCallback((reactionKey: string, emoji: string) => {
     setTicketReactions((prev) => {
@@ -1491,8 +1530,11 @@ export function App() {
   };
   const [ticketsBulkModifyOpen, setTicketsBulkModifyOpen] = useState(false);
   const [composerMode, setComposerMode] = useState<TicketComposerMode>('reply');
-  const [resolveStatus, setResolveStatus] = useState('Resolve');
-  const [composerDraft, setComposerDraft] = useState('');
+  // Drafts are per conversation: a single shared draft followed the agent from one
+  // customer to the next, so a reply written for John could be sent to someone else.
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const composerDraft = drafts[selectedTicketId] ?? '';
+  const setComposerDraft = (value: string) => setDrafts((prev) => ({ ...prev, [selectedTicketId]: value }));
   const [emailComposerAction, setEmailComposerAction] = useState<'reply' | 'forward' | null>(null);
   const [forwardTo, setForwardTo] = useState<string[]>([]);
   const [forwardCc, setForwardCc] = useState<string[]>(['info@mywebsite.com']);
@@ -1500,8 +1542,34 @@ export function App() {
   const [replyCc, setReplyCc] = useState<string[]>(['support@limechat.io']);
   const [replyBcc, setReplyBcc] = useState<string[]>([]);
   const [detailsTab, setDetailsTab] = useState('Overview');
-  const [ticketAgent, setTicketAgent] = useState('John Adams');
-  const [ticketTeam, setTicketTeam] = useState('Marketing');
+  // Ownership is per ticket and is the single source for both the list row and the
+  // details panel (they previously disagreed: row "Jane", panel "John Adams").
+  const [assignments, setAssignments] = useState(INITIAL_ASSIGNMENTS);
+  const selectedAssignment = assignments[selectedTicketId] ?? { agent: '', team: '' };
+  const assign = (field: 'agent' | 'team', value: string) =>
+    setAssignments((prev) => ({ ...prev, [selectedTicketId]: { ...selectedAssignment, [field]: value } }));
+
+  // J / K move to the next / previous conversation (Gmail/Front convention) whenever
+  // focus isn't in a text field — the most repeated action in a high-volume queue.
+  const ticketsActive = product === 'helpdesk' && selected === 'tickets' && !userSettingsOpen;
+  useEffect(() => {
+    if (!ticketsActive) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('input, textarea, select, [contenteditable="true"], [role="menu"], [role="dialog"]')) return;
+      const key = e.key.toLowerCase();
+      if (key !== 'j' && key !== 'k') return;
+      const index = TICKETS.findIndex((t) => t.id === selectedTicketId);
+      const next = TICKETS[index + (key === 'j' ? 1 : -1)];
+      if (!next) return;
+      e.preventDefault();
+      openTicket(next.id);
+      document.querySelector(`[data-ticket-id="${next.id}"]`)?.scrollIntoView({ block: 'nearest' });
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [ticketsActive, selectedTicketId, openTicket]);
 
   const [profileName, setProfileName] = useState('LimeChat');
   const [updatingProfile, setUpdatingProfile] = useState(false);
@@ -2368,14 +2436,17 @@ export function App() {
                   {TICKETS.map((ticket) => (
                     <TicketListItem
                       key={ticket.id}
+                      data-ticket-id={ticket.id}
                       channel={ticket.channel}
                       user={ticket.user}
                       avatars={ticket.avatarCount ? Array.from({ length: ticket.avatarCount }, () => ({})) : undefined}
                       isNew={ticket.isNew}
                       timestamp={ticket.timestamp}
                       message={ticket.message}
-                      assignee={ticketsTab === 'mine' ? undefined : ticket.assignee}
-                      unreadCount={ticket.unreadCount}
+                      assignee={
+                        ticketsTab === 'mine' ? undefined : assignments[ticket.id]?.agent.split(' ')[0] || undefined
+                      }
+                      unreadCount={readTicketIds.has(ticket.id) ? undefined : ticket.unreadCount}
                       selected={selectedTicketId === ticket.id}
                       showCheckbox={ticketsSelectMode}
                       checked={checkedTicketIds.has(ticket.id)}
@@ -2391,7 +2462,7 @@ export function App() {
                         setCheckedTicketIds(new Set(TICKETS.map((t) => t.id)));
                       }}
                       onMarkAsStarred={() => alert(`Mark as starred: ${ticket.user}`)}
-                      onClick={() => setSelectedTicketId(ticket.id)}
+                      onClick={() => openTicket(ticket.id)}
                     />
                   ))}
                 </TicketsSection>
@@ -2402,12 +2473,11 @@ export function App() {
                   channel={selectedTicket?.channel}
                   isNew={selectedTicket?.isNew}
                   phone={selectedTicket?.phone}
-                  inboxName="Inbox name"
+                  inboxName={selectedTicket?.channel === 'email' ? 'Email_Support' : 'WhatsApp_Support'}
                   callAvailable={selectedTicket?.channel === 'whatsapp'}
                   onCall={() => alert('Start voice call')}
                   onResolve={() => alert('Resolve ticket')}
-                  resolveLabel={resolveStatus}
-                  onResolveStatusChange={setResolveStatus}
+                  onResolveStatusChange={(status) => alert(`Marked as ${status.toLowerCase()}`)}
                   onStarTicket={() => alert('Star mark ticket')}
                   onMuteTicket={() => alert('Mute ticket notifications')}
                 />
@@ -2545,8 +2615,8 @@ export function App() {
                   activeTab={detailsTab}
                   onTabChange={setDetailsTab}
                   ticketId={selectedTicket?.ticketId ?? ''}
-                  agent={{ value: ticketAgent, options: ['John Adams', 'Jane Doe', 'Marcus Lee'], onChange: setTicketAgent }}
-                  team={{ value: ticketTeam, options: ['Marketing', 'Support', 'Sales'], onChange: setTicketTeam }}
+                  agent={{ value: selectedAssignment.agent, options: TICKET_AGENTS, onChange: (v) => assign('agent', v) }}
+                  team={{ value: selectedAssignment.team, options: TICKET_TEAMS, onChange: (v) => assign('team', v) }}
                   sections={TICKET_DETAIL_SECTIONS}
                 />
               }

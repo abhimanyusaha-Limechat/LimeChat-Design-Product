@@ -3,15 +3,16 @@
  * Default / Hover / Selected property states).
  *
  * Text/sm 14/20 (dimmed var(--lc-color-sage-500)) · Text/xs 12/16 · heading/h5 14/18 bold
- * (text/default var(--lc-color-green-900)) · Text Uppercase/xxs 10/12 SemiBold (badges)
+ * (text/default var(--lc-text-primary)) · Text Uppercase/xxs 10/12 SemiBold (badges)
  */
 .lc-ticket-row {
-  --lc-tr-title: var(--lc-color-green-900);
-  --lc-tr-dimmed: var(--lc-color-sage-500);
+  --lc-tr-title: var(--lc-text-primary);
+  --lc-tr-dimmed: var(--lc-text-secondary);
   --lc-tr-border: #f5f5f5;
   --lc-tr-border-hover: var(--lc-color-gray-300);
-  --lc-tr-primary: var(--lc-color-green-500);
-  --lc-tr-primary-light: var(--lc-color-green-50);
+  --lc-tr-primary: var(--lc-action-primary);
+  --lc-tr-hover: var(--lc-surface-hover);
+  --lc-tr-selected: var(--lc-surface-selected);
   --lc-tr-secondary: var(--lc-color-blue-600);
   --lc-tr-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
@@ -70,17 +71,30 @@
 }
 
 .lc-ticket-row:hover {
-  background: var(--lc-tr-primary-light);
+  background: var(--lc-tr-hover);
   border-bottom-color: var(--lc-tr-border-hover);
 }
 
-.lc-ticket-row[data-selected] {
-  background: var(--lc-tr-primary-light);
+/* Selected is neutral + a brand accent bar, so it stays distinct from hover
+   and doesn't compete with the unread badge (the one green a row may carry). */
+.lc-ticket-row[data-selected],
+.lc-ticket-row[data-selected]:hover {
+  background: var(--lc-tr-selected);
   border-bottom-color: transparent;
 }
 
 .lc-ticket-row[data-checked] {
-  background: var(--lc-tr-primary-light);
+  background: var(--lc-tr-selected);
+}
+
+/* Unread isn't carried by the count badge's colour alone: the name and
+   preview get heavier/darker, so it survives greyscale and colour-blindness. */
+.lc-ticket-row[data-unread] .lc-ticket-row__user {
+  font-weight: 800;
+}
+.lc-ticket-row[data-unread] .lc-ticket-row__message-text {
+  color: var(--lc-tr-title);
+  font-weight: 600;
 }
 
 .lc-ticket-row:focus-visible {
@@ -90,8 +104,8 @@
 
 .lc-ticket-row__accent {
   position: absolute;
-  inset: 0 0 0 auto;
-  width: 4px;
+  inset: 0 auto 0 0;
+  width: 3px;
   background: var(--lc-tr-primary);
 }
 
@@ -285,3 +299,10 @@
   color: var(--lc-tr-secondary);
   white-space: nowrap;
 }
+
+/* Channel glyphs in their own app colours, wherever TicketIcon renders one
+   (list rows, conversation header, inbox pickers). */
+.lc-ticket-icon[data-channel='whatsapp'] { color: var(--lc-channel-whatsapp); }
+.lc-ticket-icon[data-channel='instagram'] { color: var(--lc-channel-instagram); }
+.lc-ticket-icon[data-channel='email'] { color: var(--lc-channel-email); }
+.lc-ticket-icon[data-channel='sms'] { color: var(--lc-channel-sms); }

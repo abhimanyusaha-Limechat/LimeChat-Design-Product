@@ -10,14 +10,14 @@
   --lc-tags-radius: 4px;
   --lc-tags-border: var(--lc-color-gray-300);
   --lc-tags-bg: var(--lc-color-white);
-  --lc-tags-value: var(--lc-color-green-900);
+  --lc-tags-value: var(--lc-text-primary);
   --lc-tags-placeholder: #b3b3b3;
   --lc-tags-icon: var(--lc-color-gray-500);
-  --lc-tags-label: var(--lc-color-green-900);
+  --lc-tags-label: var(--lc-text-primary);
   --lc-tags-helper: var(--lc-color-sage-500);
   --lc-tags-focus: var(--lc-color-green-500);
   --lc-tags-pill-bg: var(--lc-color-stone-100);
-  --lc-tags-pill-fg: var(--lc-color-green-900);
+  --lc-tags-pill-fg: var(--lc-text-primary);
 
   box-sizing: border-box;
   display: flex;

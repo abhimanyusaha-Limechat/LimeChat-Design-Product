@@ -7,7 +7,7 @@
 
 .lc-sp {
   --lc-sp-border: var(--lc-color-gray-300);
-  --lc-sp-text-title: var(--lc-color-green-900);
+  --lc-sp-text-title: var(--lc-text-primary);
   --lc-sp-text-dimmed: var(--lc-color-sage-500);
   --lc-sp-primary: var(--lc-color-green-700);
   --lc-sp-primary-dark: var(--lc-color-green-800);

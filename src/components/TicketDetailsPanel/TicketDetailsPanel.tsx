@@ -147,6 +147,13 @@ export interface TicketDetailsSection {
   defaultOpen?: boolean;
   onAdd?: () => void;
   hideAdd?: boolean;
+  /** Sections sharing a group render under one small heading (e.g. "Tickets", "Tags"),
+   * in order of first appearance. Ungrouped sections render without a heading. */
+  group?: string;
+  /** "See more (N)" paging for `items`, ported from the Vue app's previous-conversations list:
+   * shows `collapsedCount` items, the first "See more" expands to the already-fetched page, each
+   * later click fetches the next `pageSize`, and "See less" collapses once everything is loaded. */
+  pagination?: { collapsedCount: number; pageSize: number; total?: number };
 }
 
 export interface AssignmentField {
@@ -223,11 +230,22 @@ function DetailRow({
 }
 
 /** Trigger + popover with a search box — used to assign an agent/team from a long, searchable name list. */
-function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (next: string) => void }) {
+function AssigneeSearchSelect({
+  value,
+  options,
+  noun,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  /** Plural noun for the search copy, e.g. "agents" / "teams". */
+  noun: string;
+  onChange: (next: string) => void;
+}) {
   const [query, setQuery] = useState('');
   const wasOpenRef = useRef(false);
 
-  const filtered = RANDOM_AGENT_NAMES.filter((name) => name.toLowerCase().includes(query.trim().toLowerCase()));
+  const filtered = options.filter((name) => name.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
     <Menu
@@ -239,8 +257,8 @@ function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (n
           <input
             type="text"
             className="lc-tdp__assignee-search"
-            aria-label="Search agents"
-            placeholder="Search agents…"
+            aria-label={`Search ${noun}`}
+            placeholder={`Search ${noun}…`}
             value={query}
             autoFocus
             onChange={(e) => setQuery(e.currentTarget.value)}
@@ -248,7 +266,7 @@ function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (n
           />
         </div>
       }
-      emptyState={<p className="lc-tdp__assignee-empty">No agents found.</p>}
+      emptyState={<p className="lc-tdp__assignee-empty">No {noun} found.</p>}
       items={filtered.map((name) => ({
         key: name,
         label: name,
@@ -268,7 +286,7 @@ function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (n
             aria-expanded={open}
             onClick={onClick}
           >
-            <span className="lc-tdp__assignee-trigger-value">{value || 'Select...'}</span>
+            <span className="lc-tdp__assignee-trigger-value">{value || 'Unassigned'}</span>
             <ChevronIcon open={open} />
           </button>
         );
@@ -277,14 +295,29 @@ function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (n
   );
 }
 
-function AssignmentRow({ icon, label, field }: { icon?: ReactNode; label: string; field: AssignmentField }) {
+function AssignmentRow({
+  icon,
+  label,
+  noun,
+  field,
+}: {
+  icon?: ReactNode;
+  label: string;
+  noun: string;
+  field: AssignmentField;
+}) {
   return (
     <div className="lc-tdp__assignment-row">
       <span className="lc-tdp__assignment-label">
         {icon != null && <span className="lc-tdp__detail-icon">{icon}</span>}
         {label}
       </span>
-      <AssigneeSearchSelect value={field.value} onChange={(next) => field.onChange?.(next)} />
+      <AssigneeSearchSelect
+        value={field.value}
+        options={field.options}
+        noun={noun}
+        onChange={(next) => field.onChange?.(next)}
+      />
     </div>
   );
 }
@@ -474,43 +507,157 @@ function SubTicketModal({ open, onClose }: { open: boolean; onClose: () => void 
   );
 }
 
+/** What a collapsed header counts: explicit `count`, else items/tags/fields present. */
+function sectionCount(section: TicketDetailsSection): number {
+  return (
+    section.count ??
+    section.pagination?.total ??
+    section.items?.length ??
+    section.tags?.length ??
+    section.fields?.length ??
+    0
+  );
+}
+
+/** Simulated fetch time for the next page of items. */
+const SEE_MORE_DELAY_MS = 450;
+
+function PaginatedItems({
+  items,
+  pagination,
+}: {
+  items: TicketDetailsSectionItem[];
+  pagination: NonNullable<TicketDetailsSection['pagination']>;
+}) {
+  const { collapsedCount, pageSize } = pagination;
+  const total = pagination.total ?? items.length;
+  const [expanded, setExpanded] = useState(false);
+  // The first page arrives with the section; later pages are "fetched" on demand.
+  const [loadedCount, setLoadedCount] = useState(Math.min(pageSize, total));
+  const [fetching, setFetching] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const canLoadMore = loadedCount < total;
+  const hasMoreThanCollapsed = loadedCount > collapsedCount;
+  const showButton = hasMoreThanCollapsed || canLoadMore;
+  const showingAll = expanded && hasMoreThanCollapsed && !canLoadMore;
+  const remaining = expanded ? total - loadedCount : total - collapsedCount;
+  const visible = items.slice(0, expanded ? loadedCount : collapsedCount);
+
+  const onClick = () => {
+    if (showingAll) {
+      setExpanded(false);
+      return;
+    }
+    // No fetch on the first click — that page is already loaded; fetch from the second on.
+    if (canLoadMore && expanded) {
+      setFetching(true);
+      timer.current = window.setTimeout(() => {
+        setLoadedCount((c) => Math.min(total, c + pageSize));
+        setFetching(false);
+      }, SEE_MORE_DELAY_MS);
+    }
+    setExpanded(true);
+  };
+
+  return (
+    <>
+      {visible.map((item, i) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <SectionItem key={i} item={item} />
+      ))}
+      {showButton && (
+        <button
+          type="button"
+          className="lc-tdp__see-more"
+          onClick={onClick}
+          disabled={fetching}
+          aria-busy={fetching || undefined}
+        >
+          {fetching ? (
+            <>
+              <span className="lc-tdp__see-more-spinner" aria-hidden="true" />
+              Loading…
+            </>
+          ) : showingAll ? (
+            <>
+              See less
+              <ChevronDownIcon className="lc-tdp__see-more-icon" data-up="" />
+            </>
+          ) : (
+            <>
+              See more
+              <span className="lc-tdp__badge">{remaining}</span>
+              <ChevronDownIcon className="lc-tdp__see-more-icon" />
+            </>
+          )}
+        </button>
+      )}
+    </>
+  );
+}
+
+function SectionItem({ item }: { item: TicketDetailsSectionItem }) {
+  const isVoice = item.duration != null;
+  return (
+    <div className="lc-tdp__item">
+      <span className="lc-tdp__item-icon">{item.icon ?? (isVoice ? <PhoneIcon /> : <MailIcon />)}</span>
+      <div className="lc-tdp__item-text">
+        <div className="lc-tdp__item-title-row">
+          <span className="lc-tdp__item-title">{item.title}</span>
+          {item.timestamp && <span className="lc-tdp__item-timestamp">{item.timestamp}</span>}
+        </div>
+        {isVoice ? (
+          <div className="lc-tdp__item-title-row">
+            <span className="lc-tdp__item-preview">{item.duration}</span>
+            <span className="lc-tdp__voice-transcript">See transcript</span>
+          </div>
+        ) : (
+          item.preview && <p className="lc-tdp__item-preview">{item.preview}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Section({ section }: { section: TicketDetailsSection }) {
   const [open, setOpen] = useState(section.defaultOpen ?? false);
   const [subTicketModalOpen, setSubTicketModalOpen] = useState(false);
-  const toggle = () => setOpen((v) => !v);
+  const bodyId = useId();
+  const count = sectionCount(section);
   return (
-    <div className="lc-tdp__section">
+    <div className="lc-tdp__section" data-open={open || undefined} data-empty={count === 0 || undefined}>
       <div className="lc-tdp__section-header">
-        <button type="button" className="lc-tdp__section-toggle" aria-expanded={open} onClick={toggle}>
-          <span className="lc-tdp__section-title" data-open={open || undefined}>
-            <span>{section.label}</span>
-            {section.count != null && <span className="lc-tdp__badge">{section.count}</span>}
+        <button
+          type="button"
+          className="lc-tdp__section-toggle"
+          aria-expanded={open}
+          aria-controls={bodyId}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <span className="lc-tdp__chevron" aria-hidden="true">
+            <ChevronDownIcon />
           </span>
+          <span className="lc-tdp__section-title">{section.label}</span>
+          {count > 0 && <span className="lc-tdp__badge">{count}</span>}
         </button>
-        <div className="lc-tdp__section-actions">
-          {!section.hideAdd && (
-            <button
-              type="button"
-              className="lc-tdp__icon-btn"
-              aria-label={`Add ${section.label}`}
-              onClick={() => {
-                if (section.id === 'sub-tickets') {
-                  setSubTicketModalOpen(true);
-                } else {
-                  section.onAdd?.();
-                }
-              }}
-            >
-              <PlusIcon />
-            </button>
-          )}
-          <span className="lc-tdp__icon-btn" aria-hidden="true">
-            <ChevronIcon open={open} />
-          </span>
-        </div>
+        {!section.hideAdd && (
+          <button
+            type="button"
+            className="lc-tdp__icon-btn"
+            aria-label={`Add ${section.label}`}
+            onClick={() => {
+              if (section.id === 'sub-tickets') setSubTicketModalOpen(true);
+              else section.onAdd?.();
+            }}
+          >
+            <PlusIcon />
+          </button>
+        )}
       </div>
       {open && (
-        <div className="lc-tdp__section-body">
+        <div className="lc-tdp__section-body" id={bodyId}>
           {section.fields && section.fields.length > 0 && (
             <div className="lc-tdp__fields">
               {section.fields.map((field) => (
@@ -520,36 +667,12 @@ function Section({ section }: { section: TicketDetailsSection }) {
           )}
           {section.tags && <TagList tags={section.tags} />}
           {section.items && section.items.length > 0
-            ? section.items.map((item, i) =>
-                item.duration != null ? (
+            ? section.pagination
+              ? <PaginatedItems items={section.items} pagination={section.pagination} />
+              : section.items.map((item, i) => (
                   // eslint-disable-next-line react/no-array-index-key
-                  <div key={i} className="lc-tdp__item">
-                    <span className="lc-tdp__item-icon">{item.icon ?? <PhoneIcon />}</span>
-                    <div className="lc-tdp__item-text">
-                      <div className="lc-tdp__item-title-row">
-                        <span className="lc-tdp__item-title">{item.title}</span>
-                        {item.timestamp && <span className="lc-tdp__item-timestamp">{item.timestamp}</span>}
-                      </div>
-                      <div className="lc-tdp__item-title-row">
-                        <span className="lc-tdp__item-preview">{item.duration}</span>
-                        <span className="lc-tdp__voice-transcript">See transcript</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  // eslint-disable-next-line react/no-array-index-key
-                  <div key={i} className="lc-tdp__item">
-                    <span className="lc-tdp__item-icon">{item.icon ?? <MailIcon />}</span>
-                    <div className="lc-tdp__item-text">
-                      <div className="lc-tdp__item-title-row">
-                        <span className="lc-tdp__item-title">{item.title}</span>
-                        {item.timestamp && <span className="lc-tdp__item-timestamp">{item.timestamp}</span>}
-                      </div>
-                      {item.preview && <p className="lc-tdp__item-preview">{item.preview}</p>}
-                    </div>
-                  </div>
-                ),
-              )
+                  <SectionItem key={i} item={item} />
+                ))
             : !section.fields?.length &&
               !section.tags &&
               section.emptyText && <p className="lc-tdp__empty">{section.emptyText}</p>}
@@ -560,6 +683,19 @@ function Section({ section }: { section: TicketDetailsSection }) {
       )}
     </div>
   );
+}
+
+/** Sections bucketed by `group`, preserving first-appearance order. */
+function groupSections(sections: TicketDetailsSection[]) {
+  const groups: { name?: string; sections: TicketDetailsSection[] }[] = [];
+  for (const section of sections) {
+    const last = groups[groups.length - 1];
+    const existing = section.group ? groups.find((g) => g.name === section.group) : undefined;
+    if (existing) existing.sections.push(section);
+    else if (!section.group && last && !last.name) last.sections.push(section);
+    else groups.push({ name: section.group, sections: [section] });
+  }
+  return groups;
 }
 
 export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelProps>(function TicketDetailsPanel(
@@ -590,44 +726,53 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
 
   return (
     <div {...rest} ref={ref} className={`lc-tdp${className ? ` ${className}` : ''}`}>
-      <div className="lc-tdp__tabs" role="tablist">
-        {tabs.map((tab) => {
-          const Icon = TAB_ICONS[tab];
-          return (
-            <Tooltip key={tab} label={tab} position="bottom">
+      <div className="lc-tdp__tabs-wrap">
+        <div className="lc-tdp__tabs" role="tablist">
+          {tabs.map((tab) => {
+            const Icon = TAB_ICONS[tab];
+            const active = resolvedActiveTab === tab;
+            return (
               <button
+                key={tab}
                 type="button"
                 id={tabId(tab)}
                 role="tab"
-                aria-selected={resolvedActiveTab === tab}
+                aria-selected={active}
                 aria-controls={panelId(tab)}
-                aria-label={tab}
+                // Inactive tabs collapse to their icon; the label stays in the DOM for the accessible name.
+                title={active ? undefined : tab}
                 className="lc-tdp__tab"
-                data-active={resolvedActiveTab === tab || undefined}
+                data-active={active || undefined}
                 onClick={() => onTabChange?.(tab)}
               >
-                {Icon ? <Icon /> : tab}
+                {Icon && <Icon />}
+                <span className="lc-tdp__tab-label">{tab}</span>
               </button>
-            </Tooltip>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {resolvedActiveTab === 'Overview' && (
         <div {...panelProps}>
           {(ticketId || agent || team) && (
             <div className="lc-tdp__info">
-              {ticketId && <DetailRow label="Ticket Id" value={ticketId} copyable />}
-              {agent && <AssignmentRow label="Assign Agent" field={agent} />}
-              {team && <AssignmentRow label="Assign Team" field={team} />}
+              {ticketId && <DetailRow label="Ticket" value={`#${ticketId}`} copyable />}
+              {agent && <AssignmentRow label="Agent" noun="agents" field={agent} />}
+              {team && <AssignmentRow label="Team" noun="teams" field={team} />}
             </div>
           )}
 
-          <div className="lc-tdp__sections">
-            {sections.map((section) => (
-              <Section key={section.id} section={section} />
-            ))}
-          </div>
+          {groupSections(sections).map((group, gi) => (
+            <div key={group.name ?? `ungrouped-${gi}`} className="lc-tdp__group">
+              {group.name && <p className="lc-tdp__group-label">{group.name}</p>}
+              <div className="lc-tdp__sections">
+                {group.sections.map((section) => (
+                  <Section key={section.id} section={section} />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

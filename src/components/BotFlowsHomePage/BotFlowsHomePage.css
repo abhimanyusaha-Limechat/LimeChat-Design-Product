@@ -9,7 +9,7 @@
 .lc-bf {
   --lc-bf-border: var(--lc-color-gray-300);
   --lc-bf-border-dark: var(--lc-color-gray-225);
-  --lc-bf-text-title: var(--lc-color-green-900);
+  --lc-bf-text-title: var(--lc-text-primary);
   --lc-bf-text-dimmed: var(--lc-color-sage-500);
   --lc-bf-secondary-dark: var(--lc-color-stone-600);
   --lc-bf-text-light: var(--lc-color-sage-500);

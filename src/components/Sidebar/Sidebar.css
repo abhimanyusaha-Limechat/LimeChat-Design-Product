@@ -197,7 +197,7 @@
   font-family: inherit;
   font-size: 13px;
   line-height: 16px;
-  color: var(--lc-color-green-900);
+  color: var(--lc-text-primary);
   text-align: left;
   cursor: pointer;
   transition: background-color 120ms ease, transform 120ms ease;

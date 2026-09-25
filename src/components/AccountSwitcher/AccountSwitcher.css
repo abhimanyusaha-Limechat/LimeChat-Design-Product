@@ -7,17 +7,17 @@
  *   panel   bg var(--lc-color-white) · border/gray/light var(--lc-color-gray-300) · radius/2xs 4px · p padding/sm 12px
  *           shadow  0 1px 1.5px #0000000D, 0 20px 12.5px #0000001A, 0 10px 5px #0000000A · w 280
  *   header  border-bottom var(--lc-color-gray-300) · pb padding/xs 8px · gap 12px
- *           name  Heading/h6  16/20 bold  text/title var(--lc-color-green-900)
+ *           name  Heading/h6  16/20 bold  text/title var(--lc-text-primary)
  *           id    Text SemiBold/xs  12/16  text/dimmed var(--lc-color-sage-500)
  *   row     gap 12px · p padding/xs 8px · radius/3xs 2px
- *           name  Heading/h7  12/16 bold  text/default var(--lc-color-green-900)
+ *           name  Heading/h7  12/16 bold  text/default var(--lc-text-primary)
  *           id    Text SemiBold/xs  12/16  text/dimmed var(--lc-color-sage-500)
  *           hover bg gray/10 var(--lc-color-gray-50) · selected bg ~green/green-0 var(--lc-color-green-25)
  *   pager   icon 20px (border var(--lc-color-gray-300), radius 4) · active 24px var(--lc-color-green-500) / var(--lc-color-white)
  */
 .lc-account-switcher {
   --lc-as-border: var(--lc-color-gray-300);
-  --lc-as-title: var(--lc-color-green-900);
+  --lc-as-title: var(--lc-text-primary);
   --lc-as-dimmed: var(--lc-color-sage-500);
   --lc-as-hover-bg: var(--lc-color-gray-50);
   --lc-as-selected-bg: var(--lc-color-green-25);

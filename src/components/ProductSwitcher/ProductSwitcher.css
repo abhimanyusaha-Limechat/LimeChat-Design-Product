@@ -6,12 +6,12 @@
  * Tokens:
  *   popover  bg var(--lc-color-white) · border/gray/light var(--lc-color-gray-300) · radius/2xs 4px · p padding/2xs 4px
  *            shadow  0 1px 1.5px #0000000D, 0 20px 12.5px #0000001A, 0 10px 5px #0000000A
- *   tile     p padding/sm 12px · gap padding/xs 8px · radius/2xs 4px · label Lato 10/12.5 text/title var(--lc-color-green-900)
+ *   tile     p padding/sm 12px · gap padding/xs 8px · radius/2xs 4px · label Lato 10/12.5 text/title var(--lc-text-primary)
  *            selected bg ~green/green-1 var(--lc-color-green-100) · hover bg ~gray/gray-0 var(--lc-color-stone-100) (matches TopNavBar hover)
  *   footer   border-top var(--lc-color-gray-300) · py 6px · 10/12.5 text/title
  */
 .lc-product-switcher {
-  --lc-ps-fg: var(--lc-color-green-900);
+  --lc-ps-fg: var(--lc-text-primary);
   --lc-ps-border: var(--lc-color-gray-300);
   --lc-ps-selected-bg: var(--lc-color-green-100);
   --lc-ps-hover-bg: var(--lc-color-stone-100);
