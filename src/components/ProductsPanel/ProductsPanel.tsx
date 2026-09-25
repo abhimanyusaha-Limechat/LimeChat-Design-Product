@@ -6,16 +6,15 @@
  *
  *   <ProductsPanel />
  */
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockProducts';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
 import { LoadMore } from '../LoadMore';
-import { NativeSelect } from '../Select';
 import './ProductsPanel.css';
 import { iconProps } from '../iconProps';
-import { CloseIcon as ClearIcon, CheckIcon } from '../icons';
+import { CloseIcon as ClearIcon, CheckIcon, ChevronDownIcon } from '../icons';
 import { formatINR } from '../formatINR';
 import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 
@@ -136,6 +135,14 @@ const ShareIcon = () => (
     <path d="M21.2218 11.3782L13.6218 3.77815C13.4889 3.64533 13.3196 3.55488 13.1354 3.51824C12.9511 3.4816 12.7602 3.50042 12.5866 3.5723C12.413 3.64419 12.2647 3.76593 12.1603 3.92212C12.0559 4.07831 12.0001 4.26194 12.0001 4.44981V7.81759C9.40495 8.05775 6.99281 9.25768 5.23573 11.1826C3.47866 13.1074 2.50311 15.6187 2.5 18.225V19.65C2.50015 19.8472 2.56166 20.0394 2.67601 20.2001C2.79036 20.3608 2.95187 20.4819 3.13815 20.5466C3.32442 20.6113 3.52622 20.6165 3.71557 20.5614C3.90491 20.5063 4.0724 20.3936 4.19482 20.239C5.12554 19.1322 6.26751 18.222 7.554 17.5615C8.84049 16.901 10.2457 16.5036 11.6875 16.3924C11.735 16.3867 11.8538 16.3772 12.0001 16.3677V19.65C12.0001 19.8378 12.0559 20.0215 12.1603 20.1777C12.2647 20.3339 12.413 20.4556 12.5866 20.5275C12.7602 20.5994 12.9511 20.6182 13.1354 20.5815C13.3196 20.5449 13.4889 20.4544 13.6218 20.3216L21.2218 12.7215C21.4 12.5434 21.5 12.3018 21.5 12.0499C21.5 11.798 21.4 11.5564 21.2218 11.3782ZM13.9001 17.3566V15.3749C13.9001 15.123 13.8 14.8813 13.6219 14.7032C13.4437 14.525 13.2021 14.4249 12.9501 14.4249C12.7079 14.4249 11.7189 14.4724 11.4662 14.5057C8.90579 14.7416 6.46859 15.7143 4.44942 17.3063C4.6786 15.211 5.6726 13.2738 7.24108 11.8657C8.80956 10.4576 10.8423 9.67757 12.9501 9.67486C13.2021 9.67486 13.4437 9.57477 13.6219 9.39661C13.8 9.21845 13.9001 8.97681 13.9001 8.72485V6.74313L19.2069 12.0499L13.9001 17.3566Z" />
   </svg>
 );
+const PhotoIcon = () => (
+  <svg {...iconProps()}>
+    <rect x="4" y="5" width="16" height="14" rx="2" />
+    <circle cx="9" cy="10" r="1.5" />
+    <path d="M4 15l4.5 -4.5c0.8 -0.8 2 -0.8 2.8 0l5.7 5.5" />
+    <path d="M14.5 13.5l1.5 -1.5c0.8 -0.8 2 -0.8 2.8 0l1.2 1.2" />
+  </svg>
+);
 const CartIcon = () => (
   <svg {...iconProps()}>
     <circle cx="6" cy="19" r="2" />
@@ -157,9 +164,7 @@ function ProductThumbnail({ product, size = 'sm' }: { product: Product; size?: '
       {product.imageUrl ? (
         <img className="lc-pp__thumb-img" src={product.imageUrl} alt="" aria-hidden="true" />
       ) : (
-        <span className="lc-pp__thumb-initial" aria-hidden="true">
-          {product.name.charAt(0)}
-        </span>
+        <PhotoIcon />
       )}
     </span>
   );
@@ -417,6 +422,42 @@ function TruncatedDescription({ text }: { text: string }) {
 
 const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
 
+/** A NativeSelect-styled field whose options open in our Menu popover instead of the native `<select>` list. */
+function PopoverSelect({ label, data, value, onChange }: { label: string; data: string[]; value: string; onChange: (next: string) => void }) {
+  const id = useId();
+  return (
+    <div className="lc-select" data-size="sm">
+      <label className="lc-select__label" htmlFor={id}>
+        {label}
+      </label>
+      <Menu
+        ariaLabel={label}
+        align="start"
+        width={200}
+        items={data.map((option) => ({ key: option, label: option, selected: option === value, onClick: () => onChange(option) }))}
+        trigger={({ ref, onClick, open }) => (
+          <div className="lc-select__control">
+            <button
+              ref={ref}
+              id={id}
+              type="button"
+              className="lc-select__input lc-select__input--button"
+              aria-haspopup="listbox"
+              aria-expanded={open}
+              onClick={onClick}
+            >
+              {value}
+            </button>
+            <span className="lc-select__chevron" aria-hidden="true">
+              <ChevronDownIcon />
+            </span>
+          </div>
+        )}
+      />
+    </div>
+  );
+}
+
 function ProductDetailView({ product, onBack }: { product: Product; onBack: () => void }) {
   const [selectedSize, setSelectedSize] = useState(product.variants?.[0] ?? '');
   const [selectedColor, setSelectedColor] = useState(COLOR_OPTIONS[0]);
@@ -445,20 +486,8 @@ function ProductDetailView({ product, onBack }: { product: Product; onBack: () =
 
         {product.variants && product.variants.length > 0 && (
           <div className="lc-pp__detail-variants">
-            <NativeSelect
-              size="sm"
-              label="Size"
-              data={product.variants}
-              value={selectedSize}
-              onChange={(e) => setSelectedSize(e.currentTarget.value)}
-            />
-            <NativeSelect
-              size="sm"
-              label="Color"
-              data={COLOR_OPTIONS}
-              value={selectedColor}
-              onChange={(e) => setSelectedColor(e.currentTarget.value)}
-            />
+            <PopoverSelect label="Size" data={product.variants} value={selectedSize} onChange={setSelectedSize} />
+            <PopoverSelect label="Color" data={COLOR_OPTIONS} value={selectedColor} onChange={setSelectedColor} />
           </div>
         )}
 

@@ -166,6 +166,11 @@
   color: var(--lc-select-placeholder);
 }
 
+/* A <button> trigger reusing this chrome (opens our Menu popover instead of a native <select> list) */
+button.lc-select__input--button {
+  text-align: left;
+}
+
 .lc-select__chevron {
   position: absolute;
   top: 50%;

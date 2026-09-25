@@ -9,6 +9,7 @@
 import { useMemo, useState } from 'react';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
 import { Button } from '../Button';
+import { NativeSelect } from '../Select';
 import './CartPanel.css';
 import { iconProps } from '../iconProps';
 import { TrashIcon } from '../icons';
@@ -48,8 +49,12 @@ function thumbColor(sku: string): string {
 const PRODUCT_IMAGE_BY_SKU: Record<string, string> = Object.fromEntries(
   MOCK_PRODUCTS.filter((p) => p.imageUrl).map((p) => [p.sku, p.imageUrl!]),
 );
+const PRODUCT_BY_ID: Record<string, Product> = Object.fromEntries(MOCK_PRODUCTS.map((p) => [p.id, p]));
 
-/** SKUs encode a trailing color code (e.g. `NK-PG41-BLK` → Black) — decode it for display. */
+/** Mirrors ProductsPanel's color picker — the catalog has no per-product color variant list. */
+const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
+
+/** SKUs encode a trailing color code (e.g. `NK-PG41-BLK` → Black). */
 const SKU_COLOR_SUFFIX: Record<string, string> = {
   BLK: 'Black',
   WHT: 'White',
@@ -60,12 +65,9 @@ const SKU_COLOR_SUFFIX: Record<string, string> = {
   GRN: 'Green',
   CHK: 'Chalk',
 };
-function colorFromSku(sku: string): string | undefined {
-  const suffix = sku.split('-').pop()?.toUpperCase();
-  return suffix ? SKU_COLOR_SUFFIX[suffix] : undefined;
-}
 
 function productToLineItem(product: Product): CartLineItem {
+  const suffix = product.sku.split('-').pop()?.toUpperCase();
   return {
     productId: product.id,
     name: product.name,
@@ -73,7 +75,7 @@ function productToLineItem(product: Product): CartLineItem {
     unitPrice: product.discountedPrice,
     quantity: 1,
     size: product.variants?.[0],
-    color: colorFromSku(product.sku),
+    color: suffix ? SKU_COLOR_SUFFIX[suffix] : undefined,
   };
 }
 
@@ -115,6 +117,10 @@ export function CartPanel() {
   };
   const setQty = (index: number, quantity: number) =>
     setItems((prev) => prev.map((item, i) => (i === index ? { ...item, quantity } : item)));
+  const setSize = (index: number, size: string) =>
+    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, size } : item)));
+  const setColor = (index: number, color: string) =>
+    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, color } : item)));
 
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0), [items]);
   const taxAmount = Math.round((subtotal * TAX_RATE) / 100);
@@ -162,13 +168,37 @@ export function CartPanel() {
                           </button>
                         </div>
                       </div>
+                      {(() => {
+                        const variants = PRODUCT_BY_ID[item.productId]?.variants;
+                        return (item.size || item.color) ? (
+                          <div className="lc-cp__item-variants">
+                            {item.size && (
+                              <NativeSelect
+                                size="xs"
+                                fullWidth
+                                aria-label={`Size for ${item.name}`}
+                                data={variants && variants.length > 0 ? variants : [item.size]}
+                                value={item.size}
+                                onChange={(e) => setSize(i, e.currentTarget.value)}
+                              />
+                            )}
+                            {item.color && (
+                              <NativeSelect
+                                size="xs"
+                                fullWidth
+                                aria-label={`Color for ${item.name}`}
+                                data={COLOR_OPTIONS}
+                                value={item.color}
+                                onChange={(e) => setColor(i, e.currentTarget.value)}
+                              />
+                            )}
+                          </div>
+                        ) : null;
+                      })()}
                       <div className="lc-cp__item-bottom">
                         <span className="lc-cp__item-sku">{item.sku}</span>
                         <span className="lc-cp__item-price">{formatINR(item.unitPrice * item.quantity)}</span>
                       </div>
-                      {(item.size || item.color) && (
-                        <p className="lc-cp__item-variants">{[item.size, item.color].filter(Boolean).join(' · ')}</p>
-                      )}
                     </div>
                   </div>
                 </div>
