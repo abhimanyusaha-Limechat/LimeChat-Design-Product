@@ -138,10 +138,10 @@ const ShareIcon = () => (
     <path d="M8 13.5l8 4" />
   </svg>
 );
-const ForwardIcon = () => (
+const ShareArrowIcon = () => (
   <svg {...iconProps()}>
-    <path d="M7 7l5 5l-5 5" />
-    <path d="M13 7l5 5l-5 5" />
+    <path d="M15 13l4 -4l-4 -4" />
+    <path d="M19 9h-11a4 4 0 0 0 0 8h1" />
   </svg>
 );
 const PhotoIcon = () => (
@@ -256,6 +256,27 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
 }
 
 /** Icon-only share CTA shown on `.lc-pp__row` hover, mirroring DetailCtas' share behavior. */
+function RowAddToCartButton({ product }: { product: Product }) {
+  const { addItem } = useCart();
+  const [added, setAdded] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const handleAddToCart = (e: MouseEvent) => {
+    e.stopPropagation();
+    addItem({ productId: product.id, name: product.name, sku: product.sku, unitPrice: product.discountedPrice });
+    setAdded(true);
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setAdded(false), 1000);
+  };
+
+  return (
+    <button type="button" className="lc-pp__row-add-cart" aria-label="Add to cart" onClick={handleAddToCart}>
+      {added ? <CheckIcon /> : <CartIcon />}
+    </button>
+  );
+}
+
 function RowShareButton({ product }: { product: Product }) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | undefined>(undefined);
@@ -275,7 +296,7 @@ function RowShareButton({ product }: { product: Product }) {
 
   return (
     <button type="button" className="lc-pp__row-share" aria-label="Share product" onClick={handleShare}>
-      {copied ? <CheckIcon /> : <ForwardIcon />}
+      {copied ? <CheckIcon /> : <ShareArrowIcon />}
     </button>
   );
 }
@@ -318,6 +339,7 @@ function ProductRow({
         </span>
       </span>
       <span className="lc-pp__row-actions">
+        <RowAddToCartButton product={product} />
         <RowShareButton product={product} />
       </span>
     </div>

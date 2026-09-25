@@ -8,7 +8,7 @@
  */
 import { useMemo, useState } from 'react';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
-import { useCart } from '../../context/CartContext';
+import { useCart, type CartLineItem } from '../../context/CartContext';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import './CartPanel.css';
@@ -61,7 +61,7 @@ function Stepper({ value, onChange }: { value: number; onChange: (next: number) 
 
 const REMOVE_ANIM_MS = 180;
 
-export function CartPanel() {
+export function CartPanel({ onCreateOrder }: { onCreateOrder?: (items: CartLineItem[]) => void } = {}) {
   const { items, removeItem: removeFromCart, clearCart, setQuantity, setSize: setItemSize, setColor: setItemColor } =
     useCart();
   const [removingKeys, setRemovingKeys] = useState<Set<string>>(new Set());
@@ -95,8 +95,12 @@ export function CartPanel() {
             <p className="lc-cp__empty-text">Add products from the catalog to build a cart for this customer.</p>
           </div>
         ) : (
-          <div className="lc-cp__items">
-            {items.map((item, i) => {
+          <>
+            <p className="lc-cp__count-line">
+              {items.length} {items.length === 1 ? 'product' : 'products'} in cart
+            </p>
+            <div className="lc-cp__items">
+              {items.map((item, i) => {
               const key = `${item.sku}-${i}`;
               return (
                 <div key={key} className="lc-cp__item-wrap" data-removing={removingKeys.has(key) || undefined}>
@@ -162,8 +166,9 @@ export function CartPanel() {
                   </div>
                 </div>
               );
-            })}
-          </div>
+              })}
+            </div>
+          </>
         )}
       </div>
 
@@ -185,7 +190,13 @@ export function CartPanel() {
             <Button variant="default" size="sm" onClick={clearCart}>
               Clear cart
             </Button>
-            <Button variant="filled" color="primary" size="sm" style={{ flex: 1 }}>
+            <Button
+              variant="filled"
+              color="primary"
+              size="sm"
+              style={{ flex: 1 }}
+              onClick={() => onCreateOrder?.(items)}
+            >
               Create order
             </Button>
           </div>

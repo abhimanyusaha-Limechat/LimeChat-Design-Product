@@ -637,13 +637,17 @@ function computeDraftTotals(draft: OrderDraft): { subtotal: number; taxAmount: n
 
 function isDraftValid(draft: OrderDraft): boolean {
   return (
-    draft.invoiceName.trim() !== '' &&
     draft.items.length > 0 &&
     draft.shippingAddress.name.trim() !== '' &&
     draft.shippingAddress.line1.trim() !== '' &&
     draft.shippingAddress.city.trim() !== '' &&
     draft.shippingAddress.postalCode.trim() !== ''
   );
+}
+
+/** No invoice-name field exists in the form — derive one from the shipping name so it's never blank. */
+function resolveInvoiceName(draft: OrderDraft): string {
+  return draft.invoiceName.trim() || `Invoice - ${draft.shippingAddress.name.trim()}`;
 }
 
 function nextOrderId(existing: Order[]): string {
@@ -688,45 +692,6 @@ function Stepper({ value, onChange }: { value: number; onChange: (next: number) 
         +
       </button>
     </span>
-  );
-}
-
-function LineItemsEditor({
-  items,
-  onAdd,
-  onRemove,
-  onQtyChange,
-}: {
-  items: OrderLineItem[];
-  onAdd: (product: Product) => void;
-  onRemove: (index: number) => void;
-  onQtyChange: (index: number, quantity: number) => void;
-}) {
-  return (
-    <div className="lc-op__items-editor">
-      {items.length === 0 && <p className="lc-op__items-empty">No products added yet.</p>}
-      {items.map((item, i) => (
-        <div key={`${item.sku}-${i}`} className="lc-op__item-row">
-          <div className="lc-op__item-row-main">
-            <span className="lc-op__item-name">{item.name}</span>
-            <span className="lc-op__item-sku">{item.sku}</span>
-          </div>
-          <div className="lc-op__item-row-controls">
-            <Stepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />
-            <span className="lc-op__item-price">{formatINR(item.unitPrice * item.quantity)}</span>
-            <button
-              type="button"
-              className="lc-op__item-remove"
-              aria-label={`Remove ${item.name}`}
-              onClick={() => onRemove(i)}
-            >
-              <TrashIcon />
-            </button>
-          </div>
-        </div>
-      ))}
-      <AddProductMenu onAdd={onAdd} excludeSkus={items.map((i) => i.sku)} />
-    </div>
   );
 }
 
@@ -1009,11 +974,9 @@ function AddressBlock({ address }: { address: Address }) {
 function OrderFormFields({
   draft,
   setDraft,
-  costSummaryMode = false,
 }: {
   draft: OrderDraft;
   setDraft: Dispatch<SetStateAction<OrderDraft>>;
-  costSummaryMode?: boolean;
 }) {
   // Shared across the Shipping and Billing pickers below, so saving/editing
   // an address from one shows up in the other's list too.
@@ -1021,122 +984,48 @@ function OrderFormFields({
 
   return (
     <>
-      {!costSummaryMode && (
-        <div className="lc-op__detail-section">
-          <p className="lc-op__detail-section-title">Products</p>
-          <LineItemsEditor
-            items={draft.items}
-            onAdd={(product) =>
-              setDraft((d) => ({
-                ...d,
-                items: [
-                  ...d.items,
-                  { productId: product.id, name: product.name, sku: product.sku, quantity: 1, unitPrice: product.discountedPrice },
-                ],
-              }))
-            }
-            onRemove={(index) => setDraft((d) => ({ ...d, items: d.items.filter((_, i) => i !== index) }))}
-            onQtyChange={(index, quantity) =>
-              setDraft((d) => ({ ...d, items: d.items.map((item, i) => (i === index ? { ...item, quantity } : item)) }))
-            }
-          />
-        </div>
-      )}
-
-      {costSummaryMode && (
-        <div className="lc-op__detail-section">
-          <p className="lc-op__detail-section-title">Cost summary</p>
-          <ProductsCostCard
-            data={{
-              items: draft.items,
-              ...computeDraftTotals(draft),
-              discountAmount: Number(draft.discountAmount) || 0,
-              discountCode: draft.discountCode,
-              taxRate: Number(draft.taxRate) || 0,
-              shippingCost: Number(draft.shippingCost) || 0,
-              extraChargeLabel: draft.extraChargeLabel,
-              extraChargeAmount: Number(draft.extraChargeAmount) || 0,
-            }}
-            onQtyChange={(index, quantity) =>
-              setDraft((d) => ({ ...d, items: d.items.map((item, i) => (i === index ? { ...item, quantity } : item)) }))
-            }
-            onVariantChange={(index, patch) =>
-              setDraft((d) => ({ ...d, items: d.items.map((item, i) => (i === index ? { ...item, ...patch } : item)) }))
-            }
-            onAddProduct={(product) =>
-              setDraft((d) => ({
-                ...d,
-                items: [
-                  ...d.items,
-                  { productId: product.id, name: product.name, sku: product.sku, quantity: 1, unitPrice: product.discountedPrice },
-                ],
-              }))
-            }
-            discountEditable={{
-              amount: draft.discountAmount,
-              code: draft.discountCode,
-              onAmountChange: (discountAmount) => setDraft((d) => ({ ...d, discountAmount })),
-              onCodeChange: (discountCode) => setDraft((d) => ({ ...d, discountCode })),
-            }}
-            extraChargeEditable={{
-              label: draft.extraChargeLabel,
-              amount: draft.extraChargeAmount,
-              onLabelChange: (extraChargeLabel) => setDraft((d) => ({ ...d, extraChargeLabel })),
-              onAmountChange: (extraChargeAmount) => setDraft((d) => ({ ...d, extraChargeAmount })),
-            }}
-          />
-        </div>
-      )}
-
-      {!costSummaryMode && (
-        <div className="lc-op__detail-section">
-          <p className="lc-op__detail-section-title">Discount &amp; tax</p>
-          <div className="lc-op__form-grid">
-            <Field label="Discount amount (₹)">
-              <TextInput
-                type="number"
-                min={0}
-                value={draft.discountAmount}
-                onChange={(e) => {
-                  const discountAmount = e.currentTarget.value;
-                  setDraft((d) => ({ ...d, discountAmount }));
-                }}
-              />
-            </Field>
-            <Field label="Discount code (optional)">
-              <TextInput
-                value={draft.discountCode}
-                onChange={(e) => {
-                  const discountCode = e.currentTarget.value;
-                  setDraft((d) => ({ ...d, discountCode }));
-                }}
-              />
-            </Field>
-            <Field label="Tax rate (%)">
-              <TextInput
-                type="number"
-                min={0}
-                value={draft.taxRate}
-                onChange={(e) => {
-                  const taxRate = e.currentTarget.value;
-                  setDraft((d) => ({ ...d, taxRate }));
-                }}
-              />
-            </Field>
-            <Field label="Shipping cost (₹)">
-              <TextInput
-                type="number"
-                min={0}
-                value={draft.shippingCost}
-                onChange={(e) => {
-                  const shippingCost = e.currentTarget.value;
-                  setDraft((d) => ({ ...d, shippingCost }));
-                }}
-              />
-            </Field>
-          </div>
-        </div>
-      )}
+      <div className="lc-op__detail-section">
+        <p className="lc-op__detail-section-title">Cost summary</p>
+        <ProductsCostCard
+          data={{
+            items: draft.items,
+            ...computeDraftTotals(draft),
+            discountAmount: Number(draft.discountAmount) || 0,
+            discountCode: draft.discountCode,
+            taxRate: Number(draft.taxRate) || 0,
+            shippingCost: Number(draft.shippingCost) || 0,
+            extraChargeLabel: draft.extraChargeLabel,
+            extraChargeAmount: Number(draft.extraChargeAmount) || 0,
+          }}
+          onQtyChange={(index, quantity) =>
+            setDraft((d) => ({ ...d, items: d.items.map((item, i) => (i === index ? { ...item, quantity } : item)) }))
+          }
+          onVariantChange={(index, patch) =>
+            setDraft((d) => ({ ...d, items: d.items.map((item, i) => (i === index ? { ...item, ...patch } : item)) }))
+          }
+          onAddProduct={(product) =>
+            setDraft((d) => ({
+              ...d,
+              items: [
+                ...d.items,
+                { productId: product.id, name: product.name, sku: product.sku, quantity: 1, unitPrice: product.discountedPrice },
+              ],
+            }))
+          }
+          discountEditable={{
+            amount: draft.discountAmount,
+            code: draft.discountCode,
+            onAmountChange: (discountAmount) => setDraft((d) => ({ ...d, discountAmount })),
+            onCodeChange: (discountCode) => setDraft((d) => ({ ...d, discountCode })),
+          }}
+          extraChargeEditable={{
+            label: draft.extraChargeLabel,
+            amount: draft.extraChargeAmount,
+            onLabelChange: (extraChargeLabel) => setDraft((d) => ({ ...d, extraChargeLabel })),
+            onAmountChange: (extraChargeAmount) => setDraft((d) => ({ ...d, extraChargeAmount })),
+          }}
+        />
+      </div>
 
       <div className="lc-op__detail-section">
         <p className="lc-op__detail-section-title">Tracking link</p>
@@ -1327,7 +1216,7 @@ function OrderDetailView({
     const billingAddress = draft.billingSameAsShipping ? draft.shippingAddress : draft.billingAddress;
     onSave({
       ...order,
-      invoiceName: draft.invoiceName,
+      invoiceName: resolveInvoiceName(draft),
       status: draft.status,
       items: draft.items,
       discountAmount: Number(draft.discountAmount) || 0,
@@ -1427,7 +1316,7 @@ function OrderDetailView({
         {!editing && <OrderStatusCard order={order} onSeeUpdates={() => setUpdatesOpen(true)} />}
 
         {editing ? (
-          <OrderFormFields draft={draft} setDraft={setDraft} costSummaryMode />
+          <OrderFormFields draft={draft} setDraft={setDraft} />
         ) : (
           <>
             <div className="lc-op__detail-section">
@@ -1548,14 +1437,16 @@ function OrderDetailView({
 
 function CreateOrderView({
   existingOrders,
+  initialItems,
   onBack,
   onCreate,
 }: {
   existingOrders: Order[];
+  initialItems?: OrderLineItem[];
   onBack: () => void;
   onCreate: (order: Order) => void;
 }) {
-  const [draft, setDraft] = useState<OrderDraft>(emptyDraft);
+  const [draft, setDraft] = useState<OrderDraft>(() => ({ ...emptyDraft(), items: initialItems ?? [] }));
   const totals = computeDraftTotals(draft);
   const valid = isDraftValid(draft);
 
@@ -1564,7 +1455,7 @@ function CreateOrderView({
     const billingAddress = draft.billingSameAsShipping ? draft.shippingAddress : draft.billingAddress;
     onCreate({
       id: nextOrderId(existingOrders),
-      invoiceName: draft.invoiceName,
+      invoiceName: resolveInvoiceName(draft),
       placedAt: draft.placedAt,
       status: draft.status,
       items: draft.items,
@@ -1589,17 +1480,17 @@ function CreateOrderView({
     <div className="lc-op__detail">
       <button type="button" className="lc-op__detail-back" onClick={onBack}>
         <BackIcon />
-        <span>Back to orders</span>
+        <span>Back to cart</span>
       </button>
 
       <div className="lc-op__detail-content">
         <div className="lc-op__detail-header">
-          <span className="lc-op__detail-invoice">New order</span>
+          <span className="lc-op__detail-invoice">Creating new order</span>
         </div>
 
         <OrderFormFields draft={draft} setDraft={setDraft} />
 
-        <div className="lc-op__detail-ctas">
+        <div className="lc-op__detail-ctas lc-op__detail-ctas--sticky-bottom">
           <Button variant="outline" color="gray" size="sm" style={{ flex: 1 }} onClick={onBack}>
             Cancel
           </Button>
@@ -1614,7 +1505,17 @@ function CreateOrderView({
 
 /* --- Top-level panel -------------------------------------------------------- */
 
-export function OrdersPanel() {
+export function OrdersPanel({
+  presetItems,
+  onPresetItemsConsumed,
+  onBackToCart,
+}: {
+  /** Cart handoff: when set, opens straight into Create order pre-filled with these items (see CartPanel's "Create order" CTA). */
+  presetItems?: OrderLineItem[] | null;
+  onPresetItemsConsumed?: () => void;
+  /** Create order is only ever reached via the cart handoff, so "back" from it returns to the Cart tab instead of the orders list. */
+  onBackToCart?: () => void;
+} = {}) {
   const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -1622,11 +1523,22 @@ export function OrdersPanel() {
   const [viewMode, setViewMode] = useState<'list' | 'detail' | 'create'>('list');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [navDirection, setNavDirection] = useState<'forward' | 'back'>('forward');
+  const [pendingCreateItems, setPendingCreateItems] = useState<OrderLineItem[] | undefined>(undefined);
 
   useEffect(() => {
     const t = window.setTimeout(() => setLoading(false), 500);
     return () => window.clearTimeout(t);
   }, []);
+
+  useEffect(() => {
+    if (presetItems && presetItems.length > 0) {
+      setPendingCreateItems(presetItems);
+      setNavDirection('forward');
+      setViewMode('create');
+      onPresetItemsConsumed?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetItems]);
 
   const filteredSorted = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -1660,6 +1572,7 @@ export function OrdersPanel() {
     setNavDirection('back');
     setViewMode('list');
     setSelectedOrderId(null);
+    setPendingCreateItems(undefined);
   };
 
   if (viewMode === 'create') {
@@ -1668,12 +1581,14 @@ export function OrdersPanel() {
         <div className="lc-op__view" data-direction="forward" key="create">
           <CreateOrderView
             existingOrders={orders}
-            onBack={goToList}
+            initialItems={pendingCreateItems}
+            onBack={onBackToCart ?? goToList}
             onCreate={(order) => {
               setOrders((prev) => [order, ...prev]);
               setNavDirection('forward');
               setSelectedOrderId(order.id);
               setViewMode('detail');
+              setPendingCreateItems(undefined);
             }}
           />
         </div>
