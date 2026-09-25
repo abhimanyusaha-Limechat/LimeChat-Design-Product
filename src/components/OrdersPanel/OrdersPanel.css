@@ -365,7 +365,7 @@
   color: var(--lc-op-title);
 }
 .lc-op__row-total {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--lc-op-title);
 }
@@ -550,6 +550,14 @@
   gap: 8px;
   padding: 16px 0 4px;
   border-top: 1px solid var(--lc-op-border);
+}
+.lc-op__detail-ctas--sticky-bottom {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin: 0 -16px -16px;
+  padding: 12px 16px;
+  background: var(--lc-color-white);
 }
 .lc-op__detail-sticky .lc-op__detail-ctas {
   padding: 12px 16px;
@@ -1034,11 +1042,6 @@
 }
 
 /* --- Form fields ----------------------------------------------------- */
-.lc-op__form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
 .lc-op__address-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1216,80 +1219,6 @@
   border: solid var(--lc-color-white);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
-}
-
-/* --- Line item editor -------------------------------------------------- */
-.lc-op__items-editor {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.lc-op__items-empty {
-  margin: 0;
-  font-size: 12px;
-  color: var(--lc-op-dimmed);
-}
-.lc-op__item-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 10px;
-  border: 1px solid var(--lc-op-border);
-  border-radius: 6px;
-  background: var(--lc-color-gray-50);
-}
-.lc-op__item-row-main {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-.lc-op__item-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--lc-op-title);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.lc-op__item-sku {
-  font-size: 11px;
-  color: var(--lc-op-dimmed);
-}
-.lc-op__item-row-controls {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.lc-op__item-price {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--lc-op-title);
-  min-width: 64px;
-  text-align: right;
-}
-.lc-op__item-remove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--lc-op-dimmed);
-  cursor: pointer;
-}
-.lc-op__item-remove:hover {
-  background: var(--lc-op-danger-light);
-  color: var(--lc-op-danger);
-}
-.lc-op__item-remove svg {
-  width: 14px;
-  height: 14px;
 }
 
 .lc-op__stepper {

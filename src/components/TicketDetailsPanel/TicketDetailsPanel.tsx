@@ -30,7 +30,7 @@ import { Tooltip } from '../Tooltip';
 import { ProductsPanel } from '../ProductsPanel';
 import { OrdersPanel } from '../OrdersPanel';
 import { CartPanel } from '../CartPanel';
-import { CartProvider, useCart } from '../../context/CartContext';
+import { CartProvider, useCart, type CartLineItem } from '../../context/CartContext';
 import { Modal, ModalTextarea, ModalCheckbox } from '../Modal';
 import { Button } from '../Button';
 import './TicketDetailsPanel.css';
@@ -623,16 +623,34 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   ref,
 ) {
   const resolvedActiveTab = activeTab ?? tabs[0];
+  const [cartOrderDraft, setCartOrderDraft] = useState<CartLineItem[] | null>(null);
   const idBase = useId();
   const tabId = (tab: string) => `${idBase}-tab-${tab}`;
   const panelId = (tab: string) => `${idBase}-panel-${tab}`;
 
+  const tabsRef = useRef<HTMLDivElement | null>(null);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
   useLayoutEffect(() => {
     const el = tabRefs.current[resolvedActiveTab];
     if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
   }, [resolvedActiveTab]);
+  // Re-measure on any layout change (panel resize, the Cart tab's item-count
+  // badge changing its width) — the effect above only fires when the active
+  // tab itself changes, so without this the pill drifts out of alignment.
+  useEffect(() => {
+    const container = tabsRef.current;
+    if (!container) return undefined;
+    const observer = new ResizeObserver(() => {
+      const el = tabRefs.current[resolvedActiveTab];
+      if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
+    });
+    observer.observe(container);
+    for (const el of Object.values(tabRefs.current)) {
+      if (el) observer.observe(el);
+    }
+    return () => observer.disconnect();
+  }, [resolvedActiveTab, tabs]);
   const panelProps = {
     className: 'lc-tdp__body',
     id: panelId(resolvedActiveTab),
@@ -644,7 +662,7 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   return (
     <CartProvider>
     <div {...rest} ref={ref} className={`lc-tdp${className ? ` ${className}` : ''}`}>
-      <div className="lc-tdp__tabs" role="tablist">
+      <div className="lc-tdp__tabs" role="tablist" ref={tabsRef}>
         {indicator && (
           <div
             className="lc-tdp__tab-indicator"
@@ -717,13 +735,22 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
 
       {resolvedActiveTab === 'Orders' && (
         <div {...panelProps}>
-          <OrdersPanel />
+          <OrdersPanel
+            presetItems={cartOrderDraft}
+            onPresetItemsConsumed={() => setCartOrderDraft(null)}
+            onBackToCart={() => onTabChange?.('Cart')}
+          />
         </div>
       )}
 
       {resolvedActiveTab === 'Cart' && (
         <div {...panelProps}>
-          <CartPanel />
+          <CartPanel
+            onCreateOrder={(items) => {
+              setCartOrderDraft(items);
+              onTabChange?.('Orders');
+            }}
+          />
         </div>
       )}
     </div>

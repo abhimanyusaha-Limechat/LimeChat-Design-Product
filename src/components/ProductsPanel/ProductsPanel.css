@@ -289,6 +289,14 @@
   background: var(--lc-color-green-700);
   border-color: var(--lc-color-green-700);
 }
+.lc-pp__row-add-cart {
+  border: 1px solid var(--lc-pp-primary);
+  background: var(--lc-color-white);
+  color: var(--lc-pp-primary);
+}
+.lc-pp__row-add-cart:hover {
+  background: var(--lc-pp-primary-light);
+}
 .lc-pp__row[data-availability='out_of_stock'] .lc-pp__thumb,
 .lc-pp__row[data-availability='discontinued'] .lc-pp__thumb {
   filter: grayscale(1);
