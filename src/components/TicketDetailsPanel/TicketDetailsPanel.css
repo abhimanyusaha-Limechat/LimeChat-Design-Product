@@ -154,6 +154,13 @@
   border-radius: 8px;
 }
 
+.lc-tdp__info-divider {
+  margin: 0;
+  border: none;
+  height: 1px;
+  background: var(--lc-color-gray-200);
+}
+
 .lc-tdp__detail-row {
   display: flex;
   align-items: center;
@@ -173,31 +180,32 @@
 .lc-tdp__detail-label {
   flex: 1 1 0;
   min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--lc-tdp-secondary-dark);
+}
+.lc-tdp__ticket-id {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-family: inherit;
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;
   color: var(--lc-tdp-secondary-dark);
-}
-.lc-tdp__detail-value {
-  flex-shrink: 0;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--lc-color-white);
-  color: var(--lc-tdp-secondary-dark);
-  font-size: 14px;
-  font-weight: 600;
   text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-button.lc-tdp__detail-value--copyable {
-  border: none;
-  font-family: inherit;
-  cursor: pointer;
-}
-button.lc-tdp__detail-value--copyable:hover {
-  background: var(--lc-tdp-primary-light);
+button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
+  background: transparent;
+  color: var(--lc-tdp-primary);
 }
 .lc-tdp__detail-value--copied,
 .lc-tdp__detail-value--copied:hover {

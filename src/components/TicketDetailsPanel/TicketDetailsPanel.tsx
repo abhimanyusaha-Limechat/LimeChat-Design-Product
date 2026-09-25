@@ -168,7 +168,7 @@ export interface TicketDetailsPanelProps extends HTMLAttributes<HTMLDivElement> 
 }
 
 /** Copy-to-clipboard detail value — "Click to copy" tooltip; flips to "Copied" briefly on click. */
-function CopyableDetailValue({ value }: { value: string }) {
+function CopyableTicketId({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | undefined>(undefined);
 
@@ -189,38 +189,16 @@ function CopyableDetailValue({ value }: { value: string }) {
     <Tooltip label="Click to copy" position="bottom">
       <button
         type="button"
-        className={`lc-tdp__detail-value lc-tdp__detail-value--copyable${
+        className={`lc-tdp__ticket-id lc-tdp__detail-value--copyable${
           copied ? ' lc-tdp__detail-value--copied' : ''
         }`}
+        aria-label="Ticket Id"
         aria-live="polite"
         onClick={handleClick}
       >
         {copied ? 'Copied' : value}
       </button>
     </Tooltip>
-  );
-}
-
-function DetailRow({
-  icon,
-  label,
-  value,
-  action,
-  copyable,
-}: {
-  icon?: ReactNode;
-  label: string;
-  value: string;
-  action?: ReactNode;
-  copyable?: boolean;
-}) {
-  return (
-    <div className="lc-tdp__detail-row">
-      {icon != null && <span className="lc-tdp__detail-icon">{icon}</span>}
-      <span className="lc-tdp__detail-label">{label}</span>
-      {copyable ? <CopyableDetailValue value={value} /> : <span className="lc-tdp__detail-value">{value}</span>}
-      {action}
-    </div>
   );
 }
 
@@ -713,7 +691,14 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
         <div {...panelProps}>
           {(ticketId || agent || team) && (
             <div className="lc-tdp__info">
-              {ticketId && <DetailRow label="Ticket Id" value={ticketId} copyable />}
+              {ticketId && (
+                <div className="lc-tdp__detail-row">
+                  <CopyableTicketId value={ticketId} />
+                </div>
+              )}
+              {ticketId && (agent || team) && (
+                <hr className="lc-tdp__info-divider" aria-hidden="true" />
+              )}
               {agent && <AssignmentRow label="Assign Agent" field={agent} />}
               {team && <AssignmentRow label="Assign Team" field={team} />}
             </div>
