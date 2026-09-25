@@ -60,7 +60,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 0;
   height: 30px;
   padding: 0 8px;
   border: none;
@@ -72,7 +72,32 @@
   color: var(--lc-tdp-dimmed);
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  transition: flex-grow 200ms ease, gap 200ms ease, background-color 150ms ease, color 150ms ease,
+    box-shadow 150ms ease;
+}
+/* Only the selected tab shows its label; the others are icon-only and share the leftover width. */
+.lc-tdp__tab:not([data-active]) {
+  flex-grow: 0.6;
+}
+.lc-tdp__tab[data-active] {
+  flex-grow: 2;
+  gap: 6px;
+}
+.lc-tdp__tab-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  transition: max-width 200ms ease, opacity 150ms ease;
+}
+.lc-tdp__tab:not([data-active]) .lc-tdp__tab-label {
+  max-width: 0;
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-tdp__tab,
+  .lc-tdp__tab-label {
+    transition: none;
+  }
 }
 .lc-tdp__tab svg {
   flex-shrink: 0;

@@ -730,20 +730,23 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
         <div className="lc-tdp__tabs" role="tablist">
           {tabs.map((tab) => {
             const Icon = TAB_ICONS[tab];
+            const active = resolvedActiveTab === tab;
             return (
               <button
                 key={tab}
                 type="button"
                 id={tabId(tab)}
                 role="tab"
-                aria-selected={resolvedActiveTab === tab}
+                aria-selected={active}
                 aria-controls={panelId(tab)}
+                // Inactive tabs collapse to their icon; the label stays in the DOM for the accessible name.
+                title={active ? undefined : tab}
                 className="lc-tdp__tab"
-                data-active={resolvedActiveTab === tab || undefined}
+                data-active={active || undefined}
                 onClick={() => onTabChange?.(tab)}
               >
                 {Icon && <Icon />}
-                <span>{tab}</span>
+                <span className="lc-tdp__tab-label">{tab}</span>
               </button>
             );
           })}
