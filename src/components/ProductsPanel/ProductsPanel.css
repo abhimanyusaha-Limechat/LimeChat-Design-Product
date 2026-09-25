@@ -3,7 +3,7 @@
  * TicketDetailsPanel "Products" tab (a ~320-420px resizable sidebar column).
  */
 .lc-pp {
-  --lc-pp-title: var(--lc-color-green-900);
+  --lc-pp-title: var(--lc-text-primary);
   --lc-pp-dimmed: var(--lc-color-sage-500);
   --lc-pp-primary: var(--lc-action-primary);
   --lc-pp-primary-light: var(--lc-color-green-50);

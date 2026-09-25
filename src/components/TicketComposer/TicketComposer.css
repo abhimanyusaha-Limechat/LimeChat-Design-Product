@@ -2,7 +2,7 @@
  * TicketComposer — LimeChat design system (Figma node 8985:37228 "ticket_input").
  */
 .lc-ticket-composer {
-  --lc-tc-title: var(--lc-color-green-900);
+  --lc-tc-title: var(--lc-text-primary);
   --lc-tc-dimmed: var(--lc-color-sage-500);
   --lc-tc-primary: var(--lc-color-green-500);
   --lc-tc-primary-light: var(--lc-color-green-100);

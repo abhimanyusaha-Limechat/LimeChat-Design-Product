@@ -9,7 +9,7 @@
 .lc-ib {
   --lc-ib-border: var(--lc-color-gray-300);
   --lc-ib-border-dark: var(--lc-color-gray-225);
-  --lc-ib-text-title: var(--lc-color-green-900);
+  --lc-ib-text-title: var(--lc-text-primary);
   --lc-ib-text-dimmed: var(--lc-color-sage-500);
   --lc-ib-secondary-dark: var(--lc-color-stone-600);
   --lc-ib-text-light: var(--lc-color-sage-500);

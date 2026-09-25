@@ -4,7 +4,7 @@
  *
  * Bubble radius/sm: 12px · nested card radius: 8px · avatar/image radius: 4px
  * Balloon drop shadow: 0px 1px 1px rgba(0,0,0,.1), 0px 1px 1.5px rgba(0,0,0,.05)
- * Text/sm 14/20 (title var(--lc-color-green-900)) · Text/xxs 10/12.5 (dimmed var(--lc-color-sage-500))
+ * Text/sm 14/20 (title var(--lc-text-primary)) · Text/xxs 10/12.5 (dimmed var(--lc-color-sage-500))
  */
 .lc-message-bubble {
   --lc-bubble-radius: 12px;
@@ -20,7 +20,7 @@
   --lc-bubble-blocked-bg: #fcf3f3;
   --lc-bubble-blocked-banner-text: var(--lc-color-red-600);
 
-  --lc-text-title: var(--lc-color-green-900);
+  --lc-text-title: var(--lc-text-primary);
   --lc-text-dimmed: var(--lc-color-sage-500);
   --lc-text-gray-4: #a8aca6;
   --lc-text-secondary-alpha: rgba(0, 0, 0, 0.5);
@@ -236,7 +236,7 @@
   white-space: nowrap;
 }
 .lc-message-bubble__tick svg {
-  width: 18px;
+  width: 14.5px;
   height: 10px;
   display: block;
   color: var(--lc-text-dimmed);

@@ -2,7 +2,7 @@
  * NativeSelect — LimeChat design system (Figma node 31:15, Mantine v6 NativeSelect).
  *
  * Anatomy (stacked, 4px `spacing/2xs` gaps):
- *   .Label      — label (SemiBold, text/title var(--lc-color-green-900)) + optional * (text/error var(--lc-color-red-600))
+ *   .Label      — label (SemiBold, text/title var(--lc-text-primary)) + optional * (text/error var(--lc-color-red-600))
  *                 + description (Regular, text/dimmed var(--lc-color-sage-500))
  *   Input       — a real <select> styled as the control, with an overlaid chevron
  *   message     — caption (text/dimmed var(--lc-color-sage-500)) and/or error (text/error/default var(--lc-color-red-600))
@@ -22,10 +22,10 @@
 
   --lc-select-border: var(--lc-color-gray-300);
   --lc-select-bg: var(--lc-color-white);
-  --lc-select-value: var(--lc-color-green-900);
+  --lc-select-value: var(--lc-text-primary);
   --lc-select-placeholder: var(--lc-color-gray-500);
   --lc-select-icon: var(--lc-color-gray-500);
-  --lc-select-label: var(--lc-color-green-900);
+  --lc-select-label: var(--lc-text-primary);
   --lc-select-helper: var(--lc-color-sage-500);
   --lc-select-error: var(--lc-color-red-600);
   --lc-select-focus: var(--lc-color-green-500);

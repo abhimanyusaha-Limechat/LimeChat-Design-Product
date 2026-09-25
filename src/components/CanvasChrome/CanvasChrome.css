@@ -7,7 +7,7 @@
  * Tokens:
  *   pill      bg var(--lc-color-white) · radius/xs 8px · shadow 0 1px 1px #0000001A, 0 1px 1.5px #0000000D
  *   flow pill border border/primary/default var(--lc-color-green-500) · h 43 · px padding/xs 8 · py 6
- *             title  Heading/h5  14/18 bold  text/title  var(--lc-color-green-900)
+ *             title  Heading/h5  14/18 bold  text/title  var(--lc-text-primary)
  *             sub    Text/xxs    10/12.5     text/dimmed  var(--lc-color-sage-500)
  *   badge     bg background/primary/light-hover var(--lc-color-green-75) · border var(--lc-color-green-500) · radius/2xs 4
  *             Text Uppercase/xxs  10/12 semibold  text/primary/default var(--lc-color-green-500)
@@ -17,12 +17,12 @@
  *             zoom  Text/Medium 14/22  var(--lc-color-sage-500) · divider var(--lc-color-gray-150)
  *   toolbar   panel px padding/xs 8 · py 12 · gap padding/sm 12 · radius/xs 8
  *             divider gray/30 var(--lc-color-gray-150)
- *   icon btn  transparent → text/dimmed var(--lc-color-sage-500), hover bg var(--lc-color-stone-100) / text var(--lc-color-green-900)
+ *   icon btn  transparent → text/dimmed var(--lc-color-sage-500), hover bg var(--lc-color-stone-100) / text var(--lc-text-primary)
  *             light       → bg var(--lc-color-green-75), text var(--lc-color-green-500)   (active tool)
  *             filled      → bg background/primary/filled var(--lc-color-green-500), text var(--lc-color-white)
  */
 .lc-canvas {
-  --lc-canvas-fg: var(--lc-color-green-900);
+  --lc-canvas-fg: var(--lc-text-primary);
   --lc-canvas-dimmed: var(--lc-color-sage-500);
   --lc-canvas-accent: var(--lc-color-green-500);
   --lc-canvas-accent-hover: var(--lc-color-green-700);

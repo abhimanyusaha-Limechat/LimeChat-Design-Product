@@ -2,7 +2,7 @@
  * ConversationTopBar — LimeChat design system (Figma node 8984:34679).
  */
 .lc-conv-top {
-  --lc-ct-title: var(--lc-color-green-900);
+  --lc-ct-title: var(--lc-text-primary);
   --lc-ct-dimmed: var(--lc-color-sage-500);
   --lc-ct-primary: var(--lc-color-green-500);
   --lc-ct-primary-light: var(--lc-color-green-50);
@@ -147,19 +147,27 @@
 }
 
 .lc-conv-top__split {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: var(--lc-radius-control, 4px);
+}
+/* One control: Resolve + chevron share a fill, split by a hairline. */
+.lc-conv-top__split > .lc-btn {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .lc-conv-top__split .lc-conv-top__icon-btn {
   width: 28px;
-  height: 28px;
-  border: 1px solid var(--lc-ct-border);
-  color: var(--lc-ct-dimmed);
+  height: auto;
+  border: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 0 var(--lc-radius-control, 4px) var(--lc-radius-control, 4px) 0;
+  background: var(--lc-action-primary);
+  color: var(--lc-color-white);
 }
 .lc-conv-top__split .lc-conv-top__icon-btn:hover {
-  background: var(--lc-color-gray-100);
-  color: var(--lc-ct-title);
+  background: var(--lc-action-primary-hover);
+  color: var(--lc-color-white);
 }
 .lc-conv-top__split .lc-conv-top__icon-btn svg {
   width: 16px;

@@ -10,7 +10,7 @@
 .lc-ps {
   --lc-ps-border: var(--lc-color-gray-300);
   --lc-ps-divider: var(--lc-color-gray-200);
-  --lc-ps-text-title: var(--lc-color-green-900);
+  --lc-ps-text-title: var(--lc-text-primary);
   --lc-ps-text-dimmed: var(--lc-color-sage-500);
   --lc-ps-primary: var(--lc-color-green-700);
   --lc-ps-bg-subtle: var(--lc-color-stone-50);

@@ -2,13 +2,13 @@
  * TicketsSection — LimeChat design system (Figma node 8977:4521's list wrapper).
  */
 .lc-tickets-section {
-  --lc-ts-title: var(--lc-color-green-900);
+  --lc-ts-title: var(--lc-text-primary);
   --lc-ts-dimmed: var(--lc-text-secondary);
   --lc-ts-primary: var(--lc-action-primary);
   --lc-ts-border: var(--lc-color-gray-200);
   --lc-ts-input-border: var(--lc-color-gray-300);
   --lc-ts-placeholder: var(--lc-color-gray-500);
-  --lc-ts-header-bg: var(--lc-color-stone-50);
+  --lc-ts-header-bg: var(--lc-color-green-25);
 
   box-sizing: border-box;
   display: flex;

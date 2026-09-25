@@ -6,7 +6,7 @@
  *  - bar fill .......... background/default            var(--lc-color-white)
  *  - bottom border ..... border/gray/light            var(--lc-color-gray-300)
  *  - control radius .... radius/2xs                    4px
- *  - crumb text ........ text/dimmed var(--lc-color-sage-500) / current text/default var(--lc-color-green-900)
+ *  - crumb text ........ text/dimmed var(--lc-color-sage-500) / current text/default var(--lc-text-primary)
  *  - info badge ........ bg background/secondary/light var(--lc-color-blue-50) · text var(--lc-color-blue-900)
  *  - draft badge ....... bg #e1eff4 · text/secondary/default var(--lc-color-blue-600)
  *  - account name ...... text/primary/dark            var(--lc-color-green-800)
@@ -18,7 +18,7 @@
   --lc-topnav-bg: var(--lc-color-white);
   --lc-topnav-border: var(--lc-color-gray-300);
   --lc-topnav-radius: 4px;
-  --lc-topnav-fg: var(--lc-color-green-900);
+  --lc-topnav-fg: var(--lc-text-primary);
   --lc-topnav-fg-dimmed: var(--lc-color-sage-500);
   --lc-topnav-fg-muted: #595959;
   --lc-topnav-separator: var(--lc-color-gray-400);

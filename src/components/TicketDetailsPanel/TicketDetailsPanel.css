@@ -3,7 +3,7 @@
  * "right_hand_panel_conversation").
  */
 .lc-tdp {
-  --lc-tdp-title: var(--lc-color-green-900);
+  --lc-tdp-title: var(--lc-text-primary);
   --lc-tdp-dimmed: var(--lc-text-secondary);
   --lc-tdp-primary: var(--lc-action-primary);
   /* Mantine-style neutral ramp for the panel's surfaces. */
@@ -142,8 +142,8 @@
   gap: 6px;
   margin: 8px 12px 4px;
   padding: 10px 12px;
-  background: var(--lc-tdp-fill);
-  border: 1px solid var(--lc-tdp-line);
+  background: #f3fafd;
+  border: 1px solid #e1eff5;
   border-radius: var(--lc-tdp-radius);
 }
 

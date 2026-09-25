@@ -171,10 +171,10 @@ const TICK_LABEL: Record<MessageStatus, string> = { sent: 'Sent', delivered: 'De
 function Tick({ status }: { status: MessageStatus }) {
   return (
     <span className="lc-message-bubble__tick" data-status={status} role="img" aria-label={TICK_LABEL[status]}>
-      <svg viewBox="0 0 20 11" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg viewBox="0 0 16 11" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M1 5.5L3.75 8.5L8.5 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         {status !== 'sent' && (
-          <path d="M11 5.5L13.75 8.5L18.5 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M7.5 5.5L10.25 8.5L15 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         )}
       </svg>
     </span>

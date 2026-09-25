@@ -3,7 +3,7 @@
  * TicketDetailsPanel "Orders" tab (a ~320-420px resizable sidebar column).
  */
 .lc-op {
-  --lc-op-title: var(--lc-color-green-900);
+  --lc-op-title: var(--lc-text-primary);
   --lc-op-dimmed: var(--lc-text-secondary);
   --lc-op-primary: var(--lc-action-primary);
   --lc-op-primary-light: var(--lc-color-green-50);
@@ -912,7 +912,7 @@
   margin: 0;
   font-size: 12px;
   font-weight: 700;
-  color: var(--lc-color-green-900);
+  color: var(--lc-text-primary);
 }
 .lc-op__timeline-date {
   margin: 0;

@@ -10,7 +10,7 @@
 }
 
 .lc-tbm-field {
-  --lc-select-label: var(--lc-color-green-900);
+  --lc-select-label: var(--lc-text-primary);
 }
 .lc-select[data-size='sm'].lc-tbm-field {
   --label-fz: 12px;

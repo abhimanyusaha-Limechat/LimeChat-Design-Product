@@ -8,7 +8,7 @@
 .lc-as {
   --lc-as-border: var(--lc-color-gray-300);
   --lc-as-divider: var(--lc-color-gray-200);
-  --lc-as-text-title: var(--lc-color-green-900);
+  --lc-as-text-title: var(--lc-text-primary);
   --lc-as-text-dimmed: var(--lc-color-sage-500);
   --lc-as-primary: var(--lc-color-green-700);
   --lc-as-bg-subtle: var(--lc-color-stone-50);

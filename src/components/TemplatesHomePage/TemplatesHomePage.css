@@ -10,7 +10,7 @@
 .lc-th {
   --lc-th-border: var(--lc-color-gray-300);
   --lc-th-border-dark: var(--lc-color-gray-225);
-  --lc-th-text-title: var(--lc-color-green-900);
+  --lc-th-text-title: var(--lc-text-primary);
   --lc-th-text-dimmed: var(--lc-color-sage-500);
   --lc-th-secondary-dark: var(--lc-color-stone-600);
   --lc-th-text-light: var(--lc-color-sage-500);

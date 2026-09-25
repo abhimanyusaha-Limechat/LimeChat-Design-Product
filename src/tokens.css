@@ -27,6 +27,7 @@
   --lc-color-stone-50: #fafaf9;
   --lc-color-stone-25: #faf9f5;
   --lc-color-stone-150: #f0efe9;
+  --lc-color-gray-800: #3d3d3a; /* body text: dark warm gray, not near-black */
   --lc-color-gray-500: #8c8c8c;
   --lc-color-gray-400: #bfbfbf;
   --lc-color-gray-300: #d9d9d9;
@@ -70,7 +71,7 @@
   --lc-action-primary-hover: var(--lc-color-green-800);
   --lc-action-primary-text: var(--lc-color-green-700); /* brand text/outline on white, 4.7:1 */
 
-  --lc-text-primary: var(--lc-color-green-900);
+  --lc-text-primary: var(--lc-color-gray-800);
   --lc-text-secondary: var(--lc-color-sage-600); /* 5.0:1 on white (sage-500 was 3.7:1) */
 
   --lc-surface-hover: var(--lc-color-gray-50);

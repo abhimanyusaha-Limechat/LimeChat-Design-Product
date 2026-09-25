@@ -55,7 +55,7 @@
 }
 
 .lc-publish-confirm__edit:hover {
-  color: var(--lc-color-green-900);
+  color: var(--lc-text-primary);
   text-decoration: underline;
 }
 
@@ -75,7 +75,7 @@
   font-size: 16px;
   line-height: 20px;
   font-weight: 700;
-  color: var(--lc-color-green-900);
+  color: var(--lc-text-primary);
 }
 
 /* --- Rolling number (audience count) -------------------------------------- */
@@ -174,7 +174,7 @@
 .lc-publish-confirm__segment-name {
   flex: 1;
   min-width: 0;
-  color: var(--lc-color-green-900);
+  color: var(--lc-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -183,7 +183,7 @@
 .lc-publish-confirm__segment-count {
   flex-shrink: 0;
   font-weight: 600;
-  color: var(--lc-color-green-900);
+  color: var(--lc-text-primary);
 }
 
 .lc-publish-confirm__note {

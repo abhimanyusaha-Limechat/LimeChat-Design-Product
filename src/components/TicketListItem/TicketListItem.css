@@ -3,10 +3,10 @@
  * Default / Hover / Selected property states).
  *
  * Text/sm 14/20 (dimmed var(--lc-color-sage-500)) · Text/xs 12/16 · heading/h5 14/18 bold
- * (text/default var(--lc-color-green-900)) · Text Uppercase/xxs 10/12 SemiBold (badges)
+ * (text/default var(--lc-text-primary)) · Text Uppercase/xxs 10/12 SemiBold (badges)
  */
 .lc-ticket-row {
-  --lc-tr-title: var(--lc-color-green-900);
+  --lc-tr-title: var(--lc-text-primary);
   --lc-tr-dimmed: var(--lc-text-secondary);
   --lc-tr-border: #f5f5f5;
   --lc-tr-border-hover: var(--lc-color-gray-300);

@@ -9,7 +9,7 @@
 .lc-hda {
   --lc-hda-border: var(--lc-color-gray-300);
   --lc-hda-divider: var(--lc-color-gray-200);
-  --lc-hda-text-title: var(--lc-color-green-900);
+  --lc-hda-text-title: var(--lc-text-primary);
   --lc-hda-text-dimmed: var(--lc-color-sage-500);
   --lc-hda-primary: var(--lc-color-green-700);
   --lc-hda-required: #e0393e;

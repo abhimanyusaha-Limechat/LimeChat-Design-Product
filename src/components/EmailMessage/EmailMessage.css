@@ -7,7 +7,7 @@
 .lc-email-reply,
 .lc-email-composer-bar,
 .lc-email-forward {
-  --lc-email-title: var(--lc-color-green-900);
+  --lc-email-title: var(--lc-text-primary);
   --lc-email-dimmed: var(--lc-color-sage-500);
   --lc-email-border: var(--lc-color-gray-300);
   --lc-email-gray-bg: #f7f8f6;

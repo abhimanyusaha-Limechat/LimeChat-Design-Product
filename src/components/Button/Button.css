@@ -158,7 +158,7 @@
 }
 .lc-btn[data-variant='default'] {
   background: var(--lc-color-white);
-  color: var(--lc-color-green-900);
+  color: var(--lc-text-primary);
   border-color: var(--lc-color-gray-300);
 }
 
