@@ -61,6 +61,15 @@ const PlusIcon = () => (
 const ChevronIcon = ({ open }: { open: boolean }) => (
   <ChevronDownIcon style={{ transform: open ? 'rotate(180deg)' : undefined, transition: 'transform 150ms ease' }} />
 );
+/** Section accordion: right when collapsed, down when expanded (matches Figma row chevron). */
+const SectionChevronIcon = ({ open }: { open: boolean }) => (
+  <ChevronDownIcon
+    style={{
+      transform: open ? 'rotate(0deg)' : 'rotate(-90deg)',
+      transition: 'transform 150ms ease',
+    }}
+  />
+);
 const MailIcon = () => (
   <svg {...iconProps()}>
     <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
@@ -137,9 +146,19 @@ export interface TicketDetailsField {
   options?: TicketFieldOption[];
 }
 
+export type TicketDetailsSectionGroup = 'tickets' | 'tags' | 'fields';
+
+const SECTION_GROUPS: { id: TicketDetailsSectionGroup; label: string }[] = [
+  { id: 'tickets', label: 'Tickets' },
+  { id: 'tags', label: 'Tags' },
+  { id: 'fields', label: 'Fields' },
+];
+
 export interface TicketDetailsSection {
   id: string;
   label: string;
+  /** Category heading in the overview accordion — defaults to `tickets`. */
+  group?: TicketDetailsSectionGroup;
   count?: number;
   items?: TicketDetailsSectionItem[];
   fields?: TicketDetailsField[];
@@ -459,35 +478,33 @@ function Section({ section }: { section: TicketDetailsSection }) {
   const [subTicketModalOpen, setSubTicketModalOpen] = useState(false);
   const toggle = () => setOpen((v) => !v);
   return (
-    <div className="lc-tdp__section">
+    <div className="lc-tdp__section" data-open={open || undefined}>
       <div className="lc-tdp__section-header">
         <button type="button" className="lc-tdp__section-toggle" aria-expanded={open} onClick={toggle}>
-          <span className="lc-tdp__section-title" data-open={open || undefined}>
+          <span className="lc-tdp__section-chevron" aria-hidden="true">
+            <SectionChevronIcon open={open} />
+          </span>
+          <span className="lc-tdp__section-title">
             <span>{section.label}</span>
             {section.count != null && <span className="lc-tdp__badge">{section.count}</span>}
           </span>
         </button>
-        <div className="lc-tdp__section-actions">
-          {!section.hideAdd && (
-            <button
-              type="button"
-              className="lc-tdp__icon-btn"
-              aria-label={`Add ${section.label}`}
-              onClick={() => {
-                if (section.id === 'sub-tickets') {
-                  setSubTicketModalOpen(true);
-                } else {
-                  section.onAdd?.();
-                }
-              }}
-            >
-              <PlusIcon />
-            </button>
-          )}
-          <span className="lc-tdp__icon-btn" aria-hidden="true">
-            <ChevronIcon open={open} />
-          </span>
-        </div>
+        {!section.hideAdd && (
+          <button
+            type="button"
+            className="lc-tdp__action-icon"
+            aria-label={`Add ${section.label}`}
+            onClick={() => {
+              if (section.id === 'sub-tickets') {
+                setSubTicketModalOpen(true);
+              } else {
+                section.onAdd?.();
+              }
+            }}
+          >
+            <PlusIcon />
+          </button>
+        )}
       </div>
       {open && (
         <div className="lc-tdp__section-body">
@@ -504,29 +521,27 @@ function Section({ section }: { section: TicketDetailsSection }) {
                 item.duration != null ? (
                   // eslint-disable-next-line react/no-array-index-key
                   <div key={i} className="lc-tdp__item">
-                    <span className="lc-tdp__item-icon">{item.icon ?? <PhoneIcon />}</span>
-                    <div className="lc-tdp__item-text">
-                      <div className="lc-tdp__item-title-row">
-                        <span className="lc-tdp__item-title">{item.title}</span>
-                        {item.timestamp && <span className="lc-tdp__item-timestamp">{item.timestamp}</span>}
-                      </div>
-                      <div className="lc-tdp__item-title-row">
-                        <span className="lc-tdp__item-preview">{item.duration}</span>
-                        <span className="lc-tdp__voice-transcript">See transcript</span>
-                      </div>
+                    <div className="lc-tdp__item-heading">
+                      <span className="lc-tdp__item-icon">{item.icon ?? <PhoneIcon />}</span>
+                      <span className="lc-tdp__item-title">{item.title}</span>
+                      {item.timestamp && <span className="lc-tdp__item-timestamp">{item.timestamp}</span>}
+                    </div>
+                    <div className="lc-tdp__item-title-row lc-tdp__item-subline">
+                      <span className="lc-tdp__item-preview">{item.duration}</span>
+                      <span className="lc-tdp__voice-transcript">See transcript</span>
                     </div>
                   </div>
                 ) : (
                   // eslint-disable-next-line react/no-array-index-key
                   <div key={i} className="lc-tdp__item">
-                    <span className="lc-tdp__item-icon">{item.icon ?? <MailIcon />}</span>
-                    <div className="lc-tdp__item-text">
-                      <div className="lc-tdp__item-title-row">
-                        <span className="lc-tdp__item-title">{item.title}</span>
-                        {item.timestamp && <span className="lc-tdp__item-timestamp">{item.timestamp}</span>}
-                      </div>
-                      {item.preview && <p className="lc-tdp__item-preview">{item.preview}</p>}
+                    <div className="lc-tdp__item-heading">
+                      <span className="lc-tdp__item-icon">{item.icon ?? <MailIcon />}</span>
+                      <span className="lc-tdp__item-title">{item.title}</span>
+                      {item.timestamp && <span className="lc-tdp__item-timestamp">{item.timestamp}</span>}
                     </div>
+                    {item.preview && (
+                      <p className="lc-tdp__item-preview lc-tdp__item-subline">{item.preview}</p>
+                    )}
                   </div>
                 ),
               )
@@ -705,9 +720,20 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
           )}
 
           <div className="lc-tdp__sections">
-            {sections.map((section) => (
-              <Section key={section.id} section={section} />
-            ))}
+            {SECTION_GROUPS.map(({ id, label }) => {
+              const grouped = sections.filter((section) => (section.group ?? 'tickets') === id);
+              if (grouped.length === 0) return null;
+              return (
+                <div key={id} className="lc-tdp__section-group">
+                  <h3 className="lc-tdp__section-group-label">{label}</h3>
+                  <div className="lc-tdp__section-group-list">
+                    {grouped.map((section) => (
+                      <Section key={section.id} section={section} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
