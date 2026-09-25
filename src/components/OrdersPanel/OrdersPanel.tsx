@@ -474,8 +474,8 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
 
 function OrderRow({ order, search, onClick }: { order: Order; search: string; onClick: () => void }) {
   const [expanded, setExpanded] = useState(false);
-  const hasMore = order.items.length > 2;
-  const visibleItems = expanded ? order.items : order.items.slice(0, 2);
+  const hasMore = order.items.length > 1;
+  const visibleItems = expanded ? order.items : order.items.slice(0, 1);
 
   return (
     <div
