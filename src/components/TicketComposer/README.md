@@ -8,7 +8,7 @@ The reply box beneath an open ticket's conversation, from the
 ```tsx
 import { TicketComposer } from './components/TicketComposer';
 
-const [mode, setMode] = useState<'reply' | 'note' | 'template'>('reply');
+const [mode, setMode] = useState<'reply' | 'note'>('reply');
 const [draft, setDraft] = useState('');
 
 <TicketComposer

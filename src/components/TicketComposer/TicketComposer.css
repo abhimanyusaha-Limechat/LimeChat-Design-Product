@@ -15,12 +15,14 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
   padding: 12px;
   background: var(--lc-color-white);
   border: 2px solid transparent;
   border-radius: 8px;
+  /* Matches .lc-email-composer-bar's elevation, so the reply and email composers read consistently. */
+  box-shadow: 0 7px 3.5px rgba(0, 0, 0, 0.04), 0 10px 7.5px rgba(0, 0, 0, 0.1), 0 1px 1.5px rgba(0, 0, 0, 0.05);
   font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   transition: background-color 150ms ease, border-color 150ms ease;
 }
@@ -41,11 +43,110 @@
   width: 100%;
 }
 
+.lc-ticket-composer__attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.lc-ticket-composer__attachment-tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  background: var(--lc-color-gray-100);
+  transition: box-shadow 150ms ease;
+}
+.lc-ticket-composer__attachment-tile:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.lc-ticket-composer__attachment-tile[data-clickable] {
+  cursor: pointer;
+}
+.lc-ticket-composer__attachment-tile[data-clickable]:focus-visible {
+  outline: 2px solid var(--lc-tc-primary);
+  outline-offset: 2px;
+}
+.lc-ticket-composer__attachment-tile[data-multi] {
+  width: 60px;
+  height: 60px;
+}
+.lc-ticket-composer__attachment-zoom {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--lc-color-white);
+  opacity: 0;
+  transition: opacity 150ms ease;
+  pointer-events: none;
+}
+.lc-ticket-composer__attachment-tile:hover .lc-ticket-composer__attachment-zoom,
+.lc-ticket-composer__attachment-tile:focus-visible .lc-ticket-composer__attachment-zoom {
+  opacity: 1;
+}
+.lc-ticket-composer__attachment-zoom svg {
+  width: 20px;
+  height: 20px;
+}
+.lc-ticket-composer__attachment-tile[data-multi] .lc-ticket-composer__attachment-zoom svg {
+  width: 16px;
+  height: 16px;
+}
+
+.lc-ticket-composer__attachment-thumb {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+.lc-ticket-composer__attachment-tile > svg {
+  width: 24px;
+  height: 24px;
+  color: var(--lc-tc-dimmed);
+}
+.lc-ticket-composer__attachment-bin {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--lc-color-white);
+  color: var(--lc-color-green-900);
+  cursor: pointer;
+  opacity: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: opacity 150ms ease, background-color 150ms ease;
+}
+.lc-ticket-composer__attachment-tile:hover .lc-ticket-composer__attachment-bin,
+.lc-ticket-composer__attachment-bin:focus-visible {
+  opacity: 1;
+}
+.lc-ticket-composer__attachment-bin:hover {
+  background: var(--lc-color-gray-100);
+}
+.lc-ticket-composer__attachment-bin svg {
+  width: 12px;
+  height: 12px;
+  color: inherit;
+}
+
 .lc-ticket-composer__textarea {
   width: 100%;
   min-height: 32px;
   max-height: 132px; /* 6 lines (20px line-height) + 12px vertical padding, then scrolls */
-  padding: 6px 12px;
+  padding: 6px 12px 6px 0;
   border: none;
   border-radius: 4px;
   outline: none;
@@ -114,6 +215,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   height: 28px;
   padding: 0 16px;
   border: none;
@@ -126,14 +228,15 @@
   cursor: pointer;
   transition: color 150ms ease;
 }
+.lc-ticket-composer__tab svg {
+  width: 14px;
+  height: 14px;
+}
 .lc-ticket-composer__tab:not([data-active]):hover {
   color: var(--lc-tc-title);
 }
 .lc-ticket-composer__tab[data-active] {
-  color: var(--lc-tc-primary);
-}
-.lc-ticket-composer__tab[data-active][data-mode='note'] {
-  color: var(--lc-tc-warning);
+  color: var(--lc-tc-title);
 }
 
 .lc-ticket-composer__counter {
@@ -188,4 +291,44 @@
 .lc-ticket-composer__icon-btn svg {
   width: 16px;
   height: 16px;
+}
+
+.lc-modal.lc-ticket-composer__preview-modal {
+  padding: 8px;
+}
+.lc-ticket-composer__preview-modal .lc-modal__header {
+  display: none;
+}
+
+.lc-ticket-composer__preview-frame {
+  position: relative;
+}
+
+.lc-ticket-composer__preview-image {
+  display: block;
+  width: 100%;
+  max-height: 87.5vh;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.lc-ticket-composer__preview-close {
+  position: absolute;
+  top: -18px;
+  right: -18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--lc-color-white);
+  color: var(--lc-color-green-900);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.lc-ticket-composer__preview-close:hover {
+  background: var(--lc-color-gray-100);
 }

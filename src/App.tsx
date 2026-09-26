@@ -2540,10 +2540,8 @@ export function App() {
                     onModeChange={setComposerMode}
                     value={composerDraft}
                     onChange={setComposerDraft}
-                    sendLabel={composerMode === 'template' ? 'Send' : undefined}
                     onSend={() => setComposerDraft('')}
                     onMic={() => alert('Record voice note')}
-                    onAttach={() => alert('Attach file')}
                     onEmoji={() => alert('Insert emoji')}
                   />
                 )
