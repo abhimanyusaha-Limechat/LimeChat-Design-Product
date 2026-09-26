@@ -3,6 +3,10 @@
     "agentation": {
       "command": "npx",
       "args": ["-y", "agentation-mcp", "server"]
+    },
+    "figma-remote": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
     }
   }
 }
