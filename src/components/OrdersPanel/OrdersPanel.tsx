@@ -30,7 +30,7 @@ import {
   type OrderLineItem,
   type OrderStatus,
 } from '../../data/mockOrders';
-import { type Product } from '../../data/mockProducts';
+import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
 import { AddProductMenu } from '../AddProductMenu';
@@ -257,6 +257,112 @@ interface ExtraChargeEditable {
 const SIZE_OPTIONS = ['UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11', 'S', 'M', 'L', 'XL'];
 const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
 
+/** Mirrors ProductsPanel's ProductThumbnail — cost items only carry a SKU, not the full Product. */
+const THUMB_PALETTE = [
+  { bg: '#FAFDF6', fg: '#6BAC1B' },
+  { bg: '#EDF7FF', fg: '#097BA3' },
+  { bg: '#FAEFDB', fg: '#C68610' },
+  { bg: '#FCF3F3', fg: '#DA1B21' },
+  { bg: '#FCF2FF', fg: '#A045EC' },
+];
+function hashString(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
+  return hash;
+}
+function thumbPalette(sku: string) {
+  return THUMB_PALETTE[hashString(sku) % THUMB_PALETTE.length];
+}
+const PRODUCT_IMAGE_BY_SKU: Record<string, string> = Object.fromEntries(
+  MOCK_PRODUCTS.filter((p) => p.imageUrl).map((p) => [p.sku, p.imageUrl!]),
+);
+const PhotoIcon = () => (
+  <svg {...iconProps()}>
+    <rect x="4" y="5" width="16" height="14" rx="2" />
+    <circle cx="9" cy="10" r="1.5" />
+    <path d="M4 15l4.5 -4.5c0.8 -0.8 2 -0.8 2.8 0l5.7 5.5" />
+    <path d="M14.5 13.5l1.5 -1.5c0.8 -0.8 2 -0.8 2.8 0l1.2 1.2" />
+  </svg>
+);
+/** Mirrors TicketComposer's attachment-preview affordance. */
+const ZoomIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+    <path d="M21 21l-6 -6" />
+    <path d="M7 10l6 0" />
+    <path d="M10 7l0 6" />
+  </svg>
+);
+
+/**
+ * CostItemThumb — mirrors ProductsPanel's ProductThumbnail. With an image,
+ * hovering reveals a zoom affordance that opens the photo full-size in a
+ * dismissible modal; the no-image fallback stays static.
+ */
+function CostItemThumb({ sku, name }: { sku: string; name: string }) {
+  const imageUrl = PRODUCT_IMAGE_BY_SKU[sku];
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  return (
+    <>
+      <span
+        className="lc-op__cost-item-thumb"
+        style={imageUrl ? undefined : { background: thumbPalette(sku).bg, color: thumbPalette(sku).fg }}
+        data-clickable={imageUrl ? true : undefined}
+        role={imageUrl ? 'button' : undefined}
+        tabIndex={imageUrl ? 0 : undefined}
+        aria-label={imageUrl ? `View ${name} image` : undefined}
+        onClick={
+          imageUrl
+            ? (e) => {
+                e.stopPropagation();
+                setPreviewOpen(true);
+              }
+            : undefined
+        }
+        onKeyDown={
+          imageUrl
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setPreviewOpen(true);
+                }
+              }
+            : undefined
+        }
+      >
+        {imageUrl ? (
+          <>
+            <img className="lc-op__cost-item-thumb-img" src={imageUrl} alt="" aria-hidden="true" />
+            <span className="lc-op__cost-item-thumb-zoom" aria-hidden="true">
+              <ZoomIcon />
+            </span>
+          </>
+        ) : (
+          <PhotoIcon />
+        )}
+      </span>
+
+      {imageUrl && previewOpen && (
+        <Modal open onClose={() => setPreviewOpen(false)} title="" width={600} className="lc-op__preview-modal">
+          <div className="lc-op__preview-frame">
+            <img src={imageUrl} alt={name} className="lc-op__preview-image" />
+            <button
+              type="button"
+              className="lc-op__preview-close"
+              aria-label="Close"
+              onClick={() => setPreviewOpen(false)}
+            >
+              <ClearIcon size={14} />
+            </button>
+          </div>
+        </Modal>
+      )}
+    </>
+  );
+}
+
 function ProductsCostCard({
   data,
   onQtyChange,
@@ -281,38 +387,54 @@ function ProductsCostCard({
     <div className="lc-op__cost-card">
       {data.items.map((item, i) => (
         <div key={`${item.sku}-${i}`} className="lc-op__cost-item">
-          <div className="lc-op__cost-item-top">
-            <span className="lc-op__cost-item-name">{item.name}</span>
-            {onQtyChange && <Stepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />}
-          </div>
-          {!onVariantChange && <p className="lc-op__cost-item-sku">SKU: {item.sku}</p>}
+          <CostItemThumb sku={item.sku} name={item.name} />
 
-          {onVariantChange ? (
-            <div className="lc-op__cost-item-variants">
-              <NativeSelect
-                size="xs"
-                placeholder="Size"
-                aria-label={`${item.name} size`}
-                data={SIZE_OPTIONS}
-                value={item.size ?? ''}
-                onChange={(e) => onVariantChange(i, { size: e.currentTarget.value })}
-              />
-              <NativeSelect
-                size="xs"
-                placeholder="Color"
-                aria-label={`${item.name} color`}
-                data={COLOR_OPTIONS}
-                value={item.color ?? ''}
-                onChange={(e) => onVariantChange(i, { color: e.currentTarget.value })}
-              />
+          <div className="lc-op__cost-item-main">
+            <div className="lc-op__cost-item-top">
+              <span className="lc-op__cost-item-name">{item.name}</span>
+              {onQtyChange ? (
+                <Stepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />
+              ) : (
+                <span className="lc-op__cost-item-unit-price">{formatINR(item.unitPrice)}</span>
+              )}
             </div>
-          ) : null}
+            {!onVariantChange && (
+              <p className="lc-op__cost-item-sku">
+                <span>
+                  {item.sku} <span className="lc-op__cost-item-sku-qty">×{item.quantity}</span>
+                </span>
+                <span className="lc-op__cost-item-sku-total">{formatINR(item.unitPrice * item.quantity)}</span>
+              </p>
+            )}
 
-          <div className="lc-op__cost-item-qty">
-            <span>Quantity {item.quantity}</span>
-            <span>
-              {formatINR(item.unitPrice)} × {item.quantity}
-            </span>
+            {onVariantChange ? (
+              <div className="lc-op__cost-item-variants">
+                <NativeSelect
+                  size="xs"
+                  placeholder="Size"
+                  aria-label={`${item.name} size`}
+                  data={SIZE_OPTIONS}
+                  value={item.size ?? ''}
+                  onChange={(e) => onVariantChange(i, { size: e.currentTarget.value })}
+                />
+                <NativeSelect
+                  size="xs"
+                  placeholder="Color"
+                  aria-label={`${item.name} color`}
+                  data={COLOR_OPTIONS}
+                  value={item.color ?? ''}
+                  onChange={(e) => onVariantChange(i, { color: e.currentTarget.value })}
+                />
+              </div>
+            ) : null}
+
+            {onQtyChange && (
+              <div className="lc-op__cost-item-qty">
+                <span>
+                  {formatINR(item.unitPrice)} × {item.quantity}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       ))}
@@ -425,35 +547,6 @@ function ProductsCostCard({
         <span>{formatINR(data.total)}</span>
       </div>
     </div>
-  );
-}
-
-/** Copy-to-clipboard value, mirroring ProductsPanel's CopyableValue pattern. */
-function CopyableValue({ value, ariaLabel }: { value: string; ariaLabel?: string }) {
-  const [copied, setCopied] = useState(false);
-  const timer = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  const handleClick = async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-    } catch {
-      // Clipboard access denied/unavailable — the value simply won't confirm.
-    }
-    setCopied(true);
-    window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setCopied(false), 1000);
-  };
-
-  return (
-    <button
-      type="button"
-      className={`lc-op__detail-value--copyable${copied ? ' lc-op__detail-value--copied' : ''}`}
-      aria-label={ariaLabel && !copied ? ariaLabel : undefined}
-      onClick={handleClick}
-    >
-      {copied ? 'Copied' : value}
-    </button>
   );
 }
 
@@ -1093,6 +1186,7 @@ function OrderFormFields({
 
 /** Current-status callout — dot + status text + date, with a link to jump to the tracking section. */
 function OrderStatusCard({ order, onSeeUpdates }: { order: Order; onSeeUpdates: () => void }) {
+  const hasUpdates = buildStatusTimeline(order).length > 1;
   return (
     <div className="lc-op__status-card">
       <div className="lc-op__status-card-main">
@@ -1101,9 +1195,11 @@ function OrderStatusCard({ order, onSeeUpdates }: { order: Order; onSeeUpdates: 
         </div>
         <span className="lc-op__status-card-date">{formatDate(order.placedAt)}</span>
       </div>
-      <button type="button" className="lc-op__status-card-link" onClick={onSeeUpdates}>
-        See updates
-      </button>
+      {hasUpdates && (
+        <button type="button" className="lc-op__status-card-link" onClick={onSeeUpdates}>
+          See updates
+        </button>
+      )}
     </div>
   );
 }
@@ -1300,7 +1396,7 @@ function OrderDetailView({
       <div className="lc-op__detail-content">
         <div className="lc-op__detail-header">
           <div className="lc-op__detail-row lc-op__detail-row--id">
-            <CopyableValue value={orderNumber(order.id)} ariaLabel={`Order ID ${orderNumber(order.id)}`} />
+            <span className="lc-op__detail-value--id">{orderNumber(order.id)}</span>
             <OrderStatusPill status={order.status} />
           </div>
           <div className="lc-op__detail-row">

@@ -401,7 +401,7 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
 .lc-tdp__section-title {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
   font-size: 14px;
   font-weight: 700;
@@ -582,7 +582,7 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
 .lc-tdp__field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .lc-tdp__field-label {
   font-size: 12px;
@@ -614,19 +614,19 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
 .lc-tdp__cascade {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .lc-tdp__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   padding: 0;
 }
 .lc-tdp__tag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 4px 6px 4px 10px;
   border: 1px solid var(--lc-tdp-border);
   border-radius: 999px;
