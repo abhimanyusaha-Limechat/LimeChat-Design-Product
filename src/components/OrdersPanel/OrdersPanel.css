@@ -609,7 +609,7 @@
 }
 .lc-op__cost-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
 }
 .lc-op__cost-item-thumb {
@@ -618,8 +618,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -755,7 +755,8 @@
 }
 .lc-op__cost-item-variants {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: center;
   gap: 6px;
   margin-top: 6px;
 }
