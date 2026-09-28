@@ -1359,8 +1359,8 @@
 .lc-op__stepper-value {
   min-width: 14px;
   text-align: center;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   color: var(--lc-op-title);
 }
 

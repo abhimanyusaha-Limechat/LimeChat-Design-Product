@@ -221,12 +221,20 @@ function CopyableTicketId({ value }: { value: string }) {
   );
 }
 
-/** Trigger + popover with a search box — used to assign an agent/team from a long, searchable name list. */
-function AssigneeSearchSelect({ value, onChange }: { value: string; onChange: (next: string) => void }) {
+/** Trigger + popover with a search box — used to assign an agent/team from a searchable option list. */
+function AssigneeSearchSelect({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  onChange: (next: string) => void;
+}) {
   const [query, setQuery] = useState('');
   const wasOpenRef = useRef(false);
 
-  const filtered = RANDOM_AGENT_NAMES.filter((name) => name.toLowerCase().includes(query.trim().toLowerCase()));
+  const filtered = options.filter((name) => name.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
     <Menu
@@ -283,7 +291,7 @@ function AssignmentRow({ icon, label, field }: { icon?: ReactNode; label: string
         {icon != null && <span className="lc-tdp__detail-icon">{icon}</span>}
         {label}
       </span>
-      <AssigneeSearchSelect value={field.value} onChange={(next) => field.onChange?.(next)} />
+      <AssigneeSearchSelect value={field.value} options={field.options} onChange={(next) => field.onChange?.(next)} />
     </div>
   );
 }
@@ -624,6 +632,11 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   const tabsRef = useRef<HTMLDivElement | null>(null);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
+  // Read inside the ResizeObserver callback below, which must stay mounted
+  // once — re-subscribing it on every active-tab change (or on every parent
+  // re-render, since `tabs` is usually an inline array literal) is wasted work.
+  const activeTabRef = useRef(resolvedActiveTab);
+  activeTabRef.current = resolvedActiveTab;
   useLayoutEffect(() => {
     const el = tabRefs.current[resolvedActiveTab];
     if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
@@ -635,7 +648,7 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
     const container = tabsRef.current;
     if (!container) return undefined;
     const observer = new ResizeObserver(() => {
-      const el = tabRefs.current[resolvedActiveTab];
+      const el = tabRefs.current[activeTabRef.current];
       if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
     });
     observer.observe(container);
@@ -643,7 +656,7 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
       if (el) observer.observe(el);
     }
     return () => observer.disconnect();
-  }, [resolvedActiveTab, tabs]);
+  }, []);
   const panelProps = {
     className: 'lc-tdp__body',
     id: panelId(resolvedActiveTab),
@@ -653,7 +666,9 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   };
 
   return (
-    <CartProvider>
+    // Keyed by ticketId so switching tickets starts a fresh cart instead of
+    // carrying over line items added while viewing a different customer.
+    <CartProvider key={ticketId}>
     <div {...rest} ref={ref} className={`lc-tdp${className ? ` ${className}` : ''}`}>
       <div className="lc-tdp__tabs" role="tablist" ref={tabsRef}>
         {indicator && (

@@ -14,7 +14,7 @@ import { Modal } from '../Modal';
 import { NativeSelect } from '../Select';
 import './CartPanel.css';
 import { iconProps } from '../iconProps';
-import { CloseIcon as ClearIcon, TrashIcon } from '../icons';
+import { CloseIcon as ClearIcon } from '../icons';
 import { formatINR } from '../formatINR';
 
 const TAX_RATE = 12;
@@ -154,24 +154,8 @@ function CartItemThumb({ sku, name }: { sku: string; name: string }) {
   );
 }
 
-const REMOVE_ANIM_MS = 180;
-
 export function CartPanel({ onCreateOrder }: { onCreateOrder?: (items: CartLineItem[]) => void } = {}) {
-  const { items, removeItem: removeFromCart, clearCart, setQuantity, setSize: setItemSize, setColor: setItemColor } =
-    useCart();
-  const [removingKeys, setRemovingKeys] = useState<Set<string>>(new Set());
-
-  const removeItem = (index: number, key: string) => {
-    setRemovingKeys((prev) => new Set(prev).add(key));
-    window.setTimeout(() => {
-      removeFromCart(index);
-      setRemovingKeys((prev) => {
-        const next = new Set(prev);
-        next.delete(key);
-        return next;
-      });
-    }, REMOVE_ANIM_MS);
-  };
+  const { items, clearCart, setQuantity, setSize: setItemSize, setColor: setItemColor } = useCart();
   const setQty = setQuantity;
   const setSize = setItemSize;
   const setColor = setItemColor;
@@ -198,7 +182,7 @@ export function CartPanel({ onCreateOrder }: { onCreateOrder?: (items: CartLineI
               {items.map((item, i) => {
               const key = `${item.sku}-${i}`;
               return (
-                <div key={key} className="lc-cp__item-wrap" data-removing={removingKeys.has(key) || undefined}>
+                <div key={key} className="lc-cp__item-wrap">
                   <div className="lc-cp__item-row">
                     <CartItemThumb sku={item.sku} name={item.name} />
                     <div className="lc-cp__item-main">
@@ -234,20 +218,6 @@ export function CartPanel({ onCreateOrder }: { onCreateOrder?: (items: CartLineI
                           </div>
                         );
                       })()}
-                      <div className="lc-cp__item-bottom">
-                        <div className="lc-cp__item-actions">
-                          <button
-                            type="button"
-                            className="lc-cp__item-remove"
-                            aria-label={`Remove ${item.name}`}
-                            onClick={() => removeItem(i, key)}
-                          >
-                            <TrashIcon />
-                          </button>
-                          <span className="lc-cp__item-sku">{item.sku}</span>
-                        </div>
-                        <span className="lc-cp__item-price">{formatINR(item.unitPrice * item.quantity)}</span>
-                      </div>
                     </div>
                   </div>
                 </div>
