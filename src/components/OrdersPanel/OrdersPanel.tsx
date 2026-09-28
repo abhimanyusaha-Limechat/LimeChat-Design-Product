@@ -1062,9 +1062,12 @@ function AddressBlock({ address }: { address: Address }) {
 function OrderFormFields({
   draft,
   setDraft,
+  productsEditable = true,
 }: {
   draft: OrderDraft;
   setDraft: Dispatch<SetStateAction<OrderDraft>>;
+  /** Creating a new order shows products in a static view state, not editable. */
+  productsEditable?: boolean;
 }) {
   // Shared across the Shipping and Billing pickers below, so saving/editing
   // an address from one shows up in the other's list too.
@@ -1085,21 +1088,28 @@ function OrderFormFields({
             extraChargeLabel: draft.extraChargeLabel,
             extraChargeAmount: Number(draft.extraChargeAmount) || 0,
           }}
-          onQtyChange={(index, quantity) =>
-            setDraft((d) => ({ ...d, items: d.items.map((item, i) => (i === index ? { ...item, quantity } : item)) }))
-          }
-          onVariantChange={(index, patch) =>
-            setDraft((d) => ({ ...d, items: d.items.map((item, i) => (i === index ? { ...item, ...patch } : item)) }))
-          }
-          onAddProduct={(product) =>
-            setDraft((d) => ({
-              ...d,
-              items: [
-                ...d.items,
-                { productId: product.id, name: product.name, sku: product.sku, quantity: 1, unitPrice: product.discountedPrice },
-              ],
-            }))
-          }
+          {...(productsEditable
+            ? {
+                onQtyChange: (index: number, quantity: number) =>
+                  setDraft((d) => ({
+                    ...d,
+                    items: d.items.map((item, i) => (i === index ? { ...item, quantity } : item)),
+                  })),
+                onVariantChange: (index: number, patch: { size?: string; color?: string }) =>
+                  setDraft((d) => ({
+                    ...d,
+                    items: d.items.map((item, i) => (i === index ? { ...item, ...patch } : item)),
+                  })),
+                onAddProduct: (product: Product) =>
+                  setDraft((d) => ({
+                    ...d,
+                    items: [
+                      ...d.items,
+                      { productId: product.id, name: product.name, sku: product.sku, quantity: 1, unitPrice: product.discountedPrice },
+                    ],
+                  })),
+              }
+            : {})}
           discountEditable={{
             amount: draft.discountAmount,
             code: draft.discountCode,
@@ -1579,11 +1589,11 @@ function CreateOrderView({
           <span className="lc-op__detail-invoice">Creating new order</span>
         </div>
 
-        <OrderFormFields draft={draft} setDraft={setDraft} />
+        <OrderFormFields draft={draft} setDraft={setDraft} productsEditable={false} />
 
         <div className="lc-op__detail-ctas lc-op__detail-ctas--sticky-bottom">
           <Button variant="outline" color="gray" size="sm" style={{ flex: 1 }} onClick={onBack}>
-            Cancel
+            Cart
           </Button>
           <Button variant="filled" color="primary" size="sm" style={{ flex: 1 }} disabled={!valid} onClick={handleCreate}>
             Create order

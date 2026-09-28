@@ -8,8 +8,6 @@
   --lc-cp-primary: var(--lc-color-green-500);
   --lc-cp-primary-light: var(--lc-color-green-50);
   --lc-cp-border: var(--lc-color-gray-200);
-  --lc-cp-danger: var(--lc-color-red-700);
-  --lc-cp-danger-light: #FCF3F3;
   --lc-cp-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   display: flex;
@@ -27,6 +25,7 @@
 
 /* --- Body / item list --------------------------------------------------- */
 .lc-cp__body {
+  position: relative;
   flex: 1 1 0;
   min-height: 0;
   overflow-y: auto;
@@ -54,27 +53,6 @@
   color: var(--lc-cp-dimmed);
   background: var(--lc-color-white);
   border-bottom: 1px solid var(--lc-cp-border);
-}
-
-/* Collapses via CSS grid's `fr` unit so the row's height doesn't need to be
-   measured in JS — animating `grid-template-rows` still triggers layout, but
-   this is the one case where that's the only way to animate height at all. */
-.lc-cp__item-wrap {
-  display: grid;
-  grid-template-rows: 1fr;
-  opacity: 1;
-  transition: grid-template-rows 200ms var(--lc-cp-ease-out), opacity 200ms var(--lc-cp-ease-out),
-    margin-top 200ms var(--lc-cp-ease-out);
-}
-.lc-cp__item-wrap > .lc-cp__item-row {
-  min-height: 0;
-  overflow: hidden;
-}
-.lc-cp__item-wrap[data-removing] {
-  grid-template-rows: 0fr;
-  opacity: 0;
-  margin-top: -8px;
-  transition-duration: 180ms;
 }
 
 .lc-cp__item-row {
@@ -222,10 +200,6 @@
   font-weight: 400;
   color: var(--lc-cp-dimmed);
 }
-.lc-cp__item-sku {
-  font-size: 11px;
-  color: var(--lc-cp-dimmed);
-}
 .lc-cp__item-variants {
   display: flex;
   align-items: center;
@@ -234,54 +208,6 @@
 .lc-cp__item-variants .lc-select {
   flex: 1 1 0;
   min-width: 0;
-}
-.lc-cp__item-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding-top: 2px;
-  border-top: 1px dashed var(--lc-cp-border);
-}
-.lc-cp__item-actions {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.lc-cp__item-price {
-  flex-shrink: 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--lc-cp-title);
-  text-align: right;
-}
-.lc-cp__item-remove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--lc-cp-dimmed);
-  cursor: pointer;
-  transition: transform 120ms ease-out, background-color 120ms ease, color 120ms ease;
-}
-@media (hover: hover) and (pointer: fine) {
-  .lc-cp__item-remove:hover {
-    background: var(--lc-cp-danger-light);
-    color: var(--lc-cp-danger);
-  }
-}
-.lc-cp__item-remove:active {
-  transform: scale(0.96);
-}
-.lc-cp__item-remove svg {
-  width: 14px;
-  height: 14px;
 }
 
 /* --- Quantity stepper ----------------------------------------------- */
@@ -331,11 +257,15 @@
 /* --- Add product ------------------------------------------------------ */
 /* --- Empty state --------------------------------------------------- */
 .lc-cp__empty {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -40%);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 40px 16px 8px;
+  padding: 0 16px;
   text-align: center;
   color: var(--lc-cp-dimmed);
 }
@@ -372,7 +302,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--lc-cp-dimmed);
 }
 .lc-cp__summary-total {
