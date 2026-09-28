@@ -12,6 +12,7 @@ import { MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockP
 import { useCart } from '../../context/CartContext';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
+import { Modal } from '../Modal';
 import './ProductsPanel.css';
 import { iconProps } from '../iconProps';
 import { CloseIcon as ClearIcon, CheckIcon, ChevronDownIcon } from '../icons';
@@ -160,22 +161,82 @@ const CartIcon = () => (
     <path d="M6 5l14 1l-1 7h-13" />
   </svg>
 );
+/** Mirrors TicketComposer's attachment-preview affordance. */
+const ZoomIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+    <path d="M21 21l-6 -6" />
+    <path d="M7 10l6 0" />
+    <path d="M10 7l0 6" />
+  </svg>
+);
 
-/** ProductThumbnail — colored-initial tile, or the product image when available. */
+/**
+ * ProductThumbnail — colored-initial tile, or the product image when available.
+ * With an image, hovering reveals a zoom affordance (mirrors TicketComposer's
+ * attachment tiles) that opens the photo full-size in a dismissible modal.
+ */
 function ProductThumbnail({ product, size = 'sm' }: { product: Product; size?: 'sm' | 'lg' }) {
   const palette = THUMB_PALETTE[hashString(product.id) % THUMB_PALETTE.length];
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   return (
-    <span
-      className={`lc-pp__thumb${size === 'lg' ? ' lc-pp__thumb--lg' : ''}`}
-      style={product.imageUrl ? undefined : { background: palette.bg, color: palette.fg }}
-    >
-      {product.imageUrl ? (
-        <img className="lc-pp__thumb-img" src={product.imageUrl} alt="" aria-hidden="true" />
-      ) : (
-        <PhotoIcon />
+    <>
+      <span
+        className={`lc-pp__thumb${size === 'lg' ? ' lc-pp__thumb--lg' : ''}`}
+        style={product.imageUrl ? undefined : { background: palette.bg, color: palette.fg }}
+        data-clickable={product.imageUrl ? true : undefined}
+        role={product.imageUrl ? 'button' : undefined}
+        tabIndex={product.imageUrl ? 0 : undefined}
+        aria-label={product.imageUrl ? `View ${product.name} image` : undefined}
+        onClick={
+          product.imageUrl
+            ? (e) => {
+                e.stopPropagation();
+                setPreviewOpen(true);
+              }
+            : undefined
+        }
+        onKeyDown={
+          product.imageUrl
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setPreviewOpen(true);
+                }
+              }
+            : undefined
+        }
+      >
+        {product.imageUrl ? (
+          <>
+            <img className="lc-pp__thumb-img" src={product.imageUrl} alt="" aria-hidden="true" />
+            <span className="lc-pp__thumb-zoom" aria-hidden="true">
+              <ZoomIcon />
+            </span>
+          </>
+        ) : (
+          <PhotoIcon />
+        )}
+      </span>
+
+      {product.imageUrl && previewOpen && (
+        <Modal open onClose={() => setPreviewOpen(false)} title="" width={600} className="lc-pp__preview-modal">
+          <div className="lc-pp__preview-frame">
+            <img src={product.imageUrl} alt={product.name} className="lc-pp__preview-image" />
+            <button
+              type="button"
+              className="lc-pp__preview-close"
+              aria-label="Close"
+              onClick={() => setPreviewOpen(false)}
+            >
+              <ClearIcon size={14} />
+            </button>
+          </div>
+        </Modal>
       )}
-    </span>
+    </>
   );
 }
 
@@ -255,28 +316,6 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
   );
 }
 
-/** Icon-only share CTA shown on `.lc-pp__row` hover, mirroring DetailCtas' share behavior. */
-function RowAddToCartButton({ product }: { product: Product }) {
-  const { addItem } = useCart();
-  const [added, setAdded] = useState(false);
-  const timer = useRef<number | undefined>(undefined);
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
-  const handleAddToCart = (e: MouseEvent) => {
-    e.stopPropagation();
-    addItem({ productId: product.id, name: product.name, sku: product.sku, unitPrice: product.discountedPrice });
-    setAdded(true);
-    window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setAdded(false), 1000);
-  };
-
-  return (
-    <button type="button" className="lc-pp__row-add-cart" aria-label="Add to cart" onClick={handleAddToCart}>
-      {added ? <CheckIcon /> : <CartIcon />}
-    </button>
-  );
-}
-
 function RowShareButton({ product }: { product: Product }) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | undefined>(undefined);
@@ -339,7 +378,6 @@ function ProductRow({
         </span>
       </span>
       <span className="lc-pp__row-actions">
-        <RowAddToCartButton product={product} />
         <RowShareButton product={product} />
       </span>
     </div>
@@ -443,7 +481,7 @@ function TruncatedDescription({ text }: { text: string }) {
     <>
       <p className={`lc-pp__detail-desc${expanded ? '' : ' lc-pp__detail-desc--clamped'}`}>{text}</p>
       <button type="button" className="lc-pp__detail-desc-toggle" onClick={() => setExpanded((v) => !v)}>
-        {expanded ? 'Show less' : 'Read more'}
+        {expanded ? 'Read less' : 'Read more'}
       </button>
     </>
   );

@@ -18,6 +18,44 @@ const PlusIcon = () => (
     <path d="M5 12l14 0" />
   </svg>
 );
+const PhotoIcon = () => (
+  <svg {...iconProps()}>
+    <rect x="4" y="5" width="16" height="14" rx="2" />
+    <circle cx="9" cy="10" r="1.5" />
+    <path d="M4 15l4.5 -4.5c0.8 -0.8 2 -0.8 2.8 0l5.7 5.5" />
+    <path d="M14.5 13.5l1.5 -1.5c0.8 -0.8 2 -0.8 2.8 0l1.2 1.2" />
+  </svg>
+);
+
+/** Mirrors ProductsPanel's ProductThumbnail. */
+const THUMB_PALETTE = [
+  { bg: '#FAFDF6', fg: '#6BAC1B' },
+  { bg: '#EDF7FF', fg: '#097BA3' },
+  { bg: '#FAEFDB', fg: '#C68610' },
+  { bg: '#FCF3F3', fg: '#DA1B21' },
+  { bg: '#FCF2FF', fg: '#A045EC' },
+];
+function hashString(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
+  return hash;
+}
+function ItemThumb({ product }: { product: Product }) {
+  const palette = THUMB_PALETTE[hashString(product.id) % THUMB_PALETTE.length];
+  return (
+    <span
+      className="lc-add-product__item-thumb"
+      style={product.imageUrl ? undefined : { background: palette.bg, color: palette.fg }}
+      aria-hidden="true"
+    >
+      {product.imageUrl ? (
+        <img className="lc-add-product__item-thumb-img" src={product.imageUrl} alt="" />
+      ) : (
+        <PhotoIcon />
+      )}
+    </span>
+  );
+}
 
 const defaultTrigger = ({ ref, onClick }: MenuTriggerRenderProps) => (
   <Button ref={ref} variant="default" size="xs" leftSection={<PlusIcon />} onClick={onClick}>
@@ -43,6 +81,7 @@ export function AddProductMenu({
         key: p.id,
         label: (
           <span className="lc-add-product__item">
+            <ItemThumb product={p} />
             <span className="lc-add-product__item-name">{p.name}</span>
             <span className="lc-add-product__item-price">{formatINR(p.discountedPrice)}</span>
           </span>
@@ -55,7 +94,7 @@ export function AddProductMenu({
     <Menu
       items={items}
       ariaLabel="Add product"
-      width={240}
+      width={300}
       className="lc-add-product"
       header={
         <div className="lc-add-product__search">

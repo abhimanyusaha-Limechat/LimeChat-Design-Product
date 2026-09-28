@@ -22,10 +22,31 @@
 }
 .lc-add-product__item {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   width: 100%;
   min-width: 0;
+}
+.lc-add-product__item-thumb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.lc-add-product__item-thumb svg {
+  width: 18px;
+  height: 18px;
+  opacity: 0.6;
+}
+.lc-add-product__item-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 .lc-add-product__item-name {
   flex: 1 1 auto;
