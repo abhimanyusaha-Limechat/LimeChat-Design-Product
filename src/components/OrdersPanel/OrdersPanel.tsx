@@ -392,11 +392,7 @@ function ProductsCostCard({
           <div className="lc-op__cost-item-main">
             <div className="lc-op__cost-item-top">
               <span className="lc-op__cost-item-name">{item.name}</span>
-              {onQtyChange ? (
-                <Stepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />
-              ) : (
-                <span className="lc-op__cost-item-unit-price">{formatINR(item.unitPrice)}</span>
-              )}
+              <span className="lc-op__cost-item-unit-price">{formatINR(item.unitPrice)}</span>
             </div>
             {!onVariantChange && (
               <p className="lc-op__cost-item-sku">
@@ -425,15 +421,14 @@ function ProductsCostCard({
                   value={item.color ?? ''}
                   onChange={(e) => onVariantChange(i, { color: e.currentTarget.value })}
                 />
+                {onQtyChange && <Stepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />}
               </div>
-            ) : null}
-
-            {onQtyChange && (
-              <div className="lc-op__cost-item-qty">
-                <span>
-                  {formatINR(item.unitPrice)} × {item.quantity}
-                </span>
-              </div>
+            ) : (
+              onQtyChange && (
+                <div className="lc-op__cost-item-qty">
+                  <Stepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />
+                </div>
+              )
             )}
           </div>
         </div>

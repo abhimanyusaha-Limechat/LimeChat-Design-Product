@@ -147,6 +147,7 @@
   min-height: 32px;
   max-height: 132px; /* 6 lines (20px line-height) + 12px vertical padding, then scrolls */
   padding: 6px 12px 6px 0;
+  background: transparent;
   border: none;
   border-radius: 4px;
   outline: none;

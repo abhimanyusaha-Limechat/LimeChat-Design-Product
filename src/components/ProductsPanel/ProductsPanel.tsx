@@ -15,7 +15,7 @@ import { Button } from '../Button';
 import { Modal } from '../Modal';
 import './ProductsPanel.css';
 import { iconProps } from '../iconProps';
-import { CloseIcon as ClearIcon, CheckIcon, ChevronDownIcon } from '../icons';
+import { CloseIcon as ClearIcon, CheckIcon, ChevronDownIcon, TrashIcon } from '../icons';
 import { formatINR } from '../formatINR';
 import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 
@@ -415,20 +415,30 @@ function EmptyState({ searching }: { searching: boolean }) {
   );
 }
 
-/** Share + Add to cart CTAs shown in the product detail view. */
-function DetailCtas({ product, size, color }: { product: Product; size?: string; color?: string }) {
-  const { addItem } = useCart();
-  const [shared, setShared] = useState(false);
-  const [added, setAdded] = useState(false);
-  const shareTimer = useRef<number | undefined>(undefined);
-  const addTimer = useRef<number | undefined>(undefined);
-  useEffect(
-    () => () => {
-      window.clearTimeout(shareTimer.current);
-      window.clearTimeout(addTimer.current);
-    },
-    [],
+function DetailQtyStepper({ value, onChange }: { value: number; onChange: (next: number) => void }) {
+  return (
+    <span className="lc-pp__detail-stepper">
+      <button type="button" aria-label="Decrease quantity" onClick={() => onChange(Math.max(1, value - 1))}>
+        −
+      </button>
+      <span className="lc-pp__detail-stepper-value">{value}</span>
+      <button type="button" aria-label="Increase quantity" onClick={() => onChange(value + 1)}>
+        +
+      </button>
+    </span>
   );
+}
+
+/** Share + Add to cart CTAs shown in the product detail view. Once the current variant is in the cart, the
+ * "Add to cart" button becomes a quantity stepper + remove control instead of staying an inert "Added" state. */
+function DetailCtas({ product, size, color }: { product: Product; size?: string; color?: string }) {
+  const { items, addItem, removeItem, setQuantity } = useCart();
+  const [shared, setShared] = useState(false);
+  const shareTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(shareTimer.current), []);
+
+  const cartIndex = items.findIndex((i) => i.productId === product.id && i.size === size && i.color === color);
+  const cartItem = cartIndex !== -1 ? items[cartIndex] : undefined;
 
   const handleShare = async () => {
     try {
@@ -443,9 +453,6 @@ function DetailCtas({ product, size, color }: { product: Product; size?: string;
 
   const handleAddToCart = () => {
     addItem({ productId: product.id, name: product.name, sku: product.sku, unitPrice: product.discountedPrice, size, color });
-    setAdded(true);
-    window.clearTimeout(addTimer.current);
-    addTimer.current = window.setTimeout(() => setAdded(false), 1500);
   };
 
   return (
@@ -460,16 +467,30 @@ function DetailCtas({ product, size, color }: { product: Product; size?: string;
       >
         {shared ? 'Copied' : 'Share'}
       </Button>
-      <Button
-        variant="filled"
-        color="primary"
-        size="sm"
-        style={{ flex: 1 }}
-        leftSection={added ? <CheckIcon /> : <CartIcon />}
-        onClick={handleAddToCart}
-      >
-        {added ? 'Added' : 'Add to cart'}
-      </Button>
+      {cartItem ? (
+        <div className="lc-pp__detail-qty" style={{ flex: 1 }}>
+          <DetailQtyStepper value={cartItem.quantity} onChange={(q) => setQuantity(cartIndex, q)} />
+          <button
+            type="button"
+            className="lc-pp__detail-qty-remove"
+            aria-label={`Remove ${product.name} from cart`}
+            onClick={() => removeItem(cartIndex)}
+          >
+            <TrashIcon />
+          </button>
+        </div>
+      ) : (
+        <Button
+          variant="filled"
+          color="primary"
+          size="sm"
+          style={{ flex: 1 }}
+          leftSection={<CartIcon />}
+          onClick={handleAddToCart}
+        >
+          Add to cart
+        </Button>
+      )}
     </div>
   );
 }
