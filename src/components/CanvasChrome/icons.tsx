@@ -29,6 +29,7 @@ export type CanvasIconName =
   | 'settings'
   | 'download'
   | 'floppy'
+  | 'calendar'
   | 'rocket'
   | 'loader'
   | 'copy'
@@ -137,6 +138,12 @@ const PATHS: Record<CanvasIconName, string[]> = {
     'M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z',
     'M12 17v-6',
     'M9.5 14.5l2.5 2.5l2.5 -2.5',
+  ],
+  calendar: [
+    'M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12',
+    'M16 3v4',
+    'M8 3v4',
+    'M4 11h16',
   ],
   floppy: [
     'M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2',
