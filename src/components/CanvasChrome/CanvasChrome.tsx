@@ -943,8 +943,8 @@ export function CanvasChrome({
                 <IconButton
                   icon="plus"
                   label={addLabel}
-                  size="lg"
-                  variant="filled"
+                  size="xl"
+                  variant="light"
                   tooltip
                   active={paletteOpen}
                   onClick={() => setPaletteOpen((o) => !o)}
@@ -965,8 +965,8 @@ export function CanvasChrome({
                 <IconButton
                   icon="plus"
                   label={addLabel}
-                  size="lg"
-                  variant="filled"
+                  size="xl"
+                  variant="light"
                   tooltip
                   onClick={onAdd}
                 />

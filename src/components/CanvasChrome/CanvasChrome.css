@@ -1161,11 +1161,11 @@
   --lc-cb-icon: 18px;
 }
 .lc-canvas__icon-btn[data-size='lg'] {
-  --lc-cb-size: 34px;
+  --lc-cb-size: 36px;
   --lc-cb-icon: 20px;
 }
 .lc-canvas__icon-btn[data-size='xl'] {
-  --lc-cb-size: 44px;
+  --lc-cb-size: 36px;
   --lc-cb-icon: 20px;
   border-radius: 8px;
 }
@@ -1183,6 +1183,10 @@
   color: var(--lc-canvas-accent);
 }
 .lc-canvas__icon-btn[data-variant='light']:hover {
+  background: var(--lc-canvas-accent-light-hover);
+}
+/* Add-node button (xl/light) — resting state uses the hover shade. */
+.lc-canvas__icon-btn[data-variant='light'][data-size='xl'] {
   background: var(--lc-canvas-accent-light-hover);
 }
 .lc-canvas__icon-btn[data-variant='filled'] {
