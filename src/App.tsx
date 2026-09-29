@@ -1693,7 +1693,10 @@ export function App() {
   // Which section (tab) the currently-open broadcast/flow was opened from —
   // drives the editor's status badge so it matches where the row actually lives.
   const [broadcastStatus, setBroadcastStatus] = useState<BroadcastRowData['status']>('completed');
+  const broadcastTriggered =
+    selected === 'broadcast' && (broadcastStatus === 'sending' || broadcastStatus === 'completed');
   const [flowStatus, setFlowStatus] = useState<FlowRowData['status']>('active');
+  const flowIsCampaign = selected === 'automation-flows' && flowStatus !== 'draft';
   const [botFlowStatus, setBotFlowStatus] = useState<BotFlowRowData['status']>('active');
 
   const BROADCAST_BADGE: Record<BroadcastRowData['status'], { label: string; tone?: 'accent' | 'warning' }> = {
@@ -1959,8 +1962,21 @@ export function App() {
                 {...marketingCanvas({
                   omitTools:
                     selected === 'broadcast' ? ['preview', 'experiment', 'settings'] : undefined,
-                  omitActions: selected === 'broadcast' ? ['reports', 'save'] : undefined,
-                  onTest: selected === 'broadcast' ? () => setVisualizeOpen(true) : undefined,
+                  simpleReport: broadcastTriggered || flowIsCampaign,
+                  dateRange: flowIsCampaign ? 'January 14, 2023 - January 14, 2023' : undefined,
+                  saveLabel: flowIsCampaign ? 'Draft' : undefined,
+                  omitActions:
+                    selected === 'broadcast'
+                      ? broadcastTriggered
+                        ? ['save', 'publish']
+                        : ['reports', 'save']
+                      : selected === 'automation-flows' && flowStatus === 'draft'
+                        ? ['reports']
+                        : undefined,
+                  onTest:
+                    selected === 'broadcast' && !broadcastTriggered
+                      ? () => setVisualizeOpen(true)
+                      : undefined,
                   broadcastMeta:
                     selected === 'broadcast'
                       ? {
@@ -2010,6 +2026,7 @@ export function App() {
                 onToolSelect={setActiveTool}
                 zoom={zoom}
                 onZoomChange={setZoomClamped}
+                showHistory={selected !== 'automation-flows' && selected !== 'broadcast'}
                 onUndo={() => console.log('undo')}
                 onRedo={() => console.log('redo')}
               />
@@ -2018,7 +2035,6 @@ export function App() {
             {showCanvas && product === 'automation' && (
               <CanvasChrome
                 {...automationCanvas({
-                  onRevert: () => alert('Reverted to original'),
                   onPublish: () => alert('Published'),
                   onCollaborators: () => alert('Collaborators'),
                   onCloneFlow: () => alert('Clone flow'),
