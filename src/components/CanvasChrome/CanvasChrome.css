@@ -33,7 +33,7 @@
   --lc-canvas-accent-soft: var(--lc-color-green-75);
   --lc-canvas-hover-bg: var(--lc-color-stone-100);
   /* idle (unselected) icon-button glyph — a lighter grey than text/dimmed */
-  --lc-canvas-icon-idle: #A8ACA6;
+  --lc-canvas-icon-idle: var(--lc-color-gray-500); /* #8c8c8c */
   --lc-canvas-divider: var(--lc-color-gray-150);
   --lc-canvas-disabled: var(--lc-color-gray-400);
   --lc-canvas-pill-radius: 8px;
