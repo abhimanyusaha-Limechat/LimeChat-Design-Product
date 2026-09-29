@@ -177,41 +177,26 @@
   padding: 2px 8px;
   border: 1px solid var(--lc-canvas-accent);
   border-radius: 4px;
-  background: var(--lc-canvas-accent-soft);
+  background: var(--lc-canvas-accent);
   font-size: 10px;
   font-weight: 600;
   line-height: 12px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--lc-canvas-accent);
+  color: var(--lc-color-white);
   /* soften the active ↔ inactive swap driven by the Flow-details switch */
   transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
-}
-/* live indicator */
-.lc-canvas__flow-badge::before {
-  content: '';
-  flex-shrink: 0;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--lc-canvas-accent);
 }
 .lc-canvas__flow[data-active='false'] .lc-canvas__flow-badge {
   border-color: transparent;
   background: var(--lc-canvas-divider);
   color: var(--lc-canvas-dimmed);
 }
-.lc-canvas__flow[data-active='false'] .lc-canvas__flow-badge::before {
-  display: none;
-}
 /* warm yellow tone (e.g. Broadcast "Scheduled") — design-system yellow/warning family */
 .lc-canvas__flow-badge[data-tone='warning'] {
   border-color: var(--lc-color-amber-500);
   background: #FAEFDB;
   color: var(--lc-color-amber-600);
-}
-.lc-canvas__flow-badge[data-tone='warning']::before {
-  background: var(--lc-color-amber-500);
 }
 
 /* --- Broadcast audience + schedule summary (Figma node 10863:6513) ---- */
