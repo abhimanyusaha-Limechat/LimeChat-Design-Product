@@ -2,6 +2,8 @@ export { TicketDetailsPanel, default } from './TicketDetailsPanel';
 export type {
   TicketDetailsPanelProps,
   TicketDetailsSection,
+  FocusedDetail,
+  FocusedContext,
   TicketDetailsSectionGroup,
   TicketDetailsSectionItem,
   TicketDetailsField,
@@ -9,3 +11,4 @@ export type {
   TicketFieldType,
   AssignmentField,
 } from './TicketDetailsPanel';
+export { CrmTicketCreate } from './CrmTicketCreate';

@@ -72,6 +72,35 @@ export const OdooIcon = () => (
   </Circle>
 );
 
+/** Initials-in-a-circle mark for partners without a bespoke glyph. */
+export const InitialsIcon = ({ text, bg, color }: { text: string; bg: string; color?: string }) => (
+  <Circle bg={bg}>
+    <span className="lc-ihp__icon-text" style={color ? { color } : undefined}>
+      {text}
+    </span>
+  </Circle>
+);
+
+export const SalesforceIcon = () => (
+  <Circle bg="#1798c1">
+    <span className="lc-ihp__icon-text">SF</span>
+  </Circle>
+);
+
+export const HubSpotIcon = () => (
+  <Circle bg="#ff7a59">
+    <span className="lc-ihp__icon-text">H</span>
+  </Circle>
+);
+
+export const ZohoCrmIcon = () => (
+  <Circle bg="#ffffff">
+    <span className="lc-ihp__icon-text" style={{ color: '#d92b2b' }}>
+      Z
+    </span>
+  </Circle>
+);
+
 export const ShiprocketIcon = () => (
   <Circle bg="#ffffff">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">

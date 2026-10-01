@@ -63,6 +63,10 @@ import {
   OnedirectIcon,
   ZendeskIcon,
   OdooIcon,
+  SalesforceIcon,
+  HubSpotIcon,
+  ZohoCrmIcon,
+  InitialsIcon,
   ShiprocketIcon,
   EzyslipsIcon,
   PickrrIcon,
@@ -96,7 +100,7 @@ import { MessageBubble, MessageDateDivider, type ReactionData } from './componen
 import { type MenuItemData } from './components/Menu';
 import { TicketComposer, type TicketComposerMode } from './components/TicketComposer';
 import { EmailMessage, EmailComposerBar, EmailForwardComposer } from './components/EmailMessage';
-import { TicketDetailsPanel, type TicketDetailsField, type TicketDetailsSection } from './components/TicketDetailsPanel';
+import { TicketDetailsPanel, CrmTicketCreate, type TicketDetailsField, type TicketDetailsSection } from './components/TicketDetailsPanel';
 
 const WhatsAppIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="#8C8C8C" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -192,6 +196,22 @@ const INTEGRATION_CATEGORIES: IntegrationCategory[] = [
       { id: 'webhook', name: 'Webhook', icon: <WebhookIcon /> },
     ],
   },
+];
+
+// Shown only in the ticket panel's "Create a ticket" picker, to fill its third row.
+const EXTRA_CRM_PARTNERS: IntegrationCategory['partners'] = [
+  { id: 'salesforce', name: 'Salesforce', icon: <SalesforceIcon /> },
+  { id: 'hubspot', name: 'HubSpot', icon: <HubSpotIcon /> },
+  { id: 'zoho-crm', name: 'Zoho CRM', icon: <ZohoCrmIcon /> },
+  { id: 'pipedrive', name: 'Pipedrive', icon: <InitialsIcon text="P" bg="#111111" /> },
+  { id: 'freshsales', name: 'Freshsales', icon: <InitialsIcon text="FS" bg="#ffffff" color="#1a9c5c" /> },
+  { id: 'intercom', name: 'Intercom', icon: <InitialsIcon text="I" bg="#1f8ded" /> },
+  { id: 'help-scout', name: 'Help Scout', icon: <InitialsIcon text="HS" bg="#1292ee" /> },
+  { id: 'gorgias', name: 'Gorgias', icon: <InitialsIcon text="G" bg="#ffffff" color="#c2410c" /> },
+  { id: 'kustomer', name: 'Kustomer', icon: <InitialsIcon text="K" bg="#111111" /> },
+  { id: 'front', name: 'Front', icon: <InitialsIcon text="F" bg="#ffffff" color="#a855f7" /> },
+  { id: 'dynamics-365', name: 'Dynamics 365', icon: <InitialsIcon text="D" bg="#0b5cd5" /> },
+  { id: 'insightly', name: 'Insightly', icon: <InitialsIcon text="In" bg="#ffffff" color="#ea580c" /> },
 ];
 
 // Automation's Settings nav is a different set entirely — no opt-out users,
@@ -1308,6 +1328,16 @@ const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
   {
     id: 'crm-tickets',
     label: 'CRM tickets',
+    focusedLabel: (detail) => (detail ? `New ${detail.label} ticket` : 'Create a ticket'),
+    focusedContent: ({ detail, setDetail, formId }) => (
+      <CrmTicketCreate
+        partners={[...INTEGRATION_CATEGORIES[0].partners, ...EXTRA_CRM_PARTNERS]}
+        partnerId={detail?.id}
+        formId={formId}
+        onSelect={(partner) => setDetail(partner && { id: partner.id, label: partner.name })}
+        onCreated={() => setDetail(null)}
+      />
+    ),
     group: 'tickets',
     emptyText: 'There are no CRM tickets for this customer',
     items: [

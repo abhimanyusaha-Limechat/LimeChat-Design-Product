@@ -94,3 +94,23 @@
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
 }
+
+.lc-ihp--compact .lc-ihp__grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.lc-ihp--compact .lc-ihp__tile {
+  aspect-ratio: auto;
+  gap: 8px;
+  padding: 16px 4px;
+}
+.lc-ihp--compact .lc-ihp__tile-name {
+  font-size: 12px;
+  text-align: center;
+}
+.lc-ihp--compact .lc-ihp__icon-circle {
+  zoom: 0.81;
+}
+.lc-ihp--compact .lc-ihp__tile:hover .lc-ihp__tile-name {
+  font-weight: 600;
+}
