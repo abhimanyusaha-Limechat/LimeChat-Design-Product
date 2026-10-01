@@ -573,7 +573,8 @@ function Section({
             {section.count != null && <span className="lc-tdp__badge">{section.count}</span>}
           </span>
         </button>
-        {!section.hideAdd && (
+        {/* Sections with their own focused flow (CRM tickets) leave via the back chevron, not the bin. */}
+        {!section.hideAdd && !(focused && section.focusedContent) && (
           <button
             type="button"
             className="lc-tdp__action-icon"
