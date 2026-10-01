@@ -769,3 +769,87 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
   font-size: 12px;
   line-height: 16px;
 }
+
+/* --- Section open/close motion ---------------------------------------- */
+.lc-tdp__collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.lc-tdp__collapse[data-open] {
+  grid-template-rows: 1fr;
+}
+.lc-tdp__collapse-inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  /* Close: fade out first (fast), then drop out of the tab order once collapsed. */
+  transition: opacity 120ms ease-out, visibility 0s linear 220ms;
+}
+.lc-tdp__collapse[data-open] > .lc-tdp__collapse-inner {
+  opacity: 1;
+  visibility: visible;
+  /* Open: content fades in slightly behind the height so it never looks clipped mid-grow. */
+  transition: opacity 180ms ease-out 40ms, visibility 0s;
+}
+
+/* Focused section (opened via +) eases in instead of snapping. */
+@keyframes lc-tdp-focus-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.lc-tdp__body[data-focused] .lc-tdp__section {
+  animation: lc-tdp-focus-in 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-tdp__collapse,
+  .lc-tdp__collapse-inner {
+    transition-duration: 0ms, 0ms;
+    transition-delay: 0ms;
+  }
+  .lc-tdp__body[data-focused] .lc-tdp__section {
+    animation: none;
+  }
+}
+
+/* --- Step changes inside a focused section (picker <-> form) ------------ */
+@keyframes lc-tdp-step-forward {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+}
+@keyframes lc-tdp-step-back {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+@keyframes lc-tdp-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+.lc-tdp__step[data-dir='forward'] {
+  animation: lc-tdp-step-forward 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.lc-tdp__step[data-dir='back'] {
+  animation: lc-tdp-step-back 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+/* Title swaps ("Create a ticket" -> "New X ticket") fade in rather than snap. */
+.lc-tdp__body[data-focused] .lc-tdp__title-text {
+  animation: lc-tdp-fade-in 160ms ease-out;
+}
+/* Sliding steps must not flash a horizontal scrollbar. */
+.lc-tdp__body[data-focused] .lc-tdp__section-body {
+  overflow-x: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-tdp__step[data-dir] {
+    animation: lc-tdp-fade-in 160ms ease-out;
+  }
+}

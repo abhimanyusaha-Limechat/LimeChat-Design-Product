@@ -2,7 +2,7 @@
  * CrmTicketCreate — body of the "Create a ticket" view: pick a CRM partner,
  * then fill a small form (4 inputs, description, attachments dropzone).
  */
-import { useId, useRef, useState, type DragEvent, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type DragEvent, type FormEvent } from 'react';
 import { IntegrationsHomePage, type IntegrationPartner } from '../IntegrationsHomePage';
 import { CloseIcon } from '../icons';
 
@@ -103,12 +103,26 @@ export function CrmTicketCreate({
   onSelect: (partner: IntegrationPartner | null) => void;
   onCreated: () => void;
 }) {
-  if (partnerId) return <TicketForm formId={formId} onCreated={onCreated} />;
+  // Slide direction: forward into the form, back into the picker (but not on the picker's first appearance).
+  const [hasPicked, setHasPicked] = useState(false);
+  useEffect(() => {
+    if (partnerId) setHasPicked(true);
+  }, [partnerId]);
+
+  if (partnerId) {
+    return (
+      <div key="form" className="lc-tdp__step" data-dir="forward">
+        <TicketForm formId={formId} onCreated={onCreated} />
+      </div>
+    );
+  }
   return (
-    <IntegrationsHomePage
-      compact
-      categories={[{ id: 'crm', title: '', partners }]}
-      onPartnerClick={(id) => onSelect(partners.find((p) => p.id === id) ?? null)}
-    />
+    <div key="picker" className="lc-tdp__step" data-dir={hasPicked ? 'back' : undefined}>
+      <IntegrationsHomePage
+        compact
+        categories={[{ id: 'crm', title: '', partners }]}
+        onPartnerClick={(id) => onSelect(partners.find((p) => p.id === id) ?? null)}
+      />
+    </div>
   );
 }

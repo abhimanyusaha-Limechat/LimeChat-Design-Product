@@ -66,7 +66,7 @@ const SectionChevronIcon = ({ open }: { open: boolean }) => (
   <ChevronDownIcon
     style={{
       transform: open ? 'rotate(0deg)' : 'rotate(-90deg)',
-      transition: 'transform 150ms ease',
+      transition: 'transform 200ms cubic-bezier(0.23, 1, 0.32, 1)',
     }}
   />
 );
@@ -528,6 +528,19 @@ function SlaRows() {
   );
 }
 
+/**
+ * Animated accordion body: the grid-rows 0fr→1fr trick animates to the content's natural height.
+ * Stays mounted when closed (hidden from tab order/AT via `visibility`). Pass-through when not `enabled`.
+ */
+function Collapse({ open, enabled, children }: { open: boolean; enabled: boolean; children: ReactNode }) {
+  if (!enabled) return <>{children}</>;
+  return (
+    <div className="lc-tdp__collapse" data-open={open || undefined}>
+      <div className="lc-tdp__collapse-inner">{children}</div>
+    </div>
+  );
+}
+
 /** Header click toggles the accordion; the + button opens the section on its own (`focused`) with a back button. */
 function Section({
   section,
@@ -569,11 +582,12 @@ function Section({
             )}
           </span>
           <span className="lc-tdp__section-title">
-            <span>{focusedTitle}</span>
+            <span key={focusedTitle} className="lc-tdp__title-text">{focusedTitle}</span>
             {section.count != null && <span className="lc-tdp__badge">{section.count}</span>}
           </span>
         </button>
-        {!section.hideAdd && (
+        {/* Sections with their own focused flow (CRM tickets) leave via the back chevron, not the bin. */}
+        {!section.hideAdd && !(focused && section.focusedContent) && (
           <button
             type="button"
             className="lc-tdp__action-icon"
@@ -599,7 +613,7 @@ function Section({
           </Button>
         )}
       </div>
-      {open && (
+      <Collapse open={open} enabled={!focused}>
         <div className="lc-tdp__section-body">
           {focused && section.focusedContent?.({ detail, setDetail, formId })}
           {section.fields && section.fields.length > 0 && (
@@ -644,7 +658,7 @@ function Section({
               !section.tags &&
               section.emptyText && <p className="lc-tdp__empty">{section.emptyText}</p>}
         </div>
-      )}
+      </Collapse>
       {section.id === 'sub-tickets' && (
         <SubTicketModal open={subTicketModalOpen} onClose={() => setSubTicketModalOpen(false)} />
       )}
