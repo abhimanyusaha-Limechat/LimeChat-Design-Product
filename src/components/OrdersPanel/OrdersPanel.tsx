@@ -20,11 +20,7 @@ import {
   type TextareaHTMLAttributes,
 } from 'react';
 import {
-  CANCELLABLE_STATUSES,
-  EDITABLE_STATUSES,
   MOCK_ORDERS,
-  REFUNDABLE_STATUSES,
-  RETURNABLE_STATUSES,
   type Address,
   type Order,
   type OrderLineItem,
@@ -190,18 +186,6 @@ const EditIcon = () => (
   <svg {...iconProps()}>
     <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
     <path d="M13.5 6.5l4 4" />
-  </svg>
-);
-const ReturnIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M9 13l-4 -4l4 -4" />
-    <path d="M5 9h11a4 4 0 0 1 0 8h-1" />
-  </svg>
-);
-const RefundIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M3 5m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
-    <path d="M3 10l18 0" />
   </svg>
 );
 const LinkIcon = () => (
@@ -591,6 +575,13 @@ function OrderRow({ order, search, onClick }: { order: Order; search: string; on
       <div className="lc-op__row-items">
         {visibleItems.map((item, i) => (
           <span key={`${item.sku}-${i}`} className="lc-op__row-item">
+            <span
+              className="lc-op__row-item-thumb"
+              style={PRODUCT_IMAGE_BY_SKU[item.sku] ? undefined : { background: thumbPalette(item.sku).bg }}
+              aria-hidden="true"
+            >
+              {PRODUCT_IMAGE_BY_SKU[item.sku] && <img src={PRODUCT_IMAGE_BY_SKU[item.sku]} alt="" />}
+            </span>
             <span className="lc-op__row-item-name">
               <HighlightMatch text={item.name} query={search} />
             </span>
@@ -661,7 +652,6 @@ interface OrderDraft {
   shippingCost: string;
   extraChargeLabel: string;
   extraChargeAmount: string;
-  trackingLink: string;
   shippingAddress: Address;
   billingAddress: Address;
   billingSameAsShipping: boolean;
@@ -684,31 +674,10 @@ function emptyDraft(): OrderDraft {
     shippingCost: '0',
     extraChargeLabel: '',
     extraChargeAmount: '0',
-    trackingLink: '',
     shippingAddress: emptyAddress(),
     billingAddress: emptyAddress(),
     billingSameAsShipping: true,
     notes: '',
-  };
-}
-
-function draftFromOrder(order: Order): OrderDraft {
-  return {
-    invoiceName: order.invoiceName,
-    status: order.status,
-    placedAt: order.placedAt,
-    items: order.items,
-    discountAmount: String(order.discountAmount),
-    discountCode: order.discountCode ?? '',
-    taxRate: String(order.taxRate),
-    shippingCost: String(order.shippingCost),
-    extraChargeLabel: order.extraChargeLabel ?? '',
-    extraChargeAmount: String(order.extraChargeAmount ?? 0),
-    trackingLink: order.trackingLink ?? '',
-    shippingAddress: order.shippingAddress,
-    billingAddress: order.billingAddress,
-    billingSameAsShipping: order.billingSameAsShipping,
-    notes: order.notes ?? '',
   };
 }
 
@@ -1126,21 +1095,6 @@ function OrderFormFields({
       </div>
 
       <div className="lc-op__detail-section">
-        <p className="lc-op__detail-section-title">Tracking link</p>
-        <Field label="Tracking link (optional)">
-          <TextInput
-            type="url"
-            placeholder="https://..."
-            value={draft.trackingLink}
-            onChange={(e) => {
-              const trackingLink = e.currentTarget.value;
-              setDraft((d) => ({ ...d, trackingLink }));
-            }}
-          />
-        </Field>
-      </div>
-
-      <div className="lc-op__detail-section">
         <p className="lc-op__detail-section-title">Shipping address</p>
         <AddressPicker
           value={draft.shippingAddress}
@@ -1152,26 +1106,7 @@ function OrderFormFields({
 
       <div className="lc-op__detail-section">
         <p className="lc-op__detail-section-title">Billing address</p>
-        <label className="lc-op__checkbox-row">
-          <input
-            type="checkbox"
-            className="lc-op__checkbox"
-            checked={draft.billingSameAsShipping}
-            onChange={(e) => {
-              const billingSameAsShipping = e.currentTarget.checked;
-              setDraft((d) => ({ ...d, billingSameAsShipping }));
-            }}
-          />
-          Same as shipping address
-        </label>
-        {!draft.billingSameAsShipping && (
-          <AddressPicker
-            value={draft.billingAddress}
-            onChange={(billingAddress) => setDraft((d) => ({ ...d, billingAddress }))}
-            savedAddresses={savedAddresses}
-            onSavedAddressesChange={setSavedAddresses}
-          />
-        )}
+        <span className="lc-op__detail-muted lc-op__detail-card">Same as shipping address</span>
       </div>
 
       <div className="lc-op__detail-section">
@@ -1209,143 +1144,16 @@ function OrderStatusCard({ order, onSeeUpdates }: { order: Order; onSeeUpdates: 
   );
 }
 
-/** Confirmation copy + styling for the destructive/semi-destructive status actions. */
-const STATUS_CONFIRM: Record<
-  'returned' | 'refunded' | 'cancelled',
-  { question: string; icon: ReactNode; confirmColor: 'primary' | 'yellow' | 'red'; bannerClass: string }
-> = {
-  returned: {
-    question: 'Initiate return?',
-    icon: <ReturnIcon />,
-    confirmColor: 'primary',
-    bannerClass: '',
-  },
-  refunded: {
-    question: 'Refund this order?',
-    icon: <RefundIcon />,
-    confirmColor: 'yellow',
-    bannerClass: 'lc-op__detail-ctas--warning',
-  },
-  cancelled: {
-    question: 'Cancel order?',
-    icon: <TrashIcon />,
-    confirmColor: 'red',
-    bannerClass: 'lc-op__detail-ctas--danger',
-  },
-};
-
-/** Edit / Return / Refund / Cancel — enabled per the order's current status. */
-function OrderActionsRow({
-  order,
-  onEdit,
-  onRequestStatusChange,
-}: {
-  order: Order;
-  onEdit: () => void;
-  onRequestStatusChange: (status: 'returned' | 'refunded' | 'cancelled') => void;
-}) {
-  return (
-    <div className="lc-op__detail-section lc-op__actions-row">
-      <div className="lc-op__actions-grid">
-        <Button
-          variant="default"
-          color="primary"
-          size="xs"
-          disabled={!EDITABLE_STATUSES.includes(order.status)}
-          onClick={onEdit}
-        >
-          Edit
-        </Button>
-        <Button
-          variant="subtle"
-          color="gray"
-          size="xs"
-          disabled={!RETURNABLE_STATUSES.includes(order.status)}
-          onClick={() => onRequestStatusChange('returned')}
-        >
-          Return
-        </Button>
-        <Button
-          variant="subtle"
-          color="yellow"
-          size="xs"
-          disabled={!REFUNDABLE_STATUSES.includes(order.status)}
-          onClick={() => onRequestStatusChange('refunded')}
-        >
-          Refund
-        </Button>
-        <Button
-          variant="subtle"
-          color="red"
-          size="xs"
-          disabled={!CANCELLABLE_STATUSES.includes(order.status)}
-          onClick={() => onRequestStatusChange('cancelled')}
-        >
-          Cancel
-        </Button>
-      </div>
-    </div>
-  );
-}
-
 /* --- Order detail (read mode + in-place edit mode) ----------------------- */
 
 function OrderDetailView({
   order,
   onBack,
-  onSave,
 }: {
   order: Order;
   onBack: () => void;
-  onSave: (updated: Order) => void;
 }) {
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState<OrderDraft>(() => draftFromOrder(order));
   const [updatesOpen, setUpdatesOpen] = useState(false);
-  const [confirmingStatus, setConfirmingStatus] = useState<'returned' | 'refunded' | 'cancelled' | null>(null);
-
-  useEffect(() => {
-    if (!editing) setDraft(draftFromOrder(order));
-  }, [order, editing]);
-
-  const totals = computeDraftTotals(draft);
-  const valid = isDraftValid(draft);
-  const canEdit = EDITABLE_STATUSES.includes(order.status);
-
-  const handleSave = () => {
-    if (!valid) return;
-    const billingAddress = draft.billingSameAsShipping ? draft.shippingAddress : draft.billingAddress;
-    onSave({
-      ...order,
-      invoiceName: resolveInvoiceName(draft),
-      status: draft.status,
-      items: draft.items,
-      discountAmount: Number(draft.discountAmount) || 0,
-      discountCode: draft.discountCode.trim() || undefined,
-      taxRate: Number(draft.taxRate) || 0,
-      taxAmount: totals.taxAmount,
-      subtotal: totals.subtotal,
-      shippingCost: Number(draft.shippingCost) || 0,
-      extraChargeLabel: draft.extraChargeLabel.trim() || undefined,
-      extraChargeAmount: Number(draft.extraChargeAmount) || 0,
-      total: totals.total,
-      trackingLink: draft.trackingLink.trim() || undefined,
-      shippingAddress: draft.shippingAddress,
-      billingAddress,
-      billingSameAsShipping: draft.billingSameAsShipping,
-      notes: draft.notes.trim() || undefined,
-    });
-    setEditing(false);
-  };
-
-  const handleCancelEdit = () => {
-    setDraft(draftFromOrder(order));
-    setEditing(false);
-  };
-
-  const handleStatusChange = (status: OrderStatus) => {
-    onSave({ ...order, status });
-  };
 
   return (
     <div className="lc-op__detail">
@@ -1354,48 +1162,6 @@ function OrderDetailView({
           <BackIcon />
           <span>Back to orders</span>
         </button>
-        {editing ? (
-          <div className="lc-op__detail-ctas">
-            <span className="lc-op__detail-ctas-label">
-              <EditIcon />
-              Editing order
-            </span>
-            <Button variant="outline" color="gray" size="xs" style={{ width: 80 }} onClick={handleCancelEdit}>
-              Cancel
-            </Button>
-            <Button variant="filled" color="primary" size="xs" style={{ width: 80 }} disabled={!valid} onClick={handleSave}>
-              Update
-            </Button>
-          </div>
-        ) : confirmingStatus ? (
-          <div className={`lc-op__detail-ctas ${STATUS_CONFIRM[confirmingStatus].bannerClass}`}>
-            <span className="lc-op__detail-ctas-label">
-              {STATUS_CONFIRM[confirmingStatus].icon}
-              {STATUS_CONFIRM[confirmingStatus].question}
-            </span>
-            <Button variant="outline" color="gray" size="xs" style={{ width: 80 }} onClick={() => setConfirmingStatus(null)}>
-              Back
-            </Button>
-            <Button
-              variant="filled"
-              color={STATUS_CONFIRM[confirmingStatus].confirmColor}
-              size="xs"
-              style={{ width: 80 }}
-              onClick={() => {
-                handleStatusChange(confirmingStatus);
-                setConfirmingStatus(null);
-              }}
-            >
-              Confirm
-            </Button>
-          </div>
-        ) : (
-          <OrderActionsRow
-            order={order}
-            onEdit={() => setEditing(true)}
-            onRequestStatusChange={setConfirmingStatus}
-          />
-        )}
       </div>
 
       <div className="lc-op__detail-content">
@@ -1414,23 +1180,10 @@ function OrderDetailView({
           </div>
         </div>
 
-        {!editing && <OrderStatusCard order={order} onSeeUpdates={() => setUpdatesOpen(true)} />}
+        <OrderStatusCard order={order} onSeeUpdates={() => setUpdatesOpen(true)} />
 
-        {editing ? (
-          <OrderFormFields draft={draft} setDraft={setDraft} />
-        ) : (
-          <>
             <div className="lc-op__detail-section">
-              <div className="lc-op__detail-section-title-row">
-                <p className="lc-op__detail-section-title">Cost summary</p>
-                <span className="lc-op__detail-section-actions">
-                  {canEdit && (
-                    <button type="button" className="lc-op__address-copy" aria-label="Edit cost summary" onClick={() => setEditing(true)}>
-                      <EditIcon />
-                    </button>
-                  )}
-                </span>
-              </div>
+              <p className="lc-op__detail-section-title">Cost summary</p>
               <ProductsCostCard data={order} />
             </div>
 
@@ -1441,11 +1194,6 @@ function OrderDetailView({
                   <LinkIcon />
                   <span>{order.trackingLink}</span>
                 </a>
-              ) : EDITABLE_STATUSES.includes(order.status) ? (
-                <button type="button" className="lc-op__tracking-add" onClick={() => setEditing(true)}>
-                  <LinkIcon />
-                  <span>Add tracking link</span>
-                </button>
               ) : (
                 <span className="lc-op__detail-muted">Not available yet</span>
               )}
@@ -1456,11 +1204,6 @@ function OrderDetailView({
                 <p className="lc-op__detail-section-title">Shipping address</p>
                 <span className="lc-op__detail-section-actions">
                   <CopyIconButton value={formatAddressForCopy(order.shippingAddress)} label="Copy address" />
-                  {canEdit && (
-                    <button type="button" className="lc-op__address-copy" aria-label="Edit shipping address" onClick={() => setEditing(true)}>
-                      <EditIcon />
-                    </button>
-                  )}
                 </span>
               </div>
               <AddressBlock address={order.shippingAddress} />
@@ -1472,11 +1215,6 @@ function OrderDetailView({
                 <span className="lc-op__detail-section-actions">
                   {!order.billingSameAsShipping && (
                     <CopyIconButton value={formatAddressForCopy(order.billingAddress)} label="Copy address" />
-                  )}
-                  {canEdit && (
-                    <button type="button" className="lc-op__address-copy" aria-label="Edit billing address" onClick={() => setEditing(true)}>
-                      <EditIcon />
-                    </button>
                   )}
                 </span>
               </div>
@@ -1492,17 +1230,10 @@ function OrderDetailView({
                 <p className="lc-op__detail-section-title">Notes</p>
                 <span className="lc-op__detail-section-actions">
                   {order.notes && <CopyIconButton value={order.notes} label="Copy notes" />}
-                  {canEdit && (
-                    <button type="button" className="lc-op__address-copy" aria-label="Edit notes" onClick={() => setEditing(true)}>
-                      <EditIcon />
-                    </button>
-                  )}
                 </span>
               </div>
               <p className="lc-op__detail-notes lc-op__detail-card">{order.notes || 'No notes added.'}</p>
             </div>
-          </>
-        )}
       </div>
 
       <Modal
@@ -1569,7 +1300,6 @@ function CreateOrderView({
       extraChargeLabel: draft.extraChargeLabel.trim() || undefined,
       extraChargeAmount: Number(draft.extraChargeAmount) || 0,
       total: totals.total,
-      trackingLink: draft.trackingLink.trim() || undefined,
       shippingAddress: draft.shippingAddress,
       billingAddress,
       billingSameAsShipping: draft.billingSameAsShipping,
@@ -1704,7 +1434,6 @@ export function OrdersPanel({
           <OrderDetailView
             order={selectedOrder}
             onBack={goToList}
-            onSave={(updated) => setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)))}
           />
         </div>
       </div>

@@ -656,3 +656,52 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
   width: 10px;
   height: 10px;
 }
+
+.lc-tdp__sla {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lc-tdp__sla-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.lc-tdp__sla-label {
+  margin-right: auto;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-tdp-dimmed);
+}
+
+.lc-tdp__sla-due {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  color: var(--lc-tdp-title);
+}
+
+.lc-tdp__sla-due[data-tone='warning'] {
+  color: var(--lc-color-amber-500);
+}
+
+.lc-tdp__sla-due[data-tone='danger'] {
+  color: var(--lc-color-red-500);
+}
+
+.lc-tdp__sla-info {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--lc-tdp-dimmed);
+  cursor: pointer;
+}
+
+.lc-tdp__sla-info:focus-visible {
+  outline: 2px solid var(--lc-tdp-primary);
+  border-radius: 4px;
+}

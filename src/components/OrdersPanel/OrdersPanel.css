@@ -322,6 +322,19 @@
   gap: 6px;
   min-width: 0;
 }
+.lc-op__row-item-thumb {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.lc-op__row-item-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .lc-op__row-item-name {
   flex: 1 1 auto;
   min-width: 0;

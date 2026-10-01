@@ -481,6 +481,37 @@ function SubTicketModal({ open, onClose }: { open: boolean; onClose: () => void 
   );
 }
 
+// ponytail: static mock SLA data, wire to ticket SLA fields when the backend provides them
+const SLA_ROWS: { label: string; due: string; tone?: 'warning' | 'danger' }[] = [
+  { label: 'First Response due by', due: '04:39 pm, Today' },
+  { label: 'Next Response due by', due: '02:09 pm, Today', tone: 'warning' },
+  { label: 'Resolution due by', due: '04:39 pm, 2 Oct', tone: 'danger' },
+];
+
+function SlaRows() {
+  return (
+    <div className="lc-tdp__sla">
+      {SLA_ROWS.map(({ label, due, tone }) => (
+        <div key={label} className="lc-tdp__sla-row">
+          <span className="lc-tdp__sla-label">{label}</span>
+          <span className="lc-tdp__sla-due" data-tone={tone}>
+            {due}
+          </span>
+          <Tooltip label="Set as per Service Level Agreement rules (SLA)" position="top-end" arrowPosition="side" multiline>
+            <button type="button" className="lc-tdp__sla-info" aria-label={`${label} details`}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 8h.01" />
+                <path d="M11 12h1v4h1" />
+              </svg>
+            </button>
+          </Tooltip>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Section({ section }: { section: TicketDetailsSection }) {
   const [open, setOpen] = useState(section.defaultOpen ?? false);
   const [subTicketModalOpen, setSubTicketModalOpen] = useState(false);
@@ -719,20 +750,20 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
 
       {resolvedActiveTab === 'Overview' && (
         <div {...panelProps}>
-          {(ticketId || agent || team) && (
-            <div className="lc-tdp__info">
-              {ticketId && (
-                <div className="lc-tdp__detail-row">
-                  <CopyableTicketId value={ticketId} />
-                </div>
-              )}
-              {ticketId && (agent || team) && (
-                <hr className="lc-tdp__info-divider" aria-hidden="true" />
-              )}
-              {agent && <AssignmentRow label="Assign Agent" field={agent} />}
-              {team && <AssignmentRow label="Assign Team" field={team} />}
-            </div>
-          )}
+          <div className="lc-tdp__info">
+            {ticketId && (
+              <div className="lc-tdp__detail-row">
+                <CopyableTicketId value={ticketId} />
+              </div>
+            )}
+            {ticketId && (agent || team) && (
+              <hr className="lc-tdp__info-divider" aria-hidden="true" />
+            )}
+            {agent && <AssignmentRow label="Assign Agent" field={agent} />}
+            {team && <AssignmentRow label="Assign Team" field={team} />}
+            {(ticketId || agent || team) && <hr className="lc-tdp__info-divider" aria-hidden="true" />}
+            <SlaRows />
+          </div>
 
           <div className="lc-tdp__sections">
             {SECTION_GROUPS.map(({ id, label }) => {
