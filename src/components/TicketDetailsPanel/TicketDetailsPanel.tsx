@@ -35,7 +35,7 @@ import { Modal, ModalTextarea, ModalCheckbox } from '../Modal';
 import { Button } from '../Button';
 import './TicketDetailsPanel.css';
 import { iconProps } from '../iconProps';
-import { ChevronDownIcon, CloseIcon as TagCloseIcon } from '../icons';
+import { ChevronDownIcon, CloseIcon as TagCloseIcon, TrashIcon } from '../icons';
 
 const RANDOM_AGENT_NAMES = [
   'Aditi Sharma',
@@ -119,6 +119,18 @@ const TAB_ICONS: Record<string, () => ReactNode> = {
   Cart: CartIcon,
 };
 
+/** A second-level choice made inside a focused section (e.g. the CRM partner picked to create a ticket in). */
+export interface FocusedDetail {
+  id: string;
+  label: string;
+}
+export interface FocusedContext {
+  detail: FocusedDetail | null;
+  setDetail: (detail: FocusedDetail | null) => void;
+  /** `id` of the form to submit from the header's Create button. */
+  formId: string;
+}
+
 export interface TicketDetailsSectionItem {
   icon?: ReactNode;
   title: string;
@@ -168,6 +180,10 @@ export interface TicketDetailsSection {
   defaultOpen?: boolean;
   onAdd?: () => void;
   hideAdd?: boolean;
+  /** Title shown instead of `label` while the section is opened on its own via +. */
+  focusedLabel?: string | ((detail: FocusedDetail | null) => string);
+  /** Rendered instead of the section's items while it is opened on its own via +. */
+  focusedContent?: (ctx: FocusedContext) => ReactNode;
 }
 
 export interface AssignmentField {
@@ -512,19 +528,48 @@ function SlaRows() {
   );
 }
 
-function Section({ section }: { section: TicketDetailsSection }) {
-  const [open, setOpen] = useState(section.defaultOpen ?? false);
+/** Header click toggles the accordion; the + button opens the section on its own (`focused`) with a back button. */
+function Section({
+  section,
+  focused,
+  onFocus,
+  onBack,
+}: {
+  section: TicketDetailsSection;
+  focused: boolean;
+  onFocus: () => void;
+  onBack: () => void;
+}) {
+  const [detail, setDetail] = useState<FocusedDetail | null>(null);
+  const formId = useId();
+  const [expanded, setExpanded] = useState(section.defaultOpen ?? false);
+  const open = focused || expanded;
+  const focusedLabel = focused ? section.focusedLabel : undefined;
+  const focusedTitle = typeof focusedLabel === 'function' ? focusedLabel(detail) : (focusedLabel ?? section.label);
+  // Back steps out of a picked detail first, then out of the focused section.
+  const goBack = detail ? () => setDetail(null) : onBack;
   const [subTicketModalOpen, setSubTicketModalOpen] = useState(false);
-  const toggle = () => setOpen((v) => !v);
   return (
     <div className="lc-tdp__section" data-open={open || undefined}>
       <div className="lc-tdp__section-header">
-        <button type="button" className="lc-tdp__section-toggle" aria-expanded={open} onClick={toggle}>
+        <button
+          type="button"
+          className="lc-tdp__section-toggle"
+          aria-expanded={focused ? undefined : open}
+          aria-label={focused ? `Back from ${section.label}` : undefined}
+          onClick={focused ? goBack : () => setExpanded((v) => !v)}
+        >
           <span className="lc-tdp__section-chevron" aria-hidden="true">
-            <SectionChevronIcon open={open} />
+            {focused ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 6l-6 6l6 6" />
+              </svg>
+            ) : (
+              <SectionChevronIcon open={open} />
+            )}
           </span>
           <span className="lc-tdp__section-title">
-            <span>{section.label}</span>
+            <span>{focusedTitle}</span>
             {section.count != null && <span className="lc-tdp__badge">{section.count}</span>}
           </span>
         </button>
@@ -532,21 +577,31 @@ function Section({ section }: { section: TicketDetailsSection }) {
           <button
             type="button"
             className="lc-tdp__action-icon"
-            aria-label={`Add ${section.label}`}
+            aria-label={focused ? `Discard ${section.label}` : `Add ${section.label}`}
             onClick={() => {
-              if (section.id === 'sub-tickets') {
+              if (focused) {
+                onBack();
+              } else if (section.id === 'sub-tickets') {
                 setSubTicketModalOpen(true);
+              } else if (section.onAdd) {
+                section.onAdd();
               } else {
-                section.onAdd?.();
+                onFocus();
               }
             }}
           >
-            <PlusIcon />
+            {focused ? <TrashIcon size={16} /> : <PlusIcon />}
           </button>
+        )}
+        {focused && detail && (
+          <Button type="submit" form={formId} variant="filled" color="primary" size="xs">
+            Create
+          </Button>
         )}
       </div>
       {open && (
         <div className="lc-tdp__section-body">
+          {focused && section.focusedContent?.({ detail, setDetail, formId })}
           {section.fields && section.fields.length > 0 && (
             <div className="lc-tdp__fields">
               {section.fields.map((field) => (
@@ -555,7 +610,7 @@ function Section({ section }: { section: TicketDetailsSection }) {
             </div>
           )}
           {section.tags && <TagList tags={section.tags} />}
-          {section.items && section.items.length > 0
+          {!(focused && section.focusedContent) && section.items && section.items.length > 0
             ? section.items.map((item, i) =>
                 item.duration != null ? (
                   // eslint-disable-next-line react/no-array-index-key
@@ -584,7 +639,8 @@ function Section({ section }: { section: TicketDetailsSection }) {
                   </div>
                 ),
               )
-            : !section.fields?.length &&
+            : !(focused && section.focusedContent) &&
+              !section.fields?.length &&
               !section.tags &&
               section.emptyText && <p className="lc-tdp__empty">{section.emptyText}</p>}
         </div>
@@ -655,6 +711,8 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   ref,
 ) {
   const resolvedActiveTab = activeTab ?? tabs[0];
+  const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
+  const focusedSection = sections.find((section) => section.id === focusedSectionId);
   const [cartOrderDraft, setCartOrderDraft] = useState<CartLineItem[] | null>(null);
   const idBase = useId();
   const tabId = (tab: string) => `${idBase}-tab-${tab}`;
@@ -749,7 +807,7 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
       </div>
 
       {resolvedActiveTab === 'Overview' && (
-        <div {...panelProps}>
+        <div {...panelProps} data-focused={focusedSection ? true : undefined}>
           <div className="lc-tdp__info">
             {ticketId && (
               <div className="lc-tdp__detail-row">
@@ -765,22 +823,34 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
             <SlaRows />
           </div>
 
-          <div className="lc-tdp__sections">
-            {SECTION_GROUPS.map(({ id, label }) => {
-              const grouped = sections.filter((section) => (section.group ?? 'tickets') === id);
-              if (grouped.length === 0) return null;
-              return (
-                <div key={id} className="lc-tdp__section-group">
-                  <h3 className="lc-tdp__section-group-label">{label}</h3>
-                  <div className="lc-tdp__section-group-list">
-                    {grouped.map((section) => (
-                      <Section key={section.id} section={section} />
-                    ))}
+          {focusedSection ? (
+            <div className="lc-tdp__sections">
+              <Section section={focusedSection} focused onFocus={() => undefined} onBack={() => setFocusedSectionId(null)} />
+            </div>
+          ) : (
+            <div className="lc-tdp__sections">
+              {SECTION_GROUPS.map(({ id, label }) => {
+                const grouped = sections.filter((section) => (section.group ?? 'tickets') === id);
+                if (grouped.length === 0) return null;
+                return (
+                  <div key={id} className="lc-tdp__section-group">
+                    <h3 className="lc-tdp__section-group-label">{label}</h3>
+                    <div className="lc-tdp__section-group-list">
+                      {grouped.map((section) => (
+                        <Section
+                          key={section.id}
+                          section={section}
+                          focused={false}
+                          onFocus={() => setFocusedSectionId(section.id)}
+                          onBack={() => setFocusedSectionId(null)}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

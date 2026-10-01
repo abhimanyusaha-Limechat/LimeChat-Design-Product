@@ -25,14 +25,16 @@ export interface IntegrationsHomePageProps {
   categories: IntegrationCategory[];
   /** Called when a partner tile is clicked/activated. */
   onPartnerClick?: (partnerId: string, categoryId: string) => void;
+  /** Fixed 3-column grid with smaller tiles, for narrow containers like the ticket details panel. */
+  compact?: boolean;
 }
 
-export function IntegrationsHomePage({ categories, onPartnerClick }: IntegrationsHomePageProps) {
+export function IntegrationsHomePage({ categories, onPartnerClick, compact }: IntegrationsHomePageProps) {
   return (
-    <div className="lc-ihp">
+    <div className={`lc-ihp${compact ? ' lc-ihp--compact' : ''}`}>
       {categories.map((category) => (
         <section key={category.id} className="lc-ihp__section">
-          <h3 className="lc-ihp__section-title">{category.title}</h3>
+          {category.title && <h3 className="lc-ihp__section-title">{category.title}</h3>}
           <div className="lc-ihp__grid">
             {category.partners.map((partner) => (
               <button

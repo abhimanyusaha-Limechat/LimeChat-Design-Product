@@ -461,7 +461,7 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 0 8px 8px;
+  padding: 0 12px 8px;
 }
 
 .lc-tdp__empty {
@@ -704,4 +704,68 @@ button.lc-tdp__ticket-id.lc-tdp__detail-value--copyable:hover {
 .lc-tdp__sla-info:focus-visible {
   outline: 2px solid var(--lc-tdp-primary);
   border-radius: 4px;
+}
+
+/* Focused section (opened via +): fills the rest of the panel; only its body scrolls. */
+.lc-tdp__body[data-focused] {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.lc-tdp__body[data-focused] .lc-tdp__info {
+  flex-shrink: 0;
+}
+.lc-tdp__body[data-focused] .lc-tdp__sections {
+  flex: 1 1 0;
+  min-height: 0;
+}
+.lc-tdp__body[data-focused] .lc-tdp__section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.lc-tdp__body[data-focused] .lc-tdp__section-header {
+  flex-shrink: 0;
+}
+.lc-tdp__body[data-focused] .lc-tdp__section-body {
+  padding: 12px 16px 8px;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-color: var(--lc-color-gray-300) transparent;
+  scrollbar-width: thin;
+}
+
+/* --- CRM create-ticket form ------------------------------------------ */
+.lc-tdp__field-textarea {
+  height: auto;
+  padding: 8px 12px;
+  resize: vertical;
+}
+.lc-tdp__dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+  padding: 12px;
+  border: 1px dashed var(--lc-tdp-border);
+  border-radius: 4px;
+  background: var(--lc-color-white);
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--lc-tdp-dimmed);
+  cursor: pointer;
+}
+.lc-tdp__dropzone:hover,
+.lc-tdp__dropzone[data-dragging] {
+  border-color: var(--lc-tdp-primary);
+  background: var(--lc-tdp-primary-light);
+}
+.lc-tdp__dropzone:focus-visible {
+  outline: 2px solid var(--lc-tdp-primary);
+  outline-offset: 2px;
+}
+.lc-tdp__body[data-focused] .lc-tdp__section-title {
+  font-size: 12px;
+  line-height: 16px;
 }
