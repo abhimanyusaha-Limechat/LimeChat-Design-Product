@@ -43,6 +43,7 @@ import {
 } from './components/TemplatesHomePage';
 import { SettingsPage, type SettingsTab } from './components/SettingsPage';
 import { InboxesTable, type InboxRowData } from './components/InboxesTable';
+import { BotTemplatesTable, type BotTemplateRow } from './components/BotTemplatesTable';
 import { ProfileSettings } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
 import { HelpDeskAccountSettings, type HelpDeskToggleKey } from './components/HelpDeskAccountSettings';
@@ -108,6 +109,32 @@ const WhatsAppIcon = () => (
     <path d="M9 10a0.5 .5 0 0 0 1 0v-1a0.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a0.5 .5 0 0 0 0 -1h-1a0.5 .5 0 0 0 -1 0" />
   </svg>
 );
+
+const PlusIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 5v14" />
+    <path d="M5 12h14" />
+  </svg>
+);
+
+const KB_SOURCE_TABS = [
+  { id: 'doc', label: 'Doc' },
+  { id: 'url', label: 'URL' },
+  { id: 'domain', label: 'Domain' },
+  { id: 'custom', label: 'Custom' },
+];
+
+const KB_TABS: SettingsTab[] = [
+  { id: 'upload-files', label: 'Upload files' },
+  { id: 'scrape-urls', label: 'Scrape URLs' },
+  { id: 'manage', label: 'Manage files / Links' },
+];
+
+const KB_COPY: Record<string, { title: string; description: string }> = {
+  'upload-files': { title: 'Upload files', description: 'Add documents your bot can use to answer questions.' },
+  'scrape-urls': { title: 'Scrape URLs', description: 'Pull content from web pages into your bot’s knowledge.' },
+  manage: { title: 'Manage files / Links', description: 'Review, update or remove the files and links your bot uses.' },
+};
 
 const SETTINGS_TABS: SettingsTab[] = [
   { id: 'inboxes', label: 'Inboxes' },
@@ -424,6 +451,93 @@ const DEMO_INBOXES: InboxRowData[] = INBOX_NAMES.map((name, i) => ({
   metaId: 'N/A',
   createdOn: inboxCreatedOn(i),
 }));
+
+const DEMO_BOT_TEMPLATES: BotTemplateRow[] = [
+  { id: 'bt1', name: 'Cart & Checkout Management', description: 'Helps in managing carts and Checkout', type: 'task', usecases: ['Sales'], industries: [], scope: 'global' },
+  { id: 'bt2', name: 'Product Quiz', description: 'Product Quiz', type: 'flow', usecases: ['Sales'], industries: [], scope: 'global' },
+  { id: 'bt3', name: 'Track Order', description: 'Track Order', type: 'flow', usecases: [], industries: [], scope: 'account' },
+  { id: 'bt4', name: 'Other Help', description: 'Other Help', type: 'flow', usecases: [], industries: [], scope: 'account' },
+  { id: 'bt5', name: 'Order Tracking', description: 'Order Tracking', type: 'task', usecases: [], industries: [], scope: 'account' },
+  { id: 'bt6', name: 'Track order by order id -', description: 'Shopify', type: 'flow', usecases: [], industries: ['E-Commerce [D2C]'], scope: 'global' },
+  { id: 'bt7', name: 'Greeting / Main Menu', description: 'Displays Main Menu and Handles Greetings', type: 'task', usecases: [], industries: ['E-Commerce [D2C]', 'E-Commerce [B2B]', 'Retail'], scope: 'global' },
+  { id: 'bt8', name: 'Abandoned Cart Recovery', description: 'Nudges shoppers to complete their purchase', type: 'flow', usecases: ['Sales', 'Marketing'], industries: ['E-Commerce [D2C]'], scope: 'global' },
+  { id: 'bt9', name: 'Return & Refund Request', description: 'Collects return reasons and starts a refund', type: 'flow', usecases: ['Support'], industries: ['E-Commerce [D2C]', 'Retail'], scope: 'global' },
+  { id: 'bt10', name: 'COD Order Confirmation', description: 'Confirms cash-on-delivery orders', type: 'task', usecases: ['Support'], industries: ['E-Commerce [D2C]'], scope: 'account' },
+  { id: 'bt11', name: 'Store Locator', description: 'Finds the nearest store by pincode', type: 'task', usecases: [], industries: ['Retail'], scope: 'global' },
+  { id: 'bt12', name: 'Lead Qualification', description: 'Captures name, budget and intent', type: 'flow', usecases: ['Sales'], industries: ['E-Commerce [B2B]'], scope: 'account' },
+  { id: 'bt13', name: 'Feedback Collection', description: 'Asks for a rating after delivery', type: 'flow', usecases: ['Marketing'], industries: [], scope: 'account' },
+  { id: 'bt14', name: 'Talk to Agent', description: 'Hands the chat over to a human agent', type: 'task', usecases: ['Support'], industries: [], scope: 'global' },
+  { id: 'bt15', name: 'Offers & Coupons', description: 'Shares active discount codes', type: 'task', usecases: ['Sales', 'Marketing'], industries: ['Retail', 'E-Commerce [D2C]'], scope: 'global' },
+  { id: 'bt16', name: 'Bulk Order Enquiry', description: 'Routes wholesale enquiries to sales', type: 'flow', usecases: ['Sales'], industries: ['E-Commerce [B2B]'], scope: 'global' },
+  { id: 'bt17', name: 'Delivery Address Update', description: 'Lets customers change their address', type: 'task', usecases: [], industries: [], scope: 'account' },
+];
+const VARIABLE_DATA_TYPES = ['Text', 'Number', 'Boolean', 'Date'];
+const DEMO_VARIABLES: BotTemplateRow[] = [
+  { id: 'v1', name: 'message_metadata.contact.email', description: 'Contact email from the incoming message', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Text' },
+  { id: 'v2', name: 'email_attachment', description: 'Attachment received with the email', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Text' },
+  { id: 'v3', name: 'message_metadata.contact.name', description: 'Contact name from the incoming message', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Text' },
+  { id: 'v4', name: 'message_metadata.contact.phone', description: 'Contact phone from the incoming message', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Number' },
+  { id: 'v5', name: 'message_metadata.channel', description: 'Channel the message arrived on', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Text' },
+  { id: 'v6', name: 'conversation.id', description: 'Unique conversation identifier', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Number' },
+  { id: 'v7', name: 'conversation.created_at', description: 'When the conversation started', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Date' },
+  { id: 'v8', name: 'order.total', description: 'Total value of the latest order', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Number' },
+  { id: 'v9', name: 'order.is_cod', description: 'Whether the order is cash on delivery', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Boolean' },
+];
+const DEMO_COLLABORATORS: BotTemplateRow[] = [
+  { id: 'c1', name: 'Aarav Mehta', description: 'aarav@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Admin' },
+  { id: 'c2', name: 'Isha Kapoor', description: 'isha@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
+  { id: 'c3', name: 'Rohan Iyer', description: 'rohan@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
+  { id: 'c4', name: 'Meera Nair', description: 'meera@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
+  { id: 'c5', name: 'Kabir Singh', description: 'kabir@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
+  { id: 'c6', name: 'Ananya Rao', description: 'ananya@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
+  { id: 'c7', name: 'Vikram Desai', description: 'vikram@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
+  { id: 'c8', name: 'Sneha Pillai', description: 'sneha@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Admin' },
+  { id: 'c9', name: 'Arjun Malhotra', description: 'arjun@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
+  { id: 'c10', name: 'Diya Sharma', description: 'diya@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
+  { id: 'c11', name: 'Nikhil Bhatt', description: 'nikhil@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
+  { id: 'c12', name: 'Tara Menon', description: 'tara@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
+  { id: 'c13', name: 'Yash Agarwal', description: 'yash@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Admin' },
+  { id: 'c14', name: 'Pooja Reddy', description: 'pooja@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
+  { id: 'c15', name: 'Sameer Khan', description: 'sameer@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
+];
+const DEMO_KB_FILES: Record<string, BotTemplateRow[]> = {
+  doc: [
+    { id: 'doc1', name: 'Return policy.pdf', description: 'Ready · 19.88/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '1.2 MB' },
+    { id: 'doc2', name: 'Product catalogue.pdf', description: 'Ready · 12.40/min · took 3s · $0.01', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '8.4 MB' },
+    { id: 'doc3', name: 'Shipping FAQ.docx', description: 'Ready · 21.05/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '320 KB' },
+    { id: 'doc4', name: 'Warranty terms.pdf', description: 'Ready · 18.20/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '640 KB' },
+    { id: 'doc5', name: 'Size guide.html', description: 'Ready · 24.75/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '210 KB' },
+    { id: 'doc6', name: 'Store locations.json', description: 'Ready · 9.60/min · took 4s · $0.01', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '95 KB' },
+    { id: 'doc7', name: 'Onboarding handbook.md', description: 'Ready · 15.33/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '1.8 MB' },
+    { id: 'doc8', name: 'Privacy policy.pdf', description: 'Ready · 20.11/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '430 KB' },
+    { id: 'doc9', name: 'Pricing sheet.xlsx', description: 'Ready · 11.84/min · took 3s · $0.01', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '152 KB' },
+    { id: 'doc10', name: 'Returns workflow.txt', description: 'Ready · 17.52/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '2.3 MB' },
+    { id: 'doc11', name: 'Festive offers 2026.pptx', description: 'Ready · 8.90/min · took 5s · $0.02', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '5.1 MB' },
+    { id: 'doc12', name: 'Delivery partners.csv', description: 'Ready · 22.47/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '275 KB' },
+    { id: 'doc13', name: 'Support scripts.md', description: 'Ready · 19.02/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '388 KB' },
+  ],
+  url: [
+    { id: 'url1', name: 'Help centre: Orders', description: 'https://help.example.com/orders', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '48 KB' },
+    { id: 'url2', name: 'Help centre: Refunds', description: 'https://help.example.com/refunds', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '36 KB' },
+  ],
+  domain: [
+    { id: 'domain1', name: 'example.com', description: 'Crawled 14 Sep 2026 · 126 pages', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '5.6 MB' },
+  ],
+  custom: [
+    { id: 'custom1', name: 'Brand tone notes', description: 'Added by Aarav Mehta', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '12 KB' },
+    { id: 'custom2', name: 'Escalation rules', description: 'Added by Isha Kapoor', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '8 KB' },
+  ],
+};
+const SEARCH_PLACEHOLDER: Record<string, string> = {
+  variable: 'Search for variables',
+  collaborators: 'Search for collaborators',
+};
+const VARIABLE_SCOPES = [
+  { id: 'system', label: 'System' },
+  { id: 'bot', label: 'Bot' },
+  { id: 'flows', label: 'Flows' },
+];
+const BOT_TEMPLATE_INDUSTRIES = ['E-Commerce [D2C]', 'E-Commerce [B2B]', 'Retail'];
 
 // Future dates — for anything still "scheduled" (all after today, 15 Sep 2026).
 const FUTURE_DATES = [
@@ -1465,6 +1579,9 @@ export function App() {
   const showTemplatesHome =
     (product === 'marketing' || product === 'helpdesk') && selected === 'templates';
   const showSettingsHome = selected === 'settings';
+  const showKnowledgeBase = product === 'automation' && selected === 'knowledge-base';
+  const [kbTab, setKbTab] = useState('upload-files');
+  const [kbSource, setKbSource] = useState('doc');
   const showTicketsHome = product === 'helpdesk' && selected === 'tickets';
   const showCanvas =
     (CANVAS_ITEMS[product] ?? []).includes(selected) &&
@@ -1479,6 +1596,29 @@ export function App() {
     (row) =>
       row.id.includes(inboxSearch.trim()) ||
       row.name.toLowerCase().includes(inboxSearch.trim().toLowerCase()),
+  );
+
+  const [variableScope, setVariableScope] = useState('system');
+  const [variableDataType, setVariableDataType] = useState('all');
+  const [botTemplateSearch, setBotTemplateSearch] = useState('');
+  const [botTemplateType, setBotTemplateType] = useState('all');
+  const [botTemplateIndustry, setBotTemplateIndustry] = useState('all');
+  const visibleCollaborators = DEMO_COLLABORATORS.filter((c) =>
+    c.name.toLowerCase().includes(botTemplateSearch.trim().toLowerCase()),
+  );
+  const visibleKbFiles = (DEMO_KB_FILES[kbSource] ?? [])
+    .filter((r) => r.name.toLowerCase().includes(botTemplateSearch.trim().toLowerCase()))
+    .map((r) => ({ ...r, format: r.name.includes('.') ? r.name.split('.').pop()?.toUpperCase() : undefined }));
+  const visibleVariables = DEMO_VARIABLES.filter(
+    (v) =>
+      (variableDataType === 'all' || v.dataType === variableDataType) &&
+      v.name.toLowerCase().includes(botTemplateSearch.trim().toLowerCase()),
+  );
+  const visibleBotTemplates = DEMO_BOT_TEMPLATES.filter(
+    (t) =>
+      (botTemplateType === 'all' || t.type === botTemplateType) &&
+      (botTemplateIndustry === 'all' || t.industries.includes(botTemplateIndustry)) &&
+      t.name.toLowerCase().includes(botTemplateSearch.trim().toLowerCase()),
   );
 
   const BOT_NAMES = [
@@ -1876,7 +2016,9 @@ export function App() {
                   ? [{ label: 'Tickets' }, { label: selectedTicket?.ticketId ?? '', copyable: true }]
                   : showSettingsHome
                     ? [{ label: selectedLabel }, { label: SETTINGS_COPY[settingsTab].title }]
-                    : [{ label: selectedLabel }]
+                    : showKnowledgeBase
+                      ? [{ label: selectedLabel }, { label: KB_COPY[kbTab].title }]
+                      : [{ label: selectedLabel }]
           }
           account={account}
           accountMenu={accountMenu}
@@ -2225,6 +2367,35 @@ export function App() {
             />
           )}
 
+          {showKnowledgeBase && (
+            <SettingsPage
+              tabs={KB_TABS}
+              activeTab={kbTab}
+              onTabChange={setKbTab}
+              title={KB_COPY[kbTab].title}
+              description={KB_COPY[kbTab].description}
+              onWatchVideo={() => alert(`Play tutorial video: ${KB_COPY[kbTab].title}`)}
+              onViewDocs={() => alert(`Open docs: ${KB_COPY[kbTab].title}`)}
+            >
+              {kbTab === 'manage' && (
+                <BotTemplatesTable
+                  variant="files"
+                  tabs={KB_SOURCE_TABS}
+                  activeTab={kbSource}
+                  onTabChange={setKbSource}
+                  templates={visibleKbFiles}
+                  searchValue={botTemplateSearch}
+                  onSearchChange={setBotTemplateSearch}
+                  searchPlaceholder={`Search for ${KB_SOURCE_TABS.find((t) => t.id === kbSource)?.label ?? ''}`}
+                  hideFilters
+                  onRowEdit={(row) => alert(`Edit template: ${row.name}`)}
+                  onRowClone={(row) => alert(`Clone template: ${row.name}`)}
+                  onRowDelete={(row) => alert(`Delete template: ${row.name}`)}
+                />
+              )}
+            </SettingsPage>
+          )}
+
           {showSettingsHome && (
             <SettingsPage
               tabs={
@@ -2241,7 +2412,32 @@ export function App() {
               onWatchVideo={() => alert(`Play tutorial video: ${SETTINGS_COPY[settingsTab].title}`)}
               onViewDocs={() => alert(`Open docs: ${SETTINGS_COPY[settingsTab].title}`)}
               headerActions={
-                settingsTab === 'bot-inbox-mapping' ? (
+                settingsTab === 'bot-templates' ? (
+                  <>
+                    <Button variant="default" size="sm" onClick={() => alert('Manage industries')}>
+                      Manage industries
+                    </Button>
+                    <Button
+                      variant="filled"
+                      color="primary"
+                      size="sm"
+                      leftSection={<PlusIcon />}
+                      onClick={() => alert('New template')}
+                    >
+                      Template
+                    </Button>
+                  </>
+                ) : settingsTab === 'variable' ? (
+                  <Button
+                    variant="filled"
+                    color="primary"
+                    size="sm"
+                    leftSection={<PlusIcon />}
+                    onClick={() => alert('New variable')}
+                  >
+                    Variables
+                  </Button>
+                ) : settingsTab === 'bot-inbox-mapping' ? (
                   <Button
                     variant="filled"
                     color="primary"
@@ -2347,6 +2543,37 @@ export function App() {
                     setInboxSyncing(true);
                     window.setTimeout(() => setInboxSyncing(false), 900);
                   }}
+                />
+              ) : settingsTab === 'bot-templates' || settingsTab === 'variable' || settingsTab === 'collaborators' ? (
+                <BotTemplatesTable
+                  variant={settingsTab === 'variable' ? 'variables' : settingsTab === 'collaborators' ? 'collaborators' : 'templates'}
+                  searchPlaceholder={SEARCH_PLACEHOLDER[settingsTab]}
+                  hideFilters={settingsTab === 'collaborators'}
+                  onInvite={settingsTab === 'collaborators' ? () => alert('Invite collaborator') : undefined}
+                  {...(settingsTab === 'variable' && {
+                    tabs: VARIABLE_SCOPES,
+                    activeTab: variableScope,
+                    onTabChange: setVariableScope,
+                  })}
+                  templates={settingsTab === 'variable'
+                      ? visibleVariables
+                      : settingsTab === 'collaborators'
+                        ? visibleCollaborators
+                        : visibleBotTemplates}
+                  searchValue={botTemplateSearch}
+                  onSearchChange={setBotTemplateSearch}
+                  typeFilter={botTemplateType}
+                  onTypeFilterChange={setBotTemplateType}
+                  industryFilter={botTemplateIndustry}
+                  onIndustryFilterChange={setBotTemplateIndustry}
+                  industries={BOT_TEMPLATE_INDUSTRIES}
+                  dataTypes={VARIABLE_DATA_TYPES}
+                  dataTypeFilter={variableDataType}
+                  onDataTypeFilterChange={setVariableDataType}
+                  onAccountFilterClick={() => alert('Filter by account')}
+                  onRowEdit={(row) => alert(`Edit template: ${row.name}`)}
+                  onRowClone={(row) => alert(`Clone template: ${row.name}`)}
+                  onRowDelete={(row) => alert(`Delete template: ${row.name}`)}
                 />
               ) : settingsTab === 'bot-inbox-mapping' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
@@ -2617,7 +2844,7 @@ export function App() {
             }}
           />
 
-          {!showCanvas && !showBroadcastHome && !showFlowsHome && !showBotFlowsHome && !showSegmentsHome && !showTemplatesHome && !showSettingsHome && !showTicketsHome && (
+          {!showCanvas && !showBroadcastHome && !showFlowsHome && !showBotFlowsHome && !showSegmentsHome && !showTemplatesHome && !showSettingsHome && !showKnowledgeBase && !showTicketsHome && (
             <div style={{ padding: 24 }}>
                 <h1 style={{ marginTop: 0 }}>LimeChat App Shell</h1>
                 <p>Reusable rail navigation + top bar from the LimeChat Design System V3.</p>
