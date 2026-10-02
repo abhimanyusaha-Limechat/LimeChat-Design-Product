@@ -155,6 +155,10 @@
 }
 
 .lc-ib__row--body {
+  height: 60px;
+  flex-shrink: 0;
+  padding-top: 0;
+  padding-bottom: 0;
   border-bottom: 1px solid var(--lc-ib-border-dark);
   transition: background-color 150ms ease;
   animation: lc-ib-row-in 200ms var(--lc-ib-ease-out) both;
@@ -334,7 +338,7 @@
 }
 
 .lc-ib__type-label {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.2px;
   color: var(--lc-ib-secondary-dark);
