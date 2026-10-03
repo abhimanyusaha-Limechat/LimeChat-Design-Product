@@ -52,6 +52,15 @@ const RANDOM_AGENT_NAMES = [
   'Rohan Kulkarni',
 ];
 
+const TicketIcon = () => (
+  <svg {...iconProps()} width={16} height={16}>
+    <path d="M15 5l0 2" />
+    <path d="M15 11l0 2" />
+    <path d="M15 17l0 2" />
+    <path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-3a2 2 0 0 0 0 -4v-3a2 2 0 0 1 2 -2" />
+  </svg>
+);
+
 const PlusIcon = () => (
   <svg {...iconProps()}>
     <path d="M12 5l0 14" />
@@ -231,7 +240,8 @@ function CopyableTicketId({ value }: { value: string }) {
         aria-live="polite"
         onClick={handleClick}
       >
-        {copied ? 'Copied' : value}
+        <TicketIcon />
+        <span className="lc-tdp__ticket-id-text">{copied ? 'Copied' : value}</span>
       </button>
     </Tooltip>
   );
