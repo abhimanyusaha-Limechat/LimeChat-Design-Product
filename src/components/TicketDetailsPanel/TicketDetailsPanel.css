@@ -199,6 +199,15 @@
   text-transform: uppercase;
   text-align: left;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lc-tdp__ticket-id > svg {
+  flex: none;
+}
+.lc-tdp__ticket-id-text {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
