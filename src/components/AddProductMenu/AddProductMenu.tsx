@@ -10,6 +10,8 @@ import { Menu, type MenuItemData, type MenuTriggerRenderProps } from '../Menu';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
 import { formatINR } from '../formatINR';
 import { iconProps } from '../iconProps';
+import { PhotoIcon } from '../icons';
+import { thumbPalette } from '../catalogUtils';
 import './AddProductMenu.css';
 
 const PlusIcon = () => (
@@ -18,30 +20,9 @@ const PlusIcon = () => (
     <path d="M5 12l14 0" />
   </svg>
 );
-const PhotoIcon = () => (
-  <svg {...iconProps()}>
-    <rect x="4" y="5" width="16" height="14" rx="2" />
-    <circle cx="9" cy="10" r="1.5" />
-    <path d="M4 15l4.5 -4.5c0.8 -0.8 2 -0.8 2.8 0l5.7 5.5" />
-    <path d="M14.5 13.5l1.5 -1.5c0.8 -0.8 2 -0.8 2.8 0l1.2 1.2" />
-  </svg>
-);
 
-/** Mirrors ProductsPanel's ProductThumbnail. */
-const THUMB_PALETTE = [
-  { bg: '#FAFDF6', fg: '#6BAC1B' },
-  { bg: '#EDF7FF', fg: '#097BA3' },
-  { bg: '#FAEFDB', fg: '#C68610' },
-  { bg: '#FCF3F3', fg: '#DA1B21' },
-  { bg: '#FCF2FF', fg: '#A045EC' },
-];
-function hashString(value: string): number {
-  let hash = 0;
-  for (let i = 0; i < value.length; i++) hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
-  return hash;
-}
 function ItemThumb({ product }: { product: Product }) {
-  const palette = THUMB_PALETTE[hashString(product.id) % THUMB_PALETTE.length];
+  const palette = thumbPalette(product.id);
   return (
     <span
       className="lc-add-product__item-thumb"
