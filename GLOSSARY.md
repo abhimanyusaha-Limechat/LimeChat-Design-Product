@@ -12,6 +12,10 @@ _Avoid_: Bot, product area, module
 One restorable navigation state of the prototype (product, sidebar item and sub-view), addressable by a URL.
 _Avoid_: Page (when meaning a reviewer-visible place), route
 
+**Settings tab**:
+One named sub-view of the Settings Screen, listed per Product and part of the Screen's URL.
+_Avoid_: Page, section
+
 ## Commenting
 
 **Comment**:

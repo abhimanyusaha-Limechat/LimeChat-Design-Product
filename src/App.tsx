@@ -43,24 +43,12 @@ import {
   type TemplateChannel,
 } from './components/TemplatesHomePage';
 import { SettingsPage } from './components/SettingsPage';
-import { InboxesTable } from './components/InboxesTable';
-import { BotTemplatesTable, type BotTemplateRow } from './components/BotTemplatesTable';
+import { SettingsScreen } from './components/SettingsScreen';
+import { SETTINGS_COPY } from './components/SettingsScreen/settingsTabs';
+import { BotTemplatesTable } from './components/BotTemplatesTable';
 import { ProfileSettings } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
 import { HelpDeskAccountSettings, type HelpDeskToggleKey } from './components/HelpDeskAccountSettings';
-import { DataSecuritySettings, type PiiTypeKey, type ProfanityWord } from './components/DataSecuritySettings';
-import { AttributionSettings, type AttributionWindowKey, type AttributionWindowValue } from './components/AttributionSettings';
-import {
-  BotCsatSettings,
-  type CsatFlowKey,
-  type CsatRatingScale,
-  type CsatTimeDelay,
-} from './components/BotCsatSettings';
-import {
-  IntegrationsHomePage,
-} from './components/IntegrationsHomePage';
-import { TagsInput } from './components/TagsInput';
-import { Button } from './components/Button';
 import { TicketListItem } from './components/TicketListItem';
 import { HelpdeskTicketsPage } from './components/HelpdeskTicketsPage';
 import { TicketsSection } from './components/TicketsSection';
@@ -72,26 +60,12 @@ import { TicketComposer, type TicketComposerMode } from './components/TicketComp
 import { EmailMessage, EmailComposerBar, EmailForwardComposer } from './components/EmailMessage';
 import { TicketDetailsPanel } from './components/TicketDetailsPanel';
 
-import { AGENT_INBOXES, BOT_TEMPLATE_INDUSTRIES, CUSTOM_FIELD_TYPES, DEMO_AGENTS, DEMO_BOT_TEMPLATES, DEMO_CANNED, DEMO_CANNED_LIBRARY, DEMO_COLLABORATORS, DEMO_CONTACT_FIELDS, DEMO_CONVERSATION_FIELDS, DEMO_INBOXES, DEMO_INDUSTRIES, DEMO_KB_FILES, DEMO_RULES, DEMO_RULE_LIBRARY, DEMO_SLA, DEMO_SLA_LIBRARY, DEMO_TEAMS, DEMO_USE_CASES, DEMO_VARIABLES, HELPDESK_ADD_CTA, INBOX_NAMES, INDUSTRY_TABS, INTEGRATION_CATEGORIES, KB_COPY, KB_SOURCE_TABS, KB_TABS, LIST_PAGE_TABS, PEOPLE_VARIANT, SEARCH_PLACEHOLDER, SETTINGS_COPY, SETTINGS_TABS_BY_PRODUCT, USER_SETTINGS_COPY, USER_SETTINGS_TABS, USE_CASE_CATEGORIES, VARIABLE_DATA_TYPES, VARIABLE_SCOPES, withFieldMeta } from './data/settingsDemo';
+import { DEMO_KB_FILES, INBOX_NAMES, KB_COPY, KB_SOURCE_TABS, KB_TABS, USER_SETTINGS_COPY, USER_SETTINGS_TABS } from './data/settingsDemo';
 import { DEMO_BROADCASTS, DEMO_DRAFT_BROADCASTS, DEMO_SCHEDULED_BROADCASTS } from './data/broadcastDemo';
 import { DEMO_BOT_FLOWS_ACTIVE, DEMO_BOT_FLOWS_INACTIVE, DEMO_FLOWS_ACTIVE, DEMO_FLOWS_DRAFT, DEMO_FLOWS_INACTIVE } from './data/flowsDemo';
 import { DEMO_SEGMENTS, DEMO_USER_SEGMENTS } from './data/segmentsDemo';
 import { DEMO_TEMPLATES } from './data/templatesDemo';
 import { CONVERSATIONS, ConversationEntry, EMAIL_THREADS, SHOWCASE_MESSAGES, TICKETS, TICKET_DETAIL_SECTIONS } from './data/ticketsDemo';
-
-const WhatsAppIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="#8C8C8C" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9" />
-    <path d="M9 10a0.5 .5 0 0 0 1 0v-1a0.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a0.5 .5 0 0 0 0 -1h-1a0.5 .5 0 0 0 -1 0" />
-  </svg>
-);
-
-const PlusIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M12 5v14" />
-    <path d="M5 12h14" />
-  </svg>
-);
 
 const PRODUCTS: { id: SidebarProduct; label: string }[] = [
   { id: 'helpdesk', label: 'Helpdesk' },
@@ -202,55 +176,9 @@ export function App() {
   const [kbSource, setKbSource] = useState('doc');
   const showCanvas = isCanvasPage(page);
 
-  const [inboxSearch, setInboxSearch] = useState('');
-  const [inboxSyncing, setInboxSyncing] = useState(false);
-  const visibleInboxes = DEMO_INBOXES.filter(
-    (row) =>
-      row.id.includes(inboxSearch.trim()) ||
-      row.name.toLowerCase().includes(inboxSearch.trim().toLowerCase()),
-  );
-
-  const [variableScope, setVariableScope] = useState('system');
-  // Sub-page of Bot templates; mirrors the Variable page until it gets its own content.
-  const [industryTab, setIndustryTab] = useState('industries');
-  const [useCaseCategory, setUseCaseCategory] = useState('all');
-  const [variableDataType, setVariableDataType] = useState('all');
-  const [botTemplateSearch, setBotTemplateSearch] = useState('');
-  const [botTemplateType, setBotTemplateType] = useState('all');
-  const [botTemplateIndustry, setBotTemplateIndustry] = useState('all');
-  // Collaborators, Agents, Teams, Automation rules and Canned responses share one table; PEOPLE_VARIANT maps each tab to its variant.
-  const peopleVariant = PEOPLE_VARIANT[settingsTab];
-  const isPeopleTab = peopleVariant !== undefined;
-  // Active segmented tab per list page.
-  const [listTabs, setListTabs] = useState<Record<string, string>>({});
-  const pageTabs = LIST_PAGE_TABS[settingsTab];
-  const listTab = listTabs[settingsTab] ?? pageTabs?.[0].id;
-  const [switchOn, setSwitchOn] = useState<Record<string, boolean>>({});
-  const [agentRole, setAgentRole] = useState('all');
-  // The Inbox dropdown is shared by Agents and Custom fields.
-  const [agentInbox, setAgentInbox] = useState('all');
-  const [fieldType, setFieldType] = useState('all');
-  const withSwitches = (rows: BotTemplateRow[]) => rows.map((r) => ({ ...r, enabled: switchOn[r.id] ?? r.enabled }));
-  const peopleRows: Record<string, BotTemplateRow[]> = {
-    collaborators: DEMO_COLLABORATORS,
-    agents: DEMO_AGENTS,
-    teams: DEMO_TEAMS,
-    'automation-rules': withSwitches(listTab === 'library' ? DEMO_RULE_LIBRARY : DEMO_RULES),
-    'canned-responses': listTab === 'library' ? DEMO_CANNED_LIBRARY : DEMO_CANNED,
-    'sla-rules': withSwitches(listTab === 'library' ? DEMO_SLA_LIBRARY : DEMO_SLA),
-    'custom-fields': withFieldMeta(withSwitches(listTab === 'contact' ? DEMO_CONTACT_FIELDS : DEMO_CONVERSATION_FIELDS)),
-  };
-  const visibleCollaborators = (peopleRows[settingsTab] ?? []).filter(
-    (c) =>
-      c.name.toLowerCase().includes(botTemplateSearch.trim().toLowerCase()) &&
-      (settingsTab !== 'agents' || agentRole === 'all' || c.role === agentRole) &&
-      (settingsTab !== 'custom-fields' || fieldType === 'all' || c.kind === fieldType) &&
-      ((settingsTab !== 'agents' && settingsTab !== 'custom-fields') ||
-        agentInbox === 'all' ||
-        c.inboxes?.some((i) => i.name === agentInbox)),
-  );
+  const [kbSearch, setKbSearch] = useState('');
   const visibleKbFiles = (DEMO_KB_FILES[kbSource] ?? [])
-    .filter((r) => r.name.toLowerCase().includes(botTemplateSearch.trim().toLowerCase()))
+    .filter((r) => r.name.toLowerCase().includes(kbSearch.trim().toLowerCase()))
     .map((r) => ({
       ...r,
       format:
@@ -260,36 +188,7 @@ export function App() {
             ? r.name.split('.').pop()?.toUpperCase()
             : undefined,
     }));
-  const visibleVariables = DEMO_VARIABLES.filter(
-    (v) =>
-      (variableDataType === 'all' || v.dataType === variableDataType) &&
-      v.name.toLowerCase().includes(botTemplateSearch.trim().toLowerCase()),
-  );
-  const visibleBotTemplates = DEMO_BOT_TEMPLATES.filter(
-    (t) =>
-      (botTemplateType === 'all' || t.type === botTemplateType) &&
-      (botTemplateIndustry === 'all' || t.industries.includes(botTemplateIndustry)) &&
-      t.name.toLowerCase().includes(botTemplateSearch.trim().toLowerCase()),
-  );
 
-  const BOT_NAMES = [
-    'Sales Bot',
-    'FAQ',
-    'Order Tracking Assistant',
-    'Billing Helper',
-    'Onboarding Concierge',
-    'VIP Support',
-    'Lead Qualifier',
-    'Appointment Scheduler',
-    'Feedback Bot',
-    'Returns & Refunds Assistant',
-    'Multilingual Support Bot',
-  ];
-  const [botInboxMap, setBotInboxMap] = useState<Record<string, string[]>>({
-    'Sales Bot': ['Limechat (189)'],
-  });
-  const [savingBotInboxMap, setSavingBotInboxMap] = useState(false);
-  const [savingHelpdeskSettings, setSavingHelpdeskSettings] = useState(false);
   const [selectedTicketId, setSelectedTicketId] = useState(TICKETS[0].id);
   const selectedTicket = TICKETS.find((ticket) => ticket.id === selectedTicketId);
   const [ticketReactions, setTicketReactions] = useState<Record<string, ReactionData>>({});
@@ -360,57 +259,6 @@ export function App() {
     enableActionCableMonitoring: false,
   });
   const [hdSelectedFileTypes, setHdSelectedFileTypes] = useState<string[]>(['pdfDocuments']);
-
-  const [dsMaskMessagePii, setDsMaskMessagePii] = useState(true);
-  const [dsPiiTypes, setDsPiiTypes] = useState<Record<PiiTypeKey, boolean>>({
-    aadhaarNumber: true,
-    panNumber: true,
-    cardNumber: true,
-    ifscCode: true,
-    bankAccountNumber: true,
-    internationalPhoneNumber: false,
-    emailAddress: false,
-    upiId: false,
-    drivingLicenceNumber: false,
-    voterId: false,
-    passportNumber: false,
-    otp: false,
-    dateOfBirth: false,
-  });
-  const [dsBlockProfanity, setDsBlockProfanity] = useState(false);
-  const [dsProfanityWords, setDsProfanityWords] = useState<ProfanityWord[]>([]);
-
-  const [attrEnabled, setAttrEnabled] = useState<Record<AttributionWindowKey, boolean>>({
-    linkClick: true,
-    linkSent: true,
-    botIntent: true,
-  });
-  const [attrWindows, setAttrWindows] = useState<Record<AttributionWindowKey, AttributionWindowValue>>({
-    linkClick: { days: 2, hours: 0 },
-    linkSent: { days: 2, hours: 0 },
-    botIntent: { days: 2, hours: 0 },
-  });
-
-  const [csatEnabled, setCsatEnabled] = useState(true);
-  const [csatFlows, setCsatFlows] = useState<Record<CsatFlowKey, boolean>>({
-    showProducts: false,
-    faq: true,
-    gptProductSearch: true,
-    myCaptain: false,
-    voucher: true,
-    cancelOrder: true,
-    trackOrder: true,
-    gptQna: true,
-    returnOrder: false,
-    addressChange: false,
-    returnRefund: true,
-    checkout: true,
-    gptAgenticQna: false,
-    exchangeOrder: false,
-  });
-  const [csatRatingScale, setCsatRatingScale] = useState<CsatRatingScale>('5');
-  const [csatDelay, setCsatDelay] = useState<CsatTimeDelay>({ hours: 0, minutes: 0, seconds: 15 });
-  const [csatReminderDelay, setCsatReminderDelay] = useState<CsatTimeDelay>({ hours: 0, minutes: 0, seconds: 20 });
 
   const [broadcastTab, setBroadcastTab] = useState<BroadcastTab>('triggered');
   const [broadcastSearch, setBroadcastSearch] = useState('');
@@ -1036,8 +884,8 @@ export function App() {
                   activeTab={kbSource}
                   onTabChange={setKbSource}
                   templates={visibleKbFiles}
-                  searchValue={botTemplateSearch}
-                  onSearchChange={setBotTemplateSearch}
+                  searchValue={kbSearch}
+                  onSearchChange={setKbSearch}
                   searchPlaceholder={`Search for ${KB_SOURCE_TABS.find((t) => t.id === kbSource)?.label ?? ''}`}
                   hideFilters
                   onViewDetails={(row) => alert(`View details: ${row.name}`)}
@@ -1050,280 +898,13 @@ export function App() {
           )}
 
           {page === 'settings' && (
-            <SettingsPage
-              tabs={SETTINGS_TABS_BY_PRODUCT[product]}
-              activeTab={settingsTab}
+            <SettingsScreen
+              product={product}
+              settingsTab={settingsTab}
+              manageIndustries={manageIndustries}
               onTabChange={setSettingsTab}
-              title={manageIndustries ? 'Manage industries' : SETTINGS_COPY[settingsTab].title}
-              description={manageIndustries ? SETTINGS_COPY.variable.description : SETTINGS_COPY[settingsTab].description}
-              contentPadding={settingsTab === 'custom-fields' ? 20 : undefined}
-              onWatchVideo={() => alert(`Play tutorial video: ${SETTINGS_COPY[settingsTab].title}`)}
-              onViewDocs={() => alert(`Open docs: ${SETTINGS_COPY[settingsTab].title}`)}
-              headerActions={
-                manageIndustries ? (
-                  <>
-                    <Button variant="default" size="sm" onClick={() => setManageIndustries(false)}>
-                      Back to Bot templates
-                    </Button>
-                    <Button
-                      variant="filled"
-                      color="primary"
-                      size="sm"
-                      leftSection={<PlusIcon />}
-                      onClick={() => alert(industryTab === 'use-cases' ? 'New use case' : 'New industry')}
-                    >
-                      {industryTab === 'use-cases' ? 'Use cases' : 'Industries'}
-                    </Button>
-                  </>
-                ) : settingsTab === 'bot-templates' ? (
-                  <>
-                    <Button variant="default" size="sm" onClick={() => setManageIndustries(true)}>
-                      Manage industries
-                    </Button>
-                    <Button
-                      variant="filled"
-                      color="primary"
-                      size="sm"
-                      leftSection={<PlusIcon />}
-                      onClick={() => alert('New template')}
-                    >
-                      Template
-                    </Button>
-                  </>
-                ) : product === 'helpdesk' && HELPDESK_ADD_CTA[settingsTab] ? (
-                  <Button
-                    variant="filled"
-                    color="primary"
-                    size="sm"
-                    leftSection={<PlusIcon />}
-                    onClick={() => alert(`New ${HELPDESK_ADD_CTA[settingsTab].toLowerCase()}`)}
-                  >
-                    {HELPDESK_ADD_CTA[settingsTab]}
-                  </Button>
-                ) : settingsTab === 'variable' ? (
-                  <Button
-                    variant="filled"
-                    color="primary"
-                    size="sm"
-                    leftSection={<PlusIcon />}
-                    onClick={() => alert('New variable')}
-                  >
-                    Variables
-                  </Button>
-                ) : settingsTab === 'bot-inbox-mapping' ? (
-                  <Button
-                    variant="filled"
-                    color="primary"
-                    size="sm"
-                    style={{ width: 100 }}
-                    loading={savingBotInboxMap}
-                    onClick={() => {
-                      setSavingBotInboxMap(true);
-                      window.setTimeout(() => setSavingBotInboxMap(false), 700);
-                    }}
-                  >
-                    Save
-                  </Button>
-                ) : settingsTab === 'bot-csat' ||
-                    settingsTab === 'data-security' ||
-                    settingsTab === 'hd-attribution' ||
-                    settingsTab === 'ticket-assignment' ? (
-                  <Button
-                    variant="filled"
-                    color="primary"
-                    size="sm"
-                    style={{ width: 100 }}
-                    loading={savingHelpdeskSettings}
-                    onClick={() => {
-                      setSavingHelpdeskSettings(true);
-                      window.setTimeout(() => setSavingHelpdeskSettings(false), 700);
-                    }}
-                  >
-                    Save
-                  </Button>
-                ) : undefined
-              }
-            >
-              {settingsTab === 'hd-integration' || settingsTab === 'integrations' ? (
-                <IntegrationsHomePage
-                  categories={INTEGRATION_CATEGORIES}
-                  onPartnerClick={(id) => alert(`Connect ${id}`)}
-                />
-              ) : settingsTab === 'data-security' ? (
-                <DataSecuritySettings
-                  maskMessagePii={dsMaskMessagePii}
-                  onMaskMessagePiiChange={setDsMaskMessagePii}
-                  piiTypes={dsPiiTypes}
-                  onPiiTypeChange={(key, next) =>
-                    setDsPiiTypes((prev) => ({ ...prev, [key]: next }))
-                  }
-                  blockProfanity={dsBlockProfanity}
-                  onBlockProfanityChange={setDsBlockProfanity}
-                  profanityWords={dsProfanityWords}
-                  onAddProfanityWord={(text) =>
-                    setDsProfanityWords((prev) => [
-                      ...prev,
-                      { id: crypto.randomUUID(), text, matchType: 'whole' },
-                    ])
-                  }
-                  onRemoveProfanityWord={(id) =>
-                    setDsProfanityWords((prev) => prev.filter((w) => w.id !== id))
-                  }
-                  onProfanityMatchTypeChange={(id, matchType) =>
-                    setDsProfanityWords((prev) =>
-                      prev.map((w) => (w.id === id ? { ...w, matchType } : w)),
-                    )
-                  }
-                />
-              ) : settingsTab === 'hd-attribution' ? (
-                <AttributionSettings
-                  enabled={attrEnabled}
-                  onEnabledChange={(key, next) =>
-                    setAttrEnabled((prev) => ({ ...prev, [key]: next }))
-                  }
-                  windows={attrWindows}
-                  onWindowChange={(key, field, value) =>
-                    setAttrWindows((prev) => ({
-                      ...prev,
-                      [key]: { ...prev[key], [field]: value },
-                    }))
-                  }
-                />
-              ) : settingsTab === 'bot-csat' ? (
-                <BotCsatSettings
-                  enabled={csatEnabled}
-                  onEnabledChange={setCsatEnabled}
-                  flows={csatFlows}
-                  onFlowChange={(key, next) => setCsatFlows((prev) => ({ ...prev, [key]: next }))}
-                  ratingScale={csatRatingScale}
-                  onRatingScaleChange={setCsatRatingScale}
-                  csatDelay={csatDelay}
-                  onCsatDelayChange={(field, value) =>
-                    setCsatDelay((prev) => ({ ...prev, [field]: value }))
-                  }
-                  reminderDelay={csatReminderDelay}
-                  onReminderDelayChange={(field, value) =>
-                    setCsatReminderDelay((prev) => ({ ...prev, [field]: value }))
-                  }
-                />
-              ) : settingsTab === 'inboxes' ? (
-                <InboxesTable
-                  inboxes={visibleInboxes}
-                  searchValue={inboxSearch}
-                  onSearchChange={setInboxSearch}
-                  syncing={inboxSyncing}
-                  onRowEdit={(row) => alert(`Edit inbox: ${row.name}`)}
-                  onRowDelete={(row) => alert(`Delete inbox: ${row.name}`)}
-                  onSync={
-                    product === 'helpdesk'
-                      ? undefined
-                      : () => {
-                          setInboxSyncing(true);
-                          window.setTimeout(() => setInboxSyncing(false), 900);
-                        }
-                  }
-                />
-              ) : settingsTab === 'bot-templates' || settingsTab === 'variable' || isPeopleTab ? (
-                <BotTemplatesTable
-                  variant={manageIndustries ? 'industries' : settingsTab === 'variable' ? 'variables' : (peopleVariant ?? 'templates')}
-                  searchPlaceholder={SEARCH_PLACEHOLDER[manageIndustries ? 'variable' : settingsTab]}
-                  hideFilters={isPeopleTab || manageIndustries}
-                  hideSearch={manageIndustries}
-                  iconActions={manageIndustries}
-                  showUseCases={industryTab === 'industries'}
-                  chipFilter={
-                    manageIndustries && industryTab === 'use-cases'
-                      ? { options: USE_CASE_CATEGORIES, value: useCaseCategory, onChange: setUseCaseCategory }
-                      : undefined
-                  }
-                  onToggleRow={(row) => setSwitchOn((prev) => ({ ...prev, [row.id]: !row.enabled }))}
-                  onInvite={settingsTab === 'collaborators' ? () => alert('Invite collaborator') : undefined}
-                  selects={
-                    settingsTab === 'agents' || settingsTab === 'custom-fields'
-                      ? [
-                          settingsTab === 'agents'
-                            ? {
-                                ariaLabel: 'Filter by role',
-                                options: [{ value: 'all', label: 'Role' }, ...['Admin', 'Editor', 'Viewer'].map((r) => ({ value: r, label: r }))],
-                                value: agentRole,
-                                onChange: setAgentRole,
-                              }
-                            : {
-                                ariaLabel: 'Filter by type',
-                                options: [{ value: 'all', label: 'Type' }, ...CUSTOM_FIELD_TYPES.map((t) => ({ value: t, label: t }))],
-                                value: fieldType,
-                                onChange: setFieldType,
-                              },
-                          {
-                            ariaLabel: 'Filter by inbox',
-                            options: [{ value: 'all', label: 'Inbox' }, ...AGENT_INBOXES.map((i) => ({ value: i.name, label: i.name }))],
-                            value: agentInbox,
-                            onChange: setAgentInbox,
-                          },
-                        ]
-                      : undefined
-                  }
-                  {...(pageTabs
-                    ? { tabs: pageTabs, activeTab: listTab, onTabChange: (id: string) => setListTabs((prev) => ({ ...prev, [settingsTab]: id })) }
-                    : (settingsTab === 'variable' || manageIndustries) && {
-                        tabs: manageIndustries ? INDUSTRY_TABS : VARIABLE_SCOPES,
-                        activeTab: manageIndustries ? industryTab : variableScope,
-                        onTabChange: manageIndustries ? setIndustryTab : setVariableScope,
-                      })}
-                  templates={manageIndustries
-                    ? industryTab === 'use-cases'
-                      ? DEMO_USE_CASES.filter((u) => useCaseCategory === 'all' || u.industries.includes(useCaseCategory))
-                      : DEMO_INDUSTRIES
-                    : settingsTab === 'variable'
-                      ? visibleVariables
-                      : isPeopleTab
-                        ? visibleCollaborators
-                        : visibleBotTemplates}
-                  searchValue={botTemplateSearch}
-                  onSearchChange={setBotTemplateSearch}
-                  typeFilter={botTemplateType}
-                  onTypeFilterChange={setBotTemplateType}
-                  industryFilter={botTemplateIndustry}
-                  onIndustryFilterChange={setBotTemplateIndustry}
-                  industries={BOT_TEMPLATE_INDUSTRIES}
-                  dataTypes={VARIABLE_DATA_TYPES}
-                  dataTypeFilter={variableDataType}
-                  onDataTypeFilterChange={setVariableDataType}
-                  onAccountFilterClick={() => alert('Filter by account')}
-                  onRowEdit={(row) => alert(`Edit template: ${row.name}`)}
-                  onRowClone={(row) => alert(`Clone template: ${row.name}`)}
-                  onRowDelete={(row) => alert(`Delete template: ${row.name}`)}
-                />
-              ) : settingsTab === 'bot-inbox-mapping' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
-                  {BOT_NAMES.map((bot, i) => (
-                    <div
-                      key={bot}
-                      style={{
-                        width: '100%',
-                        maxWidth: 640,
-                        padding: i === 0 ? '0 0 16px' : '16px 0',
-                        borderTop: i === 0 ? 'none' : '1px solid #F0F0F0',
-                        borderBottom: i === BOT_NAMES.length - 1 ? '1px solid #F0F0F0' : 'none',
-                      }}
-                    >
-                      <TagsInput
-                        label={bot}
-                        labelIcon={<WhatsAppIcon />}
-                        layout="horizontal"
-                        placeholder="Enter inboxes"
-                        searchPlaceholder="Search inboxes"
-                        data={INBOX_NAMES}
-                        value={botInboxMap[bot] ?? []}
-                        onChange={(next) =>
-                          setBotInboxMap((prev) => ({ ...prev, [bot]: next }))
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : undefined}
-            </SettingsPage>
+              onManageIndustriesChange={setManageIndustries}
+            />
           )}
 
           {page === 'tickets' && (
