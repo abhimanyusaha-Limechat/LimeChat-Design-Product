@@ -215,3 +215,42 @@ export const MOCK_ORDERS: Order[] = [
     notes: 'Size issue — refund processed after return pickup.',
   }),
 ];
+
+/** An address kept in the Commerce session for reuse in the Create order form. */
+export interface SavedAddress {
+  id: string;
+  label: string;
+  address: Address;
+}
+
+
+/** Demo data: the addresses a ticket's customer starts with. */
+export const DEFAULT_SAVED_ADDRESSES: SavedAddress[] = [
+  {
+    id: 'home',
+    label: 'Home',
+    address: {
+      name: 'Ananya Rao',
+      line1: '221 Indiranagar 12th Main',
+      line2: 'Near Chinnaswamy Stadium',
+      city: 'Bengaluru',
+      state: 'Karnataka',
+      postalCode: '560038',
+      country: 'India',
+      phone: '+91 98450 11223',
+    },
+  },
+  {
+    id: 'office',
+    label: 'Office',
+    address: {
+      name: 'Ananya Rao',
+      line1: 'WeWork Vaswani Chambers, Sarjapur Road',
+      city: 'Bengaluru',
+      state: 'Karnataka',
+      postalCode: '560102',
+      country: 'India',
+      phone: '+91 98450 11223',
+    },
+  },
+];

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_TAX_RATE, draftToOrder, emptyDraft, isDraftValid, orderTotals } from './orderDraft';
-import { MOCK_ORDERS, type Order, type OrderLineItem } from './mockOrders';
+import { addressesEqual, DEFAULT_TAX_RATE, draftToOrder, emptyDraft, formatAddressForCopy, isDraftValid, orderTotals } from './orderDraft';
+import { DEFAULT_SAVED_ADDRESSES, MOCK_ORDERS, type Order, type OrderLineItem } from './mockOrders';
 
 const item = (quantity: number, unitPrice: number): OrderLineItem => ({
   name: 'Runner',
@@ -86,5 +86,40 @@ describe('draftToOrder', () => {
     expect(draftToOrder(validDraft()).id).toBe('ORD-10001');
     const existing = [{ id: 'ORD-10241' }, { id: 'ORD-10300' }, { id: 'legacy' }] as Order[];
     expect(draftToOrder(validDraft(), existing).id).toBe('ORD-10301');
+  });
+});
+
+describe('addressesEqual', () => {
+  const [home, office] = DEFAULT_SAVED_ADDRESSES.map((s) => s.address);
+
+  it('matches an address with itself and tells different addresses apart', () => {
+    expect(addressesEqual(home, { ...home })).toBe(true);
+    expect(addressesEqual(home, office)).toBe(false);
+  });
+
+  it('treats a missing line 2 or phone the same as an empty one', () => {
+    expect(addressesEqual({ ...office, line2: undefined }, { ...office, line2: '' })).toBe(true);
+    expect(addressesEqual({ ...office, phone: undefined }, { ...office, phone: '' })).toBe(true);
+  });
+
+  it('notices a change in any field', () => {
+    expect(addressesEqual(home, { ...home, postalCode: '560001' })).toBe(false);
+    expect(addressesEqual(home, { ...home, phone: '+91 90000 00000' })).toBe(false);
+  });
+});
+
+describe('formatAddressForCopy', () => {
+  it('writes one line per part and skips the ones that are empty', () => {
+    const [home, office] = DEFAULT_SAVED_ADDRESSES.map((s) => s.address);
+    expect(formatAddressForCopy(home).split('\n')).toEqual([
+      'Ananya Rao',
+      '221 Indiranagar 12th Main',
+      'Near Chinnaswamy Stadium',
+      'Bengaluru, Karnataka 560038',
+      'India',
+      '+91 98450 11223',
+    ]);
+    expect(formatAddressForCopy(office).split('\n')).not.toContain('undefined');
+    expect(formatAddressForCopy(office).split('\n')).toHaveLength(5);
   });
 });

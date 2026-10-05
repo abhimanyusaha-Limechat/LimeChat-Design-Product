@@ -120,3 +120,29 @@ export function draftToOrder(draft: OrderDraft, existingOrders: Order[] = []): O
     notes: draft.notes.trim() || undefined,
   };
 }
+
+export function addressesEqual(a: Address, b: Address): boolean {
+  return (
+    a.name === b.name &&
+    a.line1 === b.line1 &&
+    (a.line2 ?? '') === (b.line2 ?? '') &&
+    a.city === b.city &&
+    a.state === b.state &&
+    a.postalCode === b.postalCode &&
+    a.country === b.country &&
+    (a.phone ?? '') === (b.phone ?? '')
+  );
+}
+
+export function formatAddressForCopy(address: Address): string {
+  return [
+    address.name,
+    address.line1,
+    address.line2,
+    `${address.city}, ${address.state} ${address.postalCode}`,
+    address.country,
+    address.phone,
+  ]
+    .filter(Boolean)
+    .join('\n');
+}

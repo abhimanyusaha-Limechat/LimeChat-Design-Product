@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { act, render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
-import { MOCK_ORDERS } from '../data/mockOrders';
+import { DEFAULT_SAVED_ADDRESSES, MOCK_ORDERS } from '../data/mockOrders';
 import { CommerceProvider, useCommerce } from './CommerceContext';
 
 const PRODUCT = { productId: 'p1', name: 'Nike Air Zoom Pegasus 41', sku: 'NK-PG41-BLK', unitPrice: 4799 };
@@ -116,5 +116,31 @@ describe('Commerce session: order from cart', () => {
     expect(result.current.orderView).toEqual({ kind: 'detail', orderId: MOCK_ORDERS[0].id });
     act(() => result.current.backToList());
     expect(result.current.orderView).toEqual({ kind: 'list' });
+  });
+});
+
+describe('Commerce session: saved addresses', () => {
+  const address = { ...DEFAULT_SAVED_ADDRESSES[0].address, line1: '5 Brigade Road' };
+
+  it('starts with the default saved addresses', () => {
+    const { result } = setup();
+    expect(result.current.savedAddresses).toEqual(DEFAULT_SAVED_ADDRESSES);
+  });
+
+  it('saves a new address with its label', () => {
+    const { result } = setup();
+    act(() => result.current.saveAddress('Studio', address));
+    const saved = result.current.savedAddresses[result.current.savedAddresses.length - 1];
+    expect(saved).toMatchObject({ label: 'Studio', address });
+    expect(result.current.savedAddresses).toHaveLength(DEFAULT_SAVED_ADDRESSES.length + 1);
+  });
+
+  it('updates one address in place and leaves the others alone', () => {
+    const { result } = setup();
+    act(() => result.current.updateAddress('home', address));
+    expect(result.current.savedAddresses.find((s) => s.id === 'home')?.address).toEqual(address);
+    expect(result.current.savedAddresses.find((s) => s.id === 'office')?.address).toEqual(
+      DEFAULT_SAVED_ADDRESSES[1].address,
+    );
   });
 });

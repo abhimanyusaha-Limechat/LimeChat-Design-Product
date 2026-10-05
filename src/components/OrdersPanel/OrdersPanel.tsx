@@ -24,22 +24,20 @@ import {
   type Order,
   type OrderLineItem,
   type OrderStatus,
+  type SavedAddress,
 } from '../../data/mockOrders';
-import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
+import { MOCK_PRODUCTS } from '../../data/mockProducts';
 import { useCommerce } from '../../context/CommerceContext';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
-import { AddProductMenu } from '../AddProductMenu';
 import { Modal } from '../Modal';
-import { NativeSelect } from '../Select';
 import './OrdersPanel.css';
 import { iconProps } from '../iconProps';
 import { CloseIcon as ClearIcon, TrashIcon, CheckIcon } from '../icons';
 import { formatINR } from '../formatINR';
-import { draftToOrder, emptyDraft, isDraftValid, type OrderDraft } from '../../data/orderDraft';
+import { addressesEqual, draftToOrder, emptyDraft, formatAddressForCopy, isDraftValid, type OrderDraft } from '../../data/orderDraft';
 import { thumbPalette, useTypingPlaceholder } from '../catalogUtils';
 import { ProductThumb } from '../ProductThumb';
-import { QtyStepper } from '../QtyStepper';
 import { HighlightMatch } from '../HighlightMatch';
 
 type SortKey = 'recent' | 'oldest' | 'total_high_low' | 'total_low_high';
@@ -211,8 +209,6 @@ interface ExtraChargeEditable {
   onAmountChange: (amount: string) => void;
 }
 
-const SIZE_OPTIONS = ['UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11', 'S', 'M', 'L', 'XL'];
-const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
 
 const PRODUCT_IMAGE_BY_SKU: Record<string, string> = Object.fromEntries(
   MOCK_PRODUCTS.filter((p) => p.imageUrl).map((p) => [p.sku, p.imageUrl!]),
@@ -220,16 +216,10 @@ const PRODUCT_IMAGE_BY_SKU: Record<string, string> = Object.fromEntries(
 
 function ProductsCostCard({
   data,
-  onQtyChange,
-  onVariantChange,
-  onAddProduct,
   discountEditable,
   extraChargeEditable,
 }: {
   data: CostSummaryData;
-  onQtyChange?: (index: number, quantity: number) => void;
-  onVariantChange?: (index: number, patch: { size?: string; color?: string }) => void;
-  onAddProduct?: (product: Product) => void;
   discountEditable?: DiscountEditable;
   extraChargeEditable?: ExtraChargeEditable;
 }) {
@@ -249,49 +239,15 @@ function ProductsCostCard({
               <span className="lc-op__cost-item-name">{item.name}</span>
               <span className="lc-op__cost-item-unit-price">{formatINR(item.unitPrice)}</span>
             </div>
-            {!onVariantChange && (
-              <p className="lc-op__cost-item-sku">
-                <span>
-                  {item.sku} <span className="lc-op__cost-item-sku-qty">×{item.quantity}</span>
-                </span>
-                <span className="lc-op__cost-item-sku-total">{formatINR(item.unitPrice * item.quantity)}</span>
-              </p>
-            )}
-
-            {onVariantChange ? (
-              <div className="lc-op__cost-item-variants">
-                <NativeSelect
-                  size="xs"
-                  placeholder="Size"
-                  aria-label={`${item.name} size`}
-                  data={SIZE_OPTIONS}
-                  value={item.size ?? ''}
-                  onChange={(e) => onVariantChange(i, { size: e.currentTarget.value })}
-                />
-                <NativeSelect
-                  size="xs"
-                  placeholder="Color"
-                  aria-label={`${item.name} color`}
-                  data={COLOR_OPTIONS}
-                  value={item.color ?? ''}
-                  onChange={(e) => onVariantChange(i, { color: e.currentTarget.value })}
-                />
-                {onQtyChange && <QtyStepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />}
-              </div>
-            ) : (
-              onQtyChange && (
-                <div className="lc-op__cost-item-qty">
-                  <QtyStepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />
-                </div>
-              )
-            )}
+            <p className="lc-op__cost-item-sku">
+              <span>
+                {item.sku} <span className="lc-op__cost-item-sku-qty">×{item.quantity}</span>
+              </span>
+              <span className="lc-op__cost-item-sku-total">{formatINR(item.unitPrice * item.quantity)}</span>
+            </p>
           </div>
         </div>
       ))}
-
-      {onAddProduct && (
-        <AddProductMenu onAdd={onAddProduct} excludeSkus={data.items.map((item) => item.sku)} />
-      )}
 
       <div className="lc-op__cost-divider" />
 
@@ -548,120 +504,50 @@ function AddressFields({ value, onChange }: { value: Address; onChange: (next: A
   );
 }
 
-interface SavedAddress {
-  id: string;
-  label: string;
-  address: Address;
-}
-
-const DEFAULT_SAVED_ADDRESSES: SavedAddress[] = [
-  {
-    id: 'home',
-    label: 'Home',
-    address: {
-      name: 'Ananya Rao',
-      line1: '221 Indiranagar 12th Main',
-      line2: 'Near Chinnaswamy Stadium',
-      city: 'Bengaluru',
-      state: 'Karnataka',
-      postalCode: '560038',
-      country: 'India',
-      phone: '+91 98450 11223',
-    },
-  },
-  {
-    id: 'office',
-    label: 'Office',
-    address: {
-      name: 'Ananya Rao',
-      line1: 'WeWork Vaswani Chambers, Sarjapur Road',
-      city: 'Bengaluru',
-      state: 'Karnataka',
-      postalCode: '560102',
-      country: 'India',
-      phone: '+91 98450 11223',
-    },
-  },
-];
-
-function addressesEqual(a: Address, b: Address): boolean {
-  return (
-    a.name === b.name &&
-    a.line1 === b.line1 &&
-    (a.line2 ?? '') === (b.line2 ?? '') &&
-    a.city === b.city &&
-    a.state === b.state &&
-    a.postalCode === b.postalCode &&
-    a.country === b.country &&
-    (a.phone ?? '') === (b.phone ?? '')
-  );
-}
-
 /**
  * Saved-address picker: pick a saved address, edit one of them in place, or
  * add a new address with an option to save it for reuse next time.
- * `savedAddresses`/`onSavedAddressesChange` are lifted to the caller so
- * Shipping and Billing pickers on the same order share one list.
+ * The saved addresses come from the Commerce session, so the pickers on one order,
+ * and later orders for the same ticket, share one list. Which saved address is
+ * selected is derived from `value`; only the edit session and the "add new"
+ * choice are local state.
  */
-function AddressPicker({
-  value,
-  onChange,
-  savedAddresses,
-  onSavedAddressesChange,
-}: {
-  value: Address;
-  onChange: (next: Address) => void;
-  savedAddresses: SavedAddress[];
-  onSavedAddressesChange: Dispatch<SetStateAction<SavedAddress[]>>;
-}) {
+function AddressPicker({ value, onChange }: { value: Address; onChange: (next: Address) => void }) {
+  const { savedAddresses, saveAddress, updateAddress } = useCommerce();
   const groupName = useId();
   const matchedSaved = savedAddresses.find((saved) => addressesEqual(saved.address, value));
-  // `mode`/`selectedId` are seeded from `value` once at mount and never
-  // resynced — correct only because the caller (OrderFormFields) fully
-  // unmounts/remounts this component each time an edit session starts, so
-  // `value` never changes under a mounted AddressPicker. If that ever
-  // stops being true, this needs a `useEffect` (or a `key`) to resync.
-  const [mode, setMode] = useState<'saved' | 'new' | 'edit'>(matchedSaved ? 'saved' : 'new');
-  const [selectedId, setSelectedId] = useState<string | null>(matchedSaved?.id ?? null);
+  // Picked "+ Add new address" while the value still equals a saved one.
+  const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draftAddress, setDraftAddress] = useState<Address>(value);
+  const [editDraft, setEditDraft] = useState<Address>(value);
   const [newLabel, setNewLabel] = useState('');
-
-  const startNew = () => {
-    setMode('new');
-    setDraftAddress(value);
-    setNewLabel('');
-  };
+  const isNew = adding || !matchedSaved;
 
   const startEdit = (saved: SavedAddress) => {
-    setMode('edit');
     setEditingId(saved.id);
-    setDraftAddress(saved.address);
+    setEditDraft(saved.address);
   };
 
   const saveNewAddress = () => {
-    const id = `addr-${Date.now()}`;
-    onSavedAddressesChange((prev) => [...prev, { id, label: newLabel.trim() || 'New address', address: draftAddress }]);
-    setMode('saved');
-    setSelectedId(id);
-    onChange(draftAddress);
+    saveAddress(newLabel.trim() || 'New address', value);
+    setAdding(false);
+    setNewLabel('');
   };
 
   const saveEdit = () => {
     if (!editingId) return;
-    onSavedAddressesChange((prev) => prev.map((s) => (s.id === editingId ? { ...s, address: draftAddress } : s)));
-    if (selectedId === editingId) onChange(draftAddress);
-    setMode('saved');
+    updateAddress(editingId, editDraft);
+    if (matchedSaved?.id === editingId) onChange(editDraft);
     setEditingId(null);
   };
 
-  if (mode === 'edit') {
+  if (editingId) {
     return (
       <div className="lc-op__address-picker">
         <div className="lc-op__address-new">
-          <AddressFields value={draftAddress} onChange={setDraftAddress} />
+          <AddressFields value={editDraft} onChange={setEditDraft} />
           <div className="lc-op__address-edit-actions">
-            <Button variant="outline" color="gray" size="xs" onClick={() => setMode('saved')}>
+            <Button variant="outline" color="gray" size="xs" onClick={() => setEditingId(null)}>
               Cancel
             </Button>
             <Button variant="filled" color="primary" size="xs" onClick={saveEdit}>
@@ -675,57 +561,57 @@ function AddressPicker({
 
   return (
     <div className="lc-op__address-picker">
-      {savedAddresses.map((saved) => (
-        <label
-          key={saved.id}
-          className="lc-op__address-option"
-          data-selected={(mode === 'saved' && selectedId === saved.id) || undefined}
-        >
-          <input
-            type="radio"
-            name={groupName}
-            checked={mode === 'saved' && selectedId === saved.id}
-            onChange={() => {
-              setMode('saved');
-              setSelectedId(saved.id);
-              onChange(saved.address);
-            }}
-          />
-          <span className="lc-op__address-option-body">
-            <span className="lc-op__address-option-label">{saved.label}</span>
-            <span className="lc-op__address-option-text">
-              {saved.address.line1}, {saved.address.city}, {saved.address.state} {saved.address.postalCode}
+      {savedAddresses.map((saved) => {
+        const selected = !isNew && matchedSaved?.id === saved.id;
+        return (
+          <label key={saved.id} className="lc-op__address-option" data-selected={selected || undefined}>
+            <input
+              type="radio"
+              name={groupName}
+              checked={selected}
+              onChange={() => {
+                setAdding(false);
+                onChange(saved.address);
+              }}
+            />
+            <span className="lc-op__address-option-body">
+              <span className="lc-op__address-option-label">{saved.label}</span>
+              <span className="lc-op__address-option-text">
+                {saved.address.line1}, {saved.address.city}, {saved.address.state} {saved.address.postalCode}
+              </span>
             </span>
-          </span>
-          <button
-            type="button"
-            className="lc-op__address-edit-btn"
-            aria-label={`Edit ${saved.label} address`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              startEdit(saved);
-            }}
-          >
-            <EditIcon />
-          </button>
-        </label>
-      ))}
+            <button
+              type="button"
+              className="lc-op__address-edit-btn"
+              aria-label={`Edit ${saved.label} address`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                startEdit(saved);
+              }}
+            >
+              <EditIcon />
+            </button>
+          </label>
+        );
+      })}
 
-      <label className="lc-op__address-option" data-selected={mode === 'new' || undefined}>
-        <input type="radio" name={groupName} checked={mode === 'new'} onChange={startNew} />
+      <label className="lc-op__address-option" data-selected={isNew || undefined}>
+        <input
+          type="radio"
+          name={groupName}
+          checked={isNew}
+          onChange={() => {
+            setAdding(true);
+            setNewLabel('');
+          }}
+        />
         <span className="lc-op__address-option-label">+ Add new address</span>
       </label>
 
-      {mode === 'new' && (
+      {isNew && (
         <div className="lc-op__address-new">
-          <AddressFields
-            value={draftAddress}
-            onChange={(next) => {
-              setDraftAddress(next);
-              onChange(next);
-            }}
-          />
+          <AddressFields value={value} onChange={onChange} />
           <div className="lc-op__address-new-save">
             <TextInput
               placeholder="Save as (e.g. Home, Office)"
@@ -740,19 +626,6 @@ function AddressPicker({
       )}
     </div>
   );
-}
-
-function formatAddressForCopy(address: Address): string {
-  return [
-    address.name,
-    address.line1,
-    address.line2,
-    `${address.city}, ${address.state} ${address.postalCode}`,
-    address.country,
-    address.phone,
-  ]
-    .filter(Boolean)
-    .join('\n');
 }
 
 function CopyIconButton({ value, label }: { value: string; label: string }) {
@@ -795,45 +668,16 @@ function AddressBlock({ address }: { address: Address }) {
 function OrderFormFields({
   draft,
   setDraft,
-  productsEditable = true,
 }: {
   draft: OrderDraft;
   setDraft: Dispatch<SetStateAction<OrderDraft>>;
-  /** Creating a new order shows products in a static view state, not editable. */
-  productsEditable?: boolean;
 }) {
-  // Shared across the Shipping and Billing pickers below, so saving/editing
-  // an address from one shows up in the other's list too.
-  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>(DEFAULT_SAVED_ADDRESSES);
-
   return (
     <>
       <div className="lc-op__detail-section">
         <p className="lc-op__detail-section-title">Cost summary</p>
         <ProductsCostCard
           data={draftToOrder(draft)}
-          {...(productsEditable
-            ? {
-                onQtyChange: (index: number, quantity: number) =>
-                  setDraft((d) => ({
-                    ...d,
-                    items: d.items.map((item, i) => (i === index ? { ...item, quantity } : item)),
-                  })),
-                onVariantChange: (index: number, patch: { size?: string; color?: string }) =>
-                  setDraft((d) => ({
-                    ...d,
-                    items: d.items.map((item, i) => (i === index ? { ...item, ...patch } : item)),
-                  })),
-                onAddProduct: (product: Product) =>
-                  setDraft((d) => ({
-                    ...d,
-                    items: [
-                      ...d.items,
-                      { productId: product.id, name: product.name, sku: product.sku, quantity: 1, unitPrice: product.discountedPrice },
-                    ],
-                  })),
-              }
-            : {})}
           discountEditable={{
             amount: draft.discountAmount,
             code: draft.discountCode,
@@ -854,8 +698,6 @@ function OrderFormFields({
         <AddressPicker
           value={draft.shippingAddress}
           onChange={(shippingAddress) => setDraft((d) => ({ ...d, shippingAddress }))}
-          savedAddresses={savedAddresses}
-          onSavedAddressesChange={setSavedAddresses}
         />
       </div>
 
@@ -1053,7 +895,7 @@ function CreateOrderView({
           <span className="lc-op__detail-invoice">Creating new order</span>
         </div>
 
-        <OrderFormFields draft={draft} setDraft={setDraft} productsEditable={false} />
+        <OrderFormFields draft={draft} setDraft={setDraft} />
 
         <div className="lc-op__detail-ctas lc-op__detail-ctas--sticky-bottom">
           <Button variant="outline" color="gray" size="sm" style={{ flex: 1 }} onClick={onBack}>
