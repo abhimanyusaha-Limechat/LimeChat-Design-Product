@@ -9,7 +9,7 @@
 import { useEffect, useId, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockProducts';
-import { useCart } from '../../context/CartContext';
+import { useCommerce } from '../../context/CommerceContext';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
 import './ProductsPanel.css';
@@ -271,7 +271,7 @@ function EmptyState({ searching }: { searching: boolean }) {
 /** Share + Add to cart CTAs shown in the product detail view. Once the current variant is in the cart, the
  * "Add to cart" button becomes a quantity stepper + remove control instead of staying an inert "Added" state. */
 function DetailCtas({ product, size, color }: { product: Product; size?: string; color?: string }) {
-  const { items, addItem, removeItem, setQuantity } = useCart();
+  const { items, addItem, removeItem, setQuantity } = useCommerce();
   const [shared, setShared] = useState(false);
   const shareTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(shareTimer.current), []);

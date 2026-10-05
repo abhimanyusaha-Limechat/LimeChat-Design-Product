@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TicketDetailsPanel } from './TicketDetailsPanel';
 
@@ -19,7 +19,7 @@ function Harness() {
 }
 
 // Looked up by its tab id: a hidden panel's accessible name isn't computed, so getByRole can't match it.
-const panelOrNull = (name: string) => document.querySelector(`[role=tabpanel][aria-labelledby$="-tab-${name}"]`);
+const panelOrNull = (name: string) => document.querySelector<HTMLElement>(`[role=tabpanel][aria-labelledby$="-tab-${name}"]`);
 const panel = (name: string) => panelOrNull(name)!;
 
 describe('TicketDetailsPanel commerce tabs', () => {
@@ -52,5 +52,52 @@ describe('TicketDetailsPanel commerce tabs', () => {
     expect(panelOrNull('Orders')).toBeNull();
     expect(panelOrNull('Products')).toBeNull();
     expect(panel('Cart')).toHaveAttribute('hidden');
+  });
+});
+
+describe('TicketDetailsPanel cart to order handoff', () => {
+  function CommerceHarness() {
+    const [tab, setTab] = useState('Products');
+    return <TicketDetailsPanel ticketId="100230" activeTab={tab} onTabChange={setTab} />;
+  }
+
+  async function addNikeToCart(user: ReturnType<typeof userEvent.setup>) {
+    await user.click(await within(panel('Products')).findByText('Nike Air Zoom Pegasus 41'));
+    await user.click(screen.getByRole('button', { name: 'Add to cart' }));
+    await user.click(screen.getByRole('tab', { name: /^Cart/ }));
+  }
+
+  it('opens Create order pre-filled from the cart, and Back returns to the untouched cart', async () => {
+    const user = userEvent.setup();
+    render(<CommerceHarness />);
+    await addNikeToCart(user);
+
+    await user.click(screen.getByRole('button', { name: 'Create order' }));
+    expect(panel('Orders')).not.toHaveAttribute('hidden');
+    expect(within(panel('Orders')).getByText('Creating new order')).toBeInTheDocument();
+    expect(within(panel('Orders')).getByText('Nike Air Zoom Pegasus 41')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Back to cart' }));
+    expect(panel('Cart')).not.toHaveAttribute('hidden');
+    expect(within(panel('Cart')).getByText('Nike Air Zoom Pegasus 41')).toBeInTheDocument();
+  });
+
+  it('creating the order opens it and empties the cart', async () => {
+    const user = userEvent.setup();
+    render(<CommerceHarness />);
+    await addNikeToCart(user);
+    await user.click(screen.getByRole('button', { name: 'Create order' }));
+
+    await user.type(screen.getByLabelText('Full name'), 'Asha Verma');
+    await user.type(screen.getByLabelText('Address line 1'), '12 MG Road');
+    await user.type(screen.getByLabelText('City'), 'Bengaluru');
+    await user.type(screen.getByLabelText('Postal code'), '560001');
+    await user.click(screen.getByRole('button', { name: 'Create order' }));
+
+    expect(within(panel('Orders')).queryByText('Creating new order')).not.toBeInTheDocument();
+    expect(within(panel('Orders')).getByRole('button', { name: 'Back to orders' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: /^Cart/ }));
+    expect(within(panel('Cart')).queryByText('Nike Air Zoom Pegasus 41')).not.toBeInTheDocument();
   });
 });

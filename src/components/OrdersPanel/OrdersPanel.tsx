@@ -20,13 +20,13 @@ import {
   type TextareaHTMLAttributes,
 } from 'react';
 import {
-  MOCK_ORDERS,
   type Address,
   type Order,
   type OrderLineItem,
   type OrderStatus,
 } from '../../data/mockOrders';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
+import { useCommerce } from '../../context/CommerceContext';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
 import { AddProductMenu } from '../AddProductMenu';
@@ -1070,40 +1070,23 @@ function CreateOrderView({
 
 /* --- Top-level panel -------------------------------------------------------- */
 
-export function OrdersPanel({
-  presetItems,
-  onPresetItemsConsumed,
-  onBackToCart,
-}: {
-  /** Cart handoff: when set, opens straight into Create order pre-filled with these items (see CartPanel's "Create order" CTA). */
-  presetItems?: OrderLineItem[] | null;
-  onPresetItemsConsumed?: () => void;
-  /** Create order is only ever reached via the cart handoff, so "back" from it returns to the Cart tab instead of the orders list. */
-  onBackToCart?: () => void;
-} = {}) {
-  const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
+export function OrdersPanel() {
+  const { orders, orderView, openOrder, backToList, createOrder, cancelCreate } = useCommerce();
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('recent');
-  const [viewMode, setViewMode] = useState<'list' | 'detail' | 'create'>('list');
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  // Returning to the list slides back; every other change slides forward.
+  const [shownKind, setShownKind] = useState(orderView.kind);
   const [navDirection, setNavDirection] = useState<'forward' | 'back'>('forward');
-  const [pendingCreateItems, setPendingCreateItems] = useState<OrderLineItem[] | undefined>(undefined);
+  if (shownKind !== orderView.kind) {
+    setShownKind(orderView.kind);
+    setNavDirection(orderView.kind === 'list' ? 'back' : 'forward');
+  }
 
   useEffect(() => {
     const t = window.setTimeout(() => setLoading(false), 500);
     return () => window.clearTimeout(t);
   }, []);
-
-  useEffect(() => {
-    if (presetItems && presetItems.length > 0) {
-      setPendingCreateItems(presetItems);
-      setNavDirection('forward');
-      setViewMode('create');
-      onPresetItemsConsumed?.();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presetItems]);
 
   const filteredSorted = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -1131,34 +1114,17 @@ export function OrdersPanel({
     return list;
   }, [orders, search, sortKey]);
 
-  const selectedOrder = selectedOrderId ? orders.find((o) => o.id === selectedOrderId) ?? null : null;
+  const selectedOrder = orderView.kind === 'detail' ? orders.find((o) => o.id === orderView.orderId) ?? null : null;
 
-  const goToList = () => {
-    setNavDirection('back');
-    setViewMode('list');
-    setSelectedOrderId(null);
-    setPendingCreateItems(undefined);
-  };
-
-  if (viewMode === 'create') {
+  if (orderView.kind === 'create') {
     return (
       <div className="lc-op">
         <div className="lc-op__view" data-direction="forward" key="create">
           <CreateOrderView
             existingOrders={orders}
-            initialItems={pendingCreateItems}
-            onBack={() => {
-              // Discard the draft: the panel stays mounted, so the next cart handoff must start fresh.
-              goToList();
-              onBackToCart?.();
-            }}
-            onCreate={(order) => {
-              setOrders((prev) => [order, ...prev]);
-              setNavDirection('forward');
-              setSelectedOrderId(order.id);
-              setViewMode('detail');
-              setPendingCreateItems(undefined);
-            }}
+            initialItems={orderView.items}
+            onBack={cancelCreate}
+            onCreate={createOrder}
           />
         </div>
       </div>
@@ -1171,7 +1137,7 @@ export function OrdersPanel({
         <div className="lc-op__view" data-direction={navDirection} key="detail">
           <OrderDetailView
             order={selectedOrder}
-            onBack={goToList}
+            onBack={backToList}
           />
         </div>
       </div>
@@ -1237,11 +1203,7 @@ export function OrdersPanel({
                 key={order.id}
                 order={order}
                 search={search}
-                onClick={() => {
-                  setNavDirection('forward');
-                  setSelectedOrderId(order.id);
-                  setViewMode('detail');
-                }}
+                onClick={() => openOrder(order.id)}
               />
             ))
           )}

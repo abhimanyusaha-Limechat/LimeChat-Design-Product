@@ -30,7 +30,7 @@ import { Tooltip } from '../Tooltip';
 import { ProductsPanel } from '../ProductsPanel';
 import { OrdersPanel } from '../OrdersPanel';
 import { CartPanel } from '../CartPanel';
-import { CartProvider, useCart, type CartLineItem } from '../../context/CartContext';
+import { CommerceProvider, useCommerce } from '../../context/CommerceContext';
 import { Modal, ModalTextarea, ModalCheckbox } from '../Modal';
 import { Button } from '../Button';
 import './TicketDetailsPanel.css';
@@ -690,7 +690,7 @@ function CartTabButton({
   onClick: () => void;
   tabRef: (el: HTMLButtonElement | null) => void;
 }) {
-  const { items } = useCart();
+  const { items } = useCommerce();
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const Icon = TAB_ICONS.Cart;
   return (
@@ -737,7 +737,6 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   const resolvedActiveTab = activeTab ?? tabs[0];
   const [focusedSectionId, setFocusedSectionId] = useState<string | null>(null);
   const focusedSection = sections.find((section) => section.id === focusedSectionId);
-  const [cartOrderDraft, setCartOrderDraft] = useState<CartLineItem[] | null>(null);
   const idBase = useId();
   const tabId = (tab: string) => `${idBase}-tab-${tab}`;
   const panelId = (tab: string) => `${idBase}-panel-${tab}`;
@@ -779,9 +778,9 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   });
 
   return (
-    // Keyed by ticketId so switching tickets starts a fresh cart instead of
-    // carrying over line items added while viewing a different customer.
-    <CartProvider key={ticketId}>
+    // Keyed by ticketId so switching tickets starts a fresh Commerce session instead of
+    // carrying over cart items and orders from a different customer.
+    <CommerceProvider key={ticketId} showTab={onTabChange}>
     <div {...rest} ref={ref} className={`lc-tdp${className ? ` ${className}` : ''}`}>
       <div className="lc-tdp__tabs" role="tablist" ref={tabsRef}>
         {indicator && (
@@ -888,26 +887,17 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
 
       {tabs.includes('Orders') && (
         <div {...panelProps('Orders')} hidden={resolvedActiveTab !== 'Orders'}>
-          <OrdersPanel
-            presetItems={cartOrderDraft}
-            onPresetItemsConsumed={() => setCartOrderDraft(null)}
-            onBackToCart={() => onTabChange?.('Cart')}
-          />
+          <OrdersPanel />
         </div>
       )}
 
       {tabs.includes('Cart') && (
         <div {...panelProps('Cart')} hidden={resolvedActiveTab !== 'Cart'}>
-          <CartPanel
-            onCreateOrder={(items) => {
-              setCartOrderDraft(items);
-              onTabChange?.('Orders');
-            }}
-          />
+          <CartPanel />
         </div>
       )}
     </div>
-    </CartProvider>
+    </CommerceProvider>
   );
 });
 
