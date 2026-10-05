@@ -60,6 +60,18 @@ _Avoid_: Basket, checkout
 The products an agent has collected during a Commerce session, before turning them into an order.
 _Avoid_: Basket
 
+**Order**:
+A customer's purchase of one or more products, with its prices, addresses and Order status.
+_Avoid_: Purchase, invoice
+
+**Order status**:
+Where an Order stands: Placed, Processing, Shipped, Delivered, Returned, Cancelled or Refunded.
+_Avoid_: State, Status (that word belongs to Comments)
+
+**Extra charge**:
+A named, one-off amount an agent adds to an Order on top of shipping. It is not taxed.
+_Avoid_: Fee, surcharge
+
 **Order draft**:
 The pre-filled Create order form that carries the Cart's items; it is discarded if the agent goes back to the Cart.
 _Avoid_: Pending order

@@ -30,6 +30,16 @@ describe('orderTotals', () => {
     expect(orderTotals([item(1, 105)], { taxRate: 12 }).taxAmount).toBe(13);
   });
 
+  it('never lets a discount larger than the subtotal make tax or the goods total negative', () => {
+    const totals = orderTotals([item(1, 1000)], {
+      discountAmount: 5000,
+      taxRate: 12,
+      shippingCost: 50,
+      extraChargeAmount: 30,
+    });
+    expect(totals).toEqual({ subtotal: 1000, taxAmount: 0, total: 80 });
+  });
+
   it('is zero for no items', () => {
     expect(orderTotals([], { taxRate: DEFAULT_TAX_RATE })).toEqual({ subtotal: 0, taxAmount: 0, total: 0 });
   });
