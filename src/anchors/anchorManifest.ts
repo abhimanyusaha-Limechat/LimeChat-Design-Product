@@ -6,8 +6,8 @@ export interface SourceFile {
   source: string;
 }
 
-// `data-anchor` but not `data-anchor-key`, then `=` and the start of the value.
-const ATTRIBUTE = /\bdata-anchor(?![\w-])\s*=\s*(?:"([^"]*)"|'([^']*)'|(\{))/g;
+// `data-anchor`, not `data-anchor-key` or `foo-data-anchor`, then `=` and the start of the value.
+const ATTRIBUTE = /(?<![\w-])data-anchor(?![\w-])\s*=\s*(?:"([^"]*)"|'([^']*)'|(\{))/g;
 const KEBAB_CASE = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 
 /** Every Anchor name in the given files, de-duplicated and sorted. Throws on misuse. */

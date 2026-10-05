@@ -29,6 +29,10 @@ describe('anchorManifest', () => {
     ).toEqual(['ticket-row']);
   });
 
+  it('ignores attributes that merely end in data-anchor', () => {
+    expect(anchorManifest([file('a.tsx', `<div foo-data-anchor={x} />`)])).toEqual([]);
+  });
+
   it('de-duplicates across files and sorts the output', () => {
     expect(
       anchorManifest([

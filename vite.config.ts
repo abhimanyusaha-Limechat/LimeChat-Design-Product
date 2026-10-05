@@ -11,6 +11,9 @@ function anchorsPlugin(): Plugin {
     name: 'anchors-manifest',
     apply: 'build',
     enforce: 'pre',
+    buildStart() {
+      files.length = 0;
+    },
     configResolved(config) {
       root = `${config.root}/`;
     },
@@ -32,7 +35,8 @@ export default defineConfig(({ command }) => ({
   // Project pages are served from /<repo>/, not the domain root — only apply
   // that prefix for production builds so `vite`/`vite preview` stay at `/`.
   base: command === 'build' ? '/LimeChat-Design-Product/' : '/',
-  plugins: [react(), anchorsPlugin()],
+  // Anchors first so it reads untransformed source and reports true line numbers.
+  plugins: [anchorsPlugin(), react()],
   resolve: {
     dedupe: ['react', 'react-dom'],
   },
