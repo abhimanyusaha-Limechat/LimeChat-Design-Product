@@ -289,8 +289,8 @@
   background: var(--lc-color-green-700);
   border-color: var(--lc-color-green-700);
 }
-.lc-pp__row[data-availability='out_of_stock'] .lc-pp__thumb,
-.lc-pp__row[data-availability='discontinued'] .lc-pp__thumb {
+.lc-pp__row[data-availability='out_of_stock'] .lc-thumb,
+.lc-pp__row[data-availability='discontinued'] .lc-thumb {
   filter: grayscale(1);
   opacity: 0.6;
 }
@@ -348,11 +348,6 @@
   font-weight: 600;
   color: var(--lc-pp-title);
 }
-.lc-pp__highlight {
-  background: #F6E0B6;
-  color: inherit;
-  border-radius: 2px;
-}
 .lc-pp__row-heading .lc-pp__rating {
   flex-shrink: 0;
 }
@@ -365,110 +360,6 @@
 }
 .lc-pp__row-footer .lc-pp__status {
   flex-shrink: 0;
-}
-
-/* --- Thumbnail ------------------------------------------------------- */
-.lc-pp__thumb {
-  position: relative;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  overflow: hidden;
-  user-select: none;
-}
-.lc-pp__thumb svg {
-  width: 18px;
-  height: 18px;
-  opacity: 0.6;
-}
-.lc-pp__thumb--lg {
-  width: 100%;
-  height: 140px;
-  border-radius: 8px;
-}
-.lc-pp__thumb--lg svg {
-  width: 40px;
-  height: 40px;
-}
-.lc-pp__thumb-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.lc-pp__thumb[data-clickable] {
-  cursor: pointer;
-}
-.lc-pp__thumb[data-clickable]:focus-visible {
-  outline: 2px solid var(--lc-pp-primary);
-  outline-offset: 2px;
-}
-.lc-pp__thumb-zoom {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: inherit;
-  background: rgba(0, 0, 0, 0.35);
-  color: var(--lc-color-white);
-  opacity: 0;
-  transition: opacity 150ms ease;
-  pointer-events: none;
-}
-.lc-pp__thumb[data-clickable]:hover .lc-pp__thumb-zoom,
-.lc-pp__thumb[data-clickable]:focus-visible .lc-pp__thumb-zoom {
-  opacity: 1;
-}
-.lc-pp__thumb-zoom svg {
-  width: 16px;
-  height: 16px;
-  opacity: 1;
-}
-.lc-pp__thumb--lg .lc-pp__thumb-zoom svg {
-  width: 24px;
-  height: 24px;
-}
-
-.lc-modal.lc-pp__preview-modal {
-  padding: 8px;
-}
-.lc-pp__preview-modal .lc-modal__header {
-  display: none;
-}
-.lc-pp__preview-frame {
-  position: relative;
-}
-.lc-pp__preview-image {
-  display: block;
-  width: 100%;
-  max-height: 87.5vh;
-  border-radius: 8px;
-  object-fit: contain;
-}
-.lc-pp__preview-close {
-  position: absolute;
-  top: -18px;
-  right: -18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: var(--lc-color-white);
-  color: var(--lc-color-green-900);
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-.lc-pp__preview-close:hover {
-  background: var(--lc-color-gray-100);
 }
 /* --- Pricing --------------------------------------------------------- */
 .lc-pp__price {
@@ -691,49 +582,6 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-}
-.lc-pp__detail-stepper {
-  display: inline-flex;
-  align-items: center;
-  height: 32px;
-  gap: 10px;
-  padding: 0 12px;
-  border: 1px solid var(--lc-pp-border);
-  border-radius: 6px;
-  background: var(--lc-color-white);
-  box-sizing: border-box;
-}
-.lc-pp__detail-stepper button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: none;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--lc-pp-title);
-  font-size: 14px;
-  line-height: 1;
-  cursor: pointer;
-  transition: transform 120ms ease-out, background-color 120ms ease, color 120ms ease;
-}
-@media (hover: hover) and (pointer: fine) {
-  .lc-pp__detail-stepper button:hover {
-    background: var(--lc-pp-primary-light);
-    color: var(--lc-pp-primary);
-  }
-}
-.lc-pp__detail-stepper button:active {
-  transform: scale(0.96);
-}
-.lc-pp__detail-stepper-value {
-  min-width: 14px;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--lc-pp-title);
 }
 .lc-pp__detail-qty-remove {
   display: inline-flex;

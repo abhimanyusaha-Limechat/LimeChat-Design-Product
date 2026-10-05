@@ -770,13 +770,13 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
     }
     return () => observer.disconnect();
   }, []);
-  const panelProps = {
+  const panelProps = (tab: string) => ({
     className: 'lc-tdp__body',
-    id: panelId(resolvedActiveTab),
+    id: panelId(tab),
     role: 'tabpanel' as const,
-    'aria-labelledby': tabId(resolvedActiveTab),
+    'aria-labelledby': tabId(tab),
     tabIndex: 0,
-  };
+  });
 
   return (
     // Keyed by ticketId so switching tickets starts a fresh cart instead of
@@ -831,7 +831,7 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
       </div>
 
       {resolvedActiveTab === 'Overview' && (
-        <div {...panelProps} data-focused={focusedSection ? true : undefined}>
+        <div {...panelProps('Overview')} data-focused={focusedSection ? true : undefined}>
           <div className="lc-tdp__info">
             {ticketId && (
               <div className="lc-tdp__detail-row">
@@ -878,14 +878,16 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
         </div>
       )}
 
-      {resolvedActiveTab === 'Products' && (
-        <div {...panelProps}>
+      {/* The commerce tabs stay mounted once listed, hidden when inactive, so a created order, a
+          search or an open product/order survives switching tabs (it resets with the ticket). */}
+      {tabs.includes('Products') && (
+        <div {...panelProps('Products')} hidden={resolvedActiveTab !== 'Products'}>
           <ProductsPanel />
         </div>
       )}
 
-      {resolvedActiveTab === 'Orders' && (
-        <div {...panelProps}>
+      {tabs.includes('Orders') && (
+        <div {...panelProps('Orders')} hidden={resolvedActiveTab !== 'Orders'}>
           <OrdersPanel
             presetItems={cartOrderDraft}
             onPresetItemsConsumed={() => setCartOrderDraft(null)}
@@ -894,8 +896,8 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
         </div>
       )}
 
-      {resolvedActiveTab === 'Cart' && (
-        <div {...panelProps}>
+      {tabs.includes('Cart') && (
+        <div {...panelProps('Cart')} hidden={resolvedActiveTab !== 'Cart'}>
           <CartPanel
             onCreateOrder={(items) => {
               setCartOrderDraft(items);

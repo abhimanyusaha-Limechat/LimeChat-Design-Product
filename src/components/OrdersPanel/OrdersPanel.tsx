@@ -36,6 +36,11 @@ import './OrdersPanel.css';
 import { iconProps } from '../iconProps';
 import { CloseIcon as ClearIcon, TrashIcon, CheckIcon } from '../icons';
 import { formatINR } from '../formatINR';
+import { draftToOrder, emptyDraft, isDraftValid, type OrderDraft } from '../../data/orderDraft';
+import { thumbPalette, useTypingPlaceholder } from '../catalogUtils';
+import { ProductThumb } from '../ProductThumb';
+import { QtyStepper } from '../QtyStepper';
+import { HighlightMatch } from '../HighlightMatch';
 
 type SortKey = 'recent' | 'oldest' | 'total_high_low' | 'total_low_high';
 
@@ -112,38 +117,6 @@ function orderNumber(id: string): string {
 }
 
 const SEARCH_PLACEHOLDER_PHRASES = ['order ID', 'invoice name', 'product keyword'];
-
-/** Types out, pauses, then deletes each phrase in turn — a rotating typewriter placeholder. */
-function useTypingPlaceholder(phrases: string[]): string {
-  const [text, setText] = useState('');
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [deleting, setDeleting] = useState(false);
-  const reducedMotion = useRef(
-    typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
-  ).current;
-
-  useEffect(() => {
-    if (reducedMotion) return undefined;
-    const current = phrases[phraseIndex % phrases.length];
-    let timeout: number;
-    if (!deleting && text === current) {
-      timeout = window.setTimeout(() => setDeleting(true), 1300);
-    } else if (deleting && text === '') {
-      timeout = window.setTimeout(() => {
-        setDeleting(false);
-        setPhraseIndex((i) => (i + 1) % phrases.length);
-      }, 300);
-    } else {
-      timeout = window.setTimeout(
-        () => setText((t) => (deleting ? current.slice(0, t.length - 1) : current.slice(0, t.length + 1))),
-        deleting ? 30 : 60,
-      );
-    }
-    return () => window.clearTimeout(timeout);
-  }, [text, deleting, phraseIndex, phrases, reducedMotion]);
-
-  return reducedMotion ? phrases[0] : text;
-}
 
 /** Animated overlay placeholder for the search input — cycles "Search by order ID / invoice name / product keyword...". */
 function AnimatedSearchPlaceholder({ visible }: { visible: boolean }) {
@@ -241,111 +214,9 @@ interface ExtraChargeEditable {
 const SIZE_OPTIONS = ['UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11', 'S', 'M', 'L', 'XL'];
 const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
 
-/** Mirrors ProductsPanel's ProductThumbnail — cost items only carry a SKU, not the full Product. */
-const THUMB_PALETTE = [
-  { bg: '#FAFDF6', fg: '#6BAC1B' },
-  { bg: '#EDF7FF', fg: '#097BA3' },
-  { bg: '#FAEFDB', fg: '#C68610' },
-  { bg: '#FCF3F3', fg: '#DA1B21' },
-  { bg: '#FCF2FF', fg: '#A045EC' },
-];
-function hashString(value: string): number {
-  let hash = 0;
-  for (let i = 0; i < value.length; i++) hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
-  return hash;
-}
-function thumbPalette(sku: string) {
-  return THUMB_PALETTE[hashString(sku) % THUMB_PALETTE.length];
-}
 const PRODUCT_IMAGE_BY_SKU: Record<string, string> = Object.fromEntries(
   MOCK_PRODUCTS.filter((p) => p.imageUrl).map((p) => [p.sku, p.imageUrl!]),
 );
-const PhotoIcon = () => (
-  <svg {...iconProps()}>
-    <rect x="4" y="5" width="16" height="14" rx="2" />
-    <circle cx="9" cy="10" r="1.5" />
-    <path d="M4 15l4.5 -4.5c0.8 -0.8 2 -0.8 2.8 0l5.7 5.5" />
-    <path d="M14.5 13.5l1.5 -1.5c0.8 -0.8 2 -0.8 2.8 0l1.2 1.2" />
-  </svg>
-);
-/** Mirrors TicketComposer's attachment-preview affordance. */
-const ZoomIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-    <path d="M21 21l-6 -6" />
-    <path d="M7 10l6 0" />
-    <path d="M10 7l0 6" />
-  </svg>
-);
-
-/**
- * CostItemThumb — mirrors ProductsPanel's ProductThumbnail. With an image,
- * hovering reveals a zoom affordance that opens the photo full-size in a
- * dismissible modal; the no-image fallback stays static.
- */
-function CostItemThumb({ sku, name }: { sku: string; name: string }) {
-  const imageUrl = PRODUCT_IMAGE_BY_SKU[sku];
-  const [previewOpen, setPreviewOpen] = useState(false);
-
-  return (
-    <>
-      <span
-        className="lc-op__cost-item-thumb"
-        style={imageUrl ? undefined : { background: thumbPalette(sku).bg, color: thumbPalette(sku).fg }}
-        data-clickable={imageUrl ? true : undefined}
-        role={imageUrl ? 'button' : undefined}
-        tabIndex={imageUrl ? 0 : undefined}
-        aria-label={imageUrl ? `View ${name} image` : undefined}
-        onClick={
-          imageUrl
-            ? (e) => {
-                e.stopPropagation();
-                setPreviewOpen(true);
-              }
-            : undefined
-        }
-        onKeyDown={
-          imageUrl
-            ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setPreviewOpen(true);
-                }
-              }
-            : undefined
-        }
-      >
-        {imageUrl ? (
-          <>
-            <img className="lc-op__cost-item-thumb-img" src={imageUrl} alt="" aria-hidden="true" />
-            <span className="lc-op__cost-item-thumb-zoom" aria-hidden="true">
-              <ZoomIcon />
-            </span>
-          </>
-        ) : (
-          <PhotoIcon />
-        )}
-      </span>
-
-      {imageUrl && previewOpen && (
-        <Modal open onClose={() => setPreviewOpen(false)} title="" width={600} className="lc-op__preview-modal">
-          <div className="lc-op__preview-frame">
-            <img src={imageUrl} alt={name} className="lc-op__preview-image" />
-            <button
-              type="button"
-              className="lc-op__preview-close"
-              aria-label="Close"
-              onClick={() => setPreviewOpen(false)}
-            >
-              <ClearIcon size={14} />
-            </button>
-          </div>
-        </Modal>
-      )}
-    </>
-  );
-}
 
 function ProductsCostCard({
   data,
@@ -371,7 +242,7 @@ function ProductsCostCard({
     <div className="lc-op__cost-card">
       {data.items.map((item, i) => (
         <div key={`${item.sku}-${i}`} className="lc-op__cost-item">
-          <CostItemThumb sku={item.sku} name={item.name} />
+          <ProductThumb colorKey={item.sku} imageUrl={PRODUCT_IMAGE_BY_SKU[item.sku]} name={item.name} size={32} />
 
           <div className="lc-op__cost-item-main">
             <div className="lc-op__cost-item-top">
@@ -405,12 +276,12 @@ function ProductsCostCard({
                   value={item.color ?? ''}
                   onChange={(e) => onVariantChange(i, { color: e.currentTarget.value })}
                 />
-                {onQtyChange && <Stepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />}
+                {onQtyChange && <QtyStepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />}
               </div>
             ) : (
               onQtyChange && (
                 <div className="lc-op__cost-item-qty">
-                  <Stepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />
+                  <QtyStepper value={item.quantity} onChange={(q) => onQtyChange(i, q)} />
                 </div>
               )
             )}
@@ -529,21 +400,6 @@ function ProductsCostCard({
   );
 }
 
-/** Wraps the first case-insensitive match of `query` inside `text` in a highlight mark. */
-function HighlightMatch({ text, query }: { text: string; query: string }) {
-  const q = query.trim();
-  if (!q) return <>{text}</>;
-  const idx = text.toLowerCase().indexOf(q.toLowerCase());
-  if (idx === -1) return <>{text}</>;
-  return (
-    <>
-      {text.slice(0, idx)}
-      <mark className="lc-op__highlight">{text.slice(idx, idx + q.length)}</mark>
-      {text.slice(idx + q.length)}
-    </>
-  );
-}
-
 function OrderRow({ order, search, onClick }: { order: Order; search: string; onClick: () => void }) {
   const [expanded, setExpanded] = useState(false);
   const hasMore = order.items.length > 1;
@@ -641,80 +497,6 @@ function EmptyState({ searching }: { searching: boolean }) {
 
 /* --- Shared order form (used by both in-place edit mode and Create) ----- */
 
-interface OrderDraft {
-  invoiceName: string;
-  status: OrderStatus;
-  placedAt: string;
-  items: OrderLineItem[];
-  discountAmount: string;
-  discountCode: string;
-  taxRate: string;
-  shippingCost: string;
-  extraChargeLabel: string;
-  extraChargeAmount: string;
-  shippingAddress: Address;
-  billingAddress: Address;
-  billingSameAsShipping: boolean;
-  notes: string;
-}
-
-function emptyAddress(): Address {
-  return { name: '', line1: '', line2: '', city: '', state: '', postalCode: '', country: 'India', phone: '' };
-}
-
-function emptyDraft(): OrderDraft {
-  return {
-    invoiceName: '',
-    status: 'placed',
-    placedAt: new Date().toISOString().slice(0, 10),
-    items: [],
-    discountAmount: '0',
-    discountCode: '',
-    taxRate: '12',
-    shippingCost: '0',
-    extraChargeLabel: '',
-    extraChargeAmount: '0',
-    shippingAddress: emptyAddress(),
-    billingAddress: emptyAddress(),
-    billingSameAsShipping: true,
-    notes: '',
-  };
-}
-
-function computeDraftTotals(draft: OrderDraft): { subtotal: number; taxAmount: number; total: number } {
-  const subtotal = draft.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-  const discountAmount = Number(draft.discountAmount) || 0;
-  const taxRate = Number(draft.taxRate) || 0;
-  const shippingCost = Number(draft.shippingCost) || 0;
-  const extraChargeAmount = Number(draft.extraChargeAmount) || 0;
-  const taxAmount = Math.round(((subtotal - discountAmount) * taxRate) / 100);
-  const total = subtotal - discountAmount + taxAmount + shippingCost + extraChargeAmount;
-  return { subtotal, taxAmount, total };
-}
-
-function isDraftValid(draft: OrderDraft): boolean {
-  return (
-    draft.items.length > 0 &&
-    draft.shippingAddress.name.trim() !== '' &&
-    draft.shippingAddress.line1.trim() !== '' &&
-    draft.shippingAddress.city.trim() !== '' &&
-    draft.shippingAddress.postalCode.trim() !== ''
-  );
-}
-
-/** No invoice-name field exists in the form — derive one from the shipping name so it's never blank. */
-function resolveInvoiceName(draft: OrderDraft): string {
-  return draft.invoiceName.trim() || `Invoice - ${draft.shippingAddress.name.trim()}`;
-}
-
-function nextOrderId(existing: Order[]): string {
-  const max = existing.reduce((m, o) => {
-    const n = Number(o.id.replace('ORD-', ''));
-    return Number.isFinite(n) ? Math.max(m, n) : m;
-  }, 10000);
-  return `ORD-${max + 1}`;
-}
-
 function Field({ label, full, children }: { label: string; full?: boolean; children: ReactNode }) {
   return (
     <label className={`lc-op__field${full ? ' lc-op__field--full' : ''}`}>
@@ -732,24 +514,6 @@ function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
 function TextareaInput(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   const { className, rows, ...rest } = props;
   return <textarea {...rest} rows={rows ?? 3} className={`lc-op__textarea${className ? ` ${className}` : ''}`} />;
-}
-
-function Stepper({ value, onChange }: { value: number; onChange: (next: number) => void }) {
-  return (
-    <span className="lc-op__stepper">
-      <button
-        type="button"
-        aria-label="Decrease quantity"
-        onClick={() => onChange(Math.max(1, value - 1))}
-      >
-        −
-      </button>
-      <span className="lc-op__stepper-value">{value}</span>
-      <button type="button" aria-label="Increase quantity" onClick={() => onChange(value + 1)}>
-        +
-      </button>
-    </span>
-  );
 }
 
 function AddressFields({ value, onChange }: { value: Address; onChange: (next: Address) => void }) {
@@ -1047,16 +811,7 @@ function OrderFormFields({
       <div className="lc-op__detail-section">
         <p className="lc-op__detail-section-title">Cost summary</p>
         <ProductsCostCard
-          data={{
-            items: draft.items,
-            ...computeDraftTotals(draft),
-            discountAmount: Number(draft.discountAmount) || 0,
-            discountCode: draft.discountCode,
-            taxRate: Number(draft.taxRate) || 0,
-            shippingCost: Number(draft.shippingCost) || 0,
-            extraChargeLabel: draft.extraChargeLabel,
-            extraChargeAmount: Number(draft.extraChargeAmount) || 0,
-          }}
+          data={draftToOrder(draft)}
           {...(productsEditable
             ? {
                 onQtyChange: (index: number, quantity: number) =>
@@ -1278,33 +1033,12 @@ function CreateOrderView({
   onBack: () => void;
   onCreate: (order: Order) => void;
 }) {
-  const [draft, setDraft] = useState<OrderDraft>(() => ({ ...emptyDraft(), items: initialItems ?? [] }));
-  const totals = computeDraftTotals(draft);
+  const [draft, setDraft] = useState<OrderDraft>(() => emptyDraft(initialItems));
   const valid = isDraftValid(draft);
 
   const handleCreate = () => {
     if (!valid) return;
-    const billingAddress = draft.billingSameAsShipping ? draft.shippingAddress : draft.billingAddress;
-    onCreate({
-      id: nextOrderId(existingOrders),
-      invoiceName: resolveInvoiceName(draft),
-      placedAt: draft.placedAt,
-      status: draft.status,
-      items: draft.items,
-      subtotal: totals.subtotal,
-      discountAmount: Number(draft.discountAmount) || 0,
-      discountCode: draft.discountCode.trim() || undefined,
-      taxRate: Number(draft.taxRate) || 0,
-      taxAmount: totals.taxAmount,
-      shippingCost: Number(draft.shippingCost) || 0,
-      extraChargeLabel: draft.extraChargeLabel.trim() || undefined,
-      extraChargeAmount: Number(draft.extraChargeAmount) || 0,
-      total: totals.total,
-      shippingAddress: draft.shippingAddress,
-      billingAddress,
-      billingSameAsShipping: draft.billingSameAsShipping,
-      notes: draft.notes.trim() || undefined,
-    });
+    onCreate(draftToOrder(draft, existingOrders));
   };
 
   return (
@@ -1413,7 +1147,11 @@ export function OrdersPanel({
           <CreateOrderView
             existingOrders={orders}
             initialItems={pendingCreateItems}
-            onBack={onBackToCart ?? goToList}
+            onBack={() => {
+              // Discard the draft: the panel stays mounted, so the next cart handoff must start fresh.
+              goToList();
+              onBackToCart?.();
+            }}
             onCreate={(order) => {
               setOrders((prev) => [order, ...prev]);
               setNavDirection('forward');

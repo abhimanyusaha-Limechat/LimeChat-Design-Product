@@ -48,3 +48,25 @@ export function TrashIcon({ size, ...rest }: IconProps) {
     </svg>
   );
 }
+
+export function PhotoIcon({ size, ...rest }: IconProps) {
+  return (
+    <svg {...iconProps()} width={size} height={size} {...rest}>
+      <rect x="4" y="5" width="16" height="14" rx="2" />
+      <circle cx="9" cy="10" r="1.5" />
+      <path d="M4 15l4.5 -4.5c0.8 -0.8 2 -0.8 2.8 0l5.7 5.5" />
+      <path d="M14.5 13.5l1.5 -1.5c0.8 -0.8 2 -0.8 2.8 0l1.2 1.2" />
+    </svg>
+  );
+}
+
+export function ZoomIcon({ size, ...rest }: IconProps) {
+  return (
+    <svg {...iconProps()} width={size} height={size} {...rest}>
+      <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+      <path d="M21 21l-6 -6" />
+      <path d="M7 10l6 0" />
+      <path d="M10 7l0 6" />
+    </svg>
+  );
+}

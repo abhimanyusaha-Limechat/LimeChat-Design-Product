@@ -12,11 +12,14 @@ import { MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockP
 import { useCart } from '../../context/CartContext';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
-import { Modal } from '../Modal';
 import './ProductsPanel.css';
 import { iconProps } from '../iconProps';
 import { CloseIcon as ClearIcon, CheckIcon, ChevronDownIcon, TrashIcon } from '../icons';
 import { formatINR } from '../formatINR';
+import { useTypingPlaceholder } from '../catalogUtils';
+import { ProductThumb } from '../ProductThumb';
+import { QtyStepper } from '../QtyStepper';
+import { HighlightMatch } from '../HighlightMatch';
 import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 
 type SortKey = 'relevance' | 'price_low_high' | 'price_high_low' | 'rating' | 'recently_added';
@@ -36,56 +39,7 @@ const STATUS_LABEL: Record<Availability, string> = {
   discontinued: 'Discontinued',
 };
 
-const THUMB_PALETTE = [
-  { bg: '#FAFDF6', fg: '#6BAC1B' },
-  { bg: '#EDF7FF', fg: '#097BA3' },
-  { bg: '#FAEFDB', fg: '#C68610' },
-  { bg: '#FCF3F3', fg: '#DA1B21' },
-  { bg: '#FCF2FF', fg: '#A045EC' },
-];
-
-function hashString(value: string): number {
-  let hash = 0;
-  for (let i = 0; i < value.length; i += 1) {
-    hash = (hash << 5) - hash + value.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
 const SEARCH_PLACEHOLDER_PHRASES = ['product name', 'SKU', 'keyword'];
-
-/** Types out, pauses, then deletes each phrase in turn — a rotating typewriter placeholder. */
-function useTypingPlaceholder(phrases: string[]): string {
-  const [text, setText] = useState('');
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [deleting, setDeleting] = useState(false);
-  const reducedMotion = useRef(
-    typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
-  ).current;
-
-  useEffect(() => {
-    if (reducedMotion) return undefined;
-    const current = phrases[phraseIndex % phrases.length];
-    let timeout: number;
-    if (!deleting && text === current) {
-      timeout = window.setTimeout(() => setDeleting(true), 1300);
-    } else if (deleting && text === '') {
-      timeout = window.setTimeout(() => {
-        setDeleting(false);
-        setPhraseIndex((i) => (i + 1) % phrases.length);
-      }, 300);
-    } else {
-      timeout = window.setTimeout(
-        () => setText((t) => (deleting ? current.slice(0, t.length - 1) : current.slice(0, t.length + 1))),
-        deleting ? 30 : 60,
-      );
-    }
-    return () => window.clearTimeout(timeout);
-  }, [text, deleting, phraseIndex, phrases, reducedMotion]);
-
-  return reducedMotion ? phrases[0] : text;
-}
 
 /** Animated overlay placeholder for the search input — cycles "Search by product name / SKU / keyword...". */
 function AnimatedSearchPlaceholder({ visible }: { visible: boolean }) {
@@ -145,14 +99,6 @@ const ShareArrowIcon = () => (
     <path d="M19 9h-11a4 4 0 0 0 0 8h1" />
   </svg>
 );
-const PhotoIcon = () => (
-  <svg {...iconProps()}>
-    <rect x="4" y="5" width="16" height="14" rx="2" />
-    <circle cx="9" cy="10" r="1.5" />
-    <path d="M4 15l4.5 -4.5c0.8 -0.8 2 -0.8 2.8 0l5.7 5.5" />
-    <path d="M14.5 13.5l1.5 -1.5c0.8 -0.8 2 -0.8 2.8 0l1.2 1.2" />
-  </svg>
-);
 const CartIcon = () => (
   <svg {...iconProps()}>
     <circle cx="6" cy="19" r="2" />
@@ -161,84 +107,6 @@ const CartIcon = () => (
     <path d="M6 5l14 1l-1 7h-13" />
   </svg>
 );
-/** Mirrors TicketComposer's attachment-preview affordance. */
-const ZoomIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-    <path d="M21 21l-6 -6" />
-    <path d="M7 10l6 0" />
-    <path d="M10 7l0 6" />
-  </svg>
-);
-
-/**
- * ProductThumbnail — colored-initial tile, or the product image when available.
- * With an image, hovering reveals a zoom affordance (mirrors TicketComposer's
- * attachment tiles) that opens the photo full-size in a dismissible modal.
- */
-function ProductThumbnail({ product, size = 'sm' }: { product: Product; size?: 'sm' | 'lg' }) {
-  const palette = THUMB_PALETTE[hashString(product.id) % THUMB_PALETTE.length];
-  const [previewOpen, setPreviewOpen] = useState(false);
-
-  return (
-    <>
-      <span
-        className={`lc-pp__thumb${size === 'lg' ? ' lc-pp__thumb--lg' : ''}`}
-        style={product.imageUrl ? undefined : { background: palette.bg, color: palette.fg }}
-        data-clickable={product.imageUrl ? true : undefined}
-        role={product.imageUrl ? 'button' : undefined}
-        tabIndex={product.imageUrl ? 0 : undefined}
-        aria-label={product.imageUrl ? `View ${product.name} image` : undefined}
-        onClick={
-          product.imageUrl
-            ? (e) => {
-                e.stopPropagation();
-                setPreviewOpen(true);
-              }
-            : undefined
-        }
-        onKeyDown={
-          product.imageUrl
-            ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setPreviewOpen(true);
-                }
-              }
-            : undefined
-        }
-      >
-        {product.imageUrl ? (
-          <>
-            <img className="lc-pp__thumb-img" src={product.imageUrl} alt="" aria-hidden="true" />
-            <span className="lc-pp__thumb-zoom" aria-hidden="true">
-              <ZoomIcon />
-            </span>
-          </>
-        ) : (
-          <PhotoIcon />
-        )}
-      </span>
-
-      {product.imageUrl && previewOpen && (
-        <Modal open onClose={() => setPreviewOpen(false)} title="" width={600} className="lc-pp__preview-modal">
-          <div className="lc-pp__preview-frame">
-            <img src={product.imageUrl} alt={product.name} className="lc-pp__preview-image" />
-            <button
-              type="button"
-              className="lc-pp__preview-close"
-              aria-label="Close"
-              onClick={() => setPreviewOpen(false)}
-            >
-              <ClearIcon size={14} />
-            </button>
-          </div>
-        </Modal>
-      )}
-    </>
-  );
-}
 
 function RatingStars({ rating, count, showCount = true }: { rating: number; count: number; showCount?: boolean }) {
   return (
@@ -301,21 +169,6 @@ function CopyableValue({ value }: { value: string }) {
   );
 }
 
-/** Wraps the first case-insensitive match of `query` inside `text` in a highlight mark. */
-function HighlightMatch({ text, query }: { text: string; query: string }) {
-  const q = query.trim();
-  if (!q) return <>{text}</>;
-  const idx = text.toLowerCase().indexOf(q.toLowerCase());
-  if (idx === -1) return <>{text}</>;
-  return (
-    <>
-      {text.slice(0, idx)}
-      <mark className="lc-pp__highlight">{text.slice(idx, idx + q.length)}</mark>
-      {text.slice(idx + q.length)}
-    </>
-  );
-}
-
 function RowShareButton({ product }: { product: Product }) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | undefined>(undefined);
@@ -364,7 +217,7 @@ function ProductRow({
         }
       }}
     >
-      <ProductThumbnail product={product} />
+      <ProductThumb colorKey={product.id} imageUrl={product.imageUrl} name={product.name} />
       <span className="lc-pp__row-body">
         <span className="lc-pp__row-heading">
           <span className="lc-pp__row-name">
@@ -415,20 +268,6 @@ function EmptyState({ searching }: { searching: boolean }) {
   );
 }
 
-function DetailQtyStepper({ value, onChange }: { value: number; onChange: (next: number) => void }) {
-  return (
-    <span className="lc-pp__detail-stepper">
-      <button type="button" aria-label="Decrease quantity" onClick={() => onChange(Math.max(1, value - 1))}>
-        −
-      </button>
-      <span className="lc-pp__detail-stepper-value">{value}</span>
-      <button type="button" aria-label="Increase quantity" onClick={() => onChange(value + 1)}>
-        +
-      </button>
-    </span>
-  );
-}
-
 /** Share + Add to cart CTAs shown in the product detail view. Once the current variant is in the cart, the
  * "Add to cart" button becomes a quantity stepper + remove control instead of staying an inert "Added" state. */
 function DetailCtas({ product, size, color }: { product: Product; size?: string; color?: string }) {
@@ -469,7 +308,7 @@ function DetailCtas({ product, size, color }: { product: Product; size?: string;
       </Button>
       {cartItem ? (
         <div className="lc-pp__detail-qty" style={{ flex: 1 }}>
-          <DetailQtyStepper value={cartItem.quantity} onChange={(q) => setQuantity(cartIndex, q)} />
+          <QtyStepper variant="field" value={cartItem.quantity} onChange={(q) => setQuantity(cartIndex, q)} />
           <button
             type="button"
             className="lc-pp__detail-qty-remove"
@@ -559,7 +398,7 @@ function ProductDetailView({ product, onBack }: { product: Product; onBack: () =
 
       <div className="lc-pp__detail-content">
         <div className="lc-pp__detail-banner">
-          <ProductThumbnail product={product} size="lg" />
+          <ProductThumb colorKey={product.id} imageUrl={product.imageUrl} name={product.name} size="lg" />
         </div>
         <div className="lc-pp__detail-header">
           <div className="lc-pp__detail-name-row">

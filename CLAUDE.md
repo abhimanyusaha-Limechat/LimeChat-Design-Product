@@ -38,3 +38,18 @@ After implementing:
 
 Do not rewrite working code merely for stylistic preference.
 Prefer simple code over clever architecture.
+
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues (via `gh`). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-label vocabulary (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
