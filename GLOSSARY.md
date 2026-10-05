@@ -45,3 +45,17 @@ _Avoid_: Sub-comment, child comment
 **Status**:
 Where a Comment stands in triage: Open, Accepted, Won't fix or Resolved.
 _Avoid_: State
+
+## Commerce
+
+**Commerce session**:
+The cart and orders an agent works with while one ticket is open. It starts fresh when the ticket changes.
+_Avoid_: Basket, checkout
+
+**Cart**:
+The products an agent has collected during a Commerce session, before turning them into an order.
+_Avoid_: Basket
+
+**Order draft**:
+The pre-filled Create order form that carries the Cart's items; it is discarded if the agent goes back to the Cart.
+_Avoid_: Pending order

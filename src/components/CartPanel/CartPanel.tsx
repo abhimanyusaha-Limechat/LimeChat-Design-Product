@@ -8,7 +8,7 @@
  */
 import { useMemo } from 'react';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
-import { useCart, type CartLineItem } from '../../context/CartContext';
+import { useCommerce } from '../../context/CommerceContext';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import './CartPanel.css';
@@ -35,8 +35,8 @@ const PRODUCT_BY_ID: Record<string, Product> = Object.fromEntries(MOCK_PRODUCTS.
 /** Mirrors ProductsPanel's color picker — the catalog has no per-product color variant list. */
 const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
 
-export function CartPanel({ onCreateOrder }: { onCreateOrder?: (items: CartLineItem[]) => void } = {}) {
-  const { items, clearCart, setQuantity, setSize: setItemSize, setColor: setItemColor } = useCart();
+export function CartPanel() {
+  const { items, clearCart, startOrderFromCart, setQuantity, setSize: setItemSize, setColor: setItemColor } = useCommerce();
   const setQty = setQuantity;
   const setSize = setItemSize;
   const setColor = setItemColor;
@@ -130,7 +130,7 @@ export function CartPanel({ onCreateOrder }: { onCreateOrder?: (items: CartLineI
               color="primary"
               size="sm"
               style={{ flex: 1 }}
-              onClick={() => onCreateOrder?.(items)}
+              onClick={startOrderFromCart}
             >
               Create order
             </Button>
