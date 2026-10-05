@@ -229,7 +229,7 @@ export function Sidebar({
   ]);
 
   return (
-    <div className={`lc-sidebar${className ? ` ${className}` : ''}`} style={style}>
+    <div className={`lc-sidebar${className ? ` ${className}` : ''}`} style={style} data-anchor="sidebar">
       <SidebarLogo logo={logo} />
 
       <nav
