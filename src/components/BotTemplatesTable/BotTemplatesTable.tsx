@@ -411,7 +411,7 @@ export function BotTemplatesTable({
               value={searchValue}
               onChange={(e) => onSearchChange?.(e.currentTarget.value)}
             />
-            {!isFiles && <InboxIcon name="chevron-down" className="lc-bt__search-chevron" />}
+            {!isFiles && variant !== 'agents' && variant !== 'teams' && <InboxIcon name="chevron-down" className="lc-bt__search-chevron" />}
           </div>
           )}
           {onInvite && <Button onClick={onInvite}>Invite</Button>}
