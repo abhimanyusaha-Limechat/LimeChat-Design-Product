@@ -3,6 +3,7 @@ import { BigCommerceIcon, BlueDartIcon, CashfreeIcon, ClickPostIcon, DelhiveryIc
 import { type InboxRowData } from '../components/InboxesTable';
 import { type BotTemplateRow } from '../components/BotTemplatesTable';
 import { PAST_DATES } from './demoHelpers';
+import { type SidebarProduct } from '../components/Sidebar/presets';
 
 export const KB_SOURCE_TABS = [
   { id: 'doc', label: 'Doc' },
@@ -140,6 +141,12 @@ export const AUTOMATION_SETTINGS_TABS: SettingsTab[] = [
   { id: 'variable', label: 'Variable' },
   { id: 'bot-templates', label: 'Bot templates' },
 ];
+
+export const SETTINGS_TABS_BY_PRODUCT: Record<SidebarProduct, SettingsTab[]> = {
+  helpdesk: HELPDESK_SETTINGS_TABS,
+  marketing: SETTINGS_TABS,
+  automation: AUTOMATION_SETTINGS_TABS,
+};
 
 // Reached from the avatar popover ("Account Settings" / "Profile settings")
 // instead of the product's own Settings nav — just these two tabs.

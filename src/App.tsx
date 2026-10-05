@@ -72,7 +72,7 @@ import { TicketComposer, type TicketComposerMode } from './components/TicketComp
 import { EmailMessage, EmailComposerBar, EmailForwardComposer } from './components/EmailMessage';
 import { TicketDetailsPanel } from './components/TicketDetailsPanel';
 
-import { AGENT_INBOXES, AUTOMATION_SETTINGS_TABS, BOT_TEMPLATE_INDUSTRIES, CUSTOM_FIELD_TYPES, DEMO_AGENTS, DEMO_BOT_TEMPLATES, DEMO_CANNED, DEMO_CANNED_LIBRARY, DEMO_COLLABORATORS, DEMO_CONTACT_FIELDS, DEMO_CONVERSATION_FIELDS, DEMO_INBOXES, DEMO_INDUSTRIES, DEMO_KB_FILES, DEMO_RULES, DEMO_RULE_LIBRARY, DEMO_SLA, DEMO_SLA_LIBRARY, DEMO_TEAMS, DEMO_USE_CASES, DEMO_VARIABLES, HELPDESK_ADD_CTA, HELPDESK_SETTINGS_TABS, INBOX_NAMES, INDUSTRY_TABS, INTEGRATION_CATEGORIES, KB_COPY, KB_SOURCE_TABS, KB_TABS, LIST_PAGE_TABS, PEOPLE_VARIANT, SEARCH_PLACEHOLDER, SETTINGS_COPY, SETTINGS_TABS, USER_SETTINGS_COPY, USER_SETTINGS_TABS, USE_CASE_CATEGORIES, VARIABLE_DATA_TYPES, VARIABLE_SCOPES, withFieldMeta } from './data/settingsDemo';
+import { AGENT_INBOXES, BOT_TEMPLATE_INDUSTRIES, CUSTOM_FIELD_TYPES, DEMO_AGENTS, DEMO_BOT_TEMPLATES, DEMO_CANNED, DEMO_CANNED_LIBRARY, DEMO_COLLABORATORS, DEMO_CONTACT_FIELDS, DEMO_CONVERSATION_FIELDS, DEMO_INBOXES, DEMO_INDUSTRIES, DEMO_KB_FILES, DEMO_RULES, DEMO_RULE_LIBRARY, DEMO_SLA, DEMO_SLA_LIBRARY, DEMO_TEAMS, DEMO_USE_CASES, DEMO_VARIABLES, HELPDESK_ADD_CTA, INBOX_NAMES, INDUSTRY_TABS, INTEGRATION_CATEGORIES, KB_COPY, KB_SOURCE_TABS, KB_TABS, LIST_PAGE_TABS, PEOPLE_VARIANT, SEARCH_PLACEHOLDER, SETTINGS_COPY, SETTINGS_TABS_BY_PRODUCT, USER_SETTINGS_COPY, USER_SETTINGS_TABS, USE_CASE_CATEGORIES, VARIABLE_DATA_TYPES, VARIABLE_SCOPES, withFieldMeta } from './data/settingsDemo';
 import { DEMO_BROADCASTS, DEMO_DRAFT_BROADCASTS, DEMO_SCHEDULED_BROADCASTS } from './data/broadcastDemo';
 import { DEMO_BOT_FLOWS_ACTIVE, DEMO_BOT_FLOWS_INACTIVE, DEMO_FLOWS_ACTIVE, DEMO_FLOWS_DRAFT, DEMO_FLOWS_INACTIVE } from './data/flowsDemo';
 import { DEMO_SEGMENTS, DEMO_USER_SEGMENTS } from './data/segmentsDemo';
@@ -661,10 +661,7 @@ export function App() {
                     ? [
                         {
                           label: selectedLabel,
-                          onClick: () => {
-                            setManageIndustries(false);
-                            setSettingsTab('inboxes');
-                          },
+                          onClick: () => setSettingsTab('inboxes'),
                         },
                         {
                           label: SETTINGS_COPY[settingsTab].title,
@@ -1054,18 +1051,9 @@ export function App() {
 
           {page === 'settings' && (
             <SettingsPage
-              tabs={
-                product === 'automation'
-                  ? AUTOMATION_SETTINGS_TABS
-                  : product === 'helpdesk'
-                    ? HELPDESK_SETTINGS_TABS
-                    : SETTINGS_TABS
-              }
+              tabs={SETTINGS_TABS_BY_PRODUCT[product]}
               activeTab={settingsTab}
-              onTabChange={(id) => {
-                setManageIndustries(false);
-                setSettingsTab(id);
-              }}
+              onTabChange={setSettingsTab}
               title={manageIndustries ? 'Manage industries' : SETTINGS_COPY[settingsTab].title}
               description={manageIndustries ? SETTINGS_COPY.variable.description : SETTINGS_COPY[settingsTab].description}
               contentPadding={settingsTab === 'custom-fields' ? 20 : undefined}
