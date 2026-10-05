@@ -223,7 +223,7 @@
   border-radius: 4px;
   background: transparent;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--lc-tc-dimmed);
   cursor: pointer;
@@ -249,9 +249,9 @@
   border-radius: 4px;
   background: var(--lc-tc-secondary-light);
   color: var(--lc-tc-secondary);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  line-height: 12px;
+  line-height: 16px;
   text-transform: uppercase;
   white-space: nowrap;
 }
