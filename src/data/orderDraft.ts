@@ -20,9 +20,10 @@ export function orderTotals(
   { discountAmount = 0, taxRate, shippingCost = 0, extraChargeAmount = 0 }: OrderCharges,
 ): { subtotal: number; taxAmount: number; total: number } {
   const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-  const taxAmount = Math.round(((subtotal - discountAmount) * taxRate) / 100);
-  const total = subtotal - discountAmount + taxAmount + shippingCost + extraChargeAmount;
-  return { subtotal, taxAmount, total };
+  // A discount bigger than the subtotal can't push tax or the goods total below zero.
+  const goods = Math.max(0, subtotal - discountAmount);
+  const taxAmount = Math.round((goods * taxRate) / 100);
+  return { subtotal, taxAmount, total: goods + taxAmount + shippingCost + extraChargeAmount };
 }
 
 export interface OrderDraft {

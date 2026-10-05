@@ -6,14 +6,6 @@ import { orderTotals } from './orderDraft';
 
 export type OrderStatus = 'placed' | 'processing' | 'shipped' | 'delivered' | 'returned' | 'cancelled' | 'refunded';
 
-/** An order stops being editable once it has shipped, delivered, or reached a terminal state. */
-export const EDITABLE_STATUSES: OrderStatus[] = ['placed', 'processing'];
-/** Order can be cancelled any time before it ships. */
-export const CANCELLABLE_STATUSES: OrderStatus[] = ['placed', 'processing'];
-/** A delivered order can be marked returned; a returned order can then be refunded. */
-export const RETURNABLE_STATUSES: OrderStatus[] = ['delivered'];
-export const REFUNDABLE_STATUSES: OrderStatus[] = ['delivered', 'returned'];
-
 export interface OrderLineItem {
   productId?: string;
   name: string;
