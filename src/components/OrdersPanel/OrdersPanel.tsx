@@ -1147,7 +1147,11 @@ export function OrdersPanel({
           <CreateOrderView
             existingOrders={orders}
             initialItems={pendingCreateItems}
-            onBack={onBackToCart ?? goToList}
+            onBack={() => {
+              // Discard the draft: the panel stays mounted, so the next cart handoff must start fresh.
+              goToList();
+              onBackToCart?.();
+            }}
             onCreate={(order) => {
               setOrders((prev) => [order, ...prev]);
               setNavDirection('forward');
