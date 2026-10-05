@@ -1,7 +1,8 @@
 /** Demo harness for the reusable components. Not part of the published components. */
-import { Fragment, memo, useCallback, useMemo, useState, type ComponentProps, type ReactNode } from 'react';
+import { Fragment, memo, useCallback, useMemo, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { sidebarPresets, type SidebarProduct } from './components/Sidebar/presets';
+import { isCanvasPage, useAppNavigation } from './hooks/useAppNavigation';
 import { TopNavBar } from './components/TopNavBar';
 import {
   campaignsTopNav,
@@ -23,7 +24,7 @@ import { PublishConfirmModal } from './components/PublishConfirmModal';
 import { FlowDetailsModal } from './components/FlowDetailsModal';
 import { ScheduleBroadcastModal } from './components/ScheduleBroadcastModal';
 import { VisualizeFlowModal } from './components/VisualizeFlowModal';
-import { SelectUserSegmentModal, type UserSegment } from './components/SelectUserSegmentModal';
+import { SelectUserSegmentModal } from './components/SelectUserSegmentModal';
 import { BroadcastHomePage, type BroadcastRowData, type BroadcastTab } from './components/BroadcastHomePage';
 import { FlowsHomePage, type FlowRowData, type FlowTab } from './components/FlowsHomePage';
 import {
@@ -41,8 +42,8 @@ import {
   type TemplateRowData,
   type TemplateChannel,
 } from './components/TemplatesHomePage';
-import { SettingsPage, type SettingsTab } from './components/SettingsPage';
-import { InboxesTable, type InboxRowData } from './components/InboxesTable';
+import { SettingsPage } from './components/SettingsPage';
+import { InboxesTable } from './components/InboxesTable';
 import { BotTemplatesTable, type BotTemplateRow } from './components/BotTemplatesTable';
 import { ProfileSettings } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
@@ -57,42 +58,10 @@ import {
 } from './components/BotCsatSettings';
 import {
   IntegrationsHomePage,
-  type IntegrationCategory,
-  FreshdeskIcon,
-  KaptureIcon,
-  ZohoDeskIcon,
-  OnedirectIcon,
-  ZendeskIcon,
-  OdooIcon,
-  SalesforceIcon,
-  HubSpotIcon,
-  ZohoCrmIcon,
-  InitialsIcon,
-  ShiprocketIcon,
-  EzyslipsIcon,
-  PickrrIcon,
-  EasyEcomIcon,
-  UnicommerceIcon,
-  ShipDelightIcon,
-  BlueDartIcon,
-  ClickPostIcon,
-  DelhiveryIcon,
-  ShopifyIcon,
-  WooCommerceIcon,
-  MagentoIcon,
-  BigCommerceIcon,
-  RazorpayIcon,
-  StripeIcon,
-  PayUIcon,
-  CashfreeIcon,
-  GoogleSheetsIcon,
-  SlackIcon,
-  WhatsAppBusinessIcon,
-  WebhookIcon,
 } from './components/IntegrationsHomePage';
 import { TagsInput } from './components/TagsInput';
 import { Button } from './components/Button';
-import { TicketListItem, type TicketChannel } from './components/TicketListItem';
+import { TicketListItem } from './components/TicketListItem';
 import { HelpdeskTicketsPage } from './components/HelpdeskTicketsPage';
 import { TicketsSection } from './components/TicketsSection';
 import { TicketsBulkModifyModal } from './components/TicketsBulkModifyModal';
@@ -101,7 +70,14 @@ import { MessageBubble, MessageDateDivider, type ReactionData } from './componen
 import { type MenuItemData } from './components/Menu';
 import { TicketComposer, type TicketComposerMode } from './components/TicketComposer';
 import { EmailMessage, EmailComposerBar, EmailForwardComposer } from './components/EmailMessage';
-import { TicketDetailsPanel, CrmTicketCreate, type TicketDetailsField, type TicketDetailsSection } from './components/TicketDetailsPanel';
+import { TicketDetailsPanel } from './components/TicketDetailsPanel';
+
+import { AGENT_INBOXES, AUTOMATION_SETTINGS_TABS, BOT_TEMPLATE_INDUSTRIES, CUSTOM_FIELD_TYPES, DEMO_AGENTS, DEMO_BOT_TEMPLATES, DEMO_CANNED, DEMO_CANNED_LIBRARY, DEMO_COLLABORATORS, DEMO_CONTACT_FIELDS, DEMO_CONVERSATION_FIELDS, DEMO_INBOXES, DEMO_INDUSTRIES, DEMO_KB_FILES, DEMO_RULES, DEMO_RULE_LIBRARY, DEMO_SLA, DEMO_SLA_LIBRARY, DEMO_TEAMS, DEMO_USE_CASES, DEMO_VARIABLES, HELPDESK_ADD_CTA, HELPDESK_SETTINGS_TABS, INBOX_NAMES, INDUSTRY_TABS, INTEGRATION_CATEGORIES, KB_COPY, KB_SOURCE_TABS, KB_TABS, LIST_PAGE_TABS, PEOPLE_VARIANT, SEARCH_PLACEHOLDER, SETTINGS_COPY, SETTINGS_TABS, USER_SETTINGS_COPY, USER_SETTINGS_TABS, USE_CASE_CATEGORIES, VARIABLE_DATA_TYPES, VARIABLE_SCOPES, withFieldMeta } from './data/settingsDemo';
+import { DEMO_BROADCASTS, DEMO_DRAFT_BROADCASTS, DEMO_SCHEDULED_BROADCASTS } from './data/broadcastDemo';
+import { DEMO_BOT_FLOWS_ACTIVE, DEMO_BOT_FLOWS_INACTIVE, DEMO_FLOWS_ACTIVE, DEMO_FLOWS_DRAFT, DEMO_FLOWS_INACTIVE } from './data/flowsDemo';
+import { DEMO_SEGMENTS, DEMO_USER_SEGMENTS } from './data/segmentsDemo';
+import { DEMO_TEMPLATES } from './data/templatesDemo';
+import { CONVERSATIONS, ConversationEntry, EMAIL_THREADS, SHOWCASE_MESSAGES, TICKETS, TICKET_DETAIL_SECTIONS } from './data/ticketsDemo';
 
 const WhatsAppIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="#8C8C8C" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -117,1101 +93,11 @@ const PlusIcon = () => (
   </svg>
 );
 
-const KB_SOURCE_TABS = [
-  { id: 'doc', label: 'Doc' },
-  { id: 'url', label: 'URL' },
-  { id: 'domain', label: 'Domain' },
-  { id: 'custom', label: 'Custom' },
-];
-
-const KB_TABS: SettingsTab[] = [
-  { id: 'upload-files', label: 'Upload files' },
-  { id: 'scrape-urls', label: 'Scrape URLs' },
-  { id: 'manage', label: 'Manage files / Links' },
-];
-
-const KB_COPY: Record<string, { title: string; description: string }> = {
-  'upload-files': { title: 'Upload files', description: 'Add documents your bot can use to answer questions.' },
-  'scrape-urls': { title: 'Scrape URLs', description: 'Pull content from web pages into your bot’s knowledge.' },
-  manage: { title: 'Manage files / Links', description: 'Review, update or remove the files and links your bot uses.' },
-};
-
-const SETTINGS_TABS: SettingsTab[] = [
-  { id: 'inboxes', label: 'Inboxes' },
-  { id: 'opt-out-users', label: 'Opt out users' },
-  { id: 'bot-configurations', label: 'Bot configurations' },
-  { id: 'events', label: 'Events' },
-  { id: 'attribution', label: 'Attribution' },
-  { id: 'integrations', label: 'Integrations' },
-];
-
-// HelpDesk's Settings nav is its own set entirely — ticketing/agent
-// operations config instead of the generic list above.
-const HELPDESK_SETTINGS_TABS: SettingsTab[] = [
-  { id: 'inboxes', label: 'Inboxes' },
-  { id: 'agents', label: 'Agents' },
-  { id: 'teams', label: 'Teams' },
-  { id: 'automation-rules', label: 'Automation rules' },
-  { id: 'custom-fields', label: 'Custom fields' },
-  { id: 'ticket-assignment', label: 'Ticket Assignment' },
-  { id: 'sla-rules', label: 'SLA rules' },
-  { id: 'canned-responses', label: 'Canned responses' },
-  { id: 'tags', label: 'Tags' },
-  { id: 'hd-attribution', label: 'Attribution' },
-  { id: 'data-security', label: 'Data security' },
-  { id: 'hd-integration', label: 'Integration' },
-  { id: 'products', label: 'Products' },
-  { id: 'bot-csat', label: 'Bot CSAT' },
-  { id: 'billing', label: 'Billing' },
-];
-
-const INTEGRATION_CATEGORIES: IntegrationCategory[] = [
-  {
-    id: 'crm-partners',
-    title: 'CRM Partners',
-    partners: [
-      { id: 'freshdesk', name: 'Freshdesk', icon: <FreshdeskIcon /> },
-      { id: 'kapture', name: 'Kapture', icon: <KaptureIcon /> },
-      { id: 'zoho-desk', name: 'Zoho Desk', icon: <ZohoDeskIcon /> },
-      { id: 'onedirect', name: 'Onedirect', icon: <OnedirectIcon /> },
-      { id: 'zendesk', name: 'Zendesk', icon: <ZendeskIcon /> },
-      { id: 'odoo', name: 'Odoo', icon: <OdooIcon /> },
-    ],
-  },
-  {
-    id: 'logistics-partners',
-    title: 'Logistics Partners',
-    partners: [
-      { id: 'shiprocket', name: 'Shiprocket', icon: <ShiprocketIcon /> },
-      { id: 'ezyslips', name: 'Ezyslips', icon: <EzyslipsIcon /> },
-      { id: 'pickrr', name: 'Pickrr', icon: <PickrrIcon /> },
-      { id: 'easyecom', name: 'EasyEcom', icon: <EasyEcomIcon /> },
-      { id: 'unicommerce', name: 'Unicommerce', icon: <UnicommerceIcon /> },
-      { id: 'shipdelight', name: 'ShipDelight', icon: <ShipDelightIcon /> },
-      { id: 'bluedart', name: 'Blue Dart', icon: <BlueDartIcon /> },
-      { id: 'clickpost', name: 'ClickPost', icon: <ClickPostIcon /> },
-      { id: 'delhivery', name: 'Delhivery', icon: <DelhiveryIcon /> },
-    ],
-  },
-  {
-    id: 'storefront-partners',
-    title: 'Storefront Partners',
-    partners: [
-      { id: 'shopify', name: 'Shopify', icon: <ShopifyIcon /> },
-      { id: 'woocommerce', name: 'WooCommerce', icon: <WooCommerceIcon /> },
-      { id: 'magento', name: 'Magento', icon: <MagentoIcon /> },
-      { id: 'bigcommerce', name: 'BigCommerce', icon: <BigCommerceIcon /> },
-    ],
-  },
-  {
-    id: 'billing-partners',
-    title: 'Billing Partners',
-    partners: [
-      { id: 'razorpay', name: 'Razorpay', icon: <RazorpayIcon /> },
-      { id: 'stripe', name: 'Stripe', icon: <StripeIcon /> },
-      { id: 'payu', name: 'PayU', icon: <PayUIcon /> },
-      { id: 'cashfree', name: 'Cashfree', icon: <CashfreeIcon /> },
-    ],
-  },
-  {
-    id: 'others',
-    title: 'Others',
-    partners: [
-      { id: 'google-sheets', name: 'Google Sheets', icon: <GoogleSheetsIcon /> },
-      { id: 'slack', name: 'Slack', icon: <SlackIcon /> },
-      { id: 'whatsapp-business', name: 'WhatsApp Business', icon: <WhatsAppBusinessIcon /> },
-      { id: 'webhook', name: 'Webhook', icon: <WebhookIcon /> },
-    ],
-  },
-];
-
-// Shown only in the ticket panel's "Create a ticket" picker, to fill its third row.
-const EXTRA_CRM_PARTNERS: IntegrationCategory['partners'] = [
-  { id: 'salesforce', name: 'Salesforce', icon: <SalesforceIcon /> },
-  { id: 'hubspot', name: 'HubSpot', icon: <HubSpotIcon /> },
-  { id: 'zoho-crm', name: 'Zoho CRM', icon: <ZohoCrmIcon /> },
-  { id: 'pipedrive', name: 'Pipedrive', icon: <InitialsIcon text="P" bg="#111111" /> },
-  { id: 'freshsales', name: 'Freshsales', icon: <InitialsIcon text="FS" bg="#ffffff" color="#1a9c5c" /> },
-  { id: 'intercom', name: 'Intercom', icon: <InitialsIcon text="I" bg="#1f8ded" /> },
-  { id: 'help-scout', name: 'Help Scout', icon: <InitialsIcon text="HS" bg="#1292ee" /> },
-  { id: 'gorgias', name: 'Gorgias', icon: <InitialsIcon text="G" bg="#ffffff" color="#c2410c" /> },
-  { id: 'kustomer', name: 'Kustomer', icon: <InitialsIcon text="K" bg="#111111" /> },
-  { id: 'front', name: 'Front', icon: <InitialsIcon text="F" bg="#ffffff" color="#a855f7" /> },
-  { id: 'dynamics-365', name: 'Dynamics 365', icon: <InitialsIcon text="D" bg="#0b5cd5" /> },
-  { id: 'insightly', name: 'Insightly', icon: <InitialsIcon text="In" bg="#ffffff" color="#ea580c" /> },
-];
-
-// Automation's Settings nav is a different set entirely — no opt-out users,
-// events, or attribution; bot-specific config instead.
-const AUTOMATION_SETTINGS_TABS: SettingsTab[] = [
-  { id: 'bot-brain', label: 'Bot brain' },
-  { id: 'bot-settings', label: 'Bot settings' },
-  { id: 'inboxes', label: 'Inboxes' },
-  { id: 'bot-inbox-mapping', label: 'Bot Inbox mapping' },
-  { id: 'integrations', label: 'Integrations' },
-  { id: 'collaborators', label: 'Collaborators' },
-  { id: 'variable', label: 'Variable' },
-  { id: 'bot-templates', label: 'Bot templates' },
-];
-
-// Reached from the avatar popover ("Account Settings" / "Profile settings")
-// instead of the product's own Settings nav — just these two tabs.
-const USER_SETTINGS_TABS: SettingsTab[] = [
-  { id: 'account', label: 'Account settings' },
-  { id: 'profile', label: 'Profile settings' },
-];
-
-const USER_SETTINGS_COPY: Record<'account' | 'profile', { title: string; description: string }> = {
-  account: {
-    title: 'Account settings',
-    description: 'Manage account-wide settings, billing, and permissions.',
-  },
-  profile: {
-    title: 'Profile settings',
-    description: 'Manage your personal profile details and preferences.',
-  },
-};
-
-const SETTINGS_COPY: Record<string, { title: string; description: string }> = {
-  inboxes: {
-    title: 'Inboxes',
-    description:
-      'Manage your inboxes within the CRM platform to streamline communication, track customer interactions, and organize messages efficiently.',
-  },
-  'opt-out-users': {
-    title: 'Opt out users',
-    description: 'View and manage users who have opted out of receiving communications.',
-  },
-  'bot-configurations': {
-    title: 'Bot configurations',
-    description: 'Configure how your bots respond and hand off conversations.',
-  },
-  events: {
-    title: 'Events',
-    description: 'Track and manage the events triggered across your workspace.',
-  },
-  attribution: {
-    title: 'Attribution',
-    description: 'Understand which channels and campaigns drive your conversions.',
-  },
-  integrations: {
-    title: 'Integrations',
-    description: 'Connect third-party tools and services to your workspace.',
-  },
-  'bot-brain': {
-    title: 'Bot brain',
-    description: "Manage the knowledge your bot draws on when answering questions.",
-  },
-  'bot-settings': {
-    title: 'Bot settings',
-    description: 'Configure how your bot behaves across conversations.',
-  },
-  'bot-inbox-mapping': {
-    title: 'Bot Inbox mapping',
-    description: 'Map this bot to the inboxes it should respond in.',
-  },
-  collaborators: {
-    title: 'Collaborators',
-    description: 'Manage who has access to this bot and what they can do.',
-  },
-  variable: {
-    title: 'Variable',
-    description: 'Define reusable variables your bot can reference in flows.',
-  },
-  'bot-templates': {
-    title: 'Bot templates',
-    description: 'Manage reusable templates available to this bot.',
-  },
-  agents: {
-    title: 'Agents',
-    description: 'Manage the agents who handle tickets on this account.',
-  },
-  teams: {
-    title: 'Teams',
-    description: 'Group agents into teams and control how tickets route to them.',
-  },
-  'automation-rules': {
-    title: 'Automation rules',
-    description: 'Automatically assign, tag, or update tickets based on conditions you define.',
-  },
-  'custom-fields': {
-    title: 'Custom fields',
-    description: 'Add custom fields to capture the ticket details your team needs.',
-  },
-  'ticket-assignment': {
-    title: 'Ticket Assignment',
-    description: 'Configure how incoming tickets are distributed across agents and teams.',
-  },
-  'sla-rules': {
-    title: 'SLA rules',
-    description: 'Set response and resolution time targets for your tickets.',
-  },
-  'canned-responses': {
-    title: 'Canned responses',
-    description: 'Manage reusable replies agents can insert into tickets.',
-  },
-  tags: {
-    title: 'Tags',
-    description: 'Manage the tags used to categorize tickets and conversations.',
-  },
-  'hd-attribution': {
-    title: 'Attribution',
-    description: 'Understand which channels and sources tickets are coming from.',
-  },
-  'data-security': {
-    title: 'Data security',
-    description: 'Manage data retention, masking, and access controls for this account.',
-  },
-  'hd-integration': {
-    title: 'Integration',
-    description: 'Connect third-party tools and services to your HelpDesk workspace.',
-  },
-  products: {
-    title: 'Products',
-    description: 'Manage the product catalog referenced across tickets and conversations.',
-  },
-  'bot-csat': {
-    title: 'Bot CSAT',
-    description: 'Configure the satisfaction survey your bot sends after resolving a ticket.',
-  },
-  billing: {
-    title: 'Billing',
-    description: 'Manage your plan, payment method, and billing history.',
-  },
-};
-
-/** Deterministic "looks real" formatter — thousands separators, no locale surprises. */
-const fmtNum = (n: number) => Math.round(n).toLocaleString('en-US');
-
-/**
- * Generates a believable-but-varied metrics block for row `i` (scale tunes the
- * overall volume). `deliverySecondary` picks how the delivery sub-line reads:
- * a delivery-rate percentage (Broadcasts) or a hard retry-delivered count (Flows).
- */
-function channelMetrics(i: number, scale: number, deliverySecondary: 'percentage' | 'count' = 'percentage') {
-  const sent = (15000 + i * 2137 + (i % 4) * 511) * scale;
-  const deliveryRate = 0.94 + (i % 7) * 0.006;
-  const delivered = sent * deliveryRate;
-  const engagementRate = 0.26 + (i % 5) * 0.03;
-  const engagement = delivered * engagementRate;
-  const dropoff = sent - delivered;
-  const revenuePerEngaged = 5.5 + (i % 6) * 1.6;
-  const revenue = engagement * revenuePerEngaged;
-  const secondaryRevenue = revenue * 0.12;
-  const retryDelivered = Math.round(delivered * (0.02 + (i % 4) * 0.01));
-  return {
-    sent: fmtNum(sent),
-    delivery: {
-      primary: fmtNum(delivered),
-      secondary: deliverySecondary === 'count' ? fmtNum(retryDelivered) : `${(deliveryRate * 100).toFixed(1)}%`,
-    },
-    engagement: fmtNum(engagement),
-    dropoff: fmtNum(dropoff),
-    revenue: { primary: `$${fmtNum(revenue)}`, secondary: `$${fmtNum(secondaryRevenue)}` },
-  };
-}
-
-// Past dates — shared across the "already sent" broadcast/flow tables.
-const PAST_DATES = [
-  '02 March 2024, 10:00 AM', '17 April 2024, 02:45 PM', '26 September 2024, 08:40 AM',
-  '12 October 2024, 09:15 AM', '19 October 2024, 06:30 PM', '13 August 2024, 03:05 PM',
-  '02 November 2024, 11:00 AM', '09 October 2024, 01:50 PM', '05 January 2024, 09:30 AM',
-  '14 February 2024, 04:15 PM', '21 February 2024, 11:45 AM', '03 April 2024, 07:20 AM',
-  '29 April 2024, 02:00 PM', '11 May 2024, 10:10 AM', '30 May 2024, 05:40 PM',
-  '18 June 2024, 09:00 AM', '07 July 2024, 12:30 PM', '22 July 2024, 03:50 PM',
-  '04 August 2024, 08:15 AM', '27 August 2024, 06:05 PM', '15 September 2024, 10:25 AM',
-  '03 November 2024, 01:35 PM', '20 November 2024, 09:50 AM', '08 December 2024, 04:40 PM',
-  '22 December 2024, 11:20 AM',
-];
-
-const INBOX_NAMES = [
-  'Limechat (189)', 'Limechat (189) BB', 'Nonucare Support', 'Aurora Botanicals CS', 'Nimbus Coffee Orders',
-  'Peak & Pine Outdoors', 'Saffron House Bookings', 'Bluebird Logistics', 'Harborlight Realty', 'Wildflower Skincare',
-  'Cedar & Co. Furniture', 'Tidepool Aquariums', 'Lantern Books', 'Meridian Fitness', 'Copper Kettle Cafe',
-  'Northstar Insurance', 'Willowmere Salon', 'Granite Peak Gear', 'Amberglow Candles', 'Foxglove Florist',
-  'Rivermill Bakery', 'Summit Cycles', 'Oakhaven Dental', 'Coral Bay Travel', 'Ivy & Oak Interiors',
-];
-
-/** Deterministic "looks real" ID: a 5-digit number that varies per row without being sequential. */
-const inboxId = (i: number) => String(36000 + i * 421 + (i % 4) * 67);
-
-/** Reformats PAST_DATES' "DD Month YYYY, HH:MM AM/PM" to "HH:MM AM/PM, DD Month YYYY". */
-const inboxCreatedOn = (i: number) => {
-  const [datePart, timePart] = PAST_DATES[i % PAST_DATES.length].split(', ');
-  return `${timePart}, ${datePart}`;
-};
-
-// Weighted so WhatsApp (the primary channel) still dominates the list.
-const INBOX_TYPES: InboxRowData['type'][] = ['whatsapp', 'whatsapp', 'facebook', 'email', 'instagram', 'sms'];
-
-const DEMO_INBOXES: InboxRowData[] = INBOX_NAMES.map((name, i) => ({
-  id: inboxId(i),
-  name,
-  type: INBOX_TYPES[i % INBOX_TYPES.length],
-  metaId: 'N/A',
-  createdOn: inboxCreatedOn(i),
-}));
-
-const DEMO_BOT_TEMPLATES: BotTemplateRow[] = [
-  { id: 'bt1', name: 'Cart & Checkout Management', description: 'Helps in managing carts and Checkout', type: 'task', usecases: ['Sales'], industries: [], scope: 'global' },
-  { id: 'bt2', name: 'Product Quiz', description: 'Product Quiz', type: 'flow', usecases: ['Sales'], industries: [], scope: 'global' },
-  { id: 'bt3', name: 'Track Order', description: 'Track Order', type: 'flow', usecases: [], industries: [], scope: 'account' },
-  { id: 'bt4', name: 'Other Help', description: 'Other Help', type: 'flow', usecases: [], industries: [], scope: 'account' },
-  { id: 'bt5', name: 'Order Tracking', description: 'Order Tracking', type: 'task', usecases: [], industries: [], scope: 'account' },
-  { id: 'bt6', name: 'Track order by order id -', description: 'Shopify', type: 'flow', usecases: [], industries: ['E-Commerce [D2C]'], scope: 'global' },
-  { id: 'bt7', name: 'Greeting / Main Menu', description: 'Displays Main Menu and Handles Greetings', type: 'task', usecases: [], industries: ['E-Commerce [D2C]', 'E-Commerce [B2B]', 'Retail'], scope: 'global' },
-  { id: 'bt8', name: 'Abandoned Cart Recovery', description: 'Nudges shoppers to complete their purchase', type: 'flow', usecases: ['Sales', 'Marketing'], industries: ['E-Commerce [D2C]'], scope: 'global' },
-  { id: 'bt9', name: 'Return & Refund Request', description: 'Collects return reasons and starts a refund', type: 'flow', usecases: ['Support'], industries: ['Ecommerce'], scope: 'global' },
-  { id: 'bt10', name: 'COD Order Confirmation', description: 'Confirms cash-on-delivery orders', type: 'task', usecases: ['Support'], industries: ['E-Commerce [D2C]'], scope: 'account' },
-  { id: 'bt11', name: 'Store Locator', description: 'Finds the nearest store by pincode', type: 'task', usecases: [], industries: ['Retail'], scope: 'global' },
-  { id: 'bt12', name: 'Lead Qualification', description: 'Captures name, budget and intent', type: 'flow', usecases: ['Sales'], industries: ['E-Commerce [B2B]'], scope: 'account' },
-  { id: 'bt13', name: 'Feedback Collection', description: 'Asks for a rating after delivery', type: 'flow', usecases: ['Marketing'], industries: [], scope: 'account' },
-  { id: 'bt14', name: 'Talk to Agent', description: 'Hands the chat over to a human agent', type: 'task', usecases: ['Support'], industries: [], scope: 'global' },
-  { id: 'bt15', name: 'Offers & Coupons', description: 'Shares active discount codes', type: 'task', usecases: ['Sales', 'Marketing'], industries: ['Retail', 'E-Commerce [D2C]'], scope: 'global' },
-  { id: 'bt16', name: 'Bulk Order Enquiry', description: 'Routes wholesale enquiries to sales', type: 'flow', usecases: ['Sales'], industries: ['E-Commerce [B2B]'], scope: 'global' },
-  { id: 'bt17', name: 'Delivery Address Update', description: 'Lets customers change their address', type: 'task', usecases: [], industries: [], scope: 'account' },
-];
-const VARIABLE_DATA_TYPES = ['Text', 'Number', 'Boolean', 'Date'];
-const DEMO_VARIABLES: BotTemplateRow[] = [
-  { id: 'v1', name: 'message_metadata.contact.email', description: 'Contact email from the incoming message', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Text' },
-  { id: 'v2', name: 'email_attachment', description: 'Attachment received with the email', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Text' },
-  { id: 'v3', name: 'message_metadata.contact.name', description: 'Contact name from the incoming message', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Text' },
-  { id: 'v4', name: 'message_metadata.contact.phone', description: 'Contact phone from the incoming message', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Number' },
-  { id: 'v5', name: 'message_metadata.channel', description: 'Channel the message arrived on', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Text' },
-  { id: 'v6', name: 'conversation.id', description: 'Unique conversation identifier', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Number' },
-  { id: 'v7', name: 'conversation.created_at', description: 'When the conversation started', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Date' },
-  { id: 'v8', name: 'order.total', description: 'Total value of the latest order', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Number' },
-  { id: 'v9', name: 'order.is_cod', description: 'Whether the order is cash on delivery', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Boolean' },
-];
-const DEMO_INDUSTRIES: BotTemplateRow[] = [
-  { id: 'i1', name: 'E-Commerce [D2C]', description: 'Direct-to-consumer online brands', type: 'task', usecases: ['Order tracking', 'Returns', 'Cart recovery'], industries: ['E-Commerce [D2C]'], scopes: ['Agent', 'Task', 'Flows'], scope: 'global' },
-  { id: 'i2', name: 'E-Commerce [B2B]', description: 'Wholesale and business buyers', type: 'task', usecases: ['Bulk orders', 'Quotes'], industries: ['E-Commerce [B2B]'], scopes: ['Task', 'Flows'], scope: 'global' },
-  { id: 'i3', name: 'Retail', description: 'Physical and omnichannel stores', type: 'task', usecases: ['Store locator', 'Loyalty'], industries: ['Retail'], scopes: ['Agent'], scope: 'account' },
-  { id: 'i4', name: 'Healthcare', description: '', type: 'task', usecases: ['Appointments', 'Reminders', 'Reports', 'Billing', 'Feedback'], industries: ['Healthcare'], scopes: ['Agent', 'Task'], scope: 'global' },
-  { id: 'i5', name: 'Education', description: '', type: 'task', usecases: [], industries: ['Education'], scopes: ['Flows'], scope: 'account' },
-];
-const DEMO_USE_CASES: BotTemplateRow[] = [
-  { id: 'u1', name: 'Order tracking', description: '', type: 'task', usecases: [], industries: ['Ecommerce'], scopes: ['Agent', 'Flows'], scope: 'global' },
-  { id: 'u2', name: 'Returns & refunds', description: '', type: 'task', usecases: [], industries: ['Ecommerce'], scopes: ['Task', 'Flows'], scope: 'global' },
-  { id: 'u3', name: 'Course enquiries', description: '', type: 'task', usecases: [], industries: ['Edtech'], scopes: ['Flows'], scope: 'global' },
-  { id: 'u4', name: 'Fee reminders', description: '', type: 'task', usecases: [], industries: ['Edtech'], scopes: ['Agent', 'Task'], scope: 'account' },
-  { id: 'u5', name: 'Table reservations', description: '', type: 'task', usecases: [], industries: ['Hospitality'], scopes: ['Agent', 'Task', 'Flows'], scope: 'global' },
-  { id: 'u6', name: 'Guest feedback', description: '', type: 'task', usecases: [], industries: ['Hospitality'], scopes: ['Task'], scope: 'account' },
-  { id: 'u7', name: 'Site visit booking', description: '', type: 'task', usecases: [], industries: ['Real estate'], scopes: ['Agent', 'Flows'], scope: 'global' },
-  { id: 'u8', name: 'Lead qualification', description: '', type: 'task', usecases: [], industries: ['Real estate'], scopes: ['Task'], scope: 'account' },
-];
-const AGENT_INBOXES = INBOX_NAMES.slice(0, 6).map((name, i) => ({ name, type: INBOX_TYPES[i] }));
-const DEMO_COLLABORATORS: BotTemplateRow[] = [
-  { id: 'c1', name: 'Aarav Mehta', description: 'aarav@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Admin' },
-  { id: 'c2', name: 'Isha Kapoor', description: 'isha@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
-  { id: 'c3', name: 'Rohan Iyer', description: 'rohan@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
-  { id: 'c4', name: 'Meera Nair', description: 'meera@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
-  { id: 'c5', name: 'Kabir Singh', description: 'kabir@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
-  { id: 'c6', name: 'Ananya Rao', description: 'ananya@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
-  { id: 'c7', name: 'Vikram Desai', description: 'vikram@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
-  { id: 'c8', name: 'Sneha Pillai', description: 'sneha@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Admin' },
-  { id: 'c9', name: 'Arjun Malhotra', description: 'arjun@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
-  { id: 'c10', name: 'Diya Sharma', description: 'diya@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
-  { id: 'c11', name: 'Nikhil Bhatt', description: 'nikhil@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
-  { id: 'c12', name: 'Tara Menon', description: 'tara@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
-  { id: 'c13', name: 'Yash Agarwal', description: 'yash@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Admin' },
-  { id: 'c14', name: 'Pooja Reddy', description: 'pooja@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
-  { id: 'c15', name: 'Sameer Khan', description: 'sameer@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
-];
-const DEMO_TEAMS: BotTemplateRow[] = [
-  { id: 't1', name: 'Customer Support', description: 'Handles first-line customer queries across all inboxes', type: 'task', usecases: [], industries: [], scope: 'account' },
-  { id: 't2', name: 'Billing & Payments', description: 'Resolves invoice, refund and payment-failure tickets', type: 'task', usecases: [], industries: [], scope: 'account' },
-  { id: 't3', name: 'Order Fulfilment', description: 'Tracks shipments, delays and delivery issues', type: 'task', usecases: [], industries: [], scope: 'account' },
-  { id: 't4', name: 'Returns & Exchanges', description: 'Processes return requests and replacement orders', type: 'task', usecases: [], industries: [], scope: 'account' },
-  { id: 't5', name: 'VIP Care', description: 'Priority support for high-value and loyalty customers', type: 'task', usecases: [], industries: [], scope: 'account' },
-  { id: 't6', name: 'Technical Support', description: 'Troubleshoots product defects and setup problems', type: 'task', usecases: [], industries: [], scope: 'account' },
-  { id: 't7', name: 'Sales Enquiries', description: 'Answers pre-purchase questions and recommends products', type: 'task', usecases: [], industries: [], scope: 'account' },
-  { id: 't8', name: 'Escalations', description: 'Owns complex or high-severity tickets from other teams', type: 'task', usecases: [], industries: [], scope: 'account' },
-  { id: 't9', name: 'Social Media', description: 'Responds to Instagram and Facebook messages and comments', type: 'task', usecases: [], industries: [], scope: 'account' },
-];
-const DEMO_RULES: BotTemplateRow[] = [
-  { id: 'r1', name: 'Auto-assign by inbox', description: 'Routes new tickets to the team that owns the inbox', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'r2', name: 'Tag VIP customers', description: 'Adds the VIP tag when a high-value customer writes in', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'r3', name: 'Escalate overdue tickets', description: 'Moves tickets past their SLA to the Escalations team', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
-  { id: 'r4', name: 'Auto-close resolved tickets', description: 'Closes tickets with no reply 3 days after they are resolved', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'r5', name: 'Reopen on customer reply', description: 'Reopens a resolved ticket when the customer replies', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'r6', name: 'Out-of-hours reply', description: 'Sends an away message outside business hours', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
-  { id: 'r7', name: 'Set priority from keywords', description: 'Raises priority when a message mentions refund or chargeback', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'r8', name: 'Notify on negative CSAT', description: 'Alerts the team lead when a low CSAT rating comes in', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-];
-const DEMO_RULE_LIBRARY: BotTemplateRow[] = [
-  { id: 'rl1', name: 'Round-robin assignment', description: 'Shares new tickets evenly across available agents', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
-  { id: 'rl2', name: 'Auto-reply on first contact', description: 'Acknowledges a customer’s first message instantly', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
-  { id: 'rl3', name: 'Priority by customer tier', description: 'Sets ticket priority from the customer’s plan or tier', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
-  { id: 'rl4', name: 'Follow up after 24 hours', description: 'Pings the assignee when a ticket has had no update for a day', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
-  { id: 'rl5', name: 'Merge duplicate tickets', description: 'Combines tickets raised by the same customer within an hour', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
-  { id: 'rl6', name: 'Tag by channel', description: 'Adds a tag for WhatsApp, Instagram, Email or SMS tickets', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
-];
-const DEMO_CANNED: BotTemplateRow[] = [
-  { id: 'cr1', name: 'Greeting', description: 'Hi! Thanks for reaching out, how can I help today?', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'text' },
-  { id: 'cr2', name: 'Order status', description: 'Share the order ID and I will check where it is right away', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'text' },
-  { id: 'cr3', name: 'Refund timeline', description: 'Refunds reach your original payment method in 5-7 working days', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'text' },
-  { id: 'cr4', name: 'Size guide', description: 'Sends the size chart image for the product category', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'image' },
-  { id: 'cr5', name: 'Return label', description: 'Attaches the prepaid return label PDF', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'image' },
-  { id: 'cr6', name: 'Store locations', description: 'Links to the store locator page', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'text' },
-  { id: 'cr7', name: 'Escalation notice', description: 'Lets the customer know a senior agent will follow up', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'text' },
-  { id: 'cr8', name: 'Closing note', description: 'Wraps up the chat and asks for a CSAT rating', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'text' },
-];
-const DEMO_CANNED_LIBRARY: BotTemplateRow[] = [
-  { id: 'crl1', name: 'Business hours', description: 'Shares your support timings and holiday schedule', type: 'task', usecases: [], industries: [], scope: 'global', mediaType: 'text' },
-  { id: 'crl2', name: 'Payment options', description: 'Lists accepted payment methods and COD availability', type: 'task', usecases: [], industries: [], scope: 'global', mediaType: 'text' },
-  { id: 'crl3', name: 'Warranty claim steps', description: 'Attaches the step-by-step warranty claim guide', type: 'task', usecases: [], industries: [], scope: 'global', mediaType: 'image' },
-  { id: 'crl4', name: 'Track your order', description: 'Links to the order tracking page', type: 'task', usecases: [], industries: [], scope: 'global', mediaType: 'text' },
-  { id: 'crl5', name: 'Feedback request', description: 'Asks the customer to share feedback after resolution', type: 'task', usecases: [], industries: [], scope: 'global', mediaType: 'image' },
-  { id: 'crl6', name: 'Out-of-stock apology', description: 'Apologises and offers a restock notification', type: 'task', usecases: [], industries: [], scope: 'global', mediaType: 'text' },
-];
-const DEMO_SLA: BotTemplateRow[] = [
-  { id: 'sla1', name: 'First response – urgent', description: 'Reply within 15 minutes for tickets marked urgent', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'sla2', name: 'First response – standard', description: 'Reply within 4 hours for normal-priority tickets', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'sla3', name: 'Resolution – high priority', description: 'Resolve within 8 hours for high-priority tickets', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
-  { id: 'sla4', name: 'Resolution – standard', description: 'Resolve within 48 hours for everything else', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'sla5', name: 'VIP customers', description: 'Tighter response and resolution targets for VIP accounts', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'sla6', name: 'Out-of-hours pause', description: 'Stops the SLA clock outside business hours', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
-  { id: 'sla7', name: 'Waiting on customer', description: 'Pauses the clock while we wait for the customer to reply', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'sla8', name: 'Voice call-back', description: 'Call back within 30 minutes for missed voice calls', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-];
-const DEMO_SLA_LIBRARY: BotTemplateRow[] = [
-  { id: 'slal1', name: 'Next business day', description: 'Resolve every ticket by the end of the next business day', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
-  { id: 'slal2', name: 'Gold support plan', description: '1 hour first response, 8 hours resolution', type: 'task', usecases: [], industries: [], scope: 'global', enabled: true },
-  { id: 'slal3', name: 'Silver support plan', description: '4 hours first response, 24 hours resolution', type: 'task', usecases: [], industries: [], scope: 'global', enabled: true },
-  { id: 'slal4', name: 'Bronze support plan', description: '8 hours first response, 72 hours resolution', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
-  { id: 'slal5', name: 'Weekend coverage', description: 'Reduced targets for tickets raised on weekends', type: 'task', usecases: [], industries: [], scope: 'global', enabled: true },
-];
-const DEMO_CONVERSATION_FIELDS: BotTemplateRow[] = [
-  { id: 'cf1', name: 'Order ID', description: 'The order number the customer is asking about', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'cf2', name: 'Product SKU', description: 'SKU of the product the ticket relates to', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'cf3', name: 'Issue category', description: 'Dropdown to classify the ticket, e.g. delivery, payment, product', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
-  { id: 'cf4', name: 'Preferred contact time', description: 'When the customer would like to be reached', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'cf5', name: 'Refund amount', description: 'Amount to be refunded, in rupees', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'cf6', name: 'Delivery pincode', description: 'Pincode used to check serviceability and delays', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
-  { id: 'cf7', name: 'Customer tier', description: 'Standard, Gold or VIP', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'cf8', name: 'Escalated to', description: 'Person or team the ticket was escalated to', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-];
-const DEMO_CONTACT_FIELDS: BotTemplateRow[] = [
-  { id: 'cfc1', name: 'Date of birth', description: 'Used for birthday offers and age checks', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'cfc2', name: 'City', description: 'City the customer lives in', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'cfc3', name: 'Company', description: 'Organisation the customer works for', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
-  { id: 'cfc4', name: 'Preferred language', description: 'Language to use when replying', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'cfc5', name: 'Loyalty ID', description: 'Membership number in the loyalty programme', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
-  { id: 'cfc6', name: 'Alternate phone', description: 'A second number to reach the customer on', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
-];
-const CUSTOM_FIELD_TYPES = ['Text', 'Number', 'Date', 'Dropdown'];
-// Demo: give each custom field a data type and a couple of inboxes so the Type / Inbox filters have something to match.
-const withFieldMeta = (rows: BotTemplateRow[]): BotTemplateRow[] =>
-  rows.map((r, i) => ({
-    ...r,
-    kind: CUSTOM_FIELD_TYPES[i % CUSTOM_FIELD_TYPES.length],
-    inboxes: [AGENT_INBOXES[i % AGENT_INBOXES.length], AGENT_INBOXES[(i + 2) % AGENT_INBOXES.length]],
-  }));
-// Demo: each agent sits in 2–3 of the first few inboxes.
-const DEMO_AGENTS: BotTemplateRow[] = DEMO_COLLABORATORS.map((c, i) => ({
-  ...c,
-  inboxes: Array.from({ length: 2 + (i % 2) }, (_, k) => AGENT_INBOXES[(i + k) % AGENT_INBOXES.length]),
-}));
-const DEMO_KB_FILES: Record<string, BotTemplateRow[]> = {
-  doc: [
-    { id: 'doc1', name: 'Return policy.pdf', description: 'Ready · 19.88/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '1.2 MB' },
-    { id: 'doc2', name: 'Product catalogue.pdf', description: 'Ready · 12.40/min · took 3s · $0.01', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '8.4 MB' },
-    { id: 'doc3', name: 'Shipping FAQ.docx', description: 'Ready · 21.05/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '320 KB' },
-    { id: 'doc4', name: 'Warranty terms.pdf', description: 'Ready · 18.20/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '640 KB' },
-    { id: 'doc5', name: 'Size guide.html', description: 'Ready · 24.75/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '210 KB' },
-    { id: 'doc6', name: 'Store locations.json', description: 'Ready · 9.60/min · took 4s · $0.01', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '95 KB' },
-    { id: 'doc7', name: 'Onboarding handbook.md', description: 'Ready · 15.33/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '1.8 MB' },
-    { id: 'doc8', name: 'Privacy policy.pdf', description: 'Ready · 20.11/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '430 KB' },
-    { id: 'doc9', name: 'Pricing sheet.xlsx', description: 'Ready · 11.84/min · took 3s · $0.01', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '152 KB' },
-    { id: 'doc10', name: 'Returns workflow.txt', description: 'Ready · 17.52/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '2.3 MB' },
-    { id: 'doc11', name: 'Festive offers 2026.pptx', description: 'Ready · 8.90/min · took 5s · $0.02', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '5.1 MB' },
-    { id: 'doc12', name: 'Delivery partners.csv', description: 'Ready · 22.47/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '275 KB' },
-    { id: 'doc13', name: 'Support scripts.md', description: 'Ready · 19.02/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '388 KB' },
-  ],
-  url: [
-    { id: 'url1', name: 'https://www.nestkart.in/faqs', description: 'Ready · 16.30/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Daily' },
-    { id: 'url2', name: 'https://www.urbanleaf.co/refund-policy', description: 'Failed · 1 failed · took 12h 14m · $0.00', status: 'failed', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Weekly' },
-    { id: 'url3', name: 'https://help.shopsphere.com/shipping', description: 'Partial · 260/259 pages · 4 failed · 26.33 urls/min · took 9m 28', status: 'partial', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Monthly' },
-    { id: 'url4', name: 'https://www.bluecart.store/track-order', description: 'Ready · 21.48/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Weekly' },
-    { id: 'url5', name: 'https://support.freshbasket.in/returns', description: 'Ready · 11.85/min · took 3s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Daily' },
-    { id: 'url6', name: 'https://www.zenwear.shop/warranty', description: 'Ready · 18.22/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Monthly' },
-    { id: 'url7', name: 'https://www.greenmile.io/payment-options', description: 'Ready · 25.59/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Manual' },
-    { id: 'url8', name: 'https://faq.craftnest.co.uk/cod', description: 'Ready · 15.96/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Weekly' },
-    { id: 'url9', name: 'https://www.homelane.in/size-guide', description: 'Ready · 22.33/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Monthly' },
-    { id: 'url10', name: 'https://shop.petalpure.com/gift-cards', description: 'Ready · 12.70/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Daily' },
-    { id: 'url11', name: 'https://www.trendora.in/offers', description: 'Ready · 19.07/min · took 4s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Weekly' },
-    { id: 'url12', name: 'https://www.snapmart.app/contact-us', description: 'Ready · 26.44/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Manual' },
-    { id: 'url13', name: 'https://care.glowbar.in/privacy-policy', description: 'Ready · 16.81/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Monthly' },
-    { id: 'url14', name: 'https://www.kiranastore.in/terms', description: 'Ready · 23.18/min · took 3s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Weekly' },
-    { id: 'url15', name: 'https://help.tastybox.co/about', description: 'Ready · 13.55/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Daily' },
-    { id: 'url16', name: 'https://www.bookbarn.in/careers', description: 'Ready · 20.92/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Monthly' },
-    { id: 'url17', name: 'https://www.fitfuel.store/store-locator', description: 'Ready · 10.29/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Weekly' },
-  ],
-  domain: [], // same rows as URL — filled in below
-  custom: [
-    { id: 'custom1', name: 'Brand tone notes', description: 'Added by Aarav Mehta', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '12 KB' },
-    { id: 'custom2', name: 'Escalation rules', description: 'Added by Isha Kapoor', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '8 KB' },
-  ],
-};
-DEMO_KB_FILES.domain = DEMO_KB_FILES.url;
-// Helpdesk Settings tabs with a primary "+ <thing>" CTA in the header.
-const HELPDESK_ADD_CTA: Record<string, string> = {
-  inboxes: 'Inbox',
-  agents: 'Agent',
-  teams: 'Team',
-  'automation-rules': 'Automation rule',
-  'custom-fields': 'Custom field',
-  'sla-rules': 'SLA rule',
-  'canned-responses': 'Canned response',
-  tags: 'Tag',
-};
-const SEARCH_PLACEHOLDER: Record<string, string> = {
-  variable: 'Search for variables',
-  collaborators: 'Search for collaborators',
-  agents: 'Search for agents',
-  teams: 'Search for teams',
-  'automation-rules': 'Search for automation rules',
-  'canned-responses': 'Search for canned responses',
-  'sla-rules': 'Search for SLA rules',
-  'custom-fields': 'Search for custom fields',
-};
-const VARIABLE_SCOPES = [
-  { id: 'system', label: 'System' },
-  { id: 'bot', label: 'Bot' },
-  { id: 'flows', label: 'Flows' },
-];
-const USE_CASE_CATEGORIES = [
-  { id: 'all', label: 'All' },
-  { id: 'Ecommerce', label: 'Ecommerce' },
-  { id: 'Edtech', label: 'Edtech' },
-  { id: 'Hospitality', label: 'Hospitality' },
-  { id: 'Real estate', label: 'Real estate' },
-];
-const PEOPLE_VARIANT: Record<string, 'collaborators' | 'agents' | 'teams' | 'rules' | 'fields'> = {
-  collaborators: 'collaborators',
-  agents: 'agents',
-  teams: 'teams',
-  'automation-rules': 'rules',
-  'canned-responses': 'teams', // name-only list, same as Teams
-  'sla-rules': 'rules',
-  'custom-fields': 'fields',
-};
-const RULE_TABS = [
-  { id: 'created', label: 'Created' },
-  { id: 'library', label: 'Library' },
-];
-// Segmented tabs for the shared list pages; the first tab is the default.
-const LIST_PAGE_TABS: Record<string, { id: string; label: string }[]> = {
-  'automation-rules': RULE_TABS,
-  'canned-responses': RULE_TABS,
-  'sla-rules': RULE_TABS,
-  'custom-fields': [
-    { id: 'conversation', label: 'Conversation' },
-    { id: 'contact', label: 'Contact' },
-  ],
-};
-const INDUSTRY_TABS = [
-  { id: 'industries', label: 'Industries' },
-  { id: 'use-cases', label: 'Use Cases' },
-];
-const BOT_TEMPLATE_INDUSTRIES = ['E-Commerce [D2C]', 'E-Commerce [B2B]', 'Retail'];
-
-// Future dates — for anything still "scheduled" (all after today, 15 Sep 2026).
-const FUTURE_DATES = [
-  '20 September 2026, 09:00 AM', '28 September 2026, 06:00 PM', '05 October 2026, 12:00 PM',
-  '13 October 2026, 08:30 AM', '22 October 2026, 03:15 PM', '30 October 2026, 10:00 AM',
-  '07 November 2026, 05:45 PM', '15 November 2026, 09:20 AM', '24 November 2026, 01:10 PM',
-  '02 December 2026, 11:00 AM', '10 December 2026, 04:30 PM', '19 December 2026, 08:00 AM',
-  '27 December 2026, 02:20 PM', '04 January 2027, 06:50 PM', '12 January 2027, 09:40 AM',
-  '20 January 2027, 12:15 PM', '28 January 2027, 10:05 AM', '05 February 2027, 03:30 PM',
-  '13 February 2027, 07:45 AM', '21 February 2027, 05:00 PM', '01 March 2027, 09:10 AM',
-  '09 March 2027, 01:50 PM', '17 March 2027, 06:25 PM', '25 March 2027, 11:35 AM',
-  '02 April 2027, 04:05 PM',
-];
-
-const BROADCAST_NAMES = [
-  'Spring Launch', 'Member Update', 'Feature Release', 'Diwali Mega Sale Blast', 'Weekend Flash Sale',
-  'Monthly Roundup', 'New Collection Teaser', 'Customer Stories', 'Loyalty Rewards Update', 'Flash Sale Countdown',
-  'Product Restock Alert', 'Holiday Gift Guide', 'App Update Highlights', 'Referral Bonus Reminder', 'VIP Early Access',
-  'Cart Abandonment Nudge', 'Anniversary Sale', 'New Arrivals Drop', 'Subscriber Exclusive Offer', 'End of Season Clearance',
-  'Birthday Reward Reminder', 'Community Spotlight', 'Sustainability Update', 'Back in Stock Alert', 'Year in Review',
-];
-
-const DEMO_BROADCASTS: BroadcastRowData[] = BROADCAST_NAMES.map((name, i) => ({
-  id: `b-${i + 1}`,
-  displayId: String(40000 + i * 733 + (i % 3) * 97),
-  name,
-  sentOn: PAST_DATES[i],
-  status: i === 0 ? 'sending' : 'completed',
-  ...channelMetrics(i, 1, 'count'),
-  ...(i % 7 === 5 ? { retry: { attempt: 1, total: 2 } } : {}),
-}));
-
-// Scheduled/draft broadcasts haven't sent yet, so there's nothing to report on.
-const NO_METRICS = {
-  sent: '—',
-  delivery: { primary: '—' },
-  engagement: '—',
-  dropoff: '—',
-  revenue: { primary: '—' },
-} as const;
-
-const SCHEDULED_BROADCAST_NAMES = [
-  'Black Friday Preview', 'Winter Restock Alert', 'Year-End Thank You', 'New Year Kickoff', "Valentine's Day Special",
-  'Spring Collection Preview', 'Loyalty Tier Upgrade', 'Referral Program Boost', 'Summer Sale Countdown', 'Founders Day Celebration',
-  'App Feature Sneak Peek', 'Customer Appreciation Week', 'Flash Restock Notice', 'Mid-Season Clearance', 'Exclusive Preview Access',
-  'Back to School Sale', 'Festive Bundle Offer', 'Anniversary Countdown', 'Product Launch Teaser', 'Subscriber Milestone Reward',
-  'Weekend Deal Alert', 'Holiday Shipping Reminder', 'New Store Opening', 'Community Meetup Invite', 'Year-End Survey Request',
-];
-
-const DEMO_SCHEDULED_BROADCASTS: BroadcastRowData[] = SCHEDULED_BROADCAST_NAMES.map((name, i) => ({
-  id: `s-${i + 1}`,
-  name,
-  sentOn: FUTURE_DATES[i],
-  status: 'scheduled',
-  ...NO_METRICS,
-}));
-
-const DRAFT_BROADCAST_NAMES = [
-  'Spring Preview (untitled)', 'App Update Announcement', 'Referral Program Launch', 'Loyalty Tier Draft', 'Summer Sale Draft',
-  'New Feature Teaser', 'Customer Survey Invite', 'Product Bundle Idea', 'Win-Back Draft', 'Flash Sale Concept',
-  'Anniversary Message Draft', 'Holiday Campaign Draft', 'Subscriber Welcome Draft', 'Restock Notice Draft', 'VIP Access Draft',
-  'Community Update Draft', 'Sustainability Message Draft', 'Feedback Request Draft', 'Milestone Celebration Draft', 'New Arrivals Draft',
-  'Clearance Sale Draft', 'Membership Renewal Draft', 'Event Invite Draft', 'Survey Follow-up Draft', 'Year-End Recap Draft',
-];
-
-const DEMO_DRAFT_BROADCASTS: BroadcastRowData[] = DRAFT_BROADCAST_NAMES.map((name, i) => ({
-  id: `d-${i + 1}`,
-  name,
-  sentOn: 'Instantly',
-  status: 'draft',
-  ...NO_METRICS,
-}));
-
-const FLOW_ACTIVE_NAMES = [
-  'Welcome Series', 'Abandoned Cart Recovery', 'Post-Purchase Follow-up', 'Browse Abandonment Reminder', 'Win-Back Sequence',
-  'Loyalty Points Reminder', 'Review Request Flow', 'Replenishment Reminder', 'Upsell After Purchase', 'Order Confirmation Flow',
-  'Shipping Update Flow', 'Subscription Renewal Reminder', 'New Customer Onboarding', 'VIP Tier Upgrade Flow', 'Referral Invite Flow',
-  'Cross-Sell Recommendation', 'Product Education Series', 'Feedback Collection Flow', 'Re-Engagement Drip', 'Milestone Celebration Flow',
-  'Wishlist Reminder', 'Price Drop Alert Flow', 'Back in Stock Flow', 'Support Follow-up Flow', 'Anniversary Reward Flow',
-];
-
-const DEMO_FLOWS_ACTIVE: FlowRowData[] = FLOW_ACTIVE_NAMES.map((name, i) => ({
-  id: `f-${i + 1}`,
-  displayId: String(50000 + i * 677 + (i % 3) * 83),
-  name,
-  updatedOn: PAST_DATES[i],
-  status: 'active',
-  ...channelMetrics(i, 1.7, 'count'),
-}));
-
-const FLOW_INACTIVE_NAMES = [
-  'Win-Back Campaign', 'Birthday Offer', 'Legacy Welcome Flow', 'Old Cart Reminder', 'Seasonal Greeting Flow',
-  'Paused Loyalty Flow', 'Retired Onboarding Flow', 'Past Promo Reminder', 'Old Review Request', 'Discontinued Product Flow',
-  'Archived Survey Flow', 'Holiday 2023 Flow', 'Legacy Upsell Flow', 'Old Referral Flow', 'Paused Re-Engagement',
-  'Retired VIP Flow', 'Old Shipping Update', 'Past Event Reminder', 'Deprecated Onboarding', 'Old Milestone Flow',
-  'Paused Wishlist Alert', 'Retired Support Flow', 'Old Anniversary Flow', 'Legacy Cross-Sell', 'Paused Feedback Flow',
-];
-
-const DEMO_FLOWS_INACTIVE: FlowRowData[] = FLOW_INACTIVE_NAMES.map((name, i) => ({
-  id: `f-${25 + i + 1}`,
-  displayId: String(70000 + i * 541 + (i % 4) * 61),
-  name,
-  updatedOn: PAST_DATES[PAST_DATES.length - 1 - i],
-  status: 'inactive',
-  ...channelMetrics(i, 0.9, 'count'),
-}));
-
-const FLOW_DRAFT_NAMES = [
-  'Loyalty Program Intro (untitled)', 'Re-engagement Sequence', 'New Onboarding Draft', 'Cart Reminder Draft', 'Review Flow Draft',
-  'Upsell Sequence Draft', 'Referral Flow Draft', 'Milestone Flow Draft', 'Wishlist Alert Draft', 'Support Flow Draft',
-  'Anniversary Flow Draft', 'Cross-Sell Draft', 'Shipping Update Draft', 'VIP Flow Draft', 'Price Drop Draft',
-  'Back in Stock Draft', 'Subscription Draft', 'Feedback Flow Draft', 'Welcome Series Draft', 'Browse Reminder Draft',
-  'Replenishment Draft', 'Order Confirmation Draft', 'Education Series Draft', 'Win-Back Draft Flow', 'Seasonal Greeting Draft',
-];
-
-const DEMO_FLOWS_DRAFT: FlowRowData[] = FLOW_DRAFT_NAMES.map((name, i) => ({
-  id: `f-${50 + i + 1}`,
-  name,
-  updatedOn: 'Instantly',
-  status: 'draft',
-  ...NO_METRICS,
-}));
-
-const SEGMENT_NAMES = [
-  'DermaGPT MVP Cohort', 'Discount Buyers', 'Recent Shopper', 'High Value Customers', 'Cart Abandoners',
-  'Newsletter Subscribers', 'First-Time Buyers', 'Repeat Purchasers', 'Inactive Users (90 Days)', 'VIP Loyalty Members',
-  'Mobile App Users', 'Referral Program Members', 'Wishlist Users', 'Seasonal Shoppers', 'Discount Code Redeemers',
-  'High Engagement Users', 'Churn Risk Customers', 'Location: Metro Cities', 'Age 18-24 Shoppers', 'Age 25-34 Shoppers',
-  'Product Reviewers', 'Email Opt-In Users', 'WhatsApp Opted-In Users', 'Birthday This Month', 'Support Ticket Raisers',
-];
-
-const SEGMENT_DESCRIPTIONS: (string | undefined)[] = [
-  undefined,
-  'Customers who have made a purchase using a discount within the past year',
-  'Customers who have made a purchase within the last month',
-  'Customers with lifetime spend above $500',
-  'Users who added items to cart but did not complete checkout in the last 30 days',
-  'Users who have opted in to receive the weekly newsletter',
-  'Customers who completed their first purchase in the last 90 days',
-  'Customers who have made 3 or more purchases',
-  'Users who have not opened the app or website in the last 90 days',
-  'Customers enrolled in the top loyalty tier',
-  undefined,
-  'Customers who joined through the referral program',
-  'Users who have added at least one item to their wishlist',
-  'Customers who only purchase during major sale events',
-  undefined,
-  'Users who opened 5 or more campaigns in the last 60 days',
-  'Customers showing declining engagement over the past quarter',
-  'Customers located in Tier 1 metro cities',
-  'Customers within the 18 to 24 age bracket',
-  'Customers within the 25 to 34 age bracket',
-  'Customers who have left at least one product review',
-  undefined,
-  'Customers who have opted in to receive WhatsApp updates',
-  'Customers whose birthday falls within the current month',
-  'Customers who have raised a support ticket in the last 6 months',
-];
-
-const SEGMENT_EDITED = [
-  '04:37 PM, 19 April 2025', '12:50 PM, 02 December 2024', '12:44 PM, 02 December 2024', '09:15 AM, 14 January 2025',
-  '03:20 PM, 28 February 2025', '11:05 AM, 10 March 2025', '05:45 PM, 22 March 2025', '08:30 AM, 05 April 2025',
-  '02:10 PM, 18 April 2025', '10:55 AM, 30 April 2025', '06:40 PM, 12 May 2025', '09:25 AM, 25 May 2025',
-  '01:15 PM, 08 June 2025', '04:50 PM, 21 June 2025', '07:35 AM, 03 July 2025', '11:20 AM, 16 July 2025',
-  '02:05 PM, 29 July 2025', '05:40 PM, 11 August 2025', '08:55 AM, 24 August 2025', '12:30 PM, 06 September 2025',
-  '03:15 PM, 19 September 2025', '06:00 PM, 02 October 2025', '09:45 AM, 15 October 2025', '01:30 PM, 28 October 2025',
-  '04:20 PM, 10 November 2025',
-];
-
-const DEMO_SEGMENTS: SegmentRowData[] = SEGMENT_NAMES.map((name, i) => ({
-  id: `sg-${i + 1}`,
-  name,
-  lastEditedOn: SEGMENT_EDITED[i],
-  description: SEGMENT_DESCRIPTIONS[i],
-  size: i === 0 ? 0 : Math.round(5000 + i * 41213 + (i % 4) * 3170),
-  sizeUpdatedOn: '03 August 2026',
-}));
-
-const BOT_FLOW_ACTIVE_NAMES = [
-  'Order Status Bot', 'Refund Assistant', 'FAQ Responder', 'Appointment Booking Bot', 'Live Agent Handoff',
-  'Payment Reminder Bot', 'Lead Qualification Bot', 'Return Request Flow', 'Delivery Tracking Bot', 'Product Recommendation Bot',
-  'Feedback Collector Bot', 'Cancellation Assistant', 'New User Onboarding Bot', 'Subscription Support Bot', 'Warranty Claim Bot',
-];
-
-const BOT_FLOW_INACTIVE_NAMES = [
-  'Legacy Support Bot', 'Old Onboarding Flow', 'Retired FAQ Bot', 'Paused Promo Bot', 'Archived Survey Bot',
-  'Old Delivery Bot', 'Deprecated Booking Flow', 'Past Campaign Bot', 'Old Refund Flow', 'Retired Lead Bot',
-];
-
-const BOT_FLOW_DESCRIPTIONS: (string | undefined)[] = [
-  'Answers "where is my order" queries by pulling live shipment status',
-  undefined,
-  'Handles common help-center questions before routing to an agent',
-  'Lets customers pick and confirm an appointment slot',
-  'Hands the conversation to a human agent when the bot can\'t resolve it',
-  undefined,
-  'Scores and routes new leads based on their replies',
-  'Walks a customer through initiating a product return',
-  undefined,
-  'Suggests related products based on the customer\'s last order',
-];
-
-const DEMO_BOT_FLOWS_ACTIVE: BotFlowRowData[] = BOT_FLOW_ACTIVE_NAMES.map((name, i) => ({
-  id: `bf-${i + 1}`,
-  name,
-  updatedOn: PAST_DATES[i],
-  description: BOT_FLOW_DESCRIPTIONS[i % BOT_FLOW_DESCRIPTIONS.length],
-  status: 'active',
-  nodeCount: 6 + ((i * 5) % 24),
-}));
-
-const DEMO_BOT_FLOWS_INACTIVE: BotFlowRowData[] = BOT_FLOW_INACTIVE_NAMES.map((name, i) => ({
-  id: `bf-${20 + i + 1}`,
-  name,
-  updatedOn: PAST_DATES[PAST_DATES.length - 1 - i],
-  description: BOT_FLOW_DESCRIPTIONS[(i + 3) % BOT_FLOW_DESCRIPTIONS.length],
-  status: 'inactive',
-  nodeCount: 4 + ((i * 3) % 16),
-}));
-
-const DEMO_TEMPLATES: TemplateRowData[] = [
-  {
-    id: 'tpl-1',
-    displayId: '9688',
-    name: 'tre',
-    status: 'in-review',
-    language: 'EN US',
-    type: 'text',
-    preview: 'test',
-    category: 'Marketing',
-    businessTag: 'Main',
-  },
-  {
-    id: 'tpl-2',
-    displayId: '9687',
-    name: 'med_shipping2',
-    status: 'active',
-    language: 'EN',
-    type: 'text',
-    preview:
-      "Dear {} We have successfully shipped your order and we'll deliver it to you by {} Order ID: {} Item(s): {}...",
-    category: 'Utility',
-    businessTag: 'Clinikally Helpdesk',
-  },
-  {
-    id: 'tpl-3',
-    displayId: '9686',
-    name: 'spf100',
-    status: 'active',
-    language: 'EN',
-    type: 'image',
-    preview:
-      "Sunscreen isn't just for sunny days, it's your everyday skin essential 🌞 🎁 ₹100 OFF on ₹1499+ Use ...",
-    category: 'Marketing',
-    businessTag: 'Clinikally Helpdesk',
-  },
-  {
-    id: 'tpl-4',
-    displayId: '9685',
-    name: 'med_shipping2',
-    status: 'active',
-    language: 'EN',
-    type: 'text',
-    preview:
-      "Dear {} We have successfully shipped your order and we'll deliver it to you by {} Order ID: {} Item(s): {}...",
-    category: 'Utility',
-    businessTag: 'Main',
-  },
-  {
-    id: 'tpl-5',
-    displayId: '9684',
-    name: 'spf100',
-    status: 'active',
-    language: 'EN',
-    type: 'image',
-    preview:
-      "Sunscreen isn't just for sunny days, it's your everyday skin essential 🌞 🎁 ₹100 OFF on ₹1499+ Use ...",
-    category: 'Marketing',
-    businessTag: 'Main',
-  },
-  {
-    id: 'tpl-6',
-    displayId: '9682',
-    name: 'extra_discount',
-    status: 'active',
-    language: 'EN US',
-    type: 'text',
-    preview:
-      "We understand your concern. However, at the moment, we're unable to offer any additional discount...",
-    category: 'Utility',
-    businessTag: 'Main',
-  },
-  {
-    id: 'tpl-7',
-    displayId: '9680',
-    name: 'order_confirmation',
-    status: 'active',
-    language: 'EN',
-    type: 'text',
-    preview: "Thanks for your order! We've received Order ID: {} and it's now being processed...",
-    category: 'Utility',
-    businessTag: 'Main',
-  },
-  {
-    id: 'tpl-8',
-    displayId: '9679',
-    name: 'welcome_message',
-    status: 'active',
-    language: 'EN US',
-    type: 'text',
-    preview: "Welcome to the family! Here's 10% off your first order with code WELCOME10...",
-    category: 'Marketing',
-    businessTag: 'Main',
-  },
-  {
-    id: 'tpl-9',
-    displayId: '9678',
-    name: 'otp_verification',
-    status: 'active',
-    language: 'EN',
-    type: 'text',
-    preview: 'Your one-time password is {}. It is valid for 10 minutes. Do not share this code...',
-    category: 'Authentication',
-    businessTag: 'Main',
-  },
-  {
-    id: 'tpl-10',
-    displayId: '9675',
-    name: 'seasonal_sale_banner',
-    status: 'in-review',
-    language: 'EN',
-    type: 'image',
-    preview: 'End of season sale is here! Up to 50% off on your favourite picks, while stocks last...',
-    category: 'Marketing',
-    businessTag: 'Clinikally Helpdesk',
-  },
-  {
-    id: 'tpl-11',
-    displayId: '9673',
-    name: 'abandoned_cart_reminder',
-    status: 'rejected',
-    language: 'EN',
-    type: 'text',
-    preview: 'You left something behind! Complete your purchase before your cart expires...',
-    category: 'Marketing',
-    businessTag: 'Main',
-  },
-  {
-    id: 'tpl-12',
-    displayId: '9670',
-    name: 'payment_failed_alert',
-    status: 'paused',
-    language: 'EN US',
-    type: 'text',
-    preview: "We couldn't process your payment for Order ID: {}. Please update your payment details...",
-    category: 'Utility',
-    businessTag: 'Main',
-    fallbackTemplate: 'payment_failed_alert_v1',
-  },
-  {
-    id: 'tpl-13',
-    displayId: '9668',
-    name: 'product_review_request',
-    status: 'active',
-    language: 'EN',
-    type: 'text',
-    preview: "How was your recent purchase? We'd love to hear your feedback, it only takes a minute...",
-    category: 'Marketing',
-    businessTag: 'Clinikally Helpdesk',
-  },
-  {
-    id: 'tpl-14',
-    displayId: '9665',
-    name: 'delivery_delay_notice',
-    status: 'active',
-    language: 'EN',
-    type: 'text',
-    preview: "We're sorry, your order is running a little late. Your new estimated delivery date is {}...",
-    category: 'Utility',
-    businessTag: 'Main',
-  },
-];
-
-const DEMO_USER_SEGMENTS: UserSegment[] = [
-  {
-    id: 'seg-1',
-    name: 'Weekend Support Escalation',
-    recommended: true,
-    description: 'Users who raised a ticket during the weekend on-call window.',
-    count: 3262,
-    lastEdited: '12 June 2023',
-  },
-  {
-    id: 'seg-2',
-    name: 'Sales Inquiry Follow-Up',
-    recommended: true,
-    description: 'Leads who asked a pricing question but did not convert.',
-    count: 274,
-    lastEdited: '12 June 2023',
-  },
-  {
-    id: 'seg-3',
-    name: 'VIP Customer Support',
-    description: 'Top-tier accounts routed to the priority support queue.',
-    count: 154,
-    lastEdited: '12 June 2023',
-  },
-  {
-    id: 'seg-4',
-    name: 'Technical Support Escalation',
-    description: 'Tickets escalated past first-line technical support.',
-    count: 877,
-    lastEdited: '12 June 2023',
-  },
-  {
-    id: 'seg-5',
-    name: 'Standard Support Response',
-    description: 'General queries handled within the standard SLA.',
-    count: 883,
-    lastEdited: '12 June 2023',
-  },
-  {
-    id: 'seg-6',
-    name: 'Customer Inquiry Response',
-    count: 447,
-    lastEdited: '12 June 2023',
-  },
-  {
-    id: 'seg-7',
-    name: 'Abandoned Checkout Reminder',
-    description: 'Shoppers who added items to cart but did not check out.',
-    count: 1620,
-    lastEdited: '9 June 2023',
-  },
-  {
-    id: 'seg-8',
-    name: 'Inactive Users — Last 90 Days',
-    description: 'Contacts with no session activity in the last quarter.',
-    count: 2894,
-    lastEdited: '5 June 2023',
-  },
-  {
-    id: 'seg-9',
-    name: 'Refund Requested',
-    description: 'Users who opened a refund or return request ticket.',
-    count: 312,
-    lastEdited: '2 June 2023',
-  },
-  {
-    id: 'seg-10',
-    name: 'CRM Import — Newsletter Subscribers',
-    description: 'Imported from the marketing CRM opt-in list.',
-    count: 5210,
-    lastEdited: '3 May 2023',
-    imported: true,
-  },
-  {
-    id: 'seg-11',
-    name: 'CRM Import — Trade Show Leads',
-    description: 'Contacts collected at the Q2 trade show booth.',
-    count: 964,
-    lastEdited: '18 April 2023',
-    imported: true,
-  },
-];
-
 const PRODUCTS: { id: SidebarProduct; label: string }[] = [
   { id: 'helpdesk', label: 'Helpdesk' },
   { id: 'marketing', label: 'Marketing' },
   { id: 'automation', label: 'Automation' },
 ];
-
-interface TicketRowData {
-  id: string;
-  ticketId: string;
-  channel: TicketChannel;
-  user: string;
-  phone?: string;
-  avatarCount?: number;
-  isNew?: boolean;
-  timestamp: string;
-  message: string;
-  assignee?: string;
-  unreadCount?: number;
-}
-
-interface ConversationEntry {
-  id: string;
-  side: 'agent' | 'customer';
-  quote?: { name: string; text: string };
-  text: string;
-  time: string;
-  /** ISO date (e.g. '2026-09-20') — consecutive entries sharing a date are grouped
-   * under one day chip instead of repeating it per message. */
-  date: string;
-}
 
 const DATE_CHIP_FORMATTER = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 /** e.g. '2026-09-20' -> 'September 20, 2026'. */
@@ -1288,423 +174,6 @@ const ConversationMessageRow = memo(function ConversationMessageRow({
   );
 });
 
-/** Per-ticket conversation threads, keyed by ticket id — lets the two linked tickets in each
- * channel demonstrate the same thread from an incoming (customer-first) vs. outgoing
- * (agent-first) angle. */
-const CONVERSATIONS: Record<string, ConversationEntry[]> = {
-  't-1': [
-    { id: 'm-1', side: 'customer', text: 'Hi, I placed an order last week and haven’t heard anything since.', time: '09:41', date: '2026-09-19' },
-    { id: 'm-2', side: 'agent', text: 'Hi John! Sorry for the trouble — let me pull that up for you.', time: '09:42', date: '2026-09-19' },
-    { id: 'm-3', side: 'customer', text: 'Sure, thanks. Order number is #48213.', time: '09:43', date: '2026-09-19' },
-    { id: 'm-4', side: 'agent', text: 'Got it, one moment while I check the shipping status.', time: '09:44', date: '2026-09-19' },
-    { id: 'm-5', side: 'agent', text: 'Looks like it’s been sitting at the local facility for a couple of days.', time: '09:46', date: '2026-09-19' },
-    { id: 'm-6', side: 'customer', text: 'Hey, is my order still on its way? It has been 3 days already.', time: '10:02', date: '2026-09-20' },
-    { id: 'm-7', side: 'agent', text: 'Hi John! Let me check that for you right away.', time: '10:03', date: '2026-09-20' },
-    { id: 'm-8', side: 'customer', text: 'Sure, thanks. Order number is #48213.', time: '10:04', date: '2026-09-20' },
-    { id: 'm-9', side: 'agent', text: 'Thanks for your patience — I’ve escalated this with our logistics partner.', time: '10:05', date: '2026-09-20' },
-    { id: 'm-10', side: 'agent', text: 'Your order left the warehouse yesterday and is out for delivery today.', time: '10:06', date: '2026-09-20' },
-    { id: 'm-11', side: 'customer', text: 'That’s great to hear, thank you!', time: '10:07', date: '2026-09-20' },
-    { id: 'm-12', side: 'agent', text: 'Of course! You’ll get a tracking notification once it’s out for delivery.', time: '10:08', date: '2026-09-20' },
-    { id: 'm-13', side: 'customer', text: 'One more thing — can I change the delivery address at this point?', time: '10:10', date: '2026-09-20' },
-    { id: 'm-14', side: 'agent', text: 'Since it’s already out for delivery, we can’t redirect it, unfortunately.', time: '10:11', date: '2026-09-20' },
-    { id: 'm-15', side: 'agent', text: 'But if the courier misses you, they’ll leave a reattempt slip with a reschedule option. You can also reschedule it yourself from the tracking link once it’s generated, without needing to wait for the slip. Just make sure someone’s available at the address for the next attempt, since after two missed attempts the order gets sent back to the warehouse.', time: '10:12', date: '2026-09-20' },
-    { id: 'm-16', side: 'customer', text: 'Got it, that works. Thanks for clarifying!', time: '10:13', date: '2026-09-20' },
-    { id: 'm-17', side: 'agent', text: 'Happy to help! Is there anything else I can do for you today?', time: '10:14', date: '2026-09-20' },
-    { id: 'm-18', side: 'customer', text: 'Nope, that’s all. Thanks again!', time: '10:15', date: '2026-09-20' },
-  ],
-  't-2': [
-    { id: 'm-1', side: 'agent', text: 'Hi John, just a heads up — your order #48213 is out for delivery today.', time: '10:06', date: '2026-09-20' },
-    {
-      id: 'm-2',
-      side: 'customer',
-      quote: { name: 'John', text: 'Hey, is my order still on its way? It has been 3 days already.' },
-      text: 'Oh perfect, thank you for the update!',
-      time: '10:08',
-      date: '2026-09-20',
-    },
-    { id: 'm-3', side: 'agent', text: 'Anytime! Let us know if it does not arrive today.', time: '10:09', date: '2026-09-20' },
-  ],
-};
-
-interface EmailThreadEntry {
-  id: string;
-  senderName: string;
-  senderEmail: string;
-  date: string;
-  badgeLabel?: string;
-  preview: string;
-  body: ReactNode;
-  defaultExpanded?: boolean;
-}
-
-/** Per-ticket email threads, keyed by ticket id — same incoming/outgoing pairing as
- * `CONVERSATIONS`, rendered as a stack of `EmailMessage` rows instead of chat bubbles. */
-const EMAIL_THREADS: Record<string, EmailThreadEntry[]> = {
-  't-3': [
-    {
-      id: 'e-1',
-      senderName: 'Aditi Rao',
-      senderEmail: 'aditi.rao@example.com',
-      date: 'Sep 10, 2026, 9:14 AM',
-      badgeLabel: '5 days ago',
-      preview: 'Following up on the refund request I submitted last week.',
-      body: (
-        <>
-          Hi team,
-          <br />
-          <br />
-          Following up on the refund request I submitted last week — I haven&apos;t heard back yet. Could you let me know the status?
-          <br />
-          <br />
-          Thanks,
-          <br />
-          Aditi
-        </>
-      ),
-      defaultExpanded: false,
-    },
-    {
-      id: 'e-2',
-      senderName: 'Marcus Lee',
-      senderEmail: 'marcus@limechat.io',
-      date: 'Sep 15, 2026, 9:31 AM',
-      badgeLabel: 'Today',
-      preview: 'I can confirm your refund of ₹1,200 has been processed today.',
-      body: (
-        <>
-          Hi Aditi,
-          <br />
-          <br />
-          Apologies for the delay — I can confirm your refund of ₹1,200 has been processed today. It should reflect in your account within 3-5 business days.
-          <br />
-          <br />
-          Best,
-          <br />
-          Marcus
-        </>
-      ),
-      defaultExpanded: true,
-    },
-  ],
-  't-4': [
-    {
-      id: 'e-1',
-      senderName: 'Marcus Lee',
-      senderEmail: 'marcus@limechat.io',
-      date: 'Sep 15, 2026, 9:31 AM',
-      badgeLabel: '9 minutes ago',
-      preview: 'Good news — your refund of ₹1,200 has been processed.',
-      body: (
-        <>
-          Hi Aditi,
-          <br />
-          <br />
-          Good news — your refund of ₹1,200 has been processed. It should reflect in your account within 3-5 business days.
-          <br />
-          <br />
-          Best,
-          <br />
-          Marcus
-        </>
-      ),
-      defaultExpanded: false,
-    },
-    {
-      id: 'e-2',
-      senderName: 'Aditi Rao',
-      senderEmail: 'aditi.rao@example.com',
-      date: 'Sep 15, 2026, 9:35 AM',
-      badgeLabel: 'Today',
-      preview: 'Great, thank you so much for the quick turnaround!',
-      body: (
-        <>
-          Great, thank you so much for the quick turnaround!
-          <br />
-          <br />
-          Aditi
-        </>
-      ),
-      defaultExpanded: true,
-    },
-  ],
-};
-
-/** Every `MessageBubble` variant/flag, one after another, for design review — see
- * ticket `t-showcase` ("Design QA · All message states"). */
-const SHOWCASE_MESSAGES: Array<{ id: string } & ComponentProps<typeof MessageBubble>> = [
-  { id: 's-1', side: 'customer', variant: 'text', time: '09:00', children: 'Hey, can you help me with a few things?' },
-  { id: 's-2', side: 'agent', variant: 'text', time: '09:00', children: "Of course! Here's every message state, one by one." },
-  {
-    id: 's-3',
-    side: 'customer',
-    variant: 'quote',
-    time: '09:01',
-    quote: { name: 'Design QA', text: 'Here\'s every message state, one by one.' },
-    children: 'Perfect, starting with quote/reply.',
-  },
-  {
-    id: 's-4',
-    side: 'agent',
-    variant: 'media',
-    time: '09:01',
-    media: [{}, {}],
-  },
-  {
-    id: 's-5',
-    side: 'customer',
-    variant: 'link',
-    time: '09:02',
-    link: { title: 'LimeChat Design System', description: 'Figma file with all components', domain: 'figma.com' },
-  },
-  {
-    id: 's-6',
-    side: 'agent',
-    variant: 'attachment',
-    time: '09:02',
-    attachment: { title: 'design-states.pdf', meta: '2 pages · 66 kB', fileType: 'pdf' },
-  },
-  { id: 's-7', side: 'customer', variant: 'location', time: '09:03', location: {} },
-  {
-    id: 's-8',
-    side: 'agent',
-    variant: 'note',
-    time: '09:03',
-    onlyVisibleToMe: true,
-    note: { ticketId: '123456' },
-    children: 'Internal note — only the team can see this.',
-  },
-  { id: 's-11', side: 'customer', variant: 'opened', time: '09:05' },
-  { id: 's-12', side: 'agent', variant: 'viewOnce', time: '09:05', children: 'Photo' },
-  {
-    id: 's-13',
-    side: 'agent',
-    variant: 'text',
-    time: '09:06',
-    forwarded: true,
-    children: 'And this one was forwarded from another chat.',
-  },
-  {
-    id: 's-14',
-    side: 'customer',
-    variant: 'text',
-    time: '09:06',
-    children: "That's the whole set — thanks!",
-  },
-];
-
-const TICKET_CUSTOM_FIELDS: TicketDetailsField[] = [
-  { id: 'order-ref', label: 'Order reference', type: 'text', defaultValue: 'ORD-10241' },
-  { id: 'follow-up', label: 'Follow-up date', type: 'date', defaultValue: '2026-09-25' },
-  {
-    id: 'priority',
-    label: 'Priority',
-    type: 'select',
-    defaultValue: 'medium',
-    options: [
-      { value: 'low', label: 'Low' },
-      { value: 'medium', label: 'Medium' },
-      { value: 'high', label: 'High' },
-      { value: 'urgent', label: 'Urgent' },
-    ],
-  },
-  {
-    id: 'issue-category',
-    label: 'Issue category',
-    type: 'cascading',
-    options: [
-      {
-        value: 'product',
-        label: 'Product',
-        children: [
-          {
-            value: 'sizing',
-            label: 'Sizing',
-            children: [
-              { value: 'too-small', label: 'Too small' },
-              { value: 'too-large', label: 'Too large' },
-              { value: 'wrong-size', label: 'Wrong size shipped' },
-            ],
-          },
-          {
-            value: 'quality',
-            label: 'Quality',
-            children: [
-              { value: 'defective', label: 'Defective item' },
-              { value: 'damaged', label: 'Damaged in transit' },
-            ],
-          },
-          {
-            value: 'availability',
-            label: 'Availability',
-            children: [
-              { value: 'out-of-stock', label: 'Out of stock' },
-              { value: 'restock-eta', label: 'Restock ETA' },
-            ],
-          },
-        ],
-      },
-      {
-        value: 'order',
-        label: 'Order',
-        children: [
-          {
-            value: 'shipping',
-            label: 'Shipping',
-            children: [
-              { value: 'delayed', label: 'Delayed delivery' },
-              { value: 'lost', label: 'Lost in transit' },
-            ],
-          },
-          {
-            value: 'payment',
-            label: 'Payment',
-            children: [
-              { value: 'failed', label: 'Payment failed' },
-              { value: 'refund', label: 'Refund status' },
-            ],
-          },
-        ],
-      },
-      {
-        value: 'account',
-        label: 'Account',
-        children: [
-          {
-            value: 'login',
-            label: 'Login issue',
-            children: [
-              { value: 'password-reset', label: 'Password reset' },
-              { value: 'otp', label: 'OTP not received' },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-];
-
-const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
-  {
-    id: 'previous-tickets',
-    label: 'Previous tickets',
-    group: 'tickets',
-    hideAdd: true,
-    items: [
-      { title: 'Email_Sales', timestamp: '6 months ago', preview: 'Hi, Looks like you are away from our...' },
-      { title: 'WhatsApp_Support', timestamp: '4 months ago', preview: 'My order hasn\'t arrived yet, can you...' },
-      { title: 'Email_Billing', timestamp: '2 months ago', preview: 'I was charged twice for my last order...' },
-      { title: 'WhatsApp_Support', timestamp: '3 weeks ago', preview: 'Thanks for the quick resolution earlier!' },
-    ],
-  },
-  {
-    id: 'sub-tickets',
-    label: 'Sub tickets',
-    group: 'tickets',
-    emptyText: 'There are no sub tickets for this customer',
-    items: [
-      { title: 'Refund_Request', timestamp: '5 days ago', preview: 'Splitting this off to track the refund separately...' },
-      { title: 'Replacement_Item', timestamp: '2 days ago', preview: 'Logging the replacement request for the damaged item.' },
-    ],
-  },
-  {
-    id: 'voice-logs',
-    label: 'Voice logs',
-    group: 'tickets',
-    emptyText: 'There are no voice logs for this customer',
-    hideAdd: true,
-    items: [
-      { title: 'Ananya Rao', timestamp: '5th Aug | 10:00 am', duration: '5 minutes 10 seconds' },
-      { title: 'Ananya Rao', timestamp: '2nd Aug | 3:45 pm', duration: '2 minutes 45 seconds' },
-    ],
-  },
-  {
-    id: 'crm-tickets',
-    label: 'CRM tickets',
-    focusedLabel: (detail) => (detail ? `New ${detail.label} ticket` : 'Create a ticket'),
-    focusedContent: ({ detail, setDetail, formId }) => (
-      <CrmTicketCreate
-        partners={[...INTEGRATION_CATEGORIES[0].partners, ...EXTRA_CRM_PARTNERS]}
-        partnerId={detail?.id}
-        formId={formId}
-        onSelect={(partner) => setDetail(partner && { id: partner.id, label: partner.name })}
-        onCreated={() => setDetail(null)}
-      />
-    ),
-    group: 'tickets',
-    emptyText: 'There are no CRM tickets for this customer',
-    items: [
-      { title: 'Salesforce_Case_00931', timestamp: '3 months ago', preview: 'Escalated to account manager for loyalty credit...' },
-      { title: 'HubSpot_Ticket_4021', timestamp: '1 month ago', preview: 'Customer requested invoice copy for reimbursement...' },
-    ],
-  },
-  {
-    id: 'conversation-tags',
-    label: 'Conversation tags',
-    group: 'tags',
-    emptyText: 'There are no tags for this customer',
-    tags: ['Order delay', 'Delivery issue', 'Follow-up needed'],
-  },
-  {
-    id: 'contact-tags',
-    label: 'Contact tags',
-    group: 'tags',
-    emptyText: 'There are no tags for this customer',
-    tags: ['Returning customer', 'VIP'],
-  },
-  {
-    id: 'shopify-tags',
-    label: 'Shopify tags',
-    group: 'tags',
-    emptyText: 'There are no tags for this customer',
-    tags: ['Shopify Plus', 'High LTV'],
-  },
-  {
-    id: 'conversation-fields',
-    label: 'Conversation fields',
-    group: 'fields',
-    emptyText: 'There are no fields for this customer',
-    hideAdd: true,
-    fields: TICKET_CUSTOM_FIELDS,
-  },
-  {
-    id: 'contact-fields',
-    label: 'Contact fields',
-    group: 'fields',
-    emptyText: 'There are no fields for this customer',
-    hideAdd: true,
-    fields: TICKET_CUSTOM_FIELDS,
-  },
-];
-
-/** Demo tickets — t-1..t-4 are 2 linked pairs (WhatsApp incoming/outgoing, Email
- * incoming/outgoing) that exercise both message directions; t-5..t-14 pad out the
- * list with a variety of channels, assignees, and unread states. */
-const TICKETS: TicketRowData[] = [
-  { id: 't-1', ticketId: '100230', channel: 'whatsapp', user: 'John', phone: '98765 43210', avatarCount: 2, isNew: true, timestamp: '4 minutes ago', message: 'Hey, is my order still on its way? It has been 3 days already.', assignee: 'Jane', unreadCount: 2 },
-  { id: 't-2', ticketId: '100231', channel: 'whatsapp', user: 'John', phone: '98765 43210', avatarCount: 2, timestamp: '2 minutes ago', message: 'Anytime! Let us know if it does not arrive today.', assignee: 'Jane' },
-  { id: 't-3', ticketId: '100232', channel: 'email', user: 'Aditi Rao', timestamp: '12 minutes ago', message: 'Following up on the refund request I submitted last week.', assignee: 'Marcus', unreadCount: 1 },
-  { id: 't-4', ticketId: '100233', channel: 'email', user: 'Aditi Rao', timestamp: '9 minutes ago', message: "You're welcome! Let us know if there's anything else.", assignee: 'Marcus' },
-  { id: 't-5', ticketId: '100234', channel: 'instagram', user: 'the.skincare.edit', isNew: true, timestamp: '20 minutes ago', message: 'Do you restock the lavender candle? Sold out everywhere.', unreadCount: 3 },
-  { id: 't-6', ticketId: '100235', channel: 'sms', user: 'Rahul Verma', timestamp: '35 minutes ago', message: 'OTP did not arrive, can you resend it please?', assignee: 'Jane' },
-  { id: 't-7', ticketId: '100236', channel: 'whatsapp', user: 'Priya Nair', avatarCount: 2, timestamp: '1 hour ago', message: 'Thanks for the quick help earlier, resolved now!', assignee: 'Marcus' },
-  { id: 't-8', ticketId: '100237', channel: 'email', user: 'Support Team', timestamp: '2 hours ago', message: 'Escalation: customer requesting a callback about billing.', assignee: 'Marcus', unreadCount: 5 },
-  { id: 't-9', ticketId: '100238', channel: 'instagram', user: 'urban.threads.co', timestamp: '3 hours ago', message: 'Is the summer collection back in stock yet?', assignee: 'Jane' },
-  { id: 't-10', ticketId: '100239', channel: 'sms', user: 'Karan Mehta', isNew: true, timestamp: '4 hours ago', message: 'Package shows delivered but I never received it.', unreadCount: 1 },
-  { id: 't-11', ticketId: '100240', channel: 'whatsapp', user: 'Sneha Iyer', avatarCount: 1, timestamp: '5 hours ago', message: 'Can I exchange this for a different size?', assignee: 'Marcus' },
-  { id: 't-12', ticketId: '100241', channel: 'email', user: 'Vikram Singh', timestamp: '6 hours ago', message: 'Invoice copy needed for reimbursement, please advise.', assignee: 'Jane' },
-  { id: 't-13', ticketId: '100242', channel: 'instagram', user: 'thefitnessjourney', timestamp: '8 hours ago', message: 'Do you ship internationally to Singapore?', unreadCount: 2 },
-  { id: 't-14', ticketId: '100243', channel: 'sms', user: 'Neha Kapoor', timestamp: '1 day ago', message: 'Thanks, the replacement arrived today!', assignee: 'Marcus' },
-  {
-    id: 't-showcase',
-    ticketId: '100244',
-    channel: 'whatsapp',
-    user: 'Design QA',
-    timestamp: 'Just now',
-    message: 'All message states — for design review',
-    assignee: 'You',
-  },
-];
-
 const TOP_NAV_BY_PRODUCT = {
   helpdesk: (selected: string) =>
     helpDeskTopNav({
@@ -1716,58 +185,23 @@ const TOP_NAV_BY_PRODUCT = {
   automation: () => automationTopNav({ onChannelChange: () => alert('Pick channel') }),
 } as const;
 
-
 export function App() {
-  const [product, setProduct] = useState<SidebarProduct>('helpdesk');
+  const nav = useAppNavigation();
+  const { product, selected, page, settingsTab, manageIndustries, userSettingsTab } = nav;
+  const { switchProduct, leaveCanvas, openCanvas, setSettingsTab, setManageIndustries, setUserSettingsTab } = nav;
   const preset = sidebarPresets[product];
-  const [selected, setSelected] = useState(preset.items[0].id);
-
-  const switchProduct = (next: SidebarProduct) => {
-    setProduct(next);
-    setSelected(sidebarPresets[next].items[0].id);
-    setUserSettingsOpen(false);
-  };
-
   // Account/Profile settings reached from the avatar popover — a dedicated
   // page with just those two tabs, separate from the product's own (much
   // longer) Settings nav.
-  const [userSettingsOpen, setUserSettingsOpen] = useState(false);
-  const [userSettingsTab, setUserSettingsTab] = useState<'account' | 'profile'>('account');
+  const userSettingsOpen = page === 'user-settings';
 
   const account = { name: 'Nonucare12', compact: true };
   const selectedLabel = preset.items.find((i) => i.id === selected)?.label ?? selected;
 
-  // Rail items that show the flow-builder canvas chrome. Marketing's "Broadcast"
-  // reuses the same (Campaigns flows) canvas.
-  const CANVAS_ITEMS: Partial<Record<SidebarProduct, string[]>> = {
-    marketing: ['automation-flows', 'broadcast'],
-    automation: ['flows'],
-  };
-  // Broadcast, Automation flows, and Bot flows all have a list/home view in
-  // front of the flow-builder canvas.
-  const [broadcastView, setBroadcastView] = useState<'list' | 'canvas'>('list');
-  const [flowsView, setFlowsView] = useState<'list' | 'canvas'>('list');
-  const [botFlowsView, setBotFlowsView] = useState<'list' | 'canvas'>('list');
-  const showBroadcastHome = product === 'marketing' && selected === 'broadcast' && broadcastView === 'list';
-  const showFlowsHome =
-    product === 'marketing' && selected === 'automation-flows' && flowsView === 'list';
-  const showBotFlowsHome =
-    product === 'automation' && selected === 'flows' && botFlowsView === 'list';
-  const showSegmentsHome = product === 'marketing' && selected === 'segments';
-  const showTemplatesHome =
-    (product === 'marketing' || product === 'helpdesk') && selected === 'templates';
-  const showSettingsHome = selected === 'settings';
-  const showKnowledgeBase = product === 'automation' && selected === 'knowledge-base';
   const [kbTab, setKbTab] = useState('upload-files');
   const [kbSource, setKbSource] = useState('doc');
-  const showTicketsHome = product === 'helpdesk' && selected === 'tickets';
-  const showCanvas =
-    (CANVAS_ITEMS[product] ?? []).includes(selected) &&
-    !showBroadcastHome &&
-    !showFlowsHome &&
-    !showBotFlowsHome;
+  const showCanvas = isCanvasPage(page);
 
-  const [settingsTab, setSettingsTab] = useState('inboxes');
   const [inboxSearch, setInboxSearch] = useState('');
   const [inboxSyncing, setInboxSyncing] = useState(false);
   const visibleInboxes = DEMO_INBOXES.filter(
@@ -1778,7 +212,6 @@ export function App() {
 
   const [variableScope, setVariableScope] = useState('system');
   // Sub-page of Bot templates; mirrors the Variable page until it gets its own content.
-  const [manageIndustries, setManageIndustries] = useState(false);
   const [industryTab, setIndustryTab] = useState('industries');
   const [useCaseCategory, setUseCaseCategory] = useState('all');
   const [variableDataType, setVariableDataType] = useState('all');
@@ -2116,7 +549,7 @@ export function App() {
       },
     }));
     setBroadcastStatus(row.status);
-    setBroadcastView('canvas');
+    openCanvas('broadcast');
   };
 
   // Opens an automation-flow row in the flow-builder canvas, carrying its
@@ -2132,7 +565,7 @@ export function App() {
       },
     }));
     setFlowStatus(row.status);
-    setFlowsView('canvas');
+    openCanvas('flows');
   };
 
   // Opens a bot-flow row in the flow-builder canvas, carrying its name/status
@@ -2143,7 +576,7 @@ export function App() {
       automation: { ...f.automation, name: row.name, active: row.status === 'active' },
     }));
     setBotFlowStatus(row.status);
-    setBotFlowsView('canvas');
+    openCanvas('bot-flows');
   };
 
   // 'a0' is the header account — no list row matches, so none is pre-highlighted.
@@ -2174,28 +607,12 @@ export function App() {
     onSearchChange: setAccountQuery,
   };
 
-  const leaveCanvas = () =>
-    product === 'automation'
-      ? setBotFlowsView('list')
-      : selected === 'broadcast'
-      ? setBroadcastView('list')
-      : selected === 'automation-flows'
-        ? setFlowsView('list')
-        : setSelected('home');
-
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       <Sidebar
         {...preset}
         selectedId={userSettingsOpen ? undefined : selected}
-        onSelect={(id) => {
-          setSelected(id);
-          setBroadcastView('list');
-          setFlowsView('list');
-          setSettingsTab('inboxes');
-          setManageIndustries(false);
-          setUserSettingsOpen(false);
-        }}
+        onSelect={nav.select}
         profile={{
           name: 'Aditi Rao',
           menuItems: [
@@ -2204,8 +621,7 @@ export function App() {
               label: 'Profile settings',
               icon: 'user',
               onClick: () => {
-                setUserSettingsTab('profile');
-                setUserSettingsOpen(true);
+                nav.openUserSettings('profile');
               },
             },
             {
@@ -2213,8 +629,7 @@ export function App() {
               label: 'Account Settings',
               icon: 'settings',
               onClick: () => {
-                setUserSettingsTab('account');
-                setUserSettingsOpen(true);
+                nav.openUserSettings('account');
               },
             },
             {
@@ -2240,9 +655,9 @@ export function App() {
                     { label: selected === 'broadcast' ? 'Broadcast' : 'Flows', onClick: leaveCanvas },
                     { label: curFlow.id, copyable: true },
                   ]
-                : showTicketsHome
+                : page === 'tickets'
                   ? [{ label: 'Tickets' }, { label: selectedTicket?.ticketId ?? '', copyable: true }]
-                  : showSettingsHome
+                  : page === 'settings'
                     ? [
                         {
                           label: selectedLabel,
@@ -2257,7 +672,7 @@ export function App() {
                         },
                         ...(manageIndustries ? [{ label: 'Manage industries' }] : []),
                       ]
-                    : showKnowledgeBase
+                    : page === 'knowledge-base'
                       ? [
                           { label: selectedLabel, onClick: () => setKbTab('upload-files') },
                           { label: KB_COPY[kbTab].title },
@@ -2464,7 +879,7 @@ export function App() {
                   active: curFlow.active,
                   badge: BOT_FLOW_BADGE[botFlowStatus].label,
                   badgeTone: BOT_FLOW_BADGE[botFlowStatus].tone,
-                  onBack: () => setBotFlowsView('list'),
+                  onBack: leaveCanvas,
                   onEdit: () => setDetailsOpen(true),
                 }}
                 nodePalette={flowNodePalette}
@@ -2479,7 +894,7 @@ export function App() {
             )}
           </div>
 
-          {showBroadcastHome && (
+          {page === 'broadcast-list' && (
             <BroadcastHomePage
               broadcasts={BROADCASTS_BY_TAB[broadcastTab]}
               activeTab={broadcastTab}
@@ -2490,7 +905,7 @@ export function App() {
               searchValue={broadcastSearch}
               onSearchChange={setBroadcastSearch}
               onReport={() => alert('Download broadcast report')}
-              onNewBroadcast={() => setBroadcastView('canvas')}
+              onNewBroadcast={() => openCanvas('broadcast')}
               onRowClick={openBroadcastInEditor}
               onRowDownload={(row) => alert(`Download report: ${row.name}`)}
               onRowCopy={(row) => alert(`Copy broadcast: ${row.name}`)}
@@ -2500,7 +915,7 @@ export function App() {
             />
           )}
 
-          {showFlowsHome && (
+          {page === 'flows-list' && (
             <FlowsHomePage
               flows={FLOWS_BY_TAB[flowTab]}
               activeTab={flowTab}
@@ -2513,7 +928,7 @@ export function App() {
               onReport={(type) =>
                 alert(type === 'flow-report' ? 'Download flow report' : 'Download error log')
               }
-              onNewFlow={() => setFlowsView('canvas')}
+              onNewFlow={() => openCanvas('flows')}
               onRowClick={openFlowInEditor}
               onRowDownload={(row) => alert(`Download report: ${row.name}`)}
               onRowCopy={(row) => alert(`Copy flow: ${row.name}`)}
@@ -2523,7 +938,7 @@ export function App() {
             />
           )}
 
-          {showBotFlowsHome && (
+          {page === 'bot-flows-list' && (
             <BotFlowsHomePage
               flows={BOT_FLOWS_BY_TAB[botFlowTab]}
               activeTab={botFlowTab}
@@ -2533,7 +948,7 @@ export function App() {
               }}
               searchValue={botFlowSearch}
               onSearchChange={setBotFlowSearch}
-              onNewFlow={() => setBotFlowsView('canvas')}
+              onNewFlow={() => openCanvas('bot-flows')}
               onRowToggleActive={(row) =>
                 alert(`${row.status === 'active' ? 'Deactivate' : 'Activate'} flow: ${row.name}`)
               }
@@ -2547,7 +962,7 @@ export function App() {
             />
           )}
 
-          {showSegmentsHome && (
+          {page === 'segments' && (
             <SegmentsHomePage
               segments={SEGMENTS_BY_TAB[segmentTab]}
               activeTab={segmentTab}
@@ -2569,7 +984,7 @@ export function App() {
             />
           )}
 
-          {showTemplatesHome && (
+          {page === 'templates' && (
             <TemplatesHomePage
               templates={TEMPLATES_BY_CHANNEL[templateChannel]}
               activeChannel={templateChannel}
@@ -2606,7 +1021,7 @@ export function App() {
             />
           )}
 
-          {showKnowledgeBase && (
+          {page === 'knowledge-base' && (
             <SettingsPage
               tabs={KB_TABS}
               activeTab={kbTab}
@@ -2637,7 +1052,7 @@ export function App() {
             </SettingsPage>
           )}
 
-          {showSettingsHome && (
+          {page === 'settings' && (
             <SettingsPage
               tabs={
                 product === 'automation'
@@ -2923,7 +1338,7 @@ export function App() {
             </SettingsPage>
           )}
 
-          {showTicketsHome && (
+          {page === 'tickets' && (
             <HelpdeskTicketsPage
               conversationAlign={selectedTicket?.channel === 'email' ? 'start' : 'end'}
               ticketsSection={
@@ -3160,7 +1575,7 @@ export function App() {
             }}
           />
 
-          {!showCanvas && !showBroadcastHome && !showFlowsHome && !showBotFlowsHome && !showSegmentsHome && !showTemplatesHome && !showSettingsHome && !showKnowledgeBase && !showTicketsHome && (
+          {page === 'home' && (
             <div style={{ padding: 24 }}>
                 <h1 style={{ marginTop: 0 }}>LimeChat App Shell</h1>
                 <p>Reusable rail navigation + top bar from the LimeChat Design System V3.</p>
