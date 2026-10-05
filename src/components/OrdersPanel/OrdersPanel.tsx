@@ -36,6 +36,7 @@ import './OrdersPanel.css';
 import { iconProps } from '../iconProps';
 import { CloseIcon as ClearIcon, TrashIcon, CheckIcon } from '../icons';
 import { formatINR } from '../formatINR';
+import { draftToOrder, emptyDraft, isDraftValid, type OrderDraft } from '../../data/orderDraft';
 import { thumbPalette, useTypingPlaceholder } from '../catalogUtils';
 import { ProductThumb } from '../ProductThumb';
 import { QtyStepper } from '../QtyStepper';
@@ -496,80 +497,6 @@ function EmptyState({ searching }: { searching: boolean }) {
 
 /* --- Shared order form (used by both in-place edit mode and Create) ----- */
 
-interface OrderDraft {
-  invoiceName: string;
-  status: OrderStatus;
-  placedAt: string;
-  items: OrderLineItem[];
-  discountAmount: string;
-  discountCode: string;
-  taxRate: string;
-  shippingCost: string;
-  extraChargeLabel: string;
-  extraChargeAmount: string;
-  shippingAddress: Address;
-  billingAddress: Address;
-  billingSameAsShipping: boolean;
-  notes: string;
-}
-
-function emptyAddress(): Address {
-  return { name: '', line1: '', line2: '', city: '', state: '', postalCode: '', country: 'India', phone: '' };
-}
-
-function emptyDraft(): OrderDraft {
-  return {
-    invoiceName: '',
-    status: 'placed',
-    placedAt: new Date().toISOString().slice(0, 10),
-    items: [],
-    discountAmount: '0',
-    discountCode: '',
-    taxRate: '12',
-    shippingCost: '0',
-    extraChargeLabel: '',
-    extraChargeAmount: '0',
-    shippingAddress: emptyAddress(),
-    billingAddress: emptyAddress(),
-    billingSameAsShipping: true,
-    notes: '',
-  };
-}
-
-function computeDraftTotals(draft: OrderDraft): { subtotal: number; taxAmount: number; total: number } {
-  const subtotal = draft.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-  const discountAmount = Number(draft.discountAmount) || 0;
-  const taxRate = Number(draft.taxRate) || 0;
-  const shippingCost = Number(draft.shippingCost) || 0;
-  const extraChargeAmount = Number(draft.extraChargeAmount) || 0;
-  const taxAmount = Math.round(((subtotal - discountAmount) * taxRate) / 100);
-  const total = subtotal - discountAmount + taxAmount + shippingCost + extraChargeAmount;
-  return { subtotal, taxAmount, total };
-}
-
-function isDraftValid(draft: OrderDraft): boolean {
-  return (
-    draft.items.length > 0 &&
-    draft.shippingAddress.name.trim() !== '' &&
-    draft.shippingAddress.line1.trim() !== '' &&
-    draft.shippingAddress.city.trim() !== '' &&
-    draft.shippingAddress.postalCode.trim() !== ''
-  );
-}
-
-/** No invoice-name field exists in the form — derive one from the shipping name so it's never blank. */
-function resolveInvoiceName(draft: OrderDraft): string {
-  return draft.invoiceName.trim() || `Invoice - ${draft.shippingAddress.name.trim()}`;
-}
-
-function nextOrderId(existing: Order[]): string {
-  const max = existing.reduce((m, o) => {
-    const n = Number(o.id.replace('ORD-', ''));
-    return Number.isFinite(n) ? Math.max(m, n) : m;
-  }, 10000);
-  return `ORD-${max + 1}`;
-}
-
 function Field({ label, full, children }: { label: string; full?: boolean; children: ReactNode }) {
   return (
     <label className={`lc-op__field${full ? ' lc-op__field--full' : ''}`}>
@@ -884,16 +811,7 @@ function OrderFormFields({
       <div className="lc-op__detail-section">
         <p className="lc-op__detail-section-title">Cost summary</p>
         <ProductsCostCard
-          data={{
-            items: draft.items,
-            ...computeDraftTotals(draft),
-            discountAmount: Number(draft.discountAmount) || 0,
-            discountCode: draft.discountCode,
-            taxRate: Number(draft.taxRate) || 0,
-            shippingCost: Number(draft.shippingCost) || 0,
-            extraChargeLabel: draft.extraChargeLabel,
-            extraChargeAmount: Number(draft.extraChargeAmount) || 0,
-          }}
+          data={draftToOrder(draft)}
           {...(productsEditable
             ? {
                 onQtyChange: (index: number, quantity: number) =>
@@ -1115,33 +1033,12 @@ function CreateOrderView({
   onBack: () => void;
   onCreate: (order: Order) => void;
 }) {
-  const [draft, setDraft] = useState<OrderDraft>(() => ({ ...emptyDraft(), items: initialItems ?? [] }));
-  const totals = computeDraftTotals(draft);
+  const [draft, setDraft] = useState<OrderDraft>(() => emptyDraft(initialItems));
   const valid = isDraftValid(draft);
 
   const handleCreate = () => {
     if (!valid) return;
-    const billingAddress = draft.billingSameAsShipping ? draft.shippingAddress : draft.billingAddress;
-    onCreate({
-      id: nextOrderId(existingOrders),
-      invoiceName: resolveInvoiceName(draft),
-      placedAt: draft.placedAt,
-      status: draft.status,
-      items: draft.items,
-      subtotal: totals.subtotal,
-      discountAmount: Number(draft.discountAmount) || 0,
-      discountCode: draft.discountCode.trim() || undefined,
-      taxRate: Number(draft.taxRate) || 0,
-      taxAmount: totals.taxAmount,
-      shippingCost: Number(draft.shippingCost) || 0,
-      extraChargeLabel: draft.extraChargeLabel.trim() || undefined,
-      extraChargeAmount: Number(draft.extraChargeAmount) || 0,
-      total: totals.total,
-      shippingAddress: draft.shippingAddress,
-      billingAddress,
-      billingSameAsShipping: draft.billingSameAsShipping,
-      notes: draft.notes.trim() || undefined,
-    });
+    onCreate(draftToOrder(draft, existingOrders));
   };
 
   return (

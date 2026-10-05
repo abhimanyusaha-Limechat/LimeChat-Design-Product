@@ -14,10 +14,9 @@ import { NativeSelect } from '../Select';
 import './CartPanel.css';
 import { iconProps } from '../iconProps';
 import { formatINR } from '../formatINR';
+import { DEFAULT_TAX_RATE, orderTotals } from '../../data/orderDraft';
 import { ProductThumb } from '../ProductThumb';
 import { QtyStepper } from '../QtyStepper';
-
-const TAX_RATE = 12;
 
 const EmptyCartIcon = () => (
   <svg {...iconProps()} width="40" height="40">
@@ -42,9 +41,7 @@ export function CartPanel({ onCreateOrder }: { onCreateOrder?: (items: CartLineI
   const setSize = setItemSize;
   const setColor = setItemColor;
 
-  const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0), [items]);
-  const taxAmount = Math.round((subtotal * TAX_RATE) / 100);
-  const total = subtotal + taxAmount;
+  const { subtotal, taxAmount, total } = useMemo(() => orderTotals(items, { taxRate: DEFAULT_TAX_RATE }), [items]);
 
   return (
     <div className="lc-cp">
@@ -117,7 +114,7 @@ export function CartPanel({ onCreateOrder }: { onCreateOrder?: (items: CartLineI
             <span>{formatINR(subtotal)}</span>
           </div>
           <div className="lc-cp__summary-row">
-            <span>Tax ({TAX_RATE}%)</span>
+            <span>Tax ({DEFAULT_TAX_RATE}%)</span>
             <span>{formatINR(taxAmount)}</span>
           </div>
           <div className="lc-cp__summary-total">
