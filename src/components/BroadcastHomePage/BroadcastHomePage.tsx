@@ -200,7 +200,7 @@ export function BroadcastHomePage({
 
   return (
     <div className="lc-bh">
-      <div className="lc-bh__toolbar">
+      <div className="lc-bh__toolbar" data-anchor="broadcast-toolbar">
         <div className="lc-bh__search">
           <BroadcastIcon name="search" className="lc-bh__search-icon" />
           <input
@@ -233,7 +233,7 @@ export function BroadcastHomePage({
         </div>
       </div>
 
-      <div className="lc-bh__nav-row">
+      <div className="lc-bh__nav-row" data-anchor="broadcast-tab-bar">
         <div className="lc-bh__tabs" role="tablist">
           {TABS.map((tab) => (
             <button
@@ -277,7 +277,7 @@ export function BroadcastHomePage({
         </div>
       </div>
 
-      <div className="lc-bh__table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
+      <div className="lc-bh__table" data-anchor="broadcast-table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
         <div className="lc-bh__row lc-bh__row--head">
           <div className="lc-bh__cell--name lc-bh__cell">
             <button
@@ -309,7 +309,7 @@ export function BroadcastHomePage({
         </div>
 
         {sortedBroadcasts.map((row) => (
-          <div key={row.id} className="lc-bh__row lc-bh__row--body">
+          <div key={row.id} className="lc-bh__row lc-bh__row--body" data-anchor="broadcast-row" data-anchor-key={row.id}>
             <div className="lc-bh__cell--name lc-bh__cell">
               <BroadcastIcon
                 name={STATUS_ICON[row.status]}
@@ -391,7 +391,7 @@ export function BroadcastHomePage({
         ))}
       </div>
 
-      <div className="lc-bh__pagination">
+      <div className="lc-bh__pagination" data-anchor="broadcast-pagination">
         {Array.from(pageNumbers)
           .sort((a, b) => a - b)
           .flatMap((n, i, arr) => {

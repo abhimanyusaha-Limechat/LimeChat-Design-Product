@@ -193,7 +193,7 @@ export function TemplatesHomePage({
 
   return (
     <div className="lc-th">
-      <div className="lc-th__toolbar">
+      <div className="lc-th__toolbar" data-anchor="template-toolbar">
         <div className="lc-th__search">
           <TemplateIcon name="search" className="lc-th__search-icon" />
           <input
@@ -272,7 +272,7 @@ export function TemplatesHomePage({
         </div>
       </div>
 
-      <div className="lc-th__nav-row">
+      <div className="lc-th__nav-row" data-anchor="template-tab-bar">
         <div className="lc-th__tabs" role="tablist">
           {CHANNELS.map((channel) => (
             <button
@@ -290,7 +290,7 @@ export function TemplatesHomePage({
         </div>
       </div>
 
-      <div className="lc-th__table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
+      <div className="lc-th__table" data-anchor="template-table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
         <div className="lc-th__row lc-th__row--head">
           <div className="lc-th__cell--name lc-th__cell">
             <button
@@ -323,6 +323,8 @@ export function TemplatesHomePage({
           <div
             key={row.id}
             className="lc-th__row lc-th__row--body"
+            data-anchor="template-row"
+            data-anchor-key={row.id}
             data-status={activeChannel === 'email' ? undefined : row.status}
           >
             <div className="lc-th__cell--name lc-th__cell">
@@ -362,7 +364,7 @@ export function TemplatesHomePage({
       </div>
 
       {totalPages > 1 && (
-        <div className="lc-th__pagination">
+        <div className="lc-th__pagination" data-anchor="template-pagination">
           {Array.from(pageNumbers)
             .sort((a, b) => a - b)
             .flatMap((n, i, arr) => {

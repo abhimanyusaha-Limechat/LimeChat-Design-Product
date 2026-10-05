@@ -193,7 +193,7 @@ export function FlowsHomePage({
 
   return (
     <div className="lc-fh">
-      <div className="lc-fh__toolbar">
+      <div className="lc-fh__toolbar" data-anchor="flow-toolbar">
         <div className="lc-fh__search">
           <FlowIcon name="search" className="lc-fh__search-icon" />
           <input
@@ -237,7 +237,7 @@ export function FlowsHomePage({
         </div>
       </div>
 
-      <div className="lc-fh__nav-row">
+      <div className="lc-fh__nav-row" data-anchor="flow-tab-bar">
         <div className="lc-fh__tabs" role="tablist">
           {TABS.map((tab) => (
             <button
@@ -281,7 +281,7 @@ export function FlowsHomePage({
         </div>
       </div>
 
-      <div className="lc-fh__table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
+      <div className="lc-fh__table" data-anchor="flow-table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
         <div className="lc-fh__row lc-fh__row--head">
           <div className="lc-fh__cell--name lc-fh__cell">
             <button
@@ -313,7 +313,7 @@ export function FlowsHomePage({
         </div>
 
         {sortedFlows.map((row) => (
-          <div key={row.id} className="lc-fh__row lc-fh__row--body">
+          <div key={row.id} className="lc-fh__row lc-fh__row--body" data-anchor="flow-row" data-anchor-key={row.id}>
             <div className="lc-fh__cell--name lc-fh__cell">
               <div className="lc-fh__name-block">
                 <div className="lc-fh__name-line">
@@ -376,7 +376,7 @@ export function FlowsHomePage({
         ))}
       </div>
 
-      <div className="lc-fh__pagination">
+      <div className="lc-fh__pagination" data-anchor="flow-pagination">
         {Array.from(pageNumbers)
           .sort((a, b) => a - b)
           .flatMap((n, i, arr) => {

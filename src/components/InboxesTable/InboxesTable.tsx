@@ -110,7 +110,7 @@ export function InboxesTable({
 
   return (
     <div className="lc-ib">
-      <div className="lc-ib__toolbar">
+      <div className="lc-ib__toolbar" data-anchor="inbox-toolbar">
         <div className="lc-ib__search">
           <InboxIcon name="search" className="lc-ib__search-icon" />
           <input
@@ -135,7 +135,7 @@ export function InboxesTable({
         )}
       </div>
 
-      <div className="lc-ib__table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
+      <div className="lc-ib__table" data-anchor="inbox-table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
         <div className="lc-ib__row lc-ib__row--head">
           <div className="lc-ib__cell--name lc-ib__cell">
             <button
@@ -161,7 +161,7 @@ export function InboxesTable({
           <div className="lc-ib__empty">No inboxes found</div>
         ) : (
           sortedInboxes.map((row) => (
-            <div key={row.id} className="lc-ib__row lc-ib__row--body">
+            <div key={row.id} className="lc-ib__row lc-ib__row--body" data-anchor="inbox-row" data-anchor-key={row.id}>
               <div className="lc-ib__cell--name lc-ib__cell">
                 <InboxIcon name={TYPE_ICON[row.type]} className="lc-ib__row-icon" />
                 <div className="lc-ib__name-block">

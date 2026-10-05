@@ -77,7 +77,7 @@ export function SettingsPage({
 
   return (
     <div className="lc-sp">
-      <nav className="lc-sp__side-panel" aria-label="Settings" {...navScroll}>
+      <nav className="lc-sp__side-panel" data-anchor="settings-tab-list" aria-label="Settings" {...navScroll}>
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -94,7 +94,7 @@ export function SettingsPage({
 
       <div className="lc-sp__main">
         <div className="lc-sp__card">
-          <div className="lc-sp__header">
+          <div className="lc-sp__header" data-anchor="settings-header">
             <div className="lc-sp__header-text">
               <h1 className="lc-sp__title">{title}</h1>
               {description && <p className="lc-sp__description">{description}</p>}
@@ -138,6 +138,7 @@ export function SettingsPage({
           </div>
           <div
             className="lc-sp__content"
+            data-anchor="settings-content"
             style={contentPadding === undefined ? undefined : { padding: contentPadding }}
             {...contentScroll}
           >
