@@ -224,7 +224,7 @@ export function TopNavBar({
   ]);
 
   return (
-    <header className={`lc-topnav${className ? ` ${className}` : ''}`} style={style}>
+    <header className={`lc-topnav${className ? ` ${className}` : ''}`} style={style} data-anchor="top-nav-bar">
       <div className="lc-topnav__side">
         {logo != null &&
           (onLogoClick ? (
