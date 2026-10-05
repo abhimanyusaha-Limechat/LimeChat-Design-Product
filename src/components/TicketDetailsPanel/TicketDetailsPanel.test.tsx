@@ -101,3 +101,31 @@ describe('TicketDetailsPanel cart to order handoff', () => {
     expect(within(panel('Cart')).queryByText('Nike Air Zoom Pegasus 41')).not.toBeInTheDocument();
   });
 });
+
+describe('TicketDetailsPanel saved addresses', () => {
+  function CommerceHarness() {
+    const [tab, setTab] = useState('Products');
+    return <TicketDetailsPanel ticketId="100230" activeTab={tab} onTabChange={setTab} />;
+  }
+
+  it('keeps an address saved in Create order for the next time it opens', async () => {
+    const user = userEvent.setup();
+    render(<CommerceHarness />);
+    await user.click(await within(panel('Products')).findByText('Nike Air Zoom Pegasus 41'));
+    await user.click(screen.getByRole('button', { name: 'Add to cart' }));
+    await user.click(screen.getByRole('tab', { name: /^Cart/ }));
+    await user.click(screen.getByRole('button', { name: 'Create order' }));
+
+    await user.type(screen.getByLabelText('Full name'), 'Asha Verma');
+    await user.type(screen.getByLabelText('Address line 1'), '12 MG Road');
+    await user.type(screen.getByLabelText('City'), 'Bengaluru');
+    await user.type(screen.getByLabelText('Postal code'), '560001');
+    await user.type(screen.getByPlaceholderText('Save as (e.g. Home, Office)'), 'Studio');
+    await user.click(screen.getByRole('button', { name: 'Save address' }));
+    expect(within(panel('Orders')).getByText('Studio')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Back to cart' }));
+    await user.click(screen.getByRole('button', { name: 'Create order' }));
+    expect(within(panel('Orders')).getByText('Studio')).toBeInTheDocument();
+  });
+});

@@ -59,3 +59,7 @@ _Avoid_: Basket
 **Order draft**:
 The pre-filled Create order form that carries the Cart's items; it is discarded if the agent goes back to the Cart.
 _Avoid_: Pending order
+
+**Saved address**:
+An address kept in the Commerce session for reuse in the Create order form. It lasts as long as the session does.
+_Avoid_: Address book entry

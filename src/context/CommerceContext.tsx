@@ -3,10 +3,11 @@
  * while that ticket is open, and which Orders view is showing, so the Products, Cart and Orders
  * tabs share one source of truth instead of passing signals through their parent.
  *
- * Keyed by ticket (see TicketDetailsPanel), so switching tickets starts a fresh session.
+ * Keyed by ticket (see TicketDetailsPanel), so switching tickets starts a fresh session. The saved
+ * addresses belong to that ticket's customer, so they last as long as the session does.
  */
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
-import { MOCK_ORDERS, type Order, type OrderLineItem } from '../data/mockOrders';
+import { DEFAULT_SAVED_ADDRESSES, MOCK_ORDERS, type Address, type Order, type OrderLineItem, type SavedAddress } from '../data/mockOrders';
 
 export interface CartLineItem {
   productId: string;
@@ -43,6 +44,10 @@ interface CommerceContextValue {
   cancelCreate: () => void;
   openOrder: (orderId: string) => void;
   backToList: () => void;
+
+  savedAddresses: SavedAddress[];
+  saveAddress: (label: string, address: Address) => void;
+  updateAddress: (id: string, address: Address) => void;
 }
 
 const CommerceContext = createContext<CommerceContextValue | null>(null);
@@ -56,6 +61,7 @@ export function CommerceProvider({ children, showTab }: { children: ReactNode; s
   const [items, setItems] = useState<CartLineItem[]>([]);
   const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
   const [orderView, setOrderView] = useState<OrderView>({ kind: 'list' });
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>(DEFAULT_SAVED_ADDRESSES);
 
   const value = useMemo<CommerceContextValue>(
     () => ({
@@ -94,8 +100,14 @@ export function CommerceProvider({ children, showTab }: { children: ReactNode; s
       },
       openOrder: (orderId) => setOrderView({ kind: 'detail', orderId }),
       backToList: () => setOrderView({ kind: 'list' }),
+
+      savedAddresses,
+      saveAddress: (label, address) =>
+        setSavedAddresses((prev) => [...prev, { id: `addr-${Date.now()}`, label, address }]),
+      updateAddress: (id, address) =>
+        setSavedAddresses((prev) => prev.map((saved) => (saved.id === id ? { ...saved, address } : saved))),
     }),
-    [items, orders, orderView, showTab],
+    [items, orders, orderView, savedAddresses, showTab],
   );
 
   return <CommerceContext.Provider value={value}>{children}</CommerceContext.Provider>;
