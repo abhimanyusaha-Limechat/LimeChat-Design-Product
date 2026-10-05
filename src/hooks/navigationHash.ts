@@ -1,5 +1,5 @@
 import { sidebarPresets, type SidebarProduct } from '../components/Sidebar/presets';
-import { SETTINGS_TABS_BY_PRODUCT } from '../data/settingsDemo';
+import { SETTINGS_TABS_BY_PRODUCT } from '../components/SettingsScreen/settingsTabs';
 
 export type FlowKind = 'broadcast' | 'flows' | 'bot-flows';
 export type UserSettingsTab = 'account' | 'profile';
