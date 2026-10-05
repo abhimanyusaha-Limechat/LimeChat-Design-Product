@@ -442,7 +442,7 @@ const inboxCreatedOn = (i: number) => {
 };
 
 // Weighted so WhatsApp (the primary channel) still dominates the list.
-const INBOX_TYPES: InboxRowData['type'][] = ['whatsapp', 'whatsapp', 'whatsapp', 'email', 'instagram', 'sms'];
+const INBOX_TYPES: InboxRowData['type'][] = ['whatsapp', 'whatsapp', 'facebook', 'email', 'instagram', 'sms'];
 
 const DEMO_INBOXES: InboxRowData[] = INBOX_NAMES.map((name, i) => ({
   id: inboxId(i),
@@ -461,7 +461,7 @@ const DEMO_BOT_TEMPLATES: BotTemplateRow[] = [
   { id: 'bt6', name: 'Track order by order id -', description: 'Shopify', type: 'flow', usecases: [], industries: ['E-Commerce [D2C]'], scope: 'global' },
   { id: 'bt7', name: 'Greeting / Main Menu', description: 'Displays Main Menu and Handles Greetings', type: 'task', usecases: [], industries: ['E-Commerce [D2C]', 'E-Commerce [B2B]', 'Retail'], scope: 'global' },
   { id: 'bt8', name: 'Abandoned Cart Recovery', description: 'Nudges shoppers to complete their purchase', type: 'flow', usecases: ['Sales', 'Marketing'], industries: ['E-Commerce [D2C]'], scope: 'global' },
-  { id: 'bt9', name: 'Return & Refund Request', description: 'Collects return reasons and starts a refund', type: 'flow', usecases: ['Support'], industries: ['E-Commerce [D2C]', 'Retail'], scope: 'global' },
+  { id: 'bt9', name: 'Return & Refund Request', description: 'Collects return reasons and starts a refund', type: 'flow', usecases: ['Support'], industries: ['Ecommerce'], scope: 'global' },
   { id: 'bt10', name: 'COD Order Confirmation', description: 'Confirms cash-on-delivery orders', type: 'task', usecases: ['Support'], industries: ['E-Commerce [D2C]'], scope: 'account' },
   { id: 'bt11', name: 'Store Locator', description: 'Finds the nearest store by pincode', type: 'task', usecases: [], industries: ['Retail'], scope: 'global' },
   { id: 'bt12', name: 'Lead Qualification', description: 'Captures name, budget and intent', type: 'flow', usecases: ['Sales'], industries: ['E-Commerce [B2B]'], scope: 'account' },
@@ -483,6 +483,24 @@ const DEMO_VARIABLES: BotTemplateRow[] = [
   { id: 'v8', name: 'order.total', description: 'Total value of the latest order', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Number' },
   { id: 'v9', name: 'order.is_cod', description: 'Whether the order is cash on delivery', type: 'task', usecases: [], industries: [], scope: 'global', dataType: 'Boolean' },
 ];
+const DEMO_INDUSTRIES: BotTemplateRow[] = [
+  { id: 'i1', name: 'E-Commerce [D2C]', description: 'Direct-to-consumer online brands', type: 'task', usecases: ['Order tracking', 'Returns', 'Cart recovery'], industries: ['E-Commerce [D2C]'], scopes: ['Agent', 'Task', 'Flows'], scope: 'global' },
+  { id: 'i2', name: 'E-Commerce [B2B]', description: 'Wholesale and business buyers', type: 'task', usecases: ['Bulk orders', 'Quotes'], industries: ['E-Commerce [B2B]'], scopes: ['Task', 'Flows'], scope: 'global' },
+  { id: 'i3', name: 'Retail', description: 'Physical and omnichannel stores', type: 'task', usecases: ['Store locator', 'Loyalty'], industries: ['Retail'], scopes: ['Agent'], scope: 'account' },
+  { id: 'i4', name: 'Healthcare', description: '', type: 'task', usecases: ['Appointments', 'Reminders', 'Reports', 'Billing', 'Feedback'], industries: ['Healthcare'], scopes: ['Agent', 'Task'], scope: 'global' },
+  { id: 'i5', name: 'Education', description: '', type: 'task', usecases: [], industries: ['Education'], scopes: ['Flows'], scope: 'account' },
+];
+const DEMO_USE_CASES: BotTemplateRow[] = [
+  { id: 'u1', name: 'Order tracking', description: '', type: 'task', usecases: [], industries: ['Ecommerce'], scopes: ['Agent', 'Flows'], scope: 'global' },
+  { id: 'u2', name: 'Returns & refunds', description: '', type: 'task', usecases: [], industries: ['Ecommerce'], scopes: ['Task', 'Flows'], scope: 'global' },
+  { id: 'u3', name: 'Course enquiries', description: '', type: 'task', usecases: [], industries: ['Edtech'], scopes: ['Flows'], scope: 'global' },
+  { id: 'u4', name: 'Fee reminders', description: '', type: 'task', usecases: [], industries: ['Edtech'], scopes: ['Agent', 'Task'], scope: 'account' },
+  { id: 'u5', name: 'Table reservations', description: '', type: 'task', usecases: [], industries: ['Hospitality'], scopes: ['Agent', 'Task', 'Flows'], scope: 'global' },
+  { id: 'u6', name: 'Guest feedback', description: '', type: 'task', usecases: [], industries: ['Hospitality'], scopes: ['Task'], scope: 'account' },
+  { id: 'u7', name: 'Site visit booking', description: '', type: 'task', usecases: [], industries: ['Real estate'], scopes: ['Agent', 'Flows'], scope: 'global' },
+  { id: 'u8', name: 'Lead qualification', description: '', type: 'task', usecases: [], industries: ['Real estate'], scopes: ['Task'], scope: 'account' },
+];
+const AGENT_INBOXES = INBOX_NAMES.slice(0, 6).map((name, i) => ({ name, type: INBOX_TYPES[i] }));
 const DEMO_COLLABORATORS: BotTemplateRow[] = [
   { id: 'c1', name: 'Aarav Mehta', description: 'aarav@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Admin' },
   { id: 'c2', name: 'Isha Kapoor', description: 'isha@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
@@ -500,6 +518,101 @@ const DEMO_COLLABORATORS: BotTemplateRow[] = [
   { id: 'c14', name: 'Pooja Reddy', description: 'pooja@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
   { id: 'c15', name: 'Sameer Khan', description: 'sameer@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
 ];
+const DEMO_TEAMS: BotTemplateRow[] = [
+  { id: 't1', name: 'Customer Support', description: 'Handles first-line customer queries across all inboxes', type: 'task', usecases: [], industries: [], scope: 'account' },
+  { id: 't2', name: 'Billing & Payments', description: 'Resolves invoice, refund and payment-failure tickets', type: 'task', usecases: [], industries: [], scope: 'account' },
+  { id: 't3', name: 'Order Fulfilment', description: 'Tracks shipments, delays and delivery issues', type: 'task', usecases: [], industries: [], scope: 'account' },
+  { id: 't4', name: 'Returns & Exchanges', description: 'Processes return requests and replacement orders', type: 'task', usecases: [], industries: [], scope: 'account' },
+  { id: 't5', name: 'VIP Care', description: 'Priority support for high-value and loyalty customers', type: 'task', usecases: [], industries: [], scope: 'account' },
+  { id: 't6', name: 'Technical Support', description: 'Troubleshoots product defects and setup problems', type: 'task', usecases: [], industries: [], scope: 'account' },
+  { id: 't7', name: 'Sales Enquiries', description: 'Answers pre-purchase questions and recommends products', type: 'task', usecases: [], industries: [], scope: 'account' },
+  { id: 't8', name: 'Escalations', description: 'Owns complex or high-severity tickets from other teams', type: 'task', usecases: [], industries: [], scope: 'account' },
+  { id: 't9', name: 'Social Media', description: 'Responds to Instagram and Facebook messages and comments', type: 'task', usecases: [], industries: [], scope: 'account' },
+];
+const DEMO_RULES: BotTemplateRow[] = [
+  { id: 'r1', name: 'Auto-assign by inbox', description: 'Routes new tickets to the team that owns the inbox', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'r2', name: 'Tag VIP customers', description: 'Adds the VIP tag when a high-value customer writes in', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'r3', name: 'Escalate overdue tickets', description: 'Moves tickets past their SLA to the Escalations team', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
+  { id: 'r4', name: 'Auto-close resolved tickets', description: 'Closes tickets with no reply 3 days after they are resolved', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'r5', name: 'Reopen on customer reply', description: 'Reopens a resolved ticket when the customer replies', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'r6', name: 'Out-of-hours reply', description: 'Sends an away message outside business hours', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
+  { id: 'r7', name: 'Set priority from keywords', description: 'Raises priority when a message mentions refund or chargeback', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'r8', name: 'Notify on negative CSAT', description: 'Alerts the team lead when a low CSAT rating comes in', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+];
+const DEMO_RULE_LIBRARY: BotTemplateRow[] = [
+  { id: 'rl1', name: 'Round-robin assignment', description: 'Shares new tickets evenly across available agents', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
+  { id: 'rl2', name: 'Auto-reply on first contact', description: 'Acknowledges a customer’s first message instantly', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
+  { id: 'rl3', name: 'Priority by customer tier', description: 'Sets ticket priority from the customer’s plan or tier', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
+  { id: 'rl4', name: 'Follow up after 24 hours', description: 'Pings the assignee when a ticket has had no update for a day', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
+  { id: 'rl5', name: 'Merge duplicate tickets', description: 'Combines tickets raised by the same customer within an hour', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
+  { id: 'rl6', name: 'Tag by channel', description: 'Adds a tag for WhatsApp, Instagram, Email or SMS tickets', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
+];
+const DEMO_CANNED: BotTemplateRow[] = [
+  { id: 'cr1', name: 'Greeting', description: 'Hi! Thanks for reaching out, how can I help today?', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'text' },
+  { id: 'cr2', name: 'Order status', description: 'Share the order ID and I will check where it is right away', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'text' },
+  { id: 'cr3', name: 'Refund timeline', description: 'Refunds reach your original payment method in 5-7 working days', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'text' },
+  { id: 'cr4', name: 'Size guide', description: 'Sends the size chart image for the product category', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'image' },
+  { id: 'cr5', name: 'Return label', description: 'Attaches the prepaid return label PDF', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'image' },
+  { id: 'cr6', name: 'Store locations', description: 'Links to the store locator page', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'text' },
+  { id: 'cr7', name: 'Escalation notice', description: 'Lets the customer know a senior agent will follow up', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'text' },
+  { id: 'cr8', name: 'Closing note', description: 'Wraps up the chat and asks for a CSAT rating', type: 'task', usecases: [], industries: [], scope: 'account', mediaType: 'text' },
+];
+const DEMO_CANNED_LIBRARY: BotTemplateRow[] = [
+  { id: 'crl1', name: 'Business hours', description: 'Shares your support timings and holiday schedule', type: 'task', usecases: [], industries: [], scope: 'global', mediaType: 'text' },
+  { id: 'crl2', name: 'Payment options', description: 'Lists accepted payment methods and COD availability', type: 'task', usecases: [], industries: [], scope: 'global', mediaType: 'text' },
+  { id: 'crl3', name: 'Warranty claim steps', description: 'Attaches the step-by-step warranty claim guide', type: 'task', usecases: [], industries: [], scope: 'global', mediaType: 'image' },
+  { id: 'crl4', name: 'Track your order', description: 'Links to the order tracking page', type: 'task', usecases: [], industries: [], scope: 'global', mediaType: 'text' },
+  { id: 'crl5', name: 'Feedback request', description: 'Asks the customer to share feedback after resolution', type: 'task', usecases: [], industries: [], scope: 'global', mediaType: 'image' },
+  { id: 'crl6', name: 'Out-of-stock apology', description: 'Apologises and offers a restock notification', type: 'task', usecases: [], industries: [], scope: 'global', mediaType: 'text' },
+];
+const DEMO_SLA: BotTemplateRow[] = [
+  { id: 'sla1', name: 'First response – urgent', description: 'Reply within 15 minutes for tickets marked urgent', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'sla2', name: 'First response – standard', description: 'Reply within 4 hours for normal-priority tickets', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'sla3', name: 'Resolution – high priority', description: 'Resolve within 8 hours for high-priority tickets', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
+  { id: 'sla4', name: 'Resolution – standard', description: 'Resolve within 48 hours for everything else', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'sla5', name: 'VIP customers', description: 'Tighter response and resolution targets for VIP accounts', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'sla6', name: 'Out-of-hours pause', description: 'Stops the SLA clock outside business hours', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
+  { id: 'sla7', name: 'Waiting on customer', description: 'Pauses the clock while we wait for the customer to reply', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'sla8', name: 'Voice call-back', description: 'Call back within 30 minutes for missed voice calls', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+];
+const DEMO_SLA_LIBRARY: BotTemplateRow[] = [
+  { id: 'slal1', name: 'Next business day', description: 'Resolve every ticket by the end of the next business day', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
+  { id: 'slal2', name: 'Gold support plan', description: '1 hour first response, 8 hours resolution', type: 'task', usecases: [], industries: [], scope: 'global', enabled: true },
+  { id: 'slal3', name: 'Silver support plan', description: '4 hours first response, 24 hours resolution', type: 'task', usecases: [], industries: [], scope: 'global', enabled: true },
+  { id: 'slal4', name: 'Bronze support plan', description: '8 hours first response, 72 hours resolution', type: 'task', usecases: [], industries: [], scope: 'global', enabled: false },
+  { id: 'slal5', name: 'Weekend coverage', description: 'Reduced targets for tickets raised on weekends', type: 'task', usecases: [], industries: [], scope: 'global', enabled: true },
+];
+const DEMO_CONVERSATION_FIELDS: BotTemplateRow[] = [
+  { id: 'cf1', name: 'Order ID', description: 'The order number the customer is asking about', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'cf2', name: 'Product SKU', description: 'SKU of the product the ticket relates to', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'cf3', name: 'Issue category', description: 'Dropdown to classify the ticket, e.g. delivery, payment, product', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
+  { id: 'cf4', name: 'Preferred contact time', description: 'When the customer would like to be reached', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'cf5', name: 'Refund amount', description: 'Amount to be refunded, in rupees', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'cf6', name: 'Delivery pincode', description: 'Pincode used to check serviceability and delays', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
+  { id: 'cf7', name: 'Customer tier', description: 'Standard, Gold or VIP', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'cf8', name: 'Escalated to', description: 'Person or team the ticket was escalated to', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+];
+const DEMO_CONTACT_FIELDS: BotTemplateRow[] = [
+  { id: 'cfc1', name: 'Date of birth', description: 'Used for birthday offers and age checks', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'cfc2', name: 'City', description: 'City the customer lives in', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'cfc3', name: 'Company', description: 'Organisation the customer works for', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
+  { id: 'cfc4', name: 'Preferred language', description: 'Language to use when replying', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'cfc5', name: 'Loyalty ID', description: 'Membership number in the loyalty programme', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'cfc6', name: 'Alternate phone', description: 'A second number to reach the customer on', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
+];
+const CUSTOM_FIELD_TYPES = ['Text', 'Number', 'Date', 'Dropdown'];
+// Demo: give each custom field a data type and a couple of inboxes so the Type / Inbox filters have something to match.
+const withFieldMeta = (rows: BotTemplateRow[]): BotTemplateRow[] =>
+  rows.map((r, i) => ({
+    ...r,
+    kind: CUSTOM_FIELD_TYPES[i % CUSTOM_FIELD_TYPES.length],
+    inboxes: [AGENT_INBOXES[i % AGENT_INBOXES.length], AGENT_INBOXES[(i + 2) % AGENT_INBOXES.length]],
+  }));
+// Demo: each agent sits in 2–3 of the first few inboxes.
+const DEMO_AGENTS: BotTemplateRow[] = DEMO_COLLABORATORS.map((c, i) => ({
+  ...c,
+  inboxes: Array.from({ length: 2 + (i % 2) }, (_, k) => AGENT_INBOXES[(i + k) % AGENT_INBOXES.length]),
+}));
 const DEMO_KB_FILES: Record<string, BotTemplateRow[]> = {
   doc: [
     { id: 'doc1', name: 'Return policy.pdf', description: 'Ready · 19.88/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '1.2 MB' },
@@ -517,25 +630,90 @@ const DEMO_KB_FILES: Record<string, BotTemplateRow[]> = {
     { id: 'doc13', name: 'Support scripts.md', description: 'Ready · 19.02/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '388 KB' },
   ],
   url: [
-    { id: 'url1', name: 'Help centre: Orders', description: 'https://help.example.com/orders', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '48 KB' },
-    { id: 'url2', name: 'Help centre: Refunds', description: 'https://help.example.com/refunds', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '36 KB' },
+    { id: 'url1', name: 'https://www.nestkart.in/faqs', description: 'Ready · 16.30/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Daily' },
+    { id: 'url2', name: 'https://www.urbanleaf.co/refund-policy', description: 'Failed · 1 failed · took 12h 14m · $0.00', status: 'failed', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Weekly' },
+    { id: 'url3', name: 'https://help.shopsphere.com/shipping', description: 'Partial · 260/259 pages · 4 failed · 26.33 urls/min · took 9m 28', status: 'partial', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Monthly' },
+    { id: 'url4', name: 'https://www.bluecart.store/track-order', description: 'Ready · 21.48/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Weekly' },
+    { id: 'url5', name: 'https://support.freshbasket.in/returns', description: 'Ready · 11.85/min · took 3s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Daily' },
+    { id: 'url6', name: 'https://www.zenwear.shop/warranty', description: 'Ready · 18.22/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Monthly' },
+    { id: 'url7', name: 'https://www.greenmile.io/payment-options', description: 'Ready · 25.59/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Manual' },
+    { id: 'url8', name: 'https://faq.craftnest.co.uk/cod', description: 'Ready · 15.96/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Weekly' },
+    { id: 'url9', name: 'https://www.homelane.in/size-guide', description: 'Ready · 22.33/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Monthly' },
+    { id: 'url10', name: 'https://shop.petalpure.com/gift-cards', description: 'Ready · 12.70/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Daily' },
+    { id: 'url11', name: 'https://www.trendora.in/offers', description: 'Ready · 19.07/min · took 4s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Weekly' },
+    { id: 'url12', name: 'https://www.snapmart.app/contact-us', description: 'Ready · 26.44/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Manual' },
+    { id: 'url13', name: 'https://care.glowbar.in/privacy-policy', description: 'Ready · 16.81/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Monthly' },
+    { id: 'url14', name: 'https://www.kiranastore.in/terms', description: 'Ready · 23.18/min · took 3s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Weekly' },
+    { id: 'url15', name: 'https://help.tastybox.co/about', description: 'Ready · 13.55/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Daily' },
+    { id: 'url16', name: 'https://www.bookbarn.in/careers', description: 'Ready · 20.92/min · took 2s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Monthly' },
+    { id: 'url17', name: 'https://www.fitfuel.store/store-locator', description: 'Ready · 10.29/min · took 1s · $0.00', type: 'task', usecases: [], industries: [], scope: 'account', dataType: 'Weekly' },
   ],
-  domain: [
-    { id: 'domain1', name: 'example.com', description: 'Crawled 14 Sep 2026 · 126 pages', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '5.6 MB' },
-  ],
+  domain: [], // same rows as URL — filled in below
   custom: [
     { id: 'custom1', name: 'Brand tone notes', description: 'Added by Aarav Mehta', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '12 KB' },
     { id: 'custom2', name: 'Escalation rules', description: 'Added by Isha Kapoor', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '8 KB' },
   ],
 };
+DEMO_KB_FILES.domain = DEMO_KB_FILES.url;
+// Helpdesk Settings tabs with a primary "+ <thing>" CTA in the header.
+const HELPDESK_ADD_CTA: Record<string, string> = {
+  inboxes: 'Inbox',
+  agents: 'Agent',
+  teams: 'Team',
+  'automation-rules': 'Automation rule',
+  'custom-fields': 'Custom field',
+  'sla-rules': 'SLA rule',
+  'canned-responses': 'Canned response',
+  tags: 'Tag',
+};
 const SEARCH_PLACEHOLDER: Record<string, string> = {
   variable: 'Search for variables',
   collaborators: 'Search for collaborators',
+  agents: 'Search for agents',
+  teams: 'Search for teams',
+  'automation-rules': 'Search for automation rules',
+  'canned-responses': 'Search for canned responses',
+  'sla-rules': 'Search for SLA rules',
+  'custom-fields': 'Search for custom fields',
 };
 const VARIABLE_SCOPES = [
   { id: 'system', label: 'System' },
   { id: 'bot', label: 'Bot' },
   { id: 'flows', label: 'Flows' },
+];
+const USE_CASE_CATEGORIES = [
+  { id: 'all', label: 'All' },
+  { id: 'Ecommerce', label: 'Ecommerce' },
+  { id: 'Edtech', label: 'Edtech' },
+  { id: 'Hospitality', label: 'Hospitality' },
+  { id: 'Real estate', label: 'Real estate' },
+];
+const PEOPLE_VARIANT: Record<string, 'collaborators' | 'agents' | 'teams' | 'rules' | 'fields'> = {
+  collaborators: 'collaborators',
+  agents: 'agents',
+  teams: 'teams',
+  'automation-rules': 'rules',
+  'canned-responses': 'teams', // name-only list, same as Teams
+  'sla-rules': 'rules',
+  'custom-fields': 'fields',
+};
+const RULE_TABS = [
+  { id: 'created', label: 'Created' },
+  { id: 'library', label: 'Library' },
+];
+// Segmented tabs for the shared list pages; the first tab is the default.
+const LIST_PAGE_TABS: Record<string, { id: string; label: string }[]> = {
+  'automation-rules': RULE_TABS,
+  'canned-responses': RULE_TABS,
+  'sla-rules': RULE_TABS,
+  'custom-fields': [
+    { id: 'conversation', label: 'Conversation' },
+    { id: 'contact', label: 'Contact' },
+  ],
+};
+const INDUSTRY_TABS = [
+  { id: 'industries', label: 'Industries' },
+  { id: 'use-cases', label: 'Use Cases' },
 ];
 const BOT_TEMPLATE_INDUSTRIES = ['E-Commerce [D2C]', 'E-Commerce [B2B]', 'Retail'];
 
@@ -1599,16 +1777,56 @@ export function App() {
   );
 
   const [variableScope, setVariableScope] = useState('system');
+  // Sub-page of Bot templates; mirrors the Variable page until it gets its own content.
+  const [manageIndustries, setManageIndustries] = useState(false);
+  const [industryTab, setIndustryTab] = useState('industries');
+  const [useCaseCategory, setUseCaseCategory] = useState('all');
   const [variableDataType, setVariableDataType] = useState('all');
   const [botTemplateSearch, setBotTemplateSearch] = useState('');
   const [botTemplateType, setBotTemplateType] = useState('all');
   const [botTemplateIndustry, setBotTemplateIndustry] = useState('all');
-  const visibleCollaborators = DEMO_COLLABORATORS.filter((c) =>
-    c.name.toLowerCase().includes(botTemplateSearch.trim().toLowerCase()),
+  // Collaborators, Agents, Teams, Automation rules and Canned responses share one table; PEOPLE_VARIANT maps each tab to its variant.
+  const peopleVariant = PEOPLE_VARIANT[settingsTab];
+  const isPeopleTab = peopleVariant !== undefined;
+  // Active segmented tab per list page.
+  const [listTabs, setListTabs] = useState<Record<string, string>>({});
+  const pageTabs = LIST_PAGE_TABS[settingsTab];
+  const listTab = listTabs[settingsTab] ?? pageTabs?.[0].id;
+  const [switchOn, setSwitchOn] = useState<Record<string, boolean>>({});
+  const [agentRole, setAgentRole] = useState('all');
+  // The Inbox dropdown is shared by Agents and Custom fields.
+  const [agentInbox, setAgentInbox] = useState('all');
+  const [fieldType, setFieldType] = useState('all');
+  const withSwitches = (rows: BotTemplateRow[]) => rows.map((r) => ({ ...r, enabled: switchOn[r.id] ?? r.enabled }));
+  const peopleRows: Record<string, BotTemplateRow[]> = {
+    collaborators: DEMO_COLLABORATORS,
+    agents: DEMO_AGENTS,
+    teams: DEMO_TEAMS,
+    'automation-rules': withSwitches(listTab === 'library' ? DEMO_RULE_LIBRARY : DEMO_RULES),
+    'canned-responses': listTab === 'library' ? DEMO_CANNED_LIBRARY : DEMO_CANNED,
+    'sla-rules': withSwitches(listTab === 'library' ? DEMO_SLA_LIBRARY : DEMO_SLA),
+    'custom-fields': withFieldMeta(withSwitches(listTab === 'contact' ? DEMO_CONTACT_FIELDS : DEMO_CONVERSATION_FIELDS)),
+  };
+  const visibleCollaborators = (peopleRows[settingsTab] ?? []).filter(
+    (c) =>
+      c.name.toLowerCase().includes(botTemplateSearch.trim().toLowerCase()) &&
+      (settingsTab !== 'agents' || agentRole === 'all' || c.role === agentRole) &&
+      (settingsTab !== 'custom-fields' || fieldType === 'all' || c.kind === fieldType) &&
+      ((settingsTab !== 'agents' && settingsTab !== 'custom-fields') ||
+        agentInbox === 'all' ||
+        c.inboxes?.some((i) => i.name === agentInbox)),
   );
   const visibleKbFiles = (DEMO_KB_FILES[kbSource] ?? [])
     .filter((r) => r.name.toLowerCase().includes(botTemplateSearch.trim().toLowerCase()))
-    .map((r) => ({ ...r, format: r.name.includes('.') ? r.name.split('.').pop()?.toUpperCase() : undefined }));
+    .map((r) => ({
+      ...r,
+      format:
+        kbSource === 'url' || kbSource === 'domain'
+          ? new URL(r.name).hostname.replace(/^www\./, '')
+          : r.name.includes('.')
+            ? r.name.split('.').pop()?.toUpperCase()
+            : undefined,
+    }));
   const visibleVariables = DEMO_VARIABLES.filter(
     (v) =>
       (variableDataType === 'all' || v.dataType === variableDataType) &&
@@ -1956,6 +2174,15 @@ export function App() {
     onSearchChange: setAccountQuery,
   };
 
+  const leaveCanvas = () =>
+    product === 'automation'
+      ? setBotFlowsView('list')
+      : selected === 'broadcast'
+      ? setBroadcastView('list')
+      : selected === 'automation-flows'
+        ? setFlowsView('list')
+        : setSelected('home');
+
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       <Sidebar
@@ -1966,6 +2193,7 @@ export function App() {
           setBroadcastView('list');
           setFlowsView('list');
           setSettingsTab('inboxes');
+          setManageIndustries(false);
           setUserSettingsOpen(false);
         }}
         profile={{
@@ -2009,15 +2237,31 @@ export function App() {
               ? [{ label: USER_SETTINGS_COPY[userSettingsTab].title }]
               : showCanvas
                 ? [
-                    { label: selected === 'broadcast' ? 'Broadcast' : 'Flows' },
+                    { label: selected === 'broadcast' ? 'Broadcast' : 'Flows', onClick: leaveCanvas },
                     { label: curFlow.id, copyable: true },
                   ]
                 : showTicketsHome
                   ? [{ label: 'Tickets' }, { label: selectedTicket?.ticketId ?? '', copyable: true }]
                   : showSettingsHome
-                    ? [{ label: selectedLabel }, { label: SETTINGS_COPY[settingsTab].title }]
+                    ? [
+                        {
+                          label: selectedLabel,
+                          onClick: () => {
+                            setManageIndustries(false);
+                            setSettingsTab('inboxes');
+                          },
+                        },
+                        {
+                          label: SETTINGS_COPY[settingsTab].title,
+                          onClick: () => setManageIndustries(false),
+                        },
+                        ...(manageIndustries ? [{ label: 'Manage industries' }] : []),
+                      ]
                     : showKnowledgeBase
-                      ? [{ label: selectedLabel }, { label: KB_COPY[kbTab].title }]
+                      ? [
+                          { label: selectedLabel, onClick: () => setKbTab('upload-files') },
+                          { label: KB_COPY[kbTab].title },
+                        ]
                       : [{ label: selectedLabel }]
           }
           account={account}
@@ -2182,12 +2426,7 @@ export function App() {
                       : selected === 'automation-flows'
                         ? FLOW_BADGE[flowStatus].tone
                         : undefined,
-                  onBack: () =>
-                    selected === 'broadcast'
-                      ? setBroadcastView('list')
-                      : selected === 'automation-flows'
-                        ? setFlowsView('list')
-                        : setSelected('home'),
+                  onBack: leaveCanvas,
                   onEdit: () => setDetailsOpen(true),
                 }}
                 nodePalette={flowNodePalette}
@@ -2380,6 +2619,7 @@ export function App() {
               {kbTab === 'manage' && (
                 <BotTemplatesTable
                   variant="files"
+                  webSource={kbSource === 'url' || kbSource === 'domain' ? kbSource : undefined}
                   tabs={KB_SOURCE_TABS}
                   activeTab={kbSource}
                   onTabChange={setKbSource}
@@ -2388,6 +2628,7 @@ export function App() {
                   onSearchChange={setBotTemplateSearch}
                   searchPlaceholder={`Search for ${KB_SOURCE_TABS.find((t) => t.id === kbSource)?.label ?? ''}`}
                   hideFilters
+                  onViewDetails={(row) => alert(`View details: ${row.name}`)}
                   onRowEdit={(row) => alert(`Edit template: ${row.name}`)}
                   onRowClone={(row) => alert(`Clone template: ${row.name}`)}
                   onRowDelete={(row) => alert(`Delete template: ${row.name}`)}
@@ -2406,15 +2647,34 @@ export function App() {
                     : SETTINGS_TABS
               }
               activeTab={settingsTab}
-              onTabChange={setSettingsTab}
-              title={SETTINGS_COPY[settingsTab].title}
-              description={SETTINGS_COPY[settingsTab].description}
+              onTabChange={(id) => {
+                setManageIndustries(false);
+                setSettingsTab(id);
+              }}
+              title={manageIndustries ? 'Manage industries' : SETTINGS_COPY[settingsTab].title}
+              description={manageIndustries ? SETTINGS_COPY.variable.description : SETTINGS_COPY[settingsTab].description}
+              contentPadding={settingsTab === 'custom-fields' ? 20 : undefined}
               onWatchVideo={() => alert(`Play tutorial video: ${SETTINGS_COPY[settingsTab].title}`)}
               onViewDocs={() => alert(`Open docs: ${SETTINGS_COPY[settingsTab].title}`)}
               headerActions={
-                settingsTab === 'bot-templates' ? (
+                manageIndustries ? (
                   <>
-                    <Button variant="default" size="sm" onClick={() => alert('Manage industries')}>
+                    <Button variant="default" size="sm" onClick={() => setManageIndustries(false)}>
+                      Back to Bot templates
+                    </Button>
+                    <Button
+                      variant="filled"
+                      color="primary"
+                      size="sm"
+                      leftSection={<PlusIcon />}
+                      onClick={() => alert(industryTab === 'use-cases' ? 'New use case' : 'New industry')}
+                    >
+                      {industryTab === 'use-cases' ? 'Use cases' : 'Industries'}
+                    </Button>
+                  </>
+                ) : settingsTab === 'bot-templates' ? (
+                  <>
+                    <Button variant="default" size="sm" onClick={() => setManageIndustries(true)}>
                       Manage industries
                     </Button>
                     <Button
@@ -2427,6 +2687,16 @@ export function App() {
                       Template
                     </Button>
                   </>
+                ) : product === 'helpdesk' && HELPDESK_ADD_CTA[settingsTab] ? (
+                  <Button
+                    variant="filled"
+                    color="primary"
+                    size="sm"
+                    leftSection={<PlusIcon />}
+                    onClick={() => alert(`New ${HELPDESK_ADD_CTA[settingsTab].toLowerCase()}`)}
+                  >
+                    {HELPDESK_ADD_CTA[settingsTab]}
+                  </Button>
                 ) : settingsTab === 'variable' ? (
                   <Button
                     variant="filled"
@@ -2539,25 +2809,71 @@ export function App() {
                   searchValue={inboxSearch}
                   onSearchChange={setInboxSearch}
                   syncing={inboxSyncing}
-                  onSync={() => {
-                    setInboxSyncing(true);
-                    window.setTimeout(() => setInboxSyncing(false), 900);
-                  }}
+                  onRowEdit={(row) => alert(`Edit inbox: ${row.name}`)}
+                  onRowDelete={(row) => alert(`Delete inbox: ${row.name}`)}
+                  onSync={
+                    product === 'helpdesk'
+                      ? undefined
+                      : () => {
+                          setInboxSyncing(true);
+                          window.setTimeout(() => setInboxSyncing(false), 900);
+                        }
+                  }
                 />
-              ) : settingsTab === 'bot-templates' || settingsTab === 'variable' || settingsTab === 'collaborators' ? (
+              ) : settingsTab === 'bot-templates' || settingsTab === 'variable' || isPeopleTab ? (
                 <BotTemplatesTable
-                  variant={settingsTab === 'variable' ? 'variables' : settingsTab === 'collaborators' ? 'collaborators' : 'templates'}
-                  searchPlaceholder={SEARCH_PLACEHOLDER[settingsTab]}
-                  hideFilters={settingsTab === 'collaborators'}
+                  variant={manageIndustries ? 'industries' : settingsTab === 'variable' ? 'variables' : (peopleVariant ?? 'templates')}
+                  searchPlaceholder={SEARCH_PLACEHOLDER[manageIndustries ? 'variable' : settingsTab]}
+                  hideFilters={isPeopleTab || manageIndustries}
+                  hideSearch={manageIndustries}
+                  iconActions={manageIndustries}
+                  showUseCases={industryTab === 'industries'}
+                  chipFilter={
+                    manageIndustries && industryTab === 'use-cases'
+                      ? { options: USE_CASE_CATEGORIES, value: useCaseCategory, onChange: setUseCaseCategory }
+                      : undefined
+                  }
+                  onToggleRow={(row) => setSwitchOn((prev) => ({ ...prev, [row.id]: !row.enabled }))}
                   onInvite={settingsTab === 'collaborators' ? () => alert('Invite collaborator') : undefined}
-                  {...(settingsTab === 'variable' && {
-                    tabs: VARIABLE_SCOPES,
-                    activeTab: variableScope,
-                    onTabChange: setVariableScope,
-                  })}
-                  templates={settingsTab === 'variable'
+                  selects={
+                    settingsTab === 'agents' || settingsTab === 'custom-fields'
+                      ? [
+                          settingsTab === 'agents'
+                            ? {
+                                ariaLabel: 'Filter by role',
+                                options: [{ value: 'all', label: 'Role' }, ...['Admin', 'Editor', 'Viewer'].map((r) => ({ value: r, label: r }))],
+                                value: agentRole,
+                                onChange: setAgentRole,
+                              }
+                            : {
+                                ariaLabel: 'Filter by type',
+                                options: [{ value: 'all', label: 'Type' }, ...CUSTOM_FIELD_TYPES.map((t) => ({ value: t, label: t }))],
+                                value: fieldType,
+                                onChange: setFieldType,
+                              },
+                          {
+                            ariaLabel: 'Filter by inbox',
+                            options: [{ value: 'all', label: 'Inbox' }, ...AGENT_INBOXES.map((i) => ({ value: i.name, label: i.name }))],
+                            value: agentInbox,
+                            onChange: setAgentInbox,
+                          },
+                        ]
+                      : undefined
+                  }
+                  {...(pageTabs
+                    ? { tabs: pageTabs, activeTab: listTab, onTabChange: (id: string) => setListTabs((prev) => ({ ...prev, [settingsTab]: id })) }
+                    : (settingsTab === 'variable' || manageIndustries) && {
+                        tabs: manageIndustries ? INDUSTRY_TABS : VARIABLE_SCOPES,
+                        activeTab: manageIndustries ? industryTab : variableScope,
+                        onTabChange: manageIndustries ? setIndustryTab : setVariableScope,
+                      })}
+                  templates={manageIndustries
+                    ? industryTab === 'use-cases'
+                      ? DEMO_USE_CASES.filter((u) => useCaseCategory === 'all' || u.industries.includes(useCaseCategory))
+                      : DEMO_INDUSTRIES
+                    : settingsTab === 'variable'
                       ? visibleVariables
-                      : settingsTab === 'collaborators'
+                      : isPeopleTab
                         ? visibleCollaborators
                         : visibleBotTemplates}
                   searchValue={botTemplateSearch}

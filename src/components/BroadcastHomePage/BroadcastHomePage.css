@@ -17,7 +17,7 @@
   --lc-bh-primary-dark: var(--lc-color-green-800);
   --lc-bh-green-2: var(--lc-color-green-200);
   --lc-bh-table-head-bg: var(--lc-color-blue-50);
-  --lc-bh-row-hover: var(--lc-color-green-50);
+  --lc-bh-row-hover: var(--lc-color-gray-100);
   --lc-bh-retry-bg: var(--lc-color-green-50);
   --lc-bh-retry-text: #6BAC1B;
   --lc-bh-secondary-light-bg: var(--lc-color-gray-125);
