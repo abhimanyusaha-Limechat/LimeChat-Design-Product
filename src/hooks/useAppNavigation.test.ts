@@ -59,6 +59,61 @@ describe('useAppNavigation', () => {
     expect(result.current.page).toBe('bot-flows-list');
   });
 
+  it('writes each navigation to the hash as a new history entry', () => {
+    const { result } = setup();
+    const before = history.length;
+    act(() => result.current.switchProduct('marketing'));
+    expect(location.hash).toBe('#/marketing/home');
+    act(() => result.current.select('segments'));
+    expect(location.hash).toBe('#/marketing/segments');
+    expect(history.length).toBe(before + 2);
+  });
+
+  it('starts on the screen in the hash', () => {
+    history.replaceState(null, '', '#/automation/knowledge-base?foo=1');
+    const { result } = setup();
+    expect(result.current.product).toBe('automation');
+    expect(result.current.selected).toBe('knowledge-base');
+    expect(result.current.page).toBe('knowledge-base');
+    expect(location.hash).toBe('#/automation/knowledge-base?foo=1');
+  });
+
+  it('follows hashchange (back, forward, manual edits)', () => {
+    const { result } = setup();
+    act(() => result.current.openUserSettings('profile'));
+    history.replaceState(null, '', '#/marketing/segments');
+    act(() => {
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
+    expect(result.current.product).toBe('marketing');
+    expect(result.current.selected).toBe('segments');
+    expect(result.current.page).toBe('segments');
+  });
+
+  it.each([
+    ['', '#/helpdesk/tickets'],
+    ['#/nope/x', '#/helpdesk/tickets'],
+    ['#/automation/nope', '#/automation/agents'],
+  ])('corrects %j to %s in place on load', (hash, corrected) => {
+    history.replaceState(null, '', hash || location.pathname);
+    const before = history.length;
+    setup();
+    expect(location.hash).toBe(corrected);
+    expect(history.length).toBe(before);
+  });
+
+  it('corrects a broken hash in place on hashchange', () => {
+    const { result } = setup();
+    history.replaceState(null, '', '#/marketing/nope');
+    const before = history.length;
+    act(() => {
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
+    expect(result.current.selected).toBe('home');
+    expect(location.hash).toBe('#/marketing/home');
+    expect(history.length).toBe(before);
+  });
+
   it('shows user settings over any page and closes them on navigation', () => {
     const { result } = setup();
     act(() => result.current.openUserSettings('profile'));

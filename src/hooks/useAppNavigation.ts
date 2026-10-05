@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { sidebarPresets, type SidebarProduct } from '../components/Sidebar/presets';
+import { parseHash, toHash, type ScreenLocation } from './navigationHash';
 
 export type FlowKind = 'broadcast' | 'flows' | 'bot-flows';
 type View = 'list' | 'canvas';
@@ -34,10 +35,12 @@ const FLOW_PAGE: Record<FlowKind, { list: Page; canvas: Page }> = {
  * Which product and rail item is open, which flow list/editor view each flow kind is in,
  * and the settings sub-navigation that resets whenever you navigate. `page` is derived
  * from that state, so adding a page means one `Page` member and one branch here.
+ *
+ * Product and rail item live in the URL hash (ADR 0001): navigating pushes a history
+ * entry, and Back/Forward, manual edits and pasted links arrive as `hashchange`.
  */
 export function useAppNavigation() {
-  const [product, setProduct] = useState<SidebarProduct>('helpdesk');
-  const [selected, setSelected] = useState(sidebarPresets.helpdesk.items[0].id);
+  const [{ product, selected }, setLocation] = useState(() => parseHash(window.location.hash));
   const [flowViews, setFlowViews] = useState<Record<FlowKind, View>>({
     broadcast: 'list',
     flows: 'list',
@@ -74,16 +77,29 @@ export function useAppNavigation() {
     setUserSettingsOpen(false);
   };
 
-  const select = (id: string) => {
-    setSelected(id);
+  /** Shows whatever the hash says, rewriting it in place (no history entry) if its path was broken. */
+  const followHash = () => {
+    const next = parseHash(window.location.hash);
+    if (toHash(next) !== window.location.hash.split('?')[0])
+      window.history.replaceState(window.history.state, '', toHash(next));
+    setLocation(next);
     resetViews();
   };
 
-  const switchProduct = (next: SidebarProduct) => {
-    setProduct(next);
-    setSelected(sidebarPresets[next].items[0].id);
-    resetViews();
+  useEffect(() => {
+    followHash();
+    window.addEventListener('hashchange', followHash);
+    return () => window.removeEventListener('hashchange', followHash);
+  }, []); // followHash only calls stable state setters.
+
+  const navigate = (to: ScreenLocation) => {
+    window.history.pushState(null, '', toHash(to));
+    followHash();
   };
+
+  const select = (id: string) => navigate({ product, selected: id });
+
+  const switchProduct = (next: SidebarProduct) => navigate({ product: next, selected: sidebarPresets[next].items[0].id });
 
   const setFlowView = (kind: FlowKind, view: View) => setFlowViews((v) => ({ ...v, [kind]: view }));
 
