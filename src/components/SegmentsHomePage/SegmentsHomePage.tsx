@@ -120,7 +120,7 @@ export function SegmentsHomePage({
 
   return (
     <div className="lc-sg">
-      <div className="lc-sg__toolbar">
+      <div className="lc-sg__toolbar" data-anchor="segment-toolbar">
         <div className="lc-sg__search">
           <SegmentIcon name="search" className="lc-sg__search-icon" />
           <input
@@ -144,7 +144,7 @@ export function SegmentsHomePage({
         </div>
       </div>
 
-      <div className="lc-sg__nav-row">
+      <div className="lc-sg__nav-row" data-anchor="segment-tab-bar">
         <div className="lc-sg__tabs" role="tablist">
           {TABS.map((tab) => (
             <button
@@ -162,7 +162,7 @@ export function SegmentsHomePage({
         </div>
       </div>
 
-      <div className="lc-sg__table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
+      <div className="lc-sg__table" data-anchor="segment-table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
         <div className="lc-sg__row lc-sg__row--head">
           <div className="lc-sg__cell--name lc-sg__cell">
             <button
@@ -185,7 +185,7 @@ export function SegmentsHomePage({
         </div>
 
         {sortedSegments.map((row) => (
-          <div key={row.id} className="lc-sg__row lc-sg__row--body">
+          <div key={row.id} className="lc-sg__row lc-sg__row--body" data-anchor="segment-row" data-anchor-key={row.id}>
             <div className="lc-sg__cell--name lc-sg__cell">
               <div className="lc-sg__name-block">
                 <span className="lc-sg__name">{row.name}</span>
@@ -235,7 +235,7 @@ export function SegmentsHomePage({
       </div>
 
       {totalPages > 1 && (
-        <div className="lc-sg__pagination">
+        <div className="lc-sg__pagination" data-anchor="segment-pagination">
           {Array.from(pageNumbers)
             .sort((a, b) => a - b)
             .flatMap((n, i, arr) => {

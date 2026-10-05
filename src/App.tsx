@@ -1369,6 +1369,8 @@ export function App() {
                   {TICKETS.map((ticket) => (
                     <TicketListItem
                       key={ticket.id}
+                      data-anchor="ticket-row"
+                      data-anchor-key={ticket.id}
                       channel={ticket.channel}
                       user={ticket.user}
                       avatars={ticket.avatarCount ? Array.from({ length: ticket.avatarCount }, () => ({})) : undefined}
@@ -1564,7 +1566,7 @@ export function App() {
           />
 
           {page === 'home' && (
-            <div style={{ padding: 24 }}>
+            <div style={{ padding: 24 }} data-anchor="home-intro">
                 <h1 style={{ marginTop: 0 }}>LimeChat App Shell</h1>
                 <p>Reusable rail navigation + top bar from the LimeChat Design System V3.</p>
                 <p style={{ color: '#595959' }}>
