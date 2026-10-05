@@ -208,7 +208,7 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
 
   return (
     <div {...rest} ref={ref} className={`lc-hd-tickets${className ? ` ${className}` : ''}`}>
-      <div className="lc-hd-tickets__list" style={{ width: list.width }}>
+      <div className="lc-hd-tickets__list" data-anchor="ticket-list" style={{ width: list.width }}>
         {ticketsSection}
       </div>
 
@@ -227,10 +227,11 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
       />
 
       <div className="lc-hd-tickets__main">
-        {conversationTopBar && <div className="lc-hd-tickets__topbar">{conversationTopBar}</div>}
+        {conversationTopBar && <div className="lc-hd-tickets__topbar" data-anchor="conversation-header">{conversationTopBar}</div>}
         {conversationItems ? (
           <Virtuoso
             ref={virtuosoRef}
+            data-anchor="conversation"
             className="lc-hd-tickets__conversation lc-hd-tickets__conversation--virtual lc-scrollbar-hidden"
             style={{ paddingTop: 8, paddingBottom: 8 }}
             data={conversationItems}
@@ -243,6 +244,7 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
           />
         ) : (
           <div
+            data-anchor="conversation"
             className="lc-hd-tickets__conversation lc-scrollbar-hidden"
             data-align={conversationAlign}
             ref={conversationRef}
@@ -250,7 +252,7 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
             <div className="lc-hd-tickets__conversation-inner">{conversation}</div>
           </div>
         )}
-        {composer && <div className="lc-hd-tickets__composer">{composer}</div>}
+        {composer && <div className="lc-hd-tickets__composer" data-anchor="composer">{composer}</div>}
       </div>
 
       {detailsPanel && (
@@ -268,7 +270,7 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
             onMouseDown={details.onMouseDown}
             onKeyDown={details.onKeyDown}
           />
-          <div className="lc-hd-tickets__details" style={{ width: details.width }}>
+          <div className="lc-hd-tickets__details" data-anchor="ticket-details-panel" style={{ width: details.width }}>
             {detailsPanel}
           </div>
         </>

@@ -837,7 +837,7 @@ export function CanvasChrome({
   return (
     <div className={`lc-canvas${className ? ` ${className}` : ''}`} style={style} aria-hidden={false}>
       {/* --- Canvas navigation ------------------------------------------ */}
-      <div className="lc-canvas__nav">
+      <div className="lc-canvas__nav" data-anchor="canvas-header">
         <div
           className="lc-canvas__flow"
           data-active={flow.active === undefined ? undefined : String(flow.active)}
@@ -958,7 +958,7 @@ export function CanvasChrome({
 
       {/* --- Floating toolbar ----------------------------------------- */}
       {showToolbar && (
-        <div className="lc-canvas__toolbar">
+        <div className="lc-canvas__toolbar" data-anchor="canvas-toolbar">
           <div className="lc-canvas__toolbar-panel" role="toolbar" aria-label="Canvas tools" aria-orientation="vertical">
             {nodePalette && nodePalette.length > 0 ? (
               <div className="lc-canvas__palette-wrap" ref={paletteWrapRef}>
@@ -1044,7 +1044,7 @@ export function CanvasChrome({
 
       {/* --- Status bar --------------------------------------------- */}
       {showStatusBar && (
-        <div className="lc-canvas__statusbar">
+        <div className="lc-canvas__statusbar" data-anchor="canvas-status-bar">
           <CanvasMinimap
             zoom={zoom}
             onZoomIn={onZoomIn ?? (() => onZoomChange?.(Math.round(zoom) + 10))}

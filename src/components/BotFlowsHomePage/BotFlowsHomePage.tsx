@@ -124,7 +124,7 @@ export function BotFlowsHomePage({
 
   return (
     <div className="lc-bf">
-      <div className="lc-bf__toolbar">
+      <div className="lc-bf__toolbar" data-anchor="bot-flow-toolbar">
         <div className="lc-bf__search">
           <BotFlowIcon name="search" className="lc-bf__search-icon" />
           <input
@@ -148,7 +148,7 @@ export function BotFlowsHomePage({
         </div>
       </div>
 
-      <div className="lc-bf__nav-row">
+      <div className="lc-bf__nav-row" data-anchor="bot-flow-tab-bar">
         <div className="lc-bf__tabs" role="tablist">
           {TABS.map((tab) => (
             <button
@@ -166,7 +166,7 @@ export function BotFlowsHomePage({
         </div>
       </div>
 
-      <div className="lc-bf__table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
+      <div className="lc-bf__table" data-anchor="bot-flow-table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
         <div className="lc-bf__row lc-bf__row--head">
           <div className="lc-bf__cell--name lc-bf__cell">
             <button
@@ -186,7 +186,7 @@ export function BotFlowsHomePage({
         </div>
 
         {sortedFlows.map((row) => (
-          <div key={row.id} className="lc-bf__row lc-bf__row--body">
+          <div key={row.id} className="lc-bf__row lc-bf__row--body" data-anchor="bot-flow-row" data-anchor-key={row.id}>
             <div className="lc-bf__cell--name lc-bf__cell">
               <div className="lc-bf__name-block">
                 <span className="lc-bf__name">{row.name}</span>
@@ -233,7 +233,7 @@ export function BotFlowsHomePage({
       </div>
 
       {totalPages > 1 && (
-        <div className="lc-bf__pagination">
+        <div className="lc-bf__pagination" data-anchor="bot-flow-pagination">
           {Array.from(pageNumbers)
             .sort((a, b) => a - b)
             .flatMap((n, i, arr) => {
