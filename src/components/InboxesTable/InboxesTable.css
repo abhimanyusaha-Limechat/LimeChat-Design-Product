@@ -16,7 +16,7 @@
   --lc-ib-text-placeholder: var(--lc-color-gray-500);
   --lc-ib-primary: var(--lc-color-green-500);
   --lc-ib-table-head-bg: var(--lc-color-blue-50);
-  --lc-ib-row-hover: var(--lc-color-green-50);
+  --lc-ib-row-hover: var(--lc-color-gray-100);
   --lc-ib-chip-bg: var(--lc-color-gray-125);
   --lc-ib-chip-text: var(--lc-color-sage-600);
   --lc-ib-radius: 4px;
@@ -213,6 +213,12 @@
 
 .lc-ib__cell--type {
   flex: 0 0 140px;
+}
+
+.lc-ib__cell--actions {
+  flex: 0 0 32px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .lc-ib__cell--meta {

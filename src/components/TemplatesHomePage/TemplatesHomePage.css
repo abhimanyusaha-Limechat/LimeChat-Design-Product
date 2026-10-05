@@ -19,7 +19,7 @@
   --lc-th-warning: #E8A325;
   --lc-th-danger: var(--lc-color-red-600);
   --lc-th-table-head-bg: var(--lc-color-blue-50);
-  --lc-th-row-hover: var(--lc-color-green-50);
+  --lc-th-row-hover: var(--lc-color-gray-100);
   --lc-th-secondary-light-bg: var(--lc-color-gray-125);
   --lc-th-secondary-light-text: var(--lc-color-sage-600);
   --lc-th-retry-bg: var(--lc-color-green-50);

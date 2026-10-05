@@ -3,7 +3,7 @@
  * table of connected inboxes (Name, Type, Meta ID) with a copyable ID chip
  * inline before each name — same anatomy as BroadcastHomePage/BotFlowsHomePage
  * (id chip + name-block, sortable name column, row rhythm), scoped to "lc-ib"
- * and simplified to a static list (no row actions, no tabs).
+ * and simplified to a list with a ⋯ row-actions menu (no tabs).
  *
  *   <InboxesTable
  *     inboxes={rows}
@@ -14,11 +14,12 @@
  */
 import { useRef, useState } from 'react';
 import { Button } from '../Button';
+import { ActionMenu } from '../Menu';
 import { Tooltip } from '../Tooltip';
 import { InboxIcon, type InboxIconName } from './icons';
 import './InboxesTable.css';
 
-export type InboxType = 'whatsapp' | 'email' | 'instagram' | 'sms';
+export type InboxType = 'whatsapp' | 'email' | 'instagram' | 'sms' | 'facebook';
 
 export interface InboxRowData {
   id: string;
@@ -35,6 +36,7 @@ const TYPE_ICON: Record<InboxType, InboxIconName> = {
   email: 'email',
   instagram: 'instagram',
   sms: 'sms',
+  facebook: 'facebook',
 };
 
 const TYPE_LABEL: Record<InboxType, string> = {
@@ -42,6 +44,7 @@ const TYPE_LABEL: Record<InboxType, string> = {
   email: 'Email',
   instagram: 'Instagram',
   sms: 'Sms',
+  facebook: 'Facebook',
 };
 
 /** Copy-to-clipboard ID chip — same interaction as BroadcastHomePage's IdChip. */
@@ -72,8 +75,11 @@ export interface InboxesTableProps {
   inboxes: InboxRowData[];
   searchValue?: string;
   onSearchChange?: (value: string) => void;
+  /** Shows the "Sync Inboxes" button; omit to hide it. */
   onSync?: () => void;
   syncing?: boolean;
+  onRowEdit?: (row: InboxRowData) => void;
+  onRowDelete?: (row: InboxRowData) => void;
 }
 
 export function InboxesTable({
@@ -82,6 +88,8 @@ export function InboxesTable({
   onSearchChange,
   onSync,
   syncing = false,
+  onRowEdit,
+  onRowDelete,
 }: InboxesTableProps) {
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollTimeout = useRef<number>();
@@ -113,16 +121,18 @@ export function InboxesTable({
             onChange={(e) => onSearchChange?.(e.currentTarget.value)}
           />
         </div>
-        <Button
-          variant="filled"
-          color="primary"
-          size="sm"
-          leftSection={<InboxIcon name="sync" />}
-          onClick={onSync}
-          loading={syncing}
-        >
-          Sync Inboxes
-        </Button>
+        {onSync && (
+          <Button
+            variant="filled"
+            color="primary"
+            size="sm"
+            leftSection={<InboxIcon name="sync" />}
+            onClick={onSync}
+            loading={syncing}
+          >
+            Sync Inboxes
+          </Button>
+        )}
       </div>
 
       <div className="lc-ib__table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
@@ -144,6 +154,7 @@ export function InboxesTable({
           <div className="lc-ib__cell--meta lc-ib__cell">
             <span className="lc-ib__head-label">Meta ID</span>
           </div>
+          <div className="lc-ib__cell--actions lc-ib__cell" />
         </div>
 
         {inboxes.length === 0 ? (
@@ -168,6 +179,16 @@ export function InboxesTable({
                 </div>
               </div>
               <div className="lc-ib__cell--meta lc-ib__cell">{row.metaId}</div>
+              <div className="lc-ib__cell--actions lc-ib__cell">
+                <ActionMenu
+                  ariaLabel={`Actions for ${row.name}`}
+                  icon={<InboxIcon name="dots-vertical" />}
+                  items={[
+                    { label: 'Edit', onClick: () => onRowEdit?.(row) },
+                    { label: 'Delete', danger: true, onClick: () => onRowDelete?.(row) },
+                  ]}
+                />
+              </div>
             </div>
           ))
         )}

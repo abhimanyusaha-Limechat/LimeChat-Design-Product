@@ -7,11 +7,18 @@ export type InboxIconName =
   | 'email'
   | 'instagram'
   | 'sms'
-  | 'chevron-down';
+  | 'facebook'
+  | 'chevron-down'
+  | 'dots-vertical';
 
 const PATHS: Record<InboxIconName, string[]> = {
   search: ['M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0', 'M21 21l-6 -6'],
   'chevron-down': ['M6 9l6 6l6 -6'],
+  'dots-vertical': [
+    'M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+    'M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+    'M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
+  ],
   sync: [
     'M4 12v-4a4 4 0 0 1 4 -4h12l-4 -4',
     'M4 8l4 4l-4 4',
@@ -28,6 +35,7 @@ const PATHS: Record<InboxIconName, string[]> = {
     'M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0',
     'M16.5 7.5l0 .01',
   ],
+  facebook: ['M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3'],
   sms: [
     'M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1',
   ],

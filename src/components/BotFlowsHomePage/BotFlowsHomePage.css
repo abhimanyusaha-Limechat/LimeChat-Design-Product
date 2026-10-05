@@ -16,7 +16,7 @@
   --lc-bf-text-placeholder: var(--lc-color-gray-500);
   --lc-bf-primary: var(--lc-color-green-500);
   --lc-bf-table-head-bg: var(--lc-color-blue-50);
-  --lc-bf-row-hover: var(--lc-color-green-50);
+  --lc-bf-row-hover: var(--lc-color-gray-100);
   --lc-bf-bg: var(--lc-color-stone-25);
   --lc-bf-radius: 4px;
   --lc-bf-ease-out: cubic-bezier(0.23, 1, 0.32, 1);

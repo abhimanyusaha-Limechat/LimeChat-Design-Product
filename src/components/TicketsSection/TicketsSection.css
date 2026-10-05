@@ -62,7 +62,7 @@
   gap: 4px;
   padding: 4px 8px 4px 10px;
   border: none;
-  border-radius: 100px;
+  border-radius: 4px;
   background: var(--lc-ts-status-bg, var(--lc-color-gray-150));
   font-family: inherit;
   font-size: 13px;

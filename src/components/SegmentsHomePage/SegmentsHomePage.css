@@ -16,7 +16,7 @@
   --lc-sg-text-placeholder: var(--lc-color-gray-500);
   --lc-sg-primary: var(--lc-color-green-500);
   --lc-sg-table-head-bg: var(--lc-color-blue-50);
-  --lc-sg-row-hover: var(--lc-color-green-50);
+  --lc-sg-row-hover: var(--lc-color-gray-100);
   --lc-sg-bg: var(--lc-color-stone-25);
   --lc-sg-radius: 4px;
   --lc-sg-ease-out: cubic-bezier(0.23, 1, 0.32, 1);

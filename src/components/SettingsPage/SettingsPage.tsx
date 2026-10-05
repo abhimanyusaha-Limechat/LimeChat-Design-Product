@@ -26,6 +26,8 @@ export interface SettingsPageProps {
   onViewDocs?: () => void;
   /** Rendered at the right end of the header (e.g. a Save button), after the video/docs CTAs. */
   headerActions?: ReactNode;
+  /** Overrides the content card's padding in px (default 16). */
+  contentPadding?: number;
   children?: ReactNode;
 }
 
@@ -67,6 +69,7 @@ export function SettingsPage({
   onWatchVideo,
   onViewDocs,
   headerActions,
+  contentPadding,
   children,
 }: SettingsPageProps) {
   const navScroll = useScrollFade();
@@ -103,8 +106,7 @@ export function SettingsPage({
                     {onWatchVideo && (
                       <Tooltip label={`Learn more on ${title} on a video explainer`} position="bottom">
                         <Button
-                          variant="light"
-                          color="primary"
+                          variant="default"
                           size="sm"
                           leftSection={<PlayCircleIcon />}
                           onClick={onWatchVideo}
@@ -116,8 +118,7 @@ export function SettingsPage({
                     {onViewDocs && (
                       <Tooltip label={`Learn more on ${title} on Documentation`} position="bottom">
                         <Button
-                          variant="light"
-                          color="primary"
+                          variant="default"
                           size="sm"
                           leftSection={<DocsIcon />}
                           onClick={onViewDocs}
@@ -135,7 +136,11 @@ export function SettingsPage({
               </div>
             )}
           </div>
-          <div className="lc-sp__content" {...contentScroll}>
+          <div
+            className="lc-sp__content"
+            style={contentPadding === undefined ? undefined : { padding: contentPadding }}
+            {...contentScroll}
+          >
             {children}
           </div>
         </div>
