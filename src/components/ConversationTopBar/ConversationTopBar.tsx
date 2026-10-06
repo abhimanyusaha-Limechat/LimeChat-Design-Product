@@ -20,19 +20,10 @@ import { ActionMenu, Menu } from '../Menu';
 import { TicketIcon, type TicketChannel } from '../TicketListItem';
 import './ConversationTopBar.css';
 import { iconProps } from '../iconProps';
-import { ChevronDownIcon } from '../icons';
+import { Icon, ChevronDownIcon } from '../icons';
 
-const PhoneIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
-  </svg>
-);
-const WhatsAppIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9" />
-    <path d="M9 10a0.5 .5 0 0 0 1 0v-1a0.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a0.5 .5 0 0 0 0 -1h-1a0.5 .5 0 0 0 -1 0" />
-  </svg>
-);
+const PhoneIcon = () => <Icon name="phone" />;
+const WhatsAppIcon = () => <Icon name="whatsapp" />;
 const DotsVerticalIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M12 12m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
@@ -40,11 +31,7 @@ const DotsVerticalIcon = () => (
     <path d="M12 5m-1.5 0a1.5 1.5 0 1 0 3 0a1.5 1.5 0 1 0 -3 0" />
   </svg>
 );
-const StarIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-  </svg>
-);
+const StarIcon = () => <Icon name="star" />;
 const BellOffIcon = () => (
   <svg {...iconProps()}>
     <path d="M17 17h-13a1 1 0 0 1 -0.74 -1.673c0.789 -0.86 1.74 -2.339 1.74 -4.327v-1a6.97 6.97 0 0 1 1.279 -4.007m2.083 -1.767a6.97 6.97 0 0 1 3.638 -1.226v0a1 1 0 0 1 3 0v0c0 0.35 0.006 0.698 0.017 1.043" />
