@@ -12,11 +12,12 @@
  *     onNewBroadcast={() => setOpen(true)}
  *   />
  */
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import { Tooltip } from '../Tooltip';
 import { BroadcastIcon, type BroadcastIconName } from './icons';
+import { DataTable, DataTableEmpty, DataTableHead, DataTableRow } from '../DataTable';
 import './BroadcastHomePage.css';
 
 export type BroadcastTab = 'triggered' | 'scheduled' | 'draft';
@@ -170,14 +171,6 @@ export function BroadcastHomePage({
   const [timeframe, setTimeframe] = useState('this-week');
   const [showRetry, setShowRetry] = useState(true);
 
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeout = useRef<number>();
-  const handleTableScroll = () => {
-    setIsScrolling(true);
-    window.clearTimeout(scrollTimeout.current);
-    scrollTimeout.current = window.setTimeout(() => setIsScrolling(false), 600);
-  };
-
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' } | null>(null);
   const toggleSort = (key: SortKey) =>
     setSort((s) =>
@@ -277,9 +270,9 @@ export function BroadcastHomePage({
         </div>
       </div>
 
-      <div className="lc-bh__table" data-anchor="broadcast-table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
-        <div className="lc-bh__row lc-bh__row--head">
-          <div className="lc-bh__cell--name lc-bh__cell">
+      <DataTable aria-label="Broadcasts" data-anchor="broadcast-table">
+        <DataTableHead>
+          <div role="columnheader" className="lc-bh__cell--name lc-bh__cell">
             <button
               type="button"
               className="lc-bh__sort-btn"
@@ -292,7 +285,7 @@ export function BroadcastHomePage({
           </div>
           <div className="lc-bh__stats">
             {COLUMNS.map((col) => (
-              <div className="lc-bh__cell--stat" key={col.key}>
+              <div role="columnheader" className="lc-bh__cell--stat" key={col.key}>
                 <button
                   type="button"
                   className="lc-bh__sort-btn"
@@ -305,91 +298,95 @@ export function BroadcastHomePage({
               </div>
             ))}
           </div>
-          <div className="lc-bh__cell--actions" aria-hidden="true" />
-        </div>
+          <div role="columnheader" className="lc-bh__cell--actions" aria-label="Actions" />
+        </DataTableHead>
 
-        {sortedBroadcasts.map((row) => (
-          <div key={row.id} className="lc-bh__row lc-bh__row--body" data-anchor="broadcast-row" data-anchor-key={row.id}>
-            <div className="lc-bh__cell--name lc-bh__cell">
-              <BroadcastIcon
-                name={STATUS_ICON[row.status]}
-                className="lc-bh__status-icon"
-                data-status={row.status}
-              />
-              <div className="lc-bh__name-block">
-                <div className="lc-bh__name-line">
-                  {row.displayId && <IdChip id={row.displayId} />}
-                  <span className="lc-bh__name">{row.name}</span>
-                  {row.retry && (
-                    <span className="lc-bh__retry-badge">
-                      {row.retry.attempt}/{row.retry.total} retry
-                    </span>
+        {sortedBroadcasts.length === 0 ? (
+          <DataTableEmpty>No broadcasts found</DataTableEmpty>
+        ) : (
+          sortedBroadcasts.map((row) => (
+            <DataTableRow key={row.id} data-anchor="broadcast-row" data-anchor-key={row.id}>
+              <div role="cell" className="lc-bh__cell--name lc-bh__cell">
+                <BroadcastIcon
+                  name={STATUS_ICON[row.status]}
+                  className="lc-bh__status-icon"
+                  data-status={row.status}
+                />
+                <div className="lc-bh__name-block">
+                  <div className="lc-bh__name-line">
+                    {row.displayId && <IdChip id={row.displayId} />}
+                    <span className="lc-bh__name">{row.name}</span>
+                    {row.retry && (
+                      <span className="lc-bh__retry-badge">
+                        {row.retry.attempt}/{row.retry.total} retry
+                      </span>
+                    )}
+                  </div>
+                  <span className="lc-bh__sent-on">
+                    {row.status === 'scheduled' || row.status === 'draft' ? 'Scheduled on' : 'Triggered on'} :{' '}
+                    {row.sentOn}
+                  </span>
+                </div>
+              </div>
+              <div className="lc-bh__stats">
+                <div role="cell" className="lc-bh__cell--stat">
+                  <span className="lc-bh__stat-primary">{row.sent}</span>
+                </div>
+                <div role="cell" className="lc-bh__cell--stat">
+                  <span className="lc-bh__stat-primary">{row.delivery.primary}</span>
+                  {showRetry && row.delivery.secondary && (
+                    <div className="lc-bh__stat-secondary">{row.delivery.secondary}</div>
                   )}
                 </div>
-                <span className="lc-bh__sent-on">
-                  {row.status === 'scheduled' || row.status === 'draft' ? 'Scheduled on' : 'Triggered on'} :{' '}
-                  {row.sentOn}
-                </span>
+                <div role="cell" className="lc-bh__cell--stat">
+                  <span className="lc-bh__stat-primary">{row.engagement}</span>
+                </div>
+                <div role="cell" className="lc-bh__cell--stat">
+                  <span className="lc-bh__stat-primary">{row.dropoff}</span>
+                </div>
+                <div role="cell" className="lc-bh__cell--stat">
+                  <span className="lc-bh__stat-primary">{row.revenue.primary}</span>
+                  {showRetry && row.revenue.secondary && (
+                    <div className="lc-bh__stat-secondary">{row.revenue.secondary}</div>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="lc-bh__stats">
-              <div className="lc-bh__cell--stat">
-                <span className="lc-bh__stat-primary">{row.sent}</span>
+              <div role="cell" className="lc-bh__cell--actions">
+                <Tooltip label="Download report">
+                  <button
+                    type="button"
+                    className="lc-bh__action-btn"
+                    aria-label="Download report"
+                    onClick={() => onRowDownload?.(row)}
+                  >
+                    <BroadcastIcon name="download" />
+                  </button>
+                </Tooltip>
+                <Tooltip label="Copy broadcast">
+                  <button
+                    type="button"
+                    className="lc-bh__action-btn"
+                    aria-label="Copy broadcast"
+                    onClick={() => onRowCopy?.(row)}
+                  >
+                    <BroadcastIcon name="copy" />
+                  </button>
+                </Tooltip>
+                <Tooltip label="Edit broadcast">
+                  <button
+                    type="button"
+                    className="lc-bh__action-btn"
+                    aria-label="Edit broadcast"
+                    onClick={() => onRowClick?.(row)}
+                  >
+                    <BroadcastIcon name="edit" />
+                  </button>
+                </Tooltip>
               </div>
-              <div className="lc-bh__cell--stat">
-                <span className="lc-bh__stat-primary">{row.delivery.primary}</span>
-                {showRetry && row.delivery.secondary && (
-                  <div className="lc-bh__stat-secondary">{row.delivery.secondary}</div>
-                )}
-              </div>
-              <div className="lc-bh__cell--stat">
-                <span className="lc-bh__stat-primary">{row.engagement}</span>
-              </div>
-              <div className="lc-bh__cell--stat">
-                <span className="lc-bh__stat-primary">{row.dropoff}</span>
-              </div>
-              <div className="lc-bh__cell--stat">
-                <span className="lc-bh__stat-primary">{row.revenue.primary}</span>
-                {showRetry && row.revenue.secondary && (
-                  <div className="lc-bh__stat-secondary">{row.revenue.secondary}</div>
-                )}
-              </div>
-            </div>
-            <div className="lc-bh__cell--actions">
-              <Tooltip label="Download report">
-                <button
-                  type="button"
-                  className="lc-bh__action-btn"
-                  aria-label="Download report"
-                  onClick={() => onRowDownload?.(row)}
-                >
-                  <BroadcastIcon name="download" />
-                </button>
-              </Tooltip>
-              <Tooltip label="Copy broadcast">
-                <button
-                  type="button"
-                  className="lc-bh__action-btn"
-                  aria-label="Copy broadcast"
-                  onClick={() => onRowCopy?.(row)}
-                >
-                  <BroadcastIcon name="copy" />
-                </button>
-              </Tooltip>
-              <Tooltip label="Edit broadcast">
-                <button
-                  type="button"
-                  className="lc-bh__action-btn"
-                  aria-label="Edit broadcast"
-                  onClick={() => onRowClick?.(row)}
-                >
-                  <BroadcastIcon name="edit" />
-                </button>
-              </Tooltip>
-            </div>
-          </div>
-        ))}
-      </div>
+            </DataTableRow>
+          ))
+        )}
+      </DataTable>
 
       <div className="lc-bh__pagination" data-anchor="broadcast-pagination">
         {Array.from(pageNumbers)

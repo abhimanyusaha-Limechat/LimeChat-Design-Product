@@ -7,7 +7,6 @@
 
 .lc-fh {
   --lc-fh-border: var(--lc-color-gray-300);
-  --lc-fh-border-dark: var(--lc-color-gray-225);
   --lc-fh-text-title: var(--lc-color-green-900);
   --lc-fh-text-dimmed: var(--lc-color-sage-500);
   --lc-fh-secondary-dark: var(--lc-color-stone-600);
@@ -16,8 +15,6 @@
   --lc-fh-primary: var(--lc-color-green-500);
   --lc-fh-primary-dark: var(--lc-color-green-800);
   --lc-fh-green-2: var(--lc-color-green-200);
-  --lc-fh-table-head-bg: var(--lc-color-blue-50);
-  --lc-fh-row-hover: var(--lc-color-gray-100);
   --lc-fh-retry-bg: var(--lc-color-green-50);
   --lc-fh-retry-text: #6BAC1B;
   --lc-fh-secondary-light-bg: var(--lc-color-gray-125);
@@ -242,95 +239,7 @@
 
 /* --- Table ------------------------------------------------------------------ */
 
-.lc-fh__table {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  border-radius: var(--lc-fh-radius);
-  overflow: auto;
-  background: white;
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-.lc-fh__table[data-scrolling='true'] {
-  scrollbar-color: var(--lc-color-gray-250) transparent;
-}
-
-.lc-fh__table::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.lc-fh__table::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.lc-fh__table::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: 999px;
-  transition: background 0.15s ease;
-}
-
-.lc-fh__table[data-scrolling='true']::-webkit-scrollbar-thumb {
-  background: var(--lc-color-gray-250);
-}
-
-.lc-fh__row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px 10px 16px;
-}
-
-.lc-fh__row--head {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--lc-fh-table-head-bg);
-}
-
-.lc-fh__row--body {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--lc-fh-border-dark);
-  transition: background-color 150ms ease;
-  animation: lc-fh-row-in 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
-}
-
-.lc-fh__row--body:hover {
-  background: var(--lc-fh-row-hover);
-}
-
-@keyframes lc-fh-row-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Stagger the first render of each tab's rows; capped so long lists don't
-   feel slow to finish appearing. */
-/* +1 offset: the sticky header row is also a <div> and counts as
-   nth-of-type(1) among its sibling divs. */
-.lc-fh__row--body:nth-of-type(2) { animation-delay: 0ms; }
-.lc-fh__row--body:nth-of-type(3) { animation-delay: 25ms; }
-.lc-fh__row--body:nth-of-type(4) { animation-delay: 50ms; }
-.lc-fh__row--body:nth-of-type(5) { animation-delay: 75ms; }
-.lc-fh__row--body:nth-of-type(6) { animation-delay: 100ms; }
-.lc-fh__row--body:nth-of-type(7) { animation-delay: 125ms; }
-.lc-fh__row--body:nth-of-type(n + 8) { animation-delay: 150ms; }
-
-@media (prefers-reduced-motion: reduce) {
-  .lc-fh__row--body {
-    animation: none;
-  }
-}
+/* Table frame (scroll, sticky header, 60px rows) comes from DataTable. */
 
 .lc-fh__cell--name {
   flex: 1 1 0;

@@ -13,12 +13,13 @@
  *     onNewFlow={() => setOpen(true)}
  *   />
  */
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import { Tooltip } from '../Tooltip';
 import { Menu } from '../Menu';
 import { FlowIcon } from './icons';
+import { DataTable, DataTableEmpty, DataTableHead, DataTableRow } from '../DataTable';
 import './FlowsHomePage.css';
 
 export type FlowTab = 'active' | 'inactive' | 'draft';
@@ -163,14 +164,6 @@ export function FlowsHomePage({
   const [timeframe, setTimeframe] = useState('this-week');
   const [showRetry, setShowRetry] = useState(true);
 
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeout = useRef<number>();
-  const handleTableScroll = () => {
-    setIsScrolling(true);
-    window.clearTimeout(scrollTimeout.current);
-    scrollTimeout.current = window.setTimeout(() => setIsScrolling(false), 600);
-  };
-
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' } | null>(null);
   const toggleSort = (key: SortKey) =>
     setSort((s) =>
@@ -281,9 +274,9 @@ export function FlowsHomePage({
         </div>
       </div>
 
-      <div className="lc-fh__table" data-anchor="flow-table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
-        <div className="lc-fh__row lc-fh__row--head">
-          <div className="lc-fh__cell--name lc-fh__cell">
+      <DataTable aria-label="Flows" data-anchor="flow-table">
+        <DataTableHead>
+          <div role="columnheader" className="lc-fh__cell--name lc-fh__cell">
             <button
               type="button"
               className="lc-fh__sort-btn"
@@ -296,7 +289,7 @@ export function FlowsHomePage({
           </div>
           <div className="lc-fh__stats">
             {COLUMNS.map((col) => (
-              <div className="lc-fh__cell--stat" key={col.key}>
+              <div role="columnheader" className="lc-fh__cell--stat" key={col.key}>
                 <button
                   type="button"
                   className="lc-fh__sort-btn"
@@ -309,72 +302,76 @@ export function FlowsHomePage({
               </div>
             ))}
           </div>
-          <div className="lc-fh__cell--actions" aria-hidden="true" />
-        </div>
+          <div role="columnheader" className="lc-fh__cell--actions" aria-label="Actions" />
+        </DataTableHead>
 
-        {sortedFlows.map((row) => (
-          <div key={row.id} className="lc-fh__row lc-fh__row--body" data-anchor="flow-row" data-anchor-key={row.id}>
-            <div className="lc-fh__cell--name lc-fh__cell">
-              <div className="lc-fh__name-block">
-                <div className="lc-fh__name-line">
-                  {row.displayId && <IdChip id={row.displayId} />}
-                  <span className="lc-fh__name">{row.name}</span>
+        {sortedFlows.length === 0 ? (
+          <DataTableEmpty>No flows found</DataTableEmpty>
+        ) : (
+          sortedFlows.map((row) => (
+            <DataTableRow key={row.id} data-anchor="flow-row" data-anchor-key={row.id}>
+              <div role="cell" className="lc-fh__cell--name lc-fh__cell">
+                <div className="lc-fh__name-block">
+                  <div className="lc-fh__name-line">
+                    {row.displayId && <IdChip id={row.displayId} />}
+                    <span className="lc-fh__name">{row.name}</span>
+                  </div>
+                  <span className="lc-fh__sent-on">Updated on : {row.updatedOn}</span>
                 </div>
-                <span className="lc-fh__sent-on">Updated on : {row.updatedOn}</span>
               </div>
-            </div>
-            <div className="lc-fh__stats">
-              <div className="lc-fh__cell--stat">
-                <span className="lc-fh__stat-primary">{row.sent}</span>
+              <div className="lc-fh__stats">
+                <div role="cell" className="lc-fh__cell--stat">
+                  <span className="lc-fh__stat-primary">{row.sent}</span>
+                </div>
+                <div role="cell" className="lc-fh__cell--stat">
+                  <span className="lc-fh__stat-primary">{row.delivery.primary}</span>
+                  {showRetry && row.delivery.secondary && (
+                    <div className="lc-fh__stat-secondary">{row.delivery.secondary}</div>
+                  )}
+                </div>
+                <div role="cell" className="lc-fh__cell--stat">
+                  <span className="lc-fh__stat-primary">{row.engagement}</span>
+                </div>
+                <div role="cell" className="lc-fh__cell--stat">
+                  <span className="lc-fh__stat-primary">{row.dropoff}</span>
+                </div>
+                <div role="cell" className="lc-fh__cell--stat">
+                  <span className="lc-fh__stat-primary">{row.revenue.primary}</span>
+                  {showRetry && row.revenue.secondary && (
+                    <div className="lc-fh__stat-secondary">{row.revenue.secondary}</div>
+                  )}
+                </div>
               </div>
-              <div className="lc-fh__cell--stat">
-                <span className="lc-fh__stat-primary">{row.delivery.primary}</span>
-                {showRetry && row.delivery.secondary && (
-                  <div className="lc-fh__stat-secondary">{row.delivery.secondary}</div>
-                )}
+              <div role="cell" className="lc-fh__cell--actions">
+                <button
+                  type="button"
+                  className="lc-fh__action-btn"
+                  aria-label="Download report"
+                  onClick={() => onRowDownload?.(row)}
+                >
+                  <FlowIcon name="download" />
+                </button>
+                <button
+                  type="button"
+                  className="lc-fh__action-btn"
+                  aria-label="Copy flow"
+                  onClick={() => onRowCopy?.(row)}
+                >
+                  <FlowIcon name="copy" />
+                </button>
+                <button
+                  type="button"
+                  className="lc-fh__action-btn"
+                  aria-label="Edit flow"
+                  onClick={() => onRowClick?.(row)}
+                >
+                  <FlowIcon name="edit" />
+                </button>
               </div>
-              <div className="lc-fh__cell--stat">
-                <span className="lc-fh__stat-primary">{row.engagement}</span>
-              </div>
-              <div className="lc-fh__cell--stat">
-                <span className="lc-fh__stat-primary">{row.dropoff}</span>
-              </div>
-              <div className="lc-fh__cell--stat">
-                <span className="lc-fh__stat-primary">{row.revenue.primary}</span>
-                {showRetry && row.revenue.secondary && (
-                  <div className="lc-fh__stat-secondary">{row.revenue.secondary}</div>
-                )}
-              </div>
-            </div>
-            <div className="lc-fh__cell--actions">
-              <button
-                type="button"
-                className="lc-fh__action-btn"
-                aria-label="Download report"
-                onClick={() => onRowDownload?.(row)}
-              >
-                <FlowIcon name="download" />
-              </button>
-              <button
-                type="button"
-                className="lc-fh__action-btn"
-                aria-label="Copy flow"
-                onClick={() => onRowCopy?.(row)}
-              >
-                <FlowIcon name="copy" />
-              </button>
-              <button
-                type="button"
-                className="lc-fh__action-btn"
-                aria-label="Edit flow"
-                onClick={() => onRowClick?.(row)}
-              >
-                <FlowIcon name="edit" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+            </DataTableRow>
+          ))
+        )}
+      </DataTable>
 
       <div className="lc-fh__pagination" data-anchor="flow-pagination">
         {Array.from(pageNumbers)

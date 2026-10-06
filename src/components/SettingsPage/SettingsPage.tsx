@@ -4,7 +4,8 @@
  * Generic settings layout: a vertical tab list on the left, a titled content
  * card on the right. `children` renders inside the card.
  */
-import { useRef, useState, type ReactNode, type UIEvent } from 'react';
+import { type ReactNode } from 'react';
+import { useScrollFade } from '../../hooks/useScrollFade';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
 import './SettingsPage.css';
@@ -47,18 +48,6 @@ const DocsIcon = () => (
     <path d="M9 17h6" />
   </svg>
 );
-
-/** Flags `data-scrolling` for 600ms after each scroll — same fade-in-thumb pattern as the tables. */
-function useScrollFade() {
-  const [isScrolling, setIsScrolling] = useState(false);
-  const timeout = useRef<number>();
-  const onScroll = (_e: UIEvent<HTMLElement>) => {
-    setIsScrolling(true);
-    window.clearTimeout(timeout.current);
-    timeout.current = window.setTimeout(() => setIsScrolling(false), 600);
-  };
-  return { 'data-scrolling': isScrolling || undefined, onScroll } as const;
-}
 
 export function SettingsPage({
   tabs,
