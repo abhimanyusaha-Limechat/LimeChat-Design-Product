@@ -4,7 +4,7 @@
  * Generic settings layout: a vertical tab list on the left, a titled content
  * card on the right. `children` renders inside the card.
  */
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useScrollFade } from '../../hooks/useScrollFade';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
@@ -63,6 +63,10 @@ export function SettingsPage({
 }: SettingsPageProps) {
   const navScroll = useScrollFade();
   const contentScroll = useScrollFade();
+  const helpCtas = [
+    onWatchVideo && { label: 'Video', tip: 'a video explainer', icon: <PlayCircleIcon />, onClick: onWatchVideo },
+    onViewDocs && { label: 'Docs', tip: 'Documentation', icon: <DocsIcon />, onClick: onViewDocs },
+  ].filter((cta) => !!cta);
 
   return (
     <div className="lc-sp">
@@ -88,39 +92,20 @@ export function SettingsPage({
               <h1 className="lc-sp__title">{title}</h1>
               {description && <p className="lc-sp__description">{description}</p>}
             </div>
-            {(onWatchVideo || onViewDocs || headerActions) && (
+            {(helpCtas.length > 0 || headerActions) && (
               <div className="lc-sp__header-actions">
-                {(onWatchVideo || onViewDocs) && (
+                {helpCtas.length > 0 && (
                   <div className="lc-sp__help-ctas">
-                    {onWatchVideo && (
-                      <Tooltip label={`Learn more on ${title} on a video explainer`} position="bottom">
-                        <Button
-                          variant="default"
-                          size="sm"
-                          leftSection={<PlayCircleIcon />}
-                          onClick={onWatchVideo}
-                        >
-                          Video
+                    {helpCtas.map((cta) => (
+                      <Tooltip key={cta.label} label={`Learn more on ${title} on ${cta.tip}`} position="bottom">
+                        <Button variant="default" size="sm" leftSection={cta.icon} onClick={cta.onClick}>
+                          {cta.label}
                         </Button>
                       </Tooltip>
-                    )}
-                    {onViewDocs && (
-                      <Tooltip label={`Learn more on ${title} on Documentation`} position="bottom">
-                        <Button
-                          variant="default"
-                          size="sm"
-                          leftSection={<DocsIcon />}
-                          onClick={onViewDocs}
-                        >
-                          Docs
-                        </Button>
-                      </Tooltip>
-                    )}
+                    ))}
                   </div>
                 )}
-                {(onWatchVideo || onViewDocs) && headerActions && (
-                  <span className="lc-sp__header-divider" aria-hidden="true" />
-                )}
+                {helpCtas.length > 0 && headerActions && <span className="lc-sp__header-divider" aria-hidden="true" />}
                 {headerActions}
               </div>
             )}
@@ -128,7 +113,7 @@ export function SettingsPage({
           <div
             className="lc-sp__content"
             data-anchor="settings-content"
-            style={contentPadding === undefined ? undefined : { padding: contentPadding }}
+            style={{ padding: contentPadding }}
             {...contentScroll}
           >
             {children}

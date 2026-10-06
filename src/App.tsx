@@ -169,7 +169,7 @@ export function App() {
   // longer) Settings nav.
   const userSettingsOpen = page === 'user-settings';
 
-  const account = { name: 'Nonucare12', compact: true };
+  const account = { name: 'Nonucare12' };
   const selectedLabel = preset.items.find((i) => i.id === selected)?.label ?? selected;
 
   const [kbTab, setKbTab] = useState('upload-files');
