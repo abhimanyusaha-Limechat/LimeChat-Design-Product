@@ -15,12 +15,15 @@ const [draft, setDraft] = useState('');
   mode={mode} onModeChange={setMode}
   value={draft} onChange={setDraft}
   maxLength={1000}
-  sendLabel={mode === 'note' ? 'Add note' : 'Reply'}
   onSend={() => send(draft)}
-  onSendMenu={() => {}}
+  onMic={recordVoiceNote}
+  onEmoji={openEmojiPicker}
 />
 ```
 
-Tabs switch between `Reply`, `Private note`, and `Template` modes — wire
-`mode` to change placeholder/validation/send behavior in the parent.
-Reuses this design system's own `Button` for the send action.
+Tabs switch between `Reply` and `Private note` modes; the mode sets the
+placeholder, the send button (`Reply` / `Save`) and hides the counter + mic
+for notes. Attached files are held inside the composer (image tiles open a
+preview) and cleared on send. The textarea grows with its content up to six
+lines via CSS `field-sizing`. Reuses this design system's own `Button` for
+the send action.

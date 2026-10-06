@@ -10,29 +10,14 @@
  *     onSend={() => send(draft)}
  *   />
  */
-import { forwardRef, useEffect, useLayoutEffect, useRef, useState, type HTMLAttributes, type ReactElement } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { Button } from '../Button';
 import { Modal } from '../Modal';
-import './TicketComposer.css';
 import { iconProps } from '../iconProps';
-import { CloseIcon, TrashIcon } from '../icons';
-
-/** Line height (20px) × 6 visible lines + the textarea's own vertical padding (6px top + 6px bottom). */
-const MAX_TEXTAREA_HEIGHT = 20 * 6 + 12;
+import { Icon, CloseIcon, TrashIcon, ZoomIcon } from '../icons';
+import './TicketComposer.css';
 
 export type TicketComposerMode = 'reply' | 'note';
-
-const MODE_LABEL: Record<TicketComposerMode, string> = {
-  reply: 'Reply',
-  note: 'Private note',
-};
-
-const MODES = Object.keys(MODE_LABEL) as TicketComposerMode[];
-
-const MODE_PLACEHOLDER: Record<TicketComposerMode, string> = {
-  reply: "Type a message or use '/' for quick replies.",
-  note: 'Type in a private note visible only to team members',
-};
 
 const MicIcon = () => (
   <svg {...iconProps()}>
@@ -40,19 +25,6 @@ const MicIcon = () => (
     <path d="M5 10a7 7 0 0 0 14 0" />
     <path d="M8 21l8 0" />
     <path d="M12 17l0 4" />
-  </svg>
-);
-const PaperclipIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
-  </svg>
-);
-const SmileIcon = () => (
-  <svg {...iconProps()}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M9 10l.01 0" />
-    <path d="M15 10l.01 0" />
-    <path d="M9.5 15a3.5 3.5 0 0 0 5 0" />
   </svg>
 );
 const ReplyIcon = () => (
@@ -68,69 +40,46 @@ const LockIcon = () => (
     <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
   </svg>
 );
-const ZoomIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-    <path d="M21 21l-6 -6" />
-    <path d="M7 10l6 0" />
-    <path d="M10 7l0 6" />
-  </svg>
-);
 
-const MODE_ICON: Record<TicketComposerMode, () => ReactElement> = {
-  reply: ReplyIcon,
-  note: LockIcon,
+const MODE_CONFIG: Record<TicketComposerMode, { label: string; placeholder: string; Icon: () => ReactElement }> = {
+  reply: { label: 'Reply', placeholder: "Type a message or use '/' for quick replies.", Icon: ReplyIcon },
+  note: { label: 'Private note', placeholder: 'Type in a private note visible only to team members', Icon: LockIcon },
 };
+const MODES = Object.keys(MODE_CONFIG) as TicketComposerMode[];
 
-export interface TicketComposerProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface TicketComposerProps {
   mode?: TicketComposerMode;
   onModeChange?: (mode: TicketComposerMode) => void;
   value: string;
   onChange: (value: string) => void;
-  placeholder?: string;
   maxLength?: number;
   onMic?: () => void;
-  onAttach?: (files: File[]) => void;
   onEmoji?: () => void;
-  sendLabel?: string;
   onSend?: () => void;
-  sendDisabled?: boolean;
 }
 
-export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(function TicketComposer(
-  {
-    mode = 'reply',
-    onModeChange,
-    value,
-    onChange,
-    placeholder,
-    maxLength = 1000,
-    onMic,
-    onAttach,
-    onEmoji,
-    sendLabel,
-    onSend,
-    sendDisabled,
-    className,
-    ...rest
-  },
-  ref,
-) {
+export function TicketComposer({
+  mode = 'reply',
+  onModeChange,
+  value,
+  onChange,
+  maxLength = 1000,
+  onMic,
+  onEmoji,
+  onSend,
+}: TicketComposerProps) {
   const [focused, setFocused] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
   const isNote = mode === 'note';
+  const placeholder = MODE_CONFIG[mode].placeholder;
 
   const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     e.target.value = '';
-    if (files.length === 0) return;
-    setAttachments((prev) => [...prev, ...files]);
-    onAttach?.(files);
+    if (files.length > 0) setAttachments((prev) => [...prev, ...files]);
   };
-
-  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   const removeAttachment = (index: number) => {
     setAttachments((prev) => prev.filter((_, i) => i !== index));
@@ -142,20 +91,11 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
     setAttachments([]);
   };
 
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-
-  useEffect(() => {
-    const urls = attachments.map((file) => (file.type.startsWith('image/') ? URL.createObjectURL(file) : ''));
-    setPreviewUrls(urls);
-    return () => urls.forEach((url) => url && URL.revokeObjectURL(url));
-  }, [attachments]);
-
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${Math.min(el.scrollHeight, MAX_TEXTAREA_HEIGHT)}px`;
-  }, [value]);
+  const previewUrls = useMemo(
+    () => attachments.map((file) => (file.type.startsWith('image/') ? URL.createObjectURL(file) : '')),
+    [attachments],
+  );
+  useEffect(() => () => previewUrls.forEach((url) => url && URL.revokeObjectURL(url)), [previewUrls]);
 
   const tabRefs = useRef<Partial<Record<TicketComposerMode, HTMLButtonElement>>>({});
   const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
@@ -170,31 +110,21 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
     return () => ro.disconnect();
   }, [mode]);
 
+  // Two tabs: either arrow flips to the other one; Home/End jump to the ends.
   const handleTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
-    let nextIndex: number | null = null;
-    if (e.key === 'ArrowRight') nextIndex = (index + 1) % MODES.length;
-    else if (e.key === 'ArrowLeft') nextIndex = (index - 1 + MODES.length) % MODES.length;
-    else if (e.key === 'Home') nextIndex = 0;
-    else if (e.key === 'End') nextIndex = MODES.length - 1;
-    if (nextIndex === null) return;
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
     e.preventDefault();
-    const nextMode = MODES[nextIndex];
+    const nextMode = MODES[e.key === 'Home' ? 0 : e.key === 'End' ? 1 : 1 - index];
     onModeChange?.(nextMode);
     tabRefs.current[nextMode]?.focus();
   };
 
   const previewFile = previewIndex !== null ? attachments[previewIndex] : null;
-  const previewUrl = previewIndex !== null ? previewUrls[previewIndex] : null;
+  const previewUrl = previewIndex !== null ? previewUrls[previewIndex] : undefined;
 
   return (
     <>
-    <div
-      {...rest}
-      ref={ref}
-      className={`lc-ticket-composer${className ? ` ${className}` : ''}`}
-      data-mode={mode}
-      data-focused={focused || undefined}
-    >
+    <div className="lc-ticket-composer" data-mode={mode} data-focused={focused || undefined}>
       {attachments.length > 0 && (
         <div className="lc-ticket-composer__attachments">
           {attachments.map((file, index) => (
@@ -202,40 +132,27 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
               key={`${file.name}-${file.lastModified}-${index}`}
               className="lc-ticket-composer__attachment-tile"
               data-multi={attachments.length > 1 || undefined}
-              data-clickable={previewUrls[index] ? true : undefined}
-              role={previewUrls[index] ? 'button' : undefined}
-              tabIndex={previewUrls[index] ? 0 : undefined}
-              aria-label={previewUrls[index] ? `View ${file.name}` : undefined}
-              onClick={previewUrls[index] ? () => setPreviewIndex(index) : undefined}
-              onKeyDown={
-                previewUrls[index]
-                  ? (e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        setPreviewIndex(index);
-                      }
-                    }
-                  : undefined
-              }
             >
               {previewUrls[index] ? (
-                <>
-                  <img src={previewUrls[index]} alt={file.name} className="lc-ticket-composer__attachment-thumb" />
-                  <div className="lc-ticket-composer__attachment-zoom" aria-hidden="true">
+                <button
+                  type="button"
+                  className="lc-ticket-composer__attachment-preview"
+                  aria-label={`View ${file.name}`}
+                  onClick={() => setPreviewIndex(index)}
+                >
+                  <img src={previewUrls[index]} alt="" className="lc-ticket-composer__attachment-thumb" />
+                  <span className="lc-ticket-composer__attachment-zoom" aria-hidden="true">
                     <ZoomIcon />
-                  </div>
-                </>
+                  </span>
+                </button>
               ) : (
-                <PaperclipIcon />
+                <Icon name="paperclip" />
               )}
               <button
                 type="button"
                 className="lc-ticket-composer__attachment-bin"
                 aria-label={`Remove ${file.name}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeAttachment(index);
-                }}
+                onClick={() => removeAttachment(index)}
               >
                 <TrashIcon size={12} />
               </button>
@@ -246,14 +163,13 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
 
       <div className="lc-ticket-composer__input-row">
         <textarea
-          ref={textareaRef}
           className="lc-ticket-composer__textarea"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder={placeholder ?? MODE_PLACEHOLDER[mode]}
-          aria-label={placeholder ?? MODE_PLACEHOLDER[mode]}
+          placeholder={placeholder}
+          aria-label={placeholder}
           rows={1}
           maxLength={maxLength}
         />
@@ -278,7 +194,7 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
             />
           )}
           {MODES.map((m, index) => {
-            const Icon = MODE_ICON[m];
+            const { label, Icon: ModeIcon } = MODE_CONFIG[m];
             return (
               <button
                 key={m}
@@ -296,8 +212,8 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
                 onClick={() => onModeChange?.(m)}
                 onKeyDown={(e) => handleTabKeyDown(e, index)}
               >
-                <Icon />
-                {MODE_LABEL[m]}
+                <ModeIcon />
+                {label}
               </button>
             );
           })}
@@ -322,22 +238,16 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
               aria-label="Attach file"
               onClick={() => fileInputRef.current?.click()}
             >
-              <PaperclipIcon />
+              <Icon name="paperclip" />
             </button>
             <button type="button" className="lc-ticket-composer__icon-btn" aria-label="Insert emoji" onClick={onEmoji}>
-              <SmileIcon />
+              <Icon name="mood-smile" />
             </button>
           </div>
 
-          {isNote ? (
-            <Button variant="filled" color="yellow" size="sm" onClick={handleSend} disabled={sendDisabled}>
-              {sendLabel ?? 'Save'}
-            </Button>
-          ) : (
-            <Button variant="filled" color="primary" size="sm" onClick={handleSend} disabled={sendDisabled}>
-              {sendLabel ?? 'Reply'}
-            </Button>
-          )}
+          <Button variant="filled" color={isNote ? 'yellow' : 'primary'} size="sm" onClick={handleSend}>
+            {isNote ? 'Save' : 'Reply'}
+          </Button>
         </div>
       </div>
     </div>
@@ -345,7 +255,7 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
     {previewFile && (
       <Modal open onClose={() => setPreviewIndex(null)} title="" width={600} className="lc-ticket-composer__preview-modal">
         <div className="lc-ticket-composer__preview-frame">
-          <img src={previewUrl ?? undefined} alt={previewFile.name} className="lc-ticket-composer__preview-image" />
+          <img src={previewUrl} alt={previewFile.name} className="lc-ticket-composer__preview-image" />
           <button
             type="button"
             className="lc-ticket-composer__preview-close"
@@ -359,6 +269,6 @@ export const TicketComposer = forwardRef<HTMLDivElement, TicketComposerProps>(fu
     )}
     </>
   );
-});
+}
 
 export default TicketComposer;

@@ -62,10 +62,17 @@
 .lc-ticket-composer__attachment-tile:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
-.lc-ticket-composer__attachment-tile[data-clickable] {
+.lc-ticket-composer__attachment-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  border-radius: inherit;
+  background: none;
   cursor: pointer;
 }
-.lc-ticket-composer__attachment-tile[data-clickable]:focus-visible {
+.lc-ticket-composer__attachment-preview:focus-visible {
   outline: 2px solid var(--lc-tc-primary);
   outline-offset: 2px;
 }
@@ -87,7 +94,7 @@
   pointer-events: none;
 }
 .lc-ticket-composer__attachment-tile:hover .lc-ticket-composer__attachment-zoom,
-.lc-ticket-composer__attachment-tile:focus-visible .lc-ticket-composer__attachment-zoom {
+.lc-ticket-composer__attachment-preview:focus-visible .lc-ticket-composer__attachment-zoom {
   opacity: 1;
 }
 .lc-ticket-composer__attachment-zoom svg {
@@ -146,6 +153,7 @@
   width: 100%;
   min-height: 32px;
   max-height: 132px; /* 6 lines (20px line-height) + 12px vertical padding, then scrolls */
+  field-sizing: content; /* grows with its text up to max-height (no JS) */
   padding: 6px 12px 6px 0;
   background: transparent;
   border: none;
