@@ -191,7 +191,8 @@ export function specToCss(spec: Spec, tools: ToolSet): string {
     lines.push(`font-family: ${t.family};`, `font-size: ${px(t.size)};`, `font-weight: ${t.weight};`);
     lines.push(`line-height: ${t.lineHeight === null ? 'normal' : px(t.lineHeight)};`);
     if (t.letterSpacing !== null) lines.push(`letter-spacing: ${px(t.letterSpacing)};`);
-    lines.push(`color: ${t.color};`);
+    const token = findColorToken(t.color);
+    lines.push(`color: ${token ? `var(--lc-color-${token.name})` : t.color};`);
   }
   if (tools.padding) lines.push(`padding: ${sides(spec.padding)};`);
   if (tools.gap && spec.gap) {

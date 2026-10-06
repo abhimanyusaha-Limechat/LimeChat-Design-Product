@@ -145,11 +145,16 @@ describe('specToCss', () => {
         'font-size: 14px;',
         'font-weight: 700;',
         'line-height: 20px;',
-        'color: #3c492c;',
+        'color: var(--lc-color-green-900);',
         'padding: 0 12px;',
         'gap: 8px;',
       ].join('\n'),
     );
     expect(specToCss(spec(), { type: false, padding: false, gap: true })).toBe('gap: 8px;');
+  });
+
+  it('keeps the hex for a color that is not a token', () => {
+    const css = specToCss(spec({ type: { ...TYPE, color: '#818a76' } }), { type: true, padding: false, gap: false });
+    expect(css).toContain('color: #818a76;');
   });
 });
