@@ -15,6 +15,8 @@ interface InspectorToolbarProps {
   expanded: boolean;
   /** The close animation is playing: already reads as collapsed. */
   closing: boolean;
+  /** Being dragged: tooltips would stay behind at the old spot, so they're off. */
+  dragging: boolean;
   /** Tools sit on the ruler's left (the bar opens leftward), so the ruler never moves. */
   opensLeft: boolean;
   tools: ToolSet;
@@ -30,6 +32,7 @@ interface InspectorToolbarProps {
 export function InspectorToolbar({
   expanded,
   closing,
+  dragging,
   opensLeft,
   tools,
   barRef,
@@ -48,6 +51,7 @@ export function InspectorToolbar({
       <Tooltip
         label={expanded && !closing ? 'Inspect mode (Shift+I)' : 'Inspect spacing & type (Shift+I)'}
         position="top"
+        disabled={dragging}
       >
         <button
           ref={mainRef}
@@ -65,7 +69,7 @@ export function InspectorToolbar({
         <div className="lc-inspector__extras" data-inspector-extras="">
           <div className="lc-inspector__tools" role="group" aria-label="Inspect tools">
             {TOOLS.map(({ tool, label, icon }) => (
-              <Tooltip key={tool} label={label} position="top">
+              <Tooltip key={tool} label={label} position="top" disabled={dragging}>
                 <button
                   type="button"
                   className="lc-inspector__tool"
@@ -79,7 +83,7 @@ export function InspectorToolbar({
             ))}
           </div>
           <span className="lc-inspector__divider" aria-hidden="true" />
-          <Tooltip label="Close (Esc)" position="top">
+          <Tooltip label="Close (Esc)" position="top" disabled={dragging}>
             <button type="button" className="lc-inspector__tool" aria-label="Close inspect mode" onClick={onClose}>
               <Icon name="close" size={18} />
             </button>

@@ -93,7 +93,7 @@ export function Inspector() {
   const dockRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLButtonElement>(null);
-  const { position, handleProps, onClickCapture } = useDraggable(dockRef, defaultPosition, {
+  const { position, dragging, handleProps, onClickCapture } = useDraggable(dockRef, defaultPosition, {
     anchorRight: opensLeft,
     layoutKey: expanded,
   });
@@ -191,7 +191,9 @@ export function Inspector() {
 
   return createPortal(
     <>
-      {inspecting && <InspectorOverlay hovered={hovered} pinned={pinned} tools={tools} />}
+      {/* Hidden mid-drag: you're moving the tool, and hover can't update while the
+          bar slides under a still pointer, so a stale label would linger. */}
+      {inspecting && !dragging && <InspectorOverlay hovered={hovered} pinned={pinned} tools={tools} />}
       <div
         ref={dockRef}
         className="lc-inspector"
@@ -204,6 +206,7 @@ export function Inspector() {
         {/* Only the bar drags, so values in the panel stay selectable. */}
         <div
           className="lc-inspector__handle"
+          data-dragging={dragging || undefined}
           onClickCapture={onClickCapture}
           onMouseDown={keepAppFocus}
           {...handleProps}
@@ -211,6 +214,7 @@ export function Inspector() {
           <InspectorToolbar
             expanded={expanded}
             closing={closing}
+            dragging={dragging}
             opensLeft={opensLeft}
             tools={tools}
             barRef={barRef}
