@@ -67,7 +67,8 @@ function Label({ spec, tools }: { spec: Spec; tools: ToolSet }) {
   };
   return (
     <div className="lc-inspector__label" data-off-scale={hasIssues(buildReport(spec, tools)) || undefined} style={style}>
-      <span className="lc-inspector__label-name">{spec.anchor ?? spec.name}</span> {buildLabel(spec, tools)}
+      <span className="lc-inspector__label-name">{spec.anchor ?? spec.name}</span>
+      <span className="lc-inspector__label-meta">{buildLabel(spec, tools)}</span>
     </div>
   );
 }

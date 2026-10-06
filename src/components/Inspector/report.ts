@@ -148,7 +148,10 @@ export function buildLabel(spec: Spec, tools: ToolSet): string {
         : `gap ${fmt(spec.gap.row)} ${fmt(spec.gap.column)}`,
     );
   }
-  return parts.length > 0 ? parts.join(' · ') : `${fmt(spec.rect.width)} × ${fmt(spec.rect.height)}`;
+  // CSS px, like the panel — rect is rendered px, which differs under transform: scale().
+  return parts.length > 0
+    ? parts.join(' · ')
+    : `${fmt(spec.rect.width / spec.scale)} × ${fmt(spec.rect.height / spec.scale)}`;
 }
 
 /** The enabled tools' values as CSS declarations, for "Copy CSS". */

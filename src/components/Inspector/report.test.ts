@@ -114,6 +114,11 @@ describe('buildLabel', () => {
   it('falls back to the size when no tool has anything to say', () => {
     expect(buildLabel(spec({ type: null, gap: null }), { type: true, padding: false, gap: true })).toBe('80 × 32');
   });
+
+  it('reports the size in CSS px under a scale transform, like the panel', () => {
+    const scaled = spec({ type: null, gap: null, scale: 0.5, rect: { left: 0, top: 0, width: 40, height: 16 } });
+    expect(buildLabel(scaled, { type: false, padding: false, gap: false })).toBe('80 × 32');
+  });
 });
 
 describe('specToCss', () => {

@@ -370,15 +370,17 @@
 
 .lc-inspector__label {
   position: fixed;
+  display: flex;
+  gap: 6px;
   padding: 2px 6px;
   border-radius: 4px;
   background: var(--lc-color-green-900);
   color: var(--lc-color-white);
-  font-size: 11px;
+  /* Lifts it off the page so it doesn't read as part of the content beneath. */
+  box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
+  font-size: 12px;
   line-height: 16px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   box-sizing: border-box;
 }
 
@@ -386,8 +388,22 @@
   background: var(--lc-color-red-600);
 }
 
+/* A long name truncates; the values never do — they're what the label is for. */
 .lc-inspector__label-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: 700;
+}
+
+.lc-inspector__label-meta {
+  flex: none;
+  color: var(--lc-color-green-200);
+  font-variant-numeric: tabular-nums;
+}
+
+.lc-inspector__label[data-off-scale] .lc-inspector__label-meta {
+  color: var(--lc-color-white);
 }
 
 /* Reduced motion: keep the color feedback, drop the scaling. */
