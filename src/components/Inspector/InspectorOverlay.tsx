@@ -1,31 +1,31 @@
 import type { CSSProperties } from 'react';
-import { isOnSpacingGrid } from './designScale';
-import type { Rect, Spec } from './measure';
+import { isAllowedFontSize, isOnSpacingGrid } from './designScale';
+import { intersect, type Rect, type Spec } from './measure';
 import { buildLabel, buildReport, fmt, hasIssues, type ToolSet } from './report';
 
-/** Bands and strips thinner than this (rendered px) skip their number. */
-const MIN_LABELLED = 12;
+/** Chips need this much run along a band or strip (rendered px), or they'd collide at corners. */
+const MIN_CHIP_RUN = 20;
 const LABEL_MAX_WIDTH = 280;
 
 const box = ({ left, top, width, height }: Rect): CSSProperties => ({ left, top, width, height });
 
-function Measure({ rect, value, kind }: { rect: Rect; value: number; kind: 'padding' | 'gap' }) {
-  if (rect.width <= 0 || rect.height <= 0) return null;
-  const labelled = Math.min(rect.width, rect.height) >= MIN_LABELLED;
-  return (
-    <div
-      className={`lc-inspector__${kind}`}
-      data-off-scale={!isOnSpacingGrid(value) || undefined}
-      style={box(rect)}
-    >
-      {labelled && fmt(value)}
-    </div>
-  );
+/** One highlighted area. `value` (CSS px) gets a chip; text lines have none — the label carries type. */
+interface Mark {
+  kind: 'padding' | 'gap' | 'text';
+  rect: Rect;
+  offScale: boolean;
+  value?: number;
 }
 
-/** Shaded padding bands, inside the border, at the element's rendered scale. */
-function PaddingBands({ spec }: { spec: Spec }) {
-  const { rect, padding: p, border: b, scale: s } = spec;
+const spacingMark = (kind: 'padding' | 'gap', rect: Rect, value: number): Mark => ({
+  kind,
+  rect,
+  value,
+  offScale: !isOnSpacingGrid(value),
+});
+
+/** Padding bands, inside the border, at the element's rendered scale. */
+function paddingMarks({ rect, padding: p, border: b, scale: s }: Spec): Mark[] {
   const inner = {
     left: rect.left + b.left * s,
     top: rect.top + b.top * s,
@@ -34,25 +34,81 @@ function PaddingBands({ spec }: { spec: Spec }) {
   };
   const middleTop = inner.top + p.top * s;
   const middleHeight = inner.height - (p.top + p.bottom) * s;
+  return [
+    spacingMark('padding', { ...inner, height: p.top * s }, p.top),
+    spacingMark('padding', { ...inner, top: inner.top + inner.height - p.bottom * s, height: p.bottom * s }, p.bottom),
+    spacingMark('padding', { left: inner.left, top: middleTop, width: p.left * s, height: middleHeight }, p.left),
+    spacingMark(
+      'padding',
+      { left: inner.left + inner.width - p.right * s, top: middleTop, width: p.right * s, height: middleHeight },
+      p.right,
+    ),
+  ];
+}
+
+function marksFor(spec: Spec, tools: ToolSet): Mark[] {
+  const marks: Mark[] = [];
+  if (tools.type && spec.type) {
+    const offScale = !isAllowedFontSize(spec.type.size);
+    marks.push(...spec.textLines.map((rect) => ({ kind: 'text' as const, rect, offScale })));
+  }
+  if (tools.padding && spec.drawBands) marks.push(...paddingMarks(spec));
+  const { gap } = spec;
+  if (tools.gap && gap) {
+    marks.push(
+      ...spec.gapStrips.map(({ rect, axis }) => spacingMark('gap', rect, axis === 'column' ? gap.column : gap.row)),
+    );
+  }
+  return marks.filter((m) => m.rect.width > 0 && m.rect.height > 0);
+}
+
+/** Rough rendered chip size: 10px bold digits plus padding and ring. */
+const CHIP_HEIGHT = 16;
+const chipWidth = (text: string) => text.length * 6 + 10;
+
+interface ChipProps {
+  kind: Mark['kind'];
+  offScale: boolean;
+  text: string;
+  rect: Rect;
+}
+
+/**
+ * Value chips centered on their marks. Skips marks too short to hold one, and
+ * any chip that would land on one already placed (adjacent strips, tiny boxes).
+ */
+function placeChips(marks: Mark[]): ChipProps[] {
+  const placed: ChipProps[] = [];
+  for (const { kind, offScale, value, rect } of marks) {
+    if (value === undefined || Math.max(rect.width, rect.height) < MIN_CHIP_RUN) continue;
+    const text = fmt(value);
+    const width = chipWidth(text);
+    const chip = {
+      kind,
+      offScale,
+      text,
+      rect: {
+        left: rect.left + rect.width / 2 - width / 2,
+        top: rect.top + rect.height / 2 - CHIP_HEIGHT / 2,
+        width,
+        height: CHIP_HEIGHT,
+      },
+    };
+    if (!placed.some((other) => intersect(chip.rect, other.rect))) placed.push(chip);
+  }
+  return placed;
+}
+
+function Chip({ kind, offScale, text, rect }: ChipProps) {
   return (
-    <>
-      <Measure kind="padding" value={p.top} rect={{ ...inner, height: p.top * s }} />
-      <Measure
-        kind="padding"
-        value={p.bottom}
-        rect={{ ...inner, top: inner.top + inner.height - p.bottom * s, height: p.bottom * s }}
-      />
-      <Measure
-        kind="padding"
-        value={p.left}
-        rect={{ left: inner.left, top: middleTop, width: p.left * s, height: middleHeight }}
-      />
-      <Measure
-        kind="padding"
-        value={p.right}
-        rect={{ left: inner.left + inner.width - p.right * s, top: middleTop, width: p.right * s, height: middleHeight }}
-      />
-    </>
+    <div
+      className="lc-inspector__chip"
+      data-kind={kind}
+      data-off-scale={offScale || undefined}
+      style={{ left: rect.left + rect.width / 2, top: rect.top + rect.height / 2 }}
+    >
+      {text}
+    </div>
   );
 }
 
@@ -73,23 +129,23 @@ function Label({ spec, tools }: { spec: Spec; tools: ToolSet }) {
   );
 }
 
-/** Full enabled layers for one element. */
+/** Full enabled layers for one element: fills, then the outline, then value chips so nothing covers them. */
 function Layers({ spec, tools, withLabel }: { spec: Spec; tools: ToolSet; withLabel: boolean }) {
-  const gap = spec.gap;
+  const marks = marksFor(spec, tools);
   return (
     <>
-      {tools.padding && spec.drawBands && <PaddingBands spec={spec} />}
-      {tools.gap &&
-        gap &&
-        spec.gapStrips.map(({ rect, axis }, i) => (
-          <Measure
-            key={i}
-            kind="gap"
-            value={axis === 'column' ? gap.column : gap.row}
-            rect={rect}
-          />
-        ))}
+      {marks.map((mark, i) => (
+        <div
+          key={i}
+          className={`lc-inspector__${mark.kind}`}
+          data-off-scale={mark.offScale || undefined}
+          style={box(mark.rect)}
+        />
+      ))}
       <div className="lc-inspector__outline" data-pinned={!withLabel || undefined} style={box(spec.rect)} />
+      {placeChips(marks).map((chip, i) => (
+        <Chip key={i} {...chip} />
+      ))}
       {withLabel && <Label spec={spec} tools={tools} />}
     </>
   );

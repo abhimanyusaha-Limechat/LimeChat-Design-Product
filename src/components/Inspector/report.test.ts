@@ -27,6 +27,7 @@ function spec(overrides: Partial<Spec> = {}): Spec {
     border: sides(0),
     gap: { row: 8, column: 8 },
     gapStrips: [],
+    textLines: [],
     childMargins: [],
     type: TYPE,
     ...overrides,

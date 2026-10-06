@@ -59,6 +59,8 @@ export interface Spec {
   childMargins: number[];
   /** `null` when the element has no text of its own. */
   type: TypeSpec | null;
+  /** Line boxes of the element's own text, clipped to the viewport; empty without `type`. */
+  textLines: Rect[];
 }
 
 type SideKeys<P extends string> = `${P}Top` | `${P}Right` | `${P}Bottom` | `${P}Left`;
@@ -329,6 +331,35 @@ export function gapRects(children: Rect[], direction: 'row' | 'column', clip: Re
   });
 }
 
+/**
+ * One box per rendered line of text, from the text's glyph fragments. With a
+ * `lineHeight` (rendered px) each box grows to the full line box, centered on
+ * the glyphs as half-leading is; with `normal` it stays at the glyph height.
+ */
+export function lineBoxes(fragments: Rect[], lineHeight: number | null, clip: Rect): Rect[] {
+  const lines: Rect[] = [];
+  for (const f of [...fragments].sort((a, b) => a.top - b.top)) {
+    if (f.width <= 0 || f.height <= 0) continue;
+    const middle = f.top + f.height / 2;
+    const line = lines.find((l) => middle > l.top && middle < l.top + l.height);
+    if (!line) {
+      lines.push({ ...f });
+      continue;
+    }
+    const right = Math.max(end(line, H), end(f, H));
+    const bottom = Math.max(end(line, V), end(f, V));
+    line.left = Math.min(line.left, f.left);
+    line.top = Math.min(line.top, f.top);
+    line.width = right - line.left;
+    line.height = bottom - line.top;
+  }
+  return lines.flatMap((l) => {
+    const box = lineHeight === null ? l : { ...l, top: l.top + (l.height - lineHeight) / 2, height: lineHeight };
+    const rect = intersect(box, clip);
+    return rect ? [rect] : [];
+  });
+}
+
 /** `div.lc-ticket-row` — tag plus first class, for labels. */
 export function elementName(el: Element): string {
   // The attribute, not `className`: on SVG elements that's an SVGAnimatedString.
@@ -336,11 +367,19 @@ export function elementName(el: Element): string {
   return `${el.tagName.toLowerCase()}${cls ? `.${cls}` : ''}`;
 }
 
-function hasOwnText(el: Element): boolean {
-  for (const node of el.childNodes) {
-    if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) return true;
-  }
-  return false;
+function ownTextNodes(el: Element): Text[] {
+  return [...el.childNodes].filter((n): n is Text => n.nodeType === Node.TEXT_NODE && !!n.textContent?.trim());
+}
+
+/** Rendered fragments of the element's own text: one per line per text node. */
+function textFragments(nodes: Text[]): Rect[] {
+  const range = document.createRange();
+  // jsdom has no text layout.
+  if (typeof range.getClientRects !== 'function') return [];
+  return nodes.flatMap((node) => {
+    range.selectNodeContents(node);
+    return [...range.getClientRects()].map(({ left, top, width, height }) => ({ left, top, width, height }));
+  });
 }
 
 /**
@@ -411,7 +450,8 @@ export function measureElement(el: Element): Spec {
   const inFlow = children.filter((c) => isInFlow(c.style));
   const gap = readGap(style);
   const direction = style.flexDirection.startsWith('column') && style.display.includes('flex') ? 'column' : 'row';
-  const clip = intersect(rect, viewportRect());
+  const viewport = viewportRect();
+  const clip = intersect(rect, viewport);
   const gapStrips =
     gap && (gap.row > 0 || gap.column > 0) && clip
       ? gapRects(
@@ -419,6 +459,12 @@ export function measureElement(el: Element): Spec {
           direction,
           clip,
         )
+      : [];
+  const text = ownTextNodes(el);
+  const type = text.length > 0 ? readType(style, documentFaces()) : null;
+  const textLines =
+    type && clip
+      ? lineBoxes(textFragments(text), type.lineHeight === null ? null : type.lineHeight * scale, viewport)
       : [];
 
   return {
@@ -432,6 +478,7 @@ export function measureElement(el: Element): Spec {
     gap,
     gapStrips,
     childMargins: collectChildMargins(children.map((c) => c.style)),
-    type: hasOwnText(el) ? readType(style, documentFaces()) : null,
+    type,
+    textLines,
   };
 }
