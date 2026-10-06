@@ -10,6 +10,9 @@ const TOOLS: { tool: Tool; label: string; icon: IconName }[] = [
   { tool: 'gap', label: 'Gap', icon: 'spacing-horizontal' },
 ];
 
+/** Long enough that tooltips stay out of the way while you work the bar. */
+const TOOLTIP_DELAY = 1000;
+
 interface InspectorToolbarProps {
   /** The tools are mounted (also true while the close animation plays). */
   expanded: boolean;
@@ -19,6 +22,8 @@ interface InspectorToolbarProps {
   dragging: boolean;
   /** Tools sit on the ruler's left (the bar opens leftward), so the ruler never moves. */
   opensLeft: boolean;
+  /** Below when the bar sits in the top half of the screen, so they don't clip off the top. */
+  tooltipPosition: 'top' | 'bottom';
   tools: ToolSet;
   barRef: RefObject<HTMLDivElement>;
   /** The main (ruler) button — always mounted, so focus can return to it. */
@@ -34,6 +39,7 @@ export function InspectorToolbar({
   closing,
   dragging,
   opensLeft,
+  tooltipPosition,
   tools,
   barRef,
   mainRef,
@@ -50,7 +56,8 @@ export function InspectorToolbar({
     >
       <Tooltip
         label={expanded && !closing ? 'Inspect mode (Shift+I)' : 'Inspect spacing & type (Shift+I)'}
-        position="top"
+        position={tooltipPosition}
+        openDelay={TOOLTIP_DELAY}
         disabled={dragging}
       >
         <button
@@ -69,7 +76,13 @@ export function InspectorToolbar({
         <div className="lc-inspector__extras" data-inspector-extras="">
           <div className="lc-inspector__tools" role="group" aria-label="Inspect tools">
             {TOOLS.map(({ tool, label, icon }) => (
-              <Tooltip key={tool} label={label} position="top" disabled={dragging}>
+              <Tooltip
+                key={tool}
+                label={label}
+                position={tooltipPosition}
+                openDelay={TOOLTIP_DELAY}
+                disabled={dragging}
+              >
                 <button
                   type="button"
                   className="lc-inspector__tool"
@@ -83,7 +96,7 @@ export function InspectorToolbar({
             ))}
           </div>
           <span className="lc-inspector__divider" aria-hidden="true" />
-          <Tooltip label="Close (Esc)" position="top" disabled={dragging}>
+          <Tooltip label="Close (Esc)" position={tooltipPosition} openDelay={TOOLTIP_DELAY} disabled={dragging}>
             <button type="button" className="lc-inspector__tool" aria-label="Close inspect mode" onClick={onClose}>
               <Icon name="close" size={18} />
             </button>

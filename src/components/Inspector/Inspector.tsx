@@ -216,6 +216,7 @@ export function Inspector() {
             closing={closing}
             dragging={dragging}
             opensLeft={opensLeft}
+            tooltipPosition={position.y + BAR_SIZE / 2 < window.innerHeight / 2 ? 'bottom' : 'top'}
             tools={tools}
             barRef={barRef}
             mainRef={mainRef}
