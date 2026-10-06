@@ -46,7 +46,6 @@ export interface BotTemplateRow {
 }
 
 const TYPE_LABEL: Record<BotTemplateType, string> = { task: 'Task', flow: 'Flow' };
-const TYPE_CAPTION: Record<BotTemplateType, string> = { task: 'Single action', flow: 'Multi-step conversation' };
 /** Avatar sets its initials size from the avatar size (42%); pin it to 12px. */
 const AVATAR_STYLE = { '--lc-avatar-font': '12px' } as CSSProperties;
 
@@ -187,12 +186,7 @@ const COLUMNS = {
   type: {
     key: 'type',
     header: 'Type',
-    cell: (row) => (
-      <div className="lc-bt__type-block">
-        <span className="lc-bt__type-label">{TYPE_LABEL[row.type]}</span>
-        <span className="lc-bt__type-caption">{TYPE_CAPTION[row.type]}</span>
-      </div>
-    ),
+    cell: (row) => <span className="lc-bt__type-label">{TYPE_LABEL[row.type]}</span>,
   },
   role: {
     key: 'type',
