@@ -3,8 +3,8 @@
 Reusable product top navigation bar from the **LimeChat Design System — V3**
 ([Figma node `8847:4018`](https://www.figma.com/design/Ncj0VUMigW7YqlpYcCB12G/LimeChat-Design-System---V3?node-id=8847-4018)).
 
-A 64px white bar: product wordmark + breadcrumb + status badges on the left; a
-product-specific CTA slot, an apps-menu button, and the account chip on the right.
+A 56px white bar: product wordmark + breadcrumb on the left; a product-specific
+CTA slot, the product-switcher button, and the account chip on the right.
 
 ## Usage
 
@@ -12,40 +12,16 @@ product-specific CTA slot, an apps-menu button, and the account chip on the righ
 import { TopNavBar, helpDeskTopNav } from './components/TopNavBar';
 
 <TopNavBar
-  {...helpDeskTopNav({ onVoiceCall, onCreateTicket })}
+  {...helpDeskTopNav({ onVoiceCall, onSelectTicketInbox })}
   breadcrumbs={[
-    { label: 'Analytics', href: '/analytics' },
-    { label: 'Broadcast', href: '/analytics/broadcast' },
-    { label: 'New Broadcast' },            // last = current by default
+    { label: 'Broadcast', onClick: goBack },
+    { label: '10023', copyable: true },   // last = current
   ]}
-  updatedAt="April 15, 2026 at 6:11 PM"
-  account={{ name: 'Nonucare12', onClick: openAccountMenu }}
-  onAppsMenuClick={openApps}
-/>
-```
-
-Campaigns / Automation pattern (channel dropdown + ID badge + edit):
-
-```tsx
-<TopNavBar
-  {...campaignsTopNav({ onChannelChange })}
-  breadcrumbs={crumbs}
-  badges={[{ label: 'ID number' }, { label: 'draft', tone: 'draft' }]}
-  onEdit={renameBroadcast}
+  products={PRODUCTS}
+  selectedProductId="helpdesk"
+  onProductChange={switchProduct}
   account={{ name: 'Nonucare12' }}
-/>
-```
-
-Fully custom (no preset):
-
-```tsx
-<TopNavBar
-  logo="Campaigns"                          // string → bold brand-green text
-  onLogoClick={goHome}
-  breadcrumbs={crumbs}
-  actions={<TopNavButton icon="plus" onClick={create}>New</TopNavButton>}
-  showAppsMenu={false}
-  account={{ name: 'Acme', avatarSrc: '/acme.png' }}
+  accountMenu={accountMenu}
 />
 ```
 
@@ -54,19 +30,12 @@ Fully custom (no preset):
 | Prop              | Type                                  | Notes                                                          |
 | ----------------- | ------------------------------------- | ------------------------------------------------------------- |
 | `logo`            | `ReactNode`                           | String → bold brand-green wordmark; node → rendered as-is.    |
-| `onLogoClick`     | `() => void`                          | Renders the wordmark as a button when set.                    |
-| `breadcrumbs`     | `TopNavCrumb[]`                       | `{ label, href?, onClick?, current? }`. Last item is current unless one sets `current`. |
-| `badges`          | `TopNavBadge[]`                       | `{ label, tone?: 'info' \| 'draft' }`. `info` is the default. |
-| `onEdit`          | `() => void`                          | Renders the edit pencil after the badges.                     |
-| `updatedAt`       | `string`                             | Renders `Updated: {updatedAt}` after the breadcrumb.          |
+| `breadcrumbs`     | `TopNavCrumb[]`                       | `{ label, onClick?, copyable? }`. The last item is current.   |
 | `actions`         | `ReactNode`                           | Right-side CTA slot — `TopNavSelect` / `TopNavButton` / anything. |
-| `showAppsMenu`    | `boolean`                            | 9-dot apps button. Default `true`.                            |
-| `onAppsMenuClick` | `() => void`                          | Apps-button click handler (ignored when `products` is set).   |
-| `products`        | `{ id, label, icon? }[]`             | When set, the apps button toggles a [`ProductSwitcher`](../ProductSwitcher/README.md) popover. |
+| `products`        | `{ id, label, icon? }[]`             | Required. The 9-dot apps button toggles a [`ProductSwitcher`](../ProductSwitcher/README.md) popover. |
 | `selectedProductId` / `onProductChange` | —              | Selected product + change handler for that popover.           |
-| `account`         | `{ name, initial?, avatarSrc?, compact?, onClick? }` | Account chip; falls back to the name's first letter. `compact` → avatar-only "No name" variant (Figma `9755:6709`): 4px padding, 8px radius, auto width. |
-| `accountMenu`     | `AccountSwitcherProps`               | When set, clicking the account chip toggles an [`AccountSwitcher`](../AccountSwitcher/README.md) popover (closes on select / outside-click / Esc). |
-| `className` / `style` | —                                | Forwarded to the root `<header>`.                             |
+| `account`         | `{ name }`                           | Required. Avatar-only "No name" chip (Figma `9755:6709`) showing the name's first letter; the name surfaces as a tooltip. |
+| `accountMenu`     | `AccountSwitcherProps`               | Required. Clicking the account chip toggles an [`AccountSwitcher`](../AccountSwitcher/README.md) popover (closes on select / outside-click / Esc). |
 
 ## CTA building blocks
 
@@ -90,15 +59,11 @@ Overridable via CSS custom properties on `.lc-topnav` (see [`TopNavBar.css`](./T
 
 | Token                          | Value     | Figma variable                   |
 | ------------------------------ | --------- | -------------------------------- |
-| `--lc-topnav-height`           | `64px`    | —                              |
+| `--lc-topnav-height`           | `56px`    | —                              |
 | `--lc-topnav-bg`               | `#ffffff` | `background/default`            |
 | `--lc-topnav-border`           | `#d9d9d9` | `border/gray/light`            |
 | `--lc-topnav-fg`               | `#3c492c` | `text/default`                |
 | `--lc-topnav-fg-dimmed`        | `#808975` | `text/dimmed`                 |
-| `--lc-topnav-info-badge-bg`    | `#e7f2f6` | `background/secondary/light`   |
-| `--lc-topnav-info-badge-fg`    | `#003b56` | `text/secondary/dark`         |
-| `--lc-topnav-draft-badge-fg`   | `#097ba3` | `text/secondary/default`      |
-| `--lc-topnav-account-fg`       | `#34540d` | `text/primary/dark`          |
 | `--lc-topnav-avatar-bg`        | `#cdf0a2` | `~green/green-2`             |
 | `--lc-topnav-avatar-fg`        | `#6bac1b` | `~green/green-6-anchor`      |
 | `--lc-topnav-font-family`      | `Lato, …` | LimeChat default typeface       |
@@ -116,7 +81,7 @@ sets the family but does not import the webfont.
 ## Accessibility
 
 - `<header>` landmark; breadcrumb wrapped in `<nav aria-label="Breadcrumb"><ol>`, current crumb marked `aria-current="page"`.
-- Icon-only controls (edit, apps menu) have `aria-label`; `:focus-visible` rings on every control.
+- Icon-only controls (apps menu, account chip) have `aria-label`; `:focus-visible` rings on every control.
 - Honours `prefers-reduced-motion`.
 
 ## Deviation notes

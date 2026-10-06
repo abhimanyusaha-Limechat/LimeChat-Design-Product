@@ -99,16 +99,13 @@ const wordmark = (src: string, alt: string, product: TopNavProduct): ReactNode =
 export interface CampaignsTopNavOptions {
   channelLabel?: string;
   onChannelChange?: () => void;
-  onAppsMenuClick?: () => void;
 }
 
 export function campaignsTopNav(options: CampaignsTopNavOptions = {}): Partial<TopNavBarProps> {
-  const { channelLabel = 'Whatsapp', onChannelChange, onAppsMenuClick } = options;
+  const { channelLabel = 'Whatsapp', onChannelChange } = options;
   return {
     logo: wordmark(campaignsWordmark, 'Campaigns', 'campaigns'),
     actions: <TopNavSelect icon="whatsapp" label={channelLabel} onClick={onChannelChange} />,
-    showAppsMenu: true,
-    onAppsMenuClick,
   };
 }
 
@@ -121,12 +118,9 @@ const DEFAULT_TICKET_INBOXES: TicketInboxOption[] = [
 
 export interface HelpDeskTopNavOptions {
   onVoiceCall?: () => void;
-  /** @deprecated Pass `onSelectTicketInbox` instead — "+ Ticket" now opens an inbox picker. */
-  onCreateTicket?: () => void;
   /** Inboxes listed in the "+ Ticket" popover. Defaults to a sample Whatsapp/Email set. */
   ticketInboxes?: TicketInboxOption[];
   onSelectTicketInbox?: (inbox: TicketInboxOption) => void;
-  onAppsMenuClick?: () => void;
   /** Show the "Voice call" / "Ticket" CTAs — only relevant on the Tickets section. Default `true`. */
   showActions?: boolean;
 }
@@ -136,7 +130,6 @@ export function helpDeskTopNav(options: HelpDeskTopNavOptions = {}): Partial<Top
     onVoiceCall,
     ticketInboxes = DEFAULT_TICKET_INBOXES,
     onSelectTicketInbox,
-    onAppsMenuClick,
     showActions = true,
   } = options;
   return {
@@ -149,24 +142,19 @@ export function helpDeskTopNav(options: HelpDeskTopNavOptions = {}): Partial<Top
         <CreateTicketMenu inboxes={ticketInboxes} onSelectInbox={(inbox) => onSelectTicketInbox?.(inbox)} />
       </>
     ),
-    showAppsMenu: true,
-    onAppsMenuClick,
   };
 }
 
 export interface AutomationTopNavOptions {
   channelLabel?: string;
   onChannelChange?: () => void;
-  onAppsMenuClick?: () => void;
 }
 
 export function automationTopNav(options: AutomationTopNavOptions = {}): Partial<TopNavBarProps> {
-  const { channelLabel = 'Whatsapp', onChannelChange, onAppsMenuClick } = options;
+  const { channelLabel = 'Whatsapp', onChannelChange } = options;
   return {
     logo: wordmark(automationWordmark, 'Automation', 'automation'),
     actions: <TopNavSelect icon="whatsapp" label={channelLabel} onClick={onChannelChange} />,
-    showAppsMenu: true,
-    onAppsMenuClick,
   };
 }
 

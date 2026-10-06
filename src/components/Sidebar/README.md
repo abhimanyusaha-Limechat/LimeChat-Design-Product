@@ -18,8 +18,8 @@ function Shell() {
       {...helpdeskSidebar}                 // items + footerItems preset
       selectedId={selected}
       onSelect={setSelected}
-      profile={{ name: 'Aditi Rao', avatarUrl: '/me.jpg' }}
-      logo={{ href: '/' }}
+      profile={{ name: 'Aditi Rao', menuItems: [{ id: 'logout', label: 'Logout', icon: 'logout', danger: true }] }}
+      logo={{ onClick: goHome }}
     />
   );
 }
@@ -30,8 +30,8 @@ Fully data-driven — you can skip the presets and pass your own `items`:
 ```tsx
 <Sidebar
   items={[
-    { id: 'inbox', label: 'Inbox', icon: 'message-circle', href: '/inbox' },
-    { id: 'reports', label: 'Reports', icon: 'chart-bar', href: '/reports' },
+    { id: 'inbox', label: 'Inbox', icon: 'message-circle' },
+    { id: 'reports', label: 'Reports', icon: 'chart-bar' },
     { id: 'custom', label: 'Custom', icon: <MyOwnSvg /> },
   ]}
   selectedId="inbox"
@@ -46,13 +46,10 @@ Fully data-driven — you can skip the presets and pass your own `items`:
 | `selectedId`  | `string`                                         | id of the active item.                                      |
 | `onSelect`    | `(id: string) => void`                           | Fired on item activation.                                    |
 | `footerItems` | `SidebarItem[]`                                  | Actions pinned above the avatar (e.g. WhatsApp, bell).       |
-| `profile`     | `{ name; avatarUrl?; onClick? }`                 | Avatar; renders initials when `avatarUrl` is omitted.        |
-| `logo`        | `{ href?; onClick?; label? }`                    | `href` → anchor, `onClick` → button, neither → static.       |
-| `ariaLabel`   | `string`                                         | Accessible name for the `<nav>`. Default `"Primary"`.        |
-| `showTooltips`| `boolean`                                        | Show a label [`Tooltip`](../Tooltip/README.md) to the right of each item on hover / focus (2000 ms open, 50 ms close). Default `true`. |
-| `className` / `style` | —                                        | Forwarded to the root element.                               |
+| `profile`     | `{ name; menuItems }`                            | Initials avatar; click opens `menuItems` as a popover.       |
+| `logo`        | `{ onClick }`                                    | Brand-mark button handler.                                   |
 
-`SidebarItem`: `{ id, label, icon, href?, onClick? }` where `icon` is a
+`SidebarItem`: `{ id, label, icon }` where `icon` is a
 [built-in name](./icons.tsx) (`SidebarIconName`) or any React node.
 
 ## Presets
@@ -86,9 +83,8 @@ sets the family but does not import the webfont.
 
 ## Accessibility
 
-- Nav items are real `<button>` / `<a>` elements with `aria-label` and
-  `aria-current="page"` / `aria-pressed` on the active item. With `showTooltips`
-  on, the label surfaces via the `Tooltip` component (`aria-describedby`); with it
-  off, the native `title` attribute is used instead.
+- Nav items are real `<button>` elements with `aria-label` and `aria-pressed`
+  on the active item. The label also surfaces via the [`Tooltip`](../Tooltip/README.md)
+  component (`aria-describedby`; 2000 ms open, 50 ms close).
 - `<nav aria-label>` landmark; `:focus-visible` ring on every control.
 - Honours `prefers-reduced-motion`.
