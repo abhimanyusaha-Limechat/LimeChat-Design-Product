@@ -68,7 +68,13 @@ export function SpecPanel({ spec, tools, canSelectParent, onSelectParent, onUnpi
                 <div key={row.label} className="lc-inspector__row" data-off-scale={row.issue ? true : undefined}>
                   <dt>{row.label}</dt>
                   <dd>
-                    <span className="lc-inspector__value">{row.value}</span>
+                    <span className="lc-inspector__value">
+                      {row.swatch && (
+                        <span className="lc-inspector__swatch" style={{ background: row.swatch }} aria-hidden="true" />
+                      )}
+                      {row.value}
+                    </span>
+                    {row.detail && <span className="lc-inspector__detail">{row.detail}</span>}
                     {row.issue && (
                       <span className="lc-inspector__issue">
                         <Icon name="alert-triangle" size={12} />

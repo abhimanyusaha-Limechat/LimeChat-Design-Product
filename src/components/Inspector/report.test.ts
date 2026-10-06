@@ -86,6 +86,22 @@ describe('buildReport', () => {
     );
   });
 
+  it('names a color token, with its primitive and hex underneath', () => {
+    expect(rows(spec({ type: { ...TYPE, color: '#808975' } })).Color).toEqual({
+      label: 'Color',
+      value: 'sage-500',
+      detail: 'color/light · #808975',
+      swatch: '#808975',
+    });
+  });
+
+  it('flags a color that is not a token, naming the closest one', () => {
+    expect(rows(spec({ type: { ...TYPE, color: '#818a76' } })).Color).toMatchObject({
+      value: '#818a76',
+      issue: 'Not a color token — closest is sage-500 (#808975)',
+    });
+  });
+
   it('flags a weight the browser substitutes, and a font that failed to load', () => {
     expect(rows(spec({ type: { ...TYPE, weight: 600, renderedWeight: 700 } })).Weight.issue).toBe(
       'No 600 face loaded — renders as 700',
@@ -114,6 +130,11 @@ describe('buildLabel', () => {
   it('falls back to the size when no tool has anything to say', () => {
     expect(buildLabel(spec({ type: null, gap: null }), { type: true, padding: false, gap: true })).toBe('80 × 32');
   });
+
+  it('reports the size in CSS px under a scale transform, like the panel', () => {
+    const scaled = spec({ type: null, gap: null, scale: 0.5, rect: { left: 0, top: 0, width: 40, height: 16 } });
+    expect(buildLabel(scaled, { type: false, padding: false, gap: false })).toBe('80 × 32');
+  });
 });
 
 describe('specToCss', () => {
@@ -124,11 +145,16 @@ describe('specToCss', () => {
         'font-size: 14px;',
         'font-weight: 700;',
         'line-height: 20px;',
-        'color: #3c492c;',
+        'color: var(--lc-color-green-900);',
         'padding: 0 12px;',
         'gap: 8px;',
       ].join('\n'),
     );
     expect(specToCss(spec(), { type: false, padding: false, gap: true })).toBe('gap: 8px;');
+  });
+
+  it('keeps the hex for a color that is not a token', () => {
+    const css = specToCss(spec({ type: { ...TYPE, color: '#818a76' } }), { type: true, padding: false, gap: false });
+    expect(css).toContain('color: #818a76;');
   });
 });

@@ -6,5 +6,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // Vitest blanks CSS by default; Inspect mode reads its color tokens from this file.
+    css: { include: [/tokens\.css/] },
   },
 });

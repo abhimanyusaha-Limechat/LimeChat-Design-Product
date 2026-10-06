@@ -2,7 +2,14 @@
  * Turns a measured `Spec` into what the panel, the hover label and "Copy CSS"
  * show, with each off-scale value carrying its reason. Pure.
  */
-import { FONT_SIZES, SPACING_STEP, isAllowedFontSize, isOnSpacingGrid } from './designScale';
+import {
+  FONT_SIZES,
+  SPACING_STEP,
+  findColorToken,
+  isAllowedFontSize,
+  isOnSpacingGrid,
+  nearestColorToken,
+} from './designScale';
 import type { Sides, Spec } from './measure';
 
 export type Tool = 'type' | 'padding' | 'gap';
@@ -13,6 +20,10 @@ export interface ReportRow {
   value: string;
   /** Why the value is off-scale or misleading; absent when it's fine. */
   issue?: string;
+  /** Secondary text under the value. */
+  detail?: string;
+  /** A color to show as a swatch before the value. */
+  swatch?: string;
 }
 
 export interface ReportSection {
@@ -89,6 +100,22 @@ function weightIssue(type: NonNullable<Spec['type']>): string | undefined {
   return undefined;
 }
 
+/** A token by name, with its primitive and hex underneath; anything else is flagged. */
+function colorRow(color: string): ReportRow {
+  const token = findColorToken(color);
+  if (token) {
+    const detail = token.primitive ? `${token.primitive} · ${token.hex}` : token.hex;
+    return { label: 'Color', value: token.name, detail, swatch: color };
+  }
+  const closest = nearestColorToken(color);
+  return {
+    label: 'Color',
+    value: color,
+    swatch: color,
+    issue: closest ? `Not a color token — closest is ${closest.name} (${closest.hex})` : 'Not a color token',
+  };
+}
+
 function typeSection(spec: Spec): ReportSection {
   const { type } = spec;
   if (!type) return { tool: 'type', title: 'Type', rows: [], empty: 'No direct text' };
@@ -105,7 +132,7 @@ function typeSection(spec: Spec): ReportSection {
     { label: 'Line height', value: type.lineHeight === null ? 'normal' : fmt(type.lineHeight) },
   ];
   if (type.letterSpacing !== null) rows.push({ label: 'Letter spacing', value: fmt(type.letterSpacing) });
-  rows.push({ label: 'Color', value: type.color });
+  rows.push(colorRow(type.color));
   return { tool: 'type', title: 'Type', rows };
 }
 
@@ -148,7 +175,10 @@ export function buildLabel(spec: Spec, tools: ToolSet): string {
         : `gap ${fmt(spec.gap.row)} ${fmt(spec.gap.column)}`,
     );
   }
-  return parts.length > 0 ? parts.join(' · ') : `${fmt(spec.rect.width)} × ${fmt(spec.rect.height)}`;
+  // CSS px, like the panel — rect is rendered px, which differs under transform: scale().
+  return parts.length > 0
+    ? parts.join(' · ')
+    : `${fmt(spec.rect.width / spec.scale)} × ${fmt(spec.rect.height / spec.scale)}`;
 }
 
 /** The enabled tools' values as CSS declarations, for "Copy CSS". */
@@ -161,7 +191,8 @@ export function specToCss(spec: Spec, tools: ToolSet): string {
     lines.push(`font-family: ${t.family};`, `font-size: ${px(t.size)};`, `font-weight: ${t.weight};`);
     lines.push(`line-height: ${t.lineHeight === null ? 'normal' : px(t.lineHeight)};`);
     if (t.letterSpacing !== null) lines.push(`letter-spacing: ${px(t.letterSpacing)};`);
-    lines.push(`color: ${t.color};`);
+    const token = findColorToken(t.color);
+    lines.push(`color: ${token ? `var(--lc-color-${token.name})` : t.color};`);
   }
   if (tools.padding) lines.push(`padding: ${sides(spec.padding)};`);
   if (tools.gap && spec.gap) {
