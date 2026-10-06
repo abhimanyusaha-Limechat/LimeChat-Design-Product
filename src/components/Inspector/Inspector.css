@@ -282,6 +282,23 @@
   user-select: text;
 }
 
+/* Inset hairline so white and near-white colors still read against the panel. */
+.lc-inspector__swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 12%);
+  vertical-align: -2px;
+}
+
+.lc-inspector__detail {
+  color: var(--lc-color-stone-600);
+  font-variant-numeric: tabular-nums;
+  user-select: text;
+}
+
 .lc-inspector__row[data-off-scale] .lc-inspector__value {
   color: var(--lc-inspector-off);
   font-weight: 700;
