@@ -50,6 +50,16 @@ _Avoid_: Sub-comment, child comment
 Where a Comment stands in triage: Open, Accepted, Won't fix or Resolved.
 _Avoid_: State
 
+## Inspecting
+
+**Inspect mode**:
+A read-only reviewer tool, opened from a draggable button or Shift+I, that shows an element's padding, gap and typography and flags values outside the design scale. It is separate from Commenting: the element it holds on to is a *pinned element*, not a Pin, and it needs no Anchor.
+_Avoid_: Dev mode, inspector pin, redlines
+
+**Design scale**:
+The spacing grid and font sizes that Inspect mode checks values against, kept in `src/components/Inspector/designScale.ts`.
+_Avoid_: Tokens (none exist yet for spacing or type)
+
 ## Commerce
 
 **Commerce session**:

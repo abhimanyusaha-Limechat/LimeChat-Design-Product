@@ -47,6 +47,20 @@ Notable components: `Sidebar`, `TopNavBar`, `Modal`, `Tooltip`, `Button`,
 (`SegmentsHomePage`, `BroadcastHomePage`, `FlowsHomePage`, `BotFlowsHomePage`,
 `TemplatesHomePage`, `SettingsPage`).
 
+## Inspect mode
+
+Every build, including the live demo, has an **Inspect mode** for checking
+spacing and type without DevTools. Click the ruler button (bottom-right; drag
+it anywhere) or press **Shift+I**, then hover an element to see its padding,
+gap and typography; click to pin it and read the values. Anything off the
+design scale (4px spacing grid; font sizes 10/12/14/16/20) is flagged, as is a
+font weight the browser can't draw. **Esc** unpins, then closes. **Alt+↑**
+selects the pinned element's parent; **Alt+Enter** pins the focused element.
+The scale lives in `src/components/Inspector/designScale.ts`.
+
+Inspect mode and Agentation's annotate mode both capture clicks, so use one at
+a time.
+
 ## Deployment
 
 Pushing to `main` (via a merged pull request) automatically builds and
