@@ -88,6 +88,8 @@ export function useDraggable(
 ) {
   const [position, setPosition] = useState<Point>(() => readStoredPosition() ?? defaultPosition(viewport()));
   const suppressClick = useRef(false);
+  /** True once a press has moved past the tap threshold, until release. */
+  const [dragging, setDragging] = useState(false);
   const latest = useRef(position);
   useEffect(() => {
     latest.current = position;
@@ -130,6 +132,7 @@ export function useDraggable(
 
   // Removes the window listeners of a drag in progress (also on unmount).
   const stopTracking = useRef<() => void>(() => {});
+  const tracking = useRef<number | null>(null);
   useEffect(() => () => stopTracking.current(), []);
 
   // After pointerdown the pointer is followed on `window`, not the handle: a
@@ -140,8 +143,13 @@ export function useDraggable(
   const onPointerDown = useCallback(
     (e: PointerEvent<HTMLElement>) => {
       if (e.button !== 0) return;
+      // One pointer at a time: a second finger mid-drag must not restart it.
+      // The same pointer pressing again means its release was missed (e.g.
+      // let go outside the window), so start over.
+      if (tracking.current !== null && tracking.current !== e.pointerId) return;
       stopTracking.current();
       const pointerId = e.pointerId;
+      tracking.current = pointerId;
       const start = { x: e.clientX, y: e.clientY };
       const origin = latest.current;
       let moved = false;
@@ -152,8 +160,11 @@ export function useDraggable(
         if (ev.buttons === 0) return finish(ev);
         const dx = ev.clientX - start.x;
         const dy = ev.clientY - start.y;
-        if (!moved && Math.hypot(dx, dy) < TAP_THRESHOLD) return;
-        moved = true;
+        if (!moved) {
+          if (Math.hypot(dx, dy) < TAP_THRESHOLD) return;
+          moved = true;
+          setDragging(true);
+        }
         const next = clamp({ x: origin.x + dx, y: origin.y + dy });
         latest.current = next;
         setPosition(next);
@@ -180,6 +191,8 @@ export function useDraggable(
         window.removeEventListener('pointermove', onMove, opts);
         window.removeEventListener('pointerup', finish, opts);
         window.removeEventListener('pointercancel', finish, opts);
+        tracking.current = null;
+        setDragging(false);
         stopTracking.current = () => {};
       };
     },
@@ -194,5 +207,5 @@ export function useDraggable(
     e.stopPropagation();
   };
 
-  return { position, handleProps: { onPointerDown }, onClickCapture };
+  return { position, dragging, handleProps: { onPointerDown }, onClickCapture };
 }

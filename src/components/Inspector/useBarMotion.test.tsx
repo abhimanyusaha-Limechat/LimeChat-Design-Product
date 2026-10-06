@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { useBarMotion } from './useBarMotion';
 
 /** A controllable stand-in for a WAAPI Animation. */
-function fakeAnimation(keyframes: Keyframe[]) {
+function fakeAnimation(keyframes: Keyframe[], options?: KeyframeAnimationOptions) {
   let resolve!: () => void;
   let reject!: (e: Error) => void;
   const finished = new Promise<void>((res, rej) => {
@@ -14,6 +14,7 @@ function fakeAnimation(keyframes: Keyframe[]) {
   finished.catch(() => {});
   return {
     keyframes,
+    options,
     finished,
     finish: () => resolve(),
     cancel: vi.fn(() => reject(new Error('AbortError'))),
@@ -26,8 +27,8 @@ function setup() {
   animations = [];
   Object.defineProperty(HTMLElement.prototype, 'animate', {
     configurable: true,
-    value: (keyframes: Keyframe[]) => {
-      const a = fakeAnimation(keyframes);
+    value: (keyframes: Keyframe[], options?: KeyframeAnimationOptions) => {
+      const a = fakeAnimation(keyframes, options);
       animations.push(a);
       return a;
     },
@@ -40,7 +41,11 @@ function setup() {
     motion = useBarMotion(ref, 40);
     return (
       <div ref={ref}>
-        <div data-inspector-extras="" />
+        <div data-inspector-extras="">
+          <button type="button" className="lc-inspector__tool" />
+          <button type="button" className="lc-inspector__tool" />
+          <span className="lc-inspector__divider" />
+        </div>
       </div>
     );
   }
@@ -69,14 +74,24 @@ describe('useBarMotion', () => {
     expect(left.keyframes[0].clipPath).toBe('inset(0 0 0 153px round 20px)');
   });
 
-  it('slides the tools out of the ruler and fades them in', () => {
+  it('slides each item out of the ruler, staggered outward', () => {
     const motion = setup();
     act(() => motion().play('open', false));
-    const tools = animations.find((a) => a.keyframes[0].opacity !== undefined)!;
-    expect(tools.keyframes).toEqual([
+    const items = animations.filter((a) => a.keyframes[0].opacity !== undefined);
+    expect(items).toHaveLength(3);
+    expect(items[0].keyframes).toEqual([
       { opacity: '0', transform: 'translateX(-8px)' },
       { opacity: '1', transform: 'none' },
     ]);
+    expect(items.map((a) => a.options?.delay)).toEqual([0, 25, 50]);
+  });
+
+  it('closes everything together, without a stagger', () => {
+    const motion = setup();
+    act(() => motion().play('close', true));
+    const items = animations.filter((a) => a.keyframes[0].opacity !== undefined);
+    expect(items.map((a) => a.options?.delay)).toEqual([0, 0, 0]);
+    expect(items[0].keyframes[1]).toEqual({ opacity: '0', transform: 'translateX(8px)' });
   });
 
   it('calls onDone once the close finishes', async () => {
@@ -107,10 +122,14 @@ describe('useBarMotion', () => {
     });
     const motion = setup();
     act(() => motion().play('open', false));
-    expect(animations).toHaveLength(1);
-    expect(animations[0].keyframes).toEqual([
-      { opacity: '0', transform: 'none' },
-      { opacity: '1', transform: 'none' },
-    ]);
+    // Fades only: no clip reveal, no slide, no stagger.
+    expect(animations).toHaveLength(3);
+    for (const a of animations) {
+      expect(a.keyframes).toEqual([
+        { opacity: '0', transform: 'none' },
+        { opacity: '1', transform: 'none' },
+      ]);
+      expect(a.options?.delay).toBe(0);
+    }
   });
 });
