@@ -22,7 +22,7 @@ interface InspectorToolbarProps {
   dragging: boolean;
   /** Tools sit on the ruler's left (the bar opens leftward), so the ruler never moves. */
   opensLeft: boolean;
-  /** Below when the bar sits in the top half of the screen, so they don't clip off the top. */
+  /** Which side of the bar tooltips open on; see `tooltipPlacement`. */
   tooltipPosition: 'top' | 'bottom';
   tools: ToolSet;
   barRef: RefObject<HTMLDivElement>;

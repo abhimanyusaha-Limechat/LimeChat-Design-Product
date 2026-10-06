@@ -302,12 +302,44 @@ describe('Inspector tooltips', () => {
     expect(screen.getByRole('tooltip')).toHaveClass('lc-tooltip__bubble--top');
   });
 
+  /** Drags the FAB so its top edge lands at `y` (it starts 60px above the bottom). */
+  const dragFabTo = (y: number) => {
+    const start = { button: 0, buttons: 1, pointerId: 1, clientX: 0, clientY: 0 };
+    const end = { ...start, clientY: y - (window.innerHeight - 60) };
+    fireEvent.pointerDown(fab(), start);
+    fireEvent.pointerMove(window, end);
+    fireEvent.pointerUp(window, { ...end, buttons: 0 });
+  };
+
   it('shows below the bar once it is dragged into the top half', () => {
     setup();
-    const start = { button: 0, buttons: 1, pointerId: 1, clientX: 0, clientY: 0 };
-    fireEvent.pointerDown(fab(), start);
-    fireEvent.pointerMove(window, { ...start, clientY: -window.innerHeight + 100 });
-    fireEvent.pointerUp(window, { ...start, buttons: 0, clientY: -window.innerHeight + 100 });
+    dragFabTo(100);
+    hoverFab();
+    act(() => vi.advanceTimersByTime(1000));
+    expect(screen.getByRole('tooltip')).toHaveClass('lc-tooltip__bubble--bottom');
+  });
+
+  /** Pins an app element (real timers: user-event stalls on fake ones), then returns to fake timers. */
+  const pinWithFabAt = async (y: number) => {
+    vi.useRealTimers();
+    const user = setup(<button type="button">Save</button>);
+    dragFabTo(y);
+    await user.click(fab());
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(panel()).toBeInTheDocument());
+    vi.useFakeTimers();
+    vi.setSystemTime(Date.now() + 1000);
+  };
+
+  it('shows above the bar while the panel is open below it, if there is room', async () => {
+    await pinWithFabAt(100);
+    hoverFab();
+    act(() => vi.advanceTimersByTime(1000));
+    expect(screen.getByRole('tooltip')).toHaveClass('lc-tooltip__bubble--top');
+  });
+
+  it('stays below with the panel open when the bar is too close to the top', async () => {
+    await pinWithFabAt(20);
     hoverFab();
     act(() => vi.advanceTimersByTime(1000));
     expect(screen.getByRole('tooltip')).toHaveClass('lc-tooltip__bubble--bottom');

@@ -32,6 +32,8 @@ const BAR_SIZE = 44;
 const PANEL_WIDTH = 320;
 const PANEL_GAP = 8;
 const SCREEN_MARGIN = 16;
+/** Room a one-line tooltip needs above the bar: 32px bubble + 12px gap and arrow. */
+const TOOLTIP_CLEARANCE = 44;
 
 const ALL_TOOLS: ToolSet = { type: true, padding: true, gap: true };
 
@@ -74,6 +76,15 @@ function panelPlacement(x: number, y: number): CSSProperties {
   return spaceBelow >= spaceAbove
     ? { left, width, top: BAR_SIZE + PANEL_GAP, maxHeight: spaceBelow }
     : { left, width, bottom: BAR_SIZE + PANEL_GAP, maxHeight: spaceAbove };
+}
+
+/**
+ * Below the bar in the top half of the screen, so they don't clip off the top —
+ * unless the panel is open there (it would cover them) and there's room above.
+ */
+function tooltipPlacement(y: number, panelOpen: boolean): 'top' | 'bottom' {
+  if (y + BAR_SIZE / 2 >= window.innerHeight / 2) return 'top';
+  return panelOpen && y >= TOOLTIP_CLEARANCE ? 'top' : 'bottom';
 }
 
 export function Inspector() {
@@ -216,7 +227,7 @@ export function Inspector() {
             closing={closing}
             dragging={dragging}
             opensLeft={opensLeft}
-            tooltipPosition={position.y + BAR_SIZE / 2 < window.innerHeight / 2 ? 'bottom' : 'top'}
+            tooltipPosition={tooltipPlacement(position.y, Boolean(inspecting && pinned))}
             tools={tools}
             barRef={barRef}
             mainRef={mainRef}
