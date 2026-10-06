@@ -28,7 +28,7 @@ import { useInspectTarget } from './useInspectTarget';
 import './Inspector.css';
 
 /** Height of the bar, and size of the FAB and the ruler button, px. Shared with the CSS. */
-const BAR_SIZE = 40;
+const BAR_SIZE = 44;
 const PANEL_WIDTH = 320;
 const PANEL_GAP = 8;
 const SCREEN_MARGIN = 16;
