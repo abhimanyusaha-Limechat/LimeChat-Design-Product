@@ -4,6 +4,7 @@ import {
   familyFaces,
   firstFamily,
   gapRects,
+  lineBoxes,
   parsePx,
   readGap,
   readType,
@@ -241,5 +242,20 @@ describe('gapRects', () => {
       rect(0, 0, 104, 10),
     );
     expect(strips).toEqual([{ rect: rect(100, 0, 4, 10), axis: 'column' }]);
+  });
+});
+
+describe('lineBoxes', () => {
+  it('merges fragments on the same line, one box per line', () => {
+    const lines = lineBoxes([rect(10, 0, 40, 16), rect(60, 1, 30, 16), rect(10, 20, 50, 16)], null, VIEWPORT);
+    expect(lines).toEqual([rect(10, 0, 80, 17), rect(10, 20, 50, 16)]);
+  });
+
+  it('grows each line to the line height, centered on the glyphs', () => {
+    expect(lineBoxes([rect(0, 10, 40, 16)], 20, VIEWPORT)).toEqual([rect(0, 8, 40, 20)]);
+  });
+
+  it('skips empty fragments and clips to the visible area', () => {
+    expect(lineBoxes([rect(0, 0, 0, 16), rect(0, -8, 40, 16)], null, VIEWPORT)).toEqual([rect(0, 0, 40, 8)]);
   });
 });

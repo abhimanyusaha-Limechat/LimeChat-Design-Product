@@ -9,10 +9,7 @@
   --lc-inspector-on-fill: rgb(255 255 255 / 14%);
   --lc-inspector-on-fill-hover: rgb(255 255 255 / 20%);
   --lc-inspector-off-icon: rgb(255 255 255 / 55%);
-  --lc-inspector-padding: color-mix(in srgb, var(--lc-color-green-500) 30%, transparent);
-  --lc-inspector-gap: color-mix(in srgb, var(--lc-color-blue-600) 35%, transparent);
   --lc-inspector-off: var(--lc-color-red-600);
-  --lc-inspector-off-fill: color-mix(in srgb, var(--lc-color-red-500) 35%, transparent);
 
   position: fixed;
   z-index: 2147483647;
@@ -21,10 +18,13 @@
   line-height: 16px;
 }
 
-/* Overlay lives outside .lc-inspector, so it repeats the colors it needs. */
+/* Overlay lives outside .lc-inspector, so it declares its own layer colors. */
 .lc-inspector__overlay {
   --lc-inspector-padding: color-mix(in srgb, var(--lc-color-green-500) 30%, transparent);
-  --lc-inspector-gap: color-mix(in srgb, var(--lc-color-blue-600) 35%, transparent);
+  --lc-inspector-gap: color-mix(in srgb, var(--lc-color-blue-600) 40%, transparent);
+  --lc-inspector-gap-tint: color-mix(in srgb, var(--lc-color-blue-600) 10%, transparent);
+  --lc-inspector-text: color-mix(in srgb, var(--lc-color-amber-500) 28%, transparent);
+  --lc-inspector-off: var(--lc-color-red-600);
   --lc-inspector-off-fill: color-mix(in srgb, var(--lc-color-red-500) 35%, transparent);
 
   position: fixed;
@@ -346,43 +346,70 @@
 }
 
 .lc-inspector__padding,
-.lc-inspector__gap {
+.lc-inspector__gap,
+.lc-inspector__text {
   position: fixed;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  font-size: 10px;
-  line-height: 12px;
-  font-weight: 700;
 }
 
 .lc-inspector__padding {
   background: var(--lc-inspector-padding);
-  color: var(--lc-color-green-900);
 }
 
+/* Hatched so it never reads as padding; the tint keeps 2–4px strips visible. */
 .lc-inspector__gap {
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--lc-inspector-gap) 0 2px,
-    transparent 2px 6px
-  );
-  color: var(--lc-color-blue-900);
+  background:
+    repeating-linear-gradient(-45deg, var(--lc-inspector-gap) 0 2px, transparent 2px 6px),
+    var(--lc-inspector-gap-tint);
 }
 
-.lc-inspector__padding[data-off-scale] {
+/* One box per line, at the full line height. */
+.lc-inspector__text {
+  background: var(--lc-inspector-text);
+}
+
+/* Off-scale: red, plus a dashed edge so it doesn't rely on red vs green alone. */
+.lc-inspector__padding[data-off-scale],
+.lc-inspector__text[data-off-scale] {
   background: var(--lc-inspector-off-fill);
-  color: var(--lc-color-red-700);
 }
 
 .lc-inspector__gap[data-off-scale] {
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--lc-inspector-off-fill) 0 2px,
-    transparent 2px 6px
-  );
-  color: var(--lc-color-red-700);
+  background:
+    repeating-linear-gradient(-45deg, var(--lc-inspector-off-fill) 0 2px, transparent 2px 6px),
+    color-mix(in srgb, var(--lc-color-red-500) 10%, transparent);
+}
+
+.lc-inspector__padding[data-off-scale],
+.lc-inspector__gap[data-off-scale],
+.lc-inspector__text[data-off-scale] {
+  outline: 1px dashed var(--lc-inspector-off);
+  outline-offset: -1px;
+}
+
+/* Value chip, centered on its band or strip. Solid, so it reads over any
+   content; it may overhang a thin band rather than hide the number. */
+.lc-inspector__chip {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--lc-color-green-800);
+  color: var(--lc-color-white);
+  /* A white ring separates the chip from dark page areas. */
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 85%);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.lc-inspector__chip[data-kind='gap'] {
+  background: var(--lc-color-blue-900);
+}
+
+.lc-inspector__chip[data-off-scale] {
+  background: var(--lc-inspector-off);
 }
 
 .lc-inspector__label {
