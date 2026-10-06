@@ -35,17 +35,6 @@ export function clampToViewport(pos: Point, size: Size, viewport: Size, margin =
   };
 }
 
-/**
- * When an element in the right half of the screen grows (or shrinks) by
- * `delta`, keep its right edge in place so it opens leftward — toward the
- * room it has, and away from whatever is docked in the corner.
- */
-export function growTowardsRoom(x: number, delta: number, width: number, viewportWidth = window.innerWidth): number {
-  if (delta === 0) return x;
-  const centerBefore = x + (width - delta) / 2;
-  return centerBefore > viewportWidth / 2 ? x - delta : x;
-}
-
 /** The saved position, or `null` when missing, malformed or storage is unavailable. */
 export function readStoredPosition(): Point | null {
   try {
@@ -80,12 +69,23 @@ function storePosition(pos: Point) {
 
 const viewport = (): Size => ({ width: window.innerWidth, height: window.innerHeight });
 
+interface DraggableOptions {
+  /** Keep the right edge in place when the element changes width (it opens leftward). */
+  anchorRight: boolean;
+  /** Changes whenever the element's size is about to change (e.g. expanded), to re-anchor before paint. */
+  layoutKey: unknown;
+}
+
 /**
  * Makes a fixed-position element draggable by its handles. Keeps it inside the
  * viewport when dragged, resized (e.g. expanding) or when the window resizes,
  * and remembers where it was left. A drag never counts as a click.
  */
-export function useDraggable(ref: RefObject<HTMLElement | null>, defaultPosition: (viewport: Size) => Point) {
+export function useDraggable(
+  ref: RefObject<HTMLElement | null>,
+  defaultPosition: (viewport: Size) => Point,
+  { anchorRight, layoutKey }: DraggableOptions,
+) {
   const [position, setPosition] = useState<Point>(() => readStoredPosition() ?? defaultPosition(viewport()));
   const suppressClick = useRef(false);
   const latest = useRef(position);
@@ -102,15 +102,18 @@ export function useDraggable(ref: RefObject<HTMLElement | null>, defaultPosition
     [ref],
   );
 
-  // Re-clamp when the element changes size (expand/collapse) or the window does.
+  const lastWidth = useRef<number | null>(null);
+
+  // Re-anchor and re-clamp when the element changes width (expand/collapse) or
+  // the window resizes. Runs as a layout effect on `layoutKey`, so an expand is
+  // repositioned before it's painted; the observer covers any other resize.
   useLayoutEffect(() => {
-    let width = ref.current?.offsetWidth ?? 0;
     const reclamp = () => {
-      const nextWidth = ref.current?.offsetWidth ?? 0;
-      const grew = nextWidth - width;
-      width = nextWidth;
+      const width = ref.current?.offsetWidth ?? 0;
+      const grew = lastWidth.current === null ? 0 : width - lastWidth.current;
+      lastWidth.current = width;
       const p = latest.current;
-      const next = clamp({ x: growTowardsRoom(p.x, grew, nextWidth), y: p.y });
+      const next = clamp({ x: anchorRight ? p.x - grew : p.x, y: p.y });
       if (next.x === p.x && next.y === p.y) return;
       latest.current = next;
       setPosition(next);
@@ -123,7 +126,7 @@ export function useDraggable(ref: RefObject<HTMLElement | null>, defaultPosition
       window.removeEventListener('resize', reclamp);
       observer?.disconnect();
     };
-  }, [clamp, ref]);
+  }, [clamp, ref, anchorRight, layoutKey]);
 
   // Removes the window listeners of a drag in progress (also on unmount).
   const stopTracking = useRef<() => void>(() => {});

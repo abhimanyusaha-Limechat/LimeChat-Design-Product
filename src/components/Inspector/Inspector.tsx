@@ -10,22 +10,24 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
   type MouseEvent as ReactMouseEvent,
   type SyntheticEvent,
 } from 'react';
-import { createPortal } from 'react-dom';
+import { createPortal, flushSync } from 'react-dom';
 import { InspectorOverlay } from './InspectorOverlay';
 import { InspectorToolbar } from './InspectorToolbar';
 import type { Tool, ToolSet } from './report';
 import { SpecPanel } from './SpecPanel';
+import { useBarMotion } from './useBarMotion';
 import { useDraggable, type Size } from './useDraggable';
 import { useInspectTarget } from './useInspectTarget';
 import './Inspector.css';
 
-/** Height of the bar and size of the collapsed FAB, px. Shared with the CSS. */
+/** Height of the bar, and size of the FAB and the ruler button, px. Shared with the CSS. */
 const BAR_SIZE = 40;
 const PANEL_WIDTH = 320;
 const PANEL_GAP = 8;
@@ -75,15 +77,28 @@ function panelPlacement(x: number, y: number): CSSProperties {
 }
 
 export function Inspector() {
+  // `expanded`: the tools are mounted. `closing`: the close animation is
+  // playing — the bar already acts collapsed, it just hasn't finished leaving.
   const [expanded, setExpanded] = useState(false);
+  const [closing, setClosing] = useState(false);
+  // Decided when the bar opens and kept until it opens again, so closing
+  // retraces the same edge and the ruler button never moves.
+  const [opensLeft, setOpensLeft] = useState(false);
   // Stays as the reviewer left it for the rest of the session.
   const [tools, setTools] = useState<ToolSet>(ALL_TOOLS);
-  const inspecting = expanded && (tools.type || tools.padding || tools.gap);
+  const open = expanded && !closing;
+  const inspecting = open && (tools.type || tools.padding || tools.gap);
   const { hovered, pinned, canSelectParent, unpin, selectParent, pinFocused } = useInspectTarget(inspecting);
 
   const dockRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLButtonElement>(null);
-  const { position, handleProps, onClickCapture } = useDraggable(dockRef, defaultPosition);
+  const { position, handleProps, onClickCapture } = useDraggable(dockRef, defaultPosition, {
+    anchorRight: opensLeft,
+    layoutKey: expanded,
+  });
+  const motion = useBarMotion(barRef, BAR_SIZE);
+  const animateOpen = useRef(false);
 
   // Before the panel or the tool buttons unmount: if keyboard focus is in
   // them, move it to the always-mounted ruler button instead of <body>.
@@ -91,20 +106,56 @@ export function Inspector() {
     if (dockRef.current?.contains(document.activeElement)) mainRef.current?.focus();
   }, []);
 
-  const collapse = useCallback(() => {
-    rescueFocus();
-    setExpanded(false);
-  }, [rescueFocus]);
+  /** Clicks animate; keyboard shortcuts (used far more often) switch instantly. */
+  const expand = useCallback(
+    (animate: boolean) => {
+      if (closing) {
+        // Re-opened mid-close: reverse from where the bar is.
+        setClosing(false);
+        if (animate) motion.play('open', opensLeft);
+        else motion.cancel();
+        return;
+      }
+      setOpensLeft(position.x + BAR_SIZE / 2 > window.innerWidth / 2);
+      setExpanded(true);
+      animateOpen.current = animate;
+    },
+    [closing, motion, opensLeft, position.x],
+  );
+
+  const collapse = useCallback(
+    (animate: boolean) => {
+      rescueFocus();
+      if (!animate) {
+        motion.cancel();
+        setClosing(false);
+        setExpanded(false);
+        return;
+      }
+      setClosing(true);
+      // Commit before the next paint, or the bar flashes back to full width
+      // for a frame between the animation ending and the tools unmounting.
+      motion.play('close', opensLeft, () =>
+        flushSync(() => {
+          setClosing(false);
+          setExpanded(false);
+        }),
+      );
+    },
+    [rescueFocus, motion, opensLeft],
+  );
+
+  // The pill is now laid out at full width and anchored; reveal it before paint.
+  useLayoutEffect(() => {
+    if (!expanded || !animateOpen.current) return;
+    animateOpen.current = false;
+    motion.play('open', opensLeft);
+  }, [expanded, motion, opensLeft]);
 
   const unpinKeepingFocus = useCallback(() => {
     rescueFocus();
     return unpin();
   }, [rescueFocus, unpin]);
-
-  const toggleExpanded = useCallback(() => {
-    if (expanded) collapse();
-    else setExpanded(true);
-  }, [expanded, collapse]);
 
   const toggleTool = useCallback((tool: Tool) => setTools((t) => ({ ...t, [tool]: !t[tool] })), []);
 
@@ -116,10 +167,11 @@ export function Inspector() {
 
       // Ctrl/Cmd+Shift+I opens DevTools — never take it.
       if (e.shiftKey && noCtrl && !e.altKey && e.key.toLowerCase() === 'i' && !isEditable(e.target)) {
-        toggleExpanded();
+        if (open) collapse(false);
+        else expand(false);
         handled = true;
-      } else if (expanded && e.key === 'Escape') {
-        if (!unpinKeepingFocus()) collapse();
+      } else if (open && e.key === 'Escape') {
+        if (!unpinKeepingFocus()) collapse(false);
         handled = true;
       } else if (inspecting && e.altKey && noCtrl && e.key === 'ArrowUp') {
         handled = selectParent();
@@ -135,7 +187,7 @@ export function Inspector() {
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
-  }, [expanded, inspecting, toggleExpanded, collapse, unpinKeepingFocus, selectParent, pinFocused]);
+  }, [open, inspecting, expand, collapse, unpinKeepingFocus, selectParent, pinFocused]);
 
   return createPortal(
     <>
@@ -158,11 +210,14 @@ export function Inspector() {
         >
           <InspectorToolbar
             expanded={expanded}
+            closing={closing}
+            opensLeft={opensLeft}
             tools={tools}
+            barRef={barRef}
             mainRef={mainRef}
-            onToggleExpanded={toggleExpanded}
+            onToggleExpanded={() => (open ? collapse(true) : expand(true))}
             onToggleTool={toggleTool}
-            onClose={collapse}
+            onClose={() => collapse(true)}
           />
         </div>
         {inspecting && pinned && (

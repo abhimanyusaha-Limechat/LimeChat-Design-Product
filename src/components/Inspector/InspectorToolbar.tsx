@@ -11,8 +11,14 @@ const TOOLS: { tool: Tool; label: string; icon: IconName }[] = [
 ];
 
 interface InspectorToolbarProps {
+  /** The tools are mounted (also true while the close animation plays). */
   expanded: boolean;
+  /** The close animation is playing: already reads as collapsed. */
+  closing: boolean;
+  /** Tools sit on the ruler's left (the bar opens leftward), so the ruler never moves. */
+  opensLeft: boolean;
   tools: ToolSet;
+  barRef: RefObject<HTMLDivElement>;
   /** The main (ruler) button — always mounted, so focus can return to it. */
   mainRef: RefObject<HTMLButtonElement>;
   onToggleExpanded: () => void;
@@ -23,21 +29,32 @@ interface InspectorToolbarProps {
 /** The FAB, and the pill of tool toggles it expands into. Presentational. */
 export function InspectorToolbar({
   expanded,
+  closing,
+  opensLeft,
   tools,
+  barRef,
   mainRef,
   onToggleExpanded,
   onToggleTool,
   onClose,
 }: InspectorToolbarProps) {
   return (
-    <div className="lc-inspector__bar" data-expanded={expanded || undefined}>
-      <Tooltip label={expanded ? 'Inspect mode (Shift+I)' : 'Inspect spacing & type (Shift+I)'} position="top">
+    <div
+      ref={barRef}
+      className="lc-inspector__bar"
+      data-expanded={expanded || undefined}
+      data-opens-left={(expanded && opensLeft) || undefined}
+    >
+      <Tooltip
+        label={expanded && !closing ? 'Inspect mode (Shift+I)' : 'Inspect spacing & type (Shift+I)'}
+        position="top"
+      >
         <button
           ref={mainRef}
           type="button"
           className="lc-inspector__main"
           aria-label="Inspect spacing and type"
-          aria-expanded={expanded}
+          aria-expanded={expanded && !closing}
           onClick={onToggleExpanded}
         >
           <Icon name="ruler" size={20} />
@@ -45,7 +62,7 @@ export function InspectorToolbar({
       </Tooltip>
 
       {expanded && (
-        <>
+        <div className="lc-inspector__extras" data-inspector-extras="">
           <div className="lc-inspector__tools" role="group" aria-label="Inspect tools">
             {TOOLS.map(({ tool, label, icon }) => (
               <Tooltip key={tool} label={label} position="top">
@@ -67,7 +84,7 @@ export function InspectorToolbar({
               <Icon name="close" size={18} />
             </button>
           </Tooltip>
-        </>
+        </div>
       )}
     </div>
   );
