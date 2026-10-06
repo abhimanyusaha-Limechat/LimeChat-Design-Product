@@ -49,7 +49,6 @@
   align-items: center;
   gap: 4px;
   height: var(--lc-inspector-bar);
-  padding: 0 4px;
   box-sizing: border-box;
   border-radius: 999px;
   background: var(--lc-inspector-surface);
@@ -57,10 +56,27 @@
   box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
 }
 
-.lc-inspector__bar:not([data-expanded]) {
-  width: var(--lc-inspector-bar);
-  padding: 0;
-  justify-content: center;
+/* The ruler button fills the bar's height, so the collapsed FAB is exactly it. */
+.lc-inspector__bar[data-expanded] {
+  padding-right: 4px;
+}
+
+/* Opening leftward: tools on the ruler's left, so the ruler stays put. */
+.lc-inspector__bar[data-opens-left] {
+  flex-direction: row-reverse;
+  padding-right: 0;
+  padding-left: 4px;
+}
+
+.lc-inspector__extras {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lc-inspector__bar[data-opens-left] .lc-inspector__extras,
+.lc-inspector__bar[data-opens-left] .lc-inspector__tools {
+  flex-direction: row-reverse;
 }
 
 .lc-inspector__tools {
@@ -71,6 +87,7 @@
 .lc-inspector__main,
 .lc-inspector__tool {
   display: inline-flex;
+  flex: none;
   align-items: center;
   justify-content: center;
   width: 32px;
@@ -81,7 +98,12 @@
   background: transparent;
   color: inherit;
   cursor: pointer;
-  transition: background-color 120ms ease-out;
+  transition: background-color 120ms ease;
+}
+
+.lc-inspector__main {
+  width: var(--lc-inspector-bar);
+  height: var(--lc-inspector-bar);
 }
 
 .lc-inspector__main:hover,
