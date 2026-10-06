@@ -10,11 +10,12 @@
  *     onCreateSegment={() => setOpen(true)}
  *   />
  */
-import { useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
 import { ActionMenu } from '../Menu';
 import { SegmentIcon } from './icons';
+import { DataTable, DataTableEmpty, DataTableHead, DataTableRow } from '../DataTable';
 import './SegmentsHomePage.css';
 
 export type SegmentSourceTab = 'lc-segments' | 'imported';
@@ -100,14 +101,6 @@ export function SegmentsHomePage({
   const [sortDir, setSortDir] = useState<'asc' | 'desc' | null>(null);
   const toggleSort = () => setSortDir((d) => (d === null ? 'asc' : d === 'asc' ? 'desc' : null));
 
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeout = useRef<number>();
-  const handleTableScroll = () => {
-    setIsScrolling(true);
-    window.clearTimeout(scrollTimeout.current);
-    scrollTimeout.current = window.setTimeout(() => setIsScrolling(false), 600);
-  };
-
   const sortedSegments = (() => {
     if (!sortDir) return segments;
     const sorted = [...segments].sort((a, b) => a.name.localeCompare(b.name));
@@ -162,9 +155,9 @@ export function SegmentsHomePage({
         </div>
       </div>
 
-      <div className="lc-sg__table" data-anchor="segment-table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
-        <div className="lc-sg__row lc-sg__row--head">
-          <div className="lc-sg__cell--name lc-sg__cell">
+      <DataTable aria-label="Segments" data-anchor="segment-table">
+        <DataTableHead className="lc-sg__row--head">
+          <div role="columnheader" className="lc-sg__cell--name lc-sg__cell">
             <button
               type="button"
               className="lc-sg__sort-btn"
@@ -175,64 +168,68 @@ export function SegmentsHomePage({
               <SegmentIcon name="chevron-down" className="lc-sg__sort-icon" />
             </button>
           </div>
-          <div className="lc-sg__cell--description lc-sg__cell">
+          <div role="columnheader" className="lc-sg__cell--description lc-sg__cell">
             <span className="lc-sg__head-label">Description</span>
           </div>
-          <div className="lc-sg__cell--size lc-sg__cell">
+          <div role="columnheader" className="lc-sg__cell--size lc-sg__cell">
             <span className="lc-sg__head-label">Size</span>
           </div>
-          <div className="lc-sg__cell--actions lc-sg__cell" aria-hidden="true" />
-        </div>
+          <div role="columnheader" className="lc-sg__cell--actions lc-sg__cell" aria-label="Actions" />
+        </DataTableHead>
 
-        {sortedSegments.map((row) => (
-          <div key={row.id} className="lc-sg__row lc-sg__row--body" data-anchor="segment-row" data-anchor-key={row.id}>
-            <div className="lc-sg__cell--name lc-sg__cell">
-              <div className="lc-sg__name-block">
-                <span className="lc-sg__name">{row.name}</span>
-                <span className="lc-sg__meta-line">Last edited: {row.lastEditedOn}</span>
+        {sortedSegments.length === 0 ? (
+          <DataTableEmpty>No segments found</DataTableEmpty>
+        ) : (
+          sortedSegments.map((row) => (
+            <DataTableRow key={row.id} data-anchor="segment-row" data-anchor-key={row.id}>
+              <div role="cell" className="lc-sg__cell--name lc-sg__cell">
+                <div className="lc-sg__name-block">
+                  <span className="lc-sg__name">{row.name}</span>
+                  <span className="lc-sg__meta-line">Last edited: {row.lastEditedOn}</span>
+                </div>
               </div>
-            </div>
-            <div className="lc-sg__cell--description lc-sg__cell">
-              {row.description ? (
-                <span className="lc-sg__description">{row.description}</span>
-              ) : (
-                <span className="lc-sg__description lc-sg__description--empty">No description</span>
-              )}
-            </div>
-            <div className="lc-sg__cell--size lc-sg__cell">
-              <div className="lc-sg__size-block">
-                <span className="lc-sg__size-line">
-                  <span className="lc-sg__size-value">{formatSize(row.size)}</span>
-                </span>
-                <span className="lc-sg__meta-line">{row.sizeUpdatedOn}</span>
+              <div role="cell" className="lc-sg__cell--description lc-sg__cell">
+                {row.description ? (
+                  <span className="lc-sg__description">{row.description}</span>
+                ) : (
+                  <span className="lc-sg__description lc-sg__description--empty">No description</span>
+                )}
               </div>
-            </div>
-            <div className="lc-sg__cell--actions lc-sg__cell">
-              <Tooltip label="Refresh segment">
-                <button
-                  type="button"
-                  className="lc-sg__action-btn"
-                  aria-label="Refresh segment"
-                  onClick={() => onRowRefresh?.(row)}
-                >
-                  <SegmentIcon name="refresh" />
-                </button>
-              </Tooltip>
-              <Tooltip label="Edit segment">
-                <button
-                  type="button"
-                  className="lc-sg__action-btn"
-                  aria-label="Edit segment"
-                  onClick={() => onRowEdit?.(row)}
-                >
-                  <SegmentIcon name="edit" />
-                </button>
-              </Tooltip>
-              <RowActions row={row} onClone={onRowClone} onDownload={onRowDownload} onDelete={onRowDelete} />
-            </div>
-          </div>
-        ))}
-      </div>
+              <div role="cell" className="lc-sg__cell--size lc-sg__cell">
+                <div className="lc-sg__size-block">
+                  <span className="lc-sg__size-line">
+                    <span className="lc-sg__size-value">{formatSize(row.size)}</span>
+                  </span>
+                  <span className="lc-sg__meta-line">{row.sizeUpdatedOn}</span>
+                </div>
+              </div>
+              <div role="cell" className="lc-sg__cell--actions lc-sg__cell">
+                <Tooltip label="Refresh segment">
+                  <button
+                    type="button"
+                    className="lc-sg__action-btn"
+                    aria-label="Refresh segment"
+                    onClick={() => onRowRefresh?.(row)}
+                  >
+                    <SegmentIcon name="refresh" />
+                  </button>
+                </Tooltip>
+                <Tooltip label="Edit segment">
+                  <button
+                    type="button"
+                    className="lc-sg__action-btn"
+                    aria-label="Edit segment"
+                    onClick={() => onRowEdit?.(row)}
+                  >
+                    <SegmentIcon name="edit" />
+                  </button>
+                </Tooltip>
+                <RowActions row={row} onClone={onRowClone} onDownload={onRowDownload} onDelete={onRowDelete} />
+              </div>
+            </DataTableRow>
+          ))
+        )}
+      </DataTable>
 
       {totalPages > 1 && (
         <div className="lc-sg__pagination" data-anchor="segment-pagination">

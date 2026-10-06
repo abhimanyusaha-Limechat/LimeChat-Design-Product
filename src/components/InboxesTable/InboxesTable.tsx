@@ -12,11 +12,12 @@
  *     onSync={() => refetchInboxes()}
  *   />
  */
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '../Button';
 import { ActionMenu } from '../Menu';
 import { Tooltip } from '../Tooltip';
 import { InboxIcon, type InboxIconName } from './icons';
+import { DataTable, DataTableEmpty, DataTableHead, DataTableRow } from '../DataTable';
 import './InboxesTable.css';
 
 export type InboxType = 'whatsapp' | 'email' | 'instagram' | 'sms' | 'facebook';
@@ -91,13 +92,6 @@ export function InboxesTable({
   onRowEdit,
   onRowDelete,
 }: InboxesTableProps) {
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeout = useRef<number>();
-  const handleTableScroll = () => {
-    setIsScrolling(true);
-    window.clearTimeout(scrollTimeout.current);
-    scrollTimeout.current = window.setTimeout(() => setIsScrolling(false), 600);
-  };
 
   const [sortDir, setSortDir] = useState<'asc' | 'desc' | null>(null);
   const toggleSort = () => setSortDir((d) => (d === null ? 'asc' : d === 'asc' ? 'desc' : null));
@@ -135,9 +129,9 @@ export function InboxesTable({
         )}
       </div>
 
-      <div className="lc-ib__table" data-anchor="inbox-table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
-        <div className="lc-ib__row lc-ib__row--head">
-          <div className="lc-ib__cell--name lc-ib__cell">
+      <DataTable aria-label="Inboxes" data-anchor="inbox-table">
+        <DataTableHead>
+          <div role="columnheader" className="lc-ib__cell--name lc-ib__cell">
             <button
               type="button"
               className="lc-ib__sort-btn"
@@ -148,21 +142,21 @@ export function InboxesTable({
               <InboxIcon name="chevron-down" className="lc-ib__sort-icon" />
             </button>
           </div>
-          <div className="lc-ib__cell--type lc-ib__cell">
+          <div role="columnheader" className="lc-ib__cell--type lc-ib__cell">
             <span className="lc-ib__head-label">Type</span>
           </div>
-          <div className="lc-ib__cell--meta lc-ib__cell">
+          <div role="columnheader" className="lc-ib__cell--meta lc-ib__cell">
             <span className="lc-ib__head-label">Meta ID</span>
           </div>
-          <div className="lc-ib__cell--actions lc-ib__cell" />
-        </div>
+          <div role="columnheader" className="lc-ib__cell--actions lc-ib__cell" aria-label="Actions" />
+        </DataTableHead>
 
         {inboxes.length === 0 ? (
-          <div className="lc-ib__empty">No inboxes found</div>
+          <DataTableEmpty>No inboxes found</DataTableEmpty>
         ) : (
           sortedInboxes.map((row) => (
-            <div key={row.id} className="lc-ib__row lc-ib__row--body" data-anchor="inbox-row" data-anchor-key={row.id}>
-              <div className="lc-ib__cell--name lc-ib__cell">
+            <DataTableRow key={row.id} data-anchor="inbox-row" data-anchor-key={row.id}>
+              <div role="cell" className="lc-ib__cell--name lc-ib__cell">
                 <InboxIcon name={TYPE_ICON[row.type]} className="lc-ib__row-icon" />
                 <div className="lc-ib__name-block">
                   <div className="lc-ib__name-line">
@@ -172,14 +166,14 @@ export function InboxesTable({
                   <span className="lc-ib__meta-line">Created: {row.createdOn}</span>
                 </div>
               </div>
-              <div className="lc-ib__cell--type lc-ib__cell">
+              <div role="cell" className="lc-ib__cell--type lc-ib__cell">
                 <div className="lc-ib__type-block">
                   <span className="lc-ib__type-label">{TYPE_LABEL[row.type]}</span>
                   <span className="lc-ib__type-caption">Channel name</span>
                 </div>
               </div>
-              <div className="lc-ib__cell--meta lc-ib__cell">{row.metaId}</div>
-              <div className="lc-ib__cell--actions lc-ib__cell">
+              <div role="cell" className="lc-ib__cell--meta lc-ib__cell">{row.metaId}</div>
+              <div role="cell" className="lc-ib__cell--actions lc-ib__cell">
                 <ActionMenu
                   ariaLabel={`Actions for ${row.name}`}
                   icon={<InboxIcon name="dots-vertical" />}
@@ -189,10 +183,10 @@ export function InboxesTable({
                   ]}
                 />
               </div>
-            </div>
+            </DataTableRow>
           ))
         )}
-      </div>
+      </DataTable>
     </div>
   );
 }

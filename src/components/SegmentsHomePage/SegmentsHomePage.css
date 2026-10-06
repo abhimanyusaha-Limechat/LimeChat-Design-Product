@@ -8,15 +8,12 @@
 
 .lc-sg {
   --lc-sg-border: var(--lc-color-gray-300);
-  --lc-sg-border-dark: var(--lc-color-gray-225);
   --lc-sg-text-title: var(--lc-color-green-900);
   --lc-sg-text-dimmed: var(--lc-color-sage-500);
   --lc-sg-secondary-dark: var(--lc-color-stone-600);
   --lc-sg-text-light: var(--lc-color-sage-500);
   --lc-sg-text-placeholder: var(--lc-color-gray-500);
   --lc-sg-primary: var(--lc-color-green-500);
-  --lc-sg-table-head-bg: var(--lc-color-blue-50);
-  --lc-sg-row-hover: var(--lc-color-gray-100);
   --lc-sg-bg: var(--lc-color-stone-25);
   --lc-sg-radius: 4px;
   --lc-sg-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -147,89 +144,7 @@
 
 /* --- Table --------------------------------------------------------------- */
 
-.lc-sg__table {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  border-radius: var(--lc-sg-radius);
-  overflow: auto;
-  background: white;
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-.lc-sg__table[data-scrolling='true'] {
-  scrollbar-color: var(--lc-color-gray-250) transparent;
-}
-
-.lc-sg__table::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.lc-sg__table::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.lc-sg__table::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: 999px;
-  transition: background 0.15s ease;
-}
-
-.lc-sg__table[data-scrolling='true']::-webkit-scrollbar-thumb {
-  background: var(--lc-color-gray-250);
-}
-
-.lc-sg__row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px 10px 16px;
-}
-
-.lc-sg__row--head {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--lc-sg-table-head-bg);
-}
-
-.lc-sg__row--body {
-  padding-top: 14px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--lc-sg-border-dark);
-  transition: background-color 150ms ease;
-  animation: lc-sg-row-in 200ms var(--lc-sg-ease-out) both;
-}
-
-.lc-sg__row--body:hover {
-  background: var(--lc-sg-row-hover);
-}
-
-@keyframes lc-sg-row-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.lc-sg__row--body:nth-of-type(2) { animation-delay: 0ms; }
-.lc-sg__row--body:nth-of-type(3) { animation-delay: 25ms; }
-.lc-sg__row--body:nth-of-type(4) { animation-delay: 50ms; }
-.lc-sg__row--body:nth-of-type(5) { animation-delay: 75ms; }
-.lc-sg__row--body:nth-of-type(n + 6) { animation-delay: 100ms; }
-
-@media (prefers-reduced-motion: reduce) {
-  .lc-sg__row--body {
-    animation: none;
-  }
-}
+/* Table frame (scroll, sticky header, 60px rows) comes from DataTable. */
 
 .lc-sg__cell--name {
   flex: 1 1 240px;

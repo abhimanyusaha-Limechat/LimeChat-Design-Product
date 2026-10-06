@@ -3,7 +3,7 @@
  * industry/account filters and a table of templates (Name, Type, Usecases,
  * Industries, Scope, row actions). Same anatomy as InboxesTable, scoped to "lc-bt".
  */
-import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode } from 'react';
 import { Avatar } from '../Avatar';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
@@ -11,6 +11,7 @@ import { ActionMenu } from '../Menu';
 import { Tooltip } from '../Tooltip';
 import { InboxIcon, type InboxType } from '../InboxesTable';
 import { TemplateIcon } from '../TemplatesHomePage';
+import { DataTable, DataTableEmpty, DataTableHead, DataTableRow } from '../DataTable';
 import './BotTemplatesTable.css';
 
 export type BotTemplateType = 'task' | 'flow';
@@ -241,6 +242,18 @@ const COLUMNS = {
   useCaseCount: { key: 'industries', header: 'Use cases', cell: (row) => row.usecases.length },
 } satisfies Record<string, Column>;
 
+const TABLE_LABEL: Record<NonNullable<BotTemplatesTableProps['variant']>, string> = {
+  templates: 'Templates',
+  variables: 'Variables',
+  collaborators: 'Collaborators',
+  files: 'Files',
+  industries: 'Industries',
+  agents: 'Agents',
+  teams: 'Teams',
+  rules: 'Rules',
+  fields: 'Custom fields',
+};
+
 const columnsFor = (
   variant: NonNullable<BotTemplatesTableProps['variant']>,
   showUseCases: boolean,
@@ -356,13 +369,6 @@ export function BotTemplatesTable({
   const isCollaborators = variant === 'collaborators' || variant === 'agents' || variant === 'teams' || variant === 'rules' || variant === 'fields';
   const showIconActions = isCollaborators || iconActions;
   const columns = columnsFor(variant, showUseCases, webSource, onViewDetails);
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeout = useRef<number>();
-  const handleScroll = () => {
-    setIsScrolling(true);
-    window.clearTimeout(scrollTimeout.current);
-    scrollTimeout.current = window.setTimeout(() => setIsScrolling(false), 600);
-  };
 
   return (
     <div className="lc-bt" data-variant={variant} data-icon-actions={showIconActions || undefined}>
@@ -475,23 +481,23 @@ export function BotTemplatesTable({
         )}
       </div>
 
-      <div className="lc-bt__table" data-scrolling={isScrolling || undefined} onScroll={handleScroll}>
-        <div className="lc-bt__row lc-bt__row--head">
+      <DataTable aria-label={TABLE_LABEL[variant]}>
+        <DataTableHead className="lc-bt__row--head">
           {columns.map((col) => (
-            <div key={col.header} className={`lc-bt__cell lc-bt__cell--${col.key}`}>{col.header}</div>
+            <div key={col.header} role="columnheader" className={`lc-bt__cell lc-bt__cell--${col.key}`}>{col.header}</div>
           ))}
-          <div className="lc-bt__cell lc-bt__cell--actions" />
-        </div>
+          <div role="columnheader" className="lc-bt__cell lc-bt__cell--actions" aria-label="Actions" />
+        </DataTableHead>
 
         {templates.length === 0 ? (
-          <div className="lc-bt__empty">No templates found</div>
+          <DataTableEmpty>No {TABLE_LABEL[variant].toLowerCase()} found</DataTableEmpty>
         ) : (
           templates.map((row) => (
-            <div key={row.id} className="lc-bt__row lc-bt__row--body">
+            <DataTableRow key={row.id} className="lc-bt__row--body">
               {columns.map((col) => (
-                <div key={col.header} className={`lc-bt__cell lc-bt__cell--${col.key}`}>{col.cell(row)}</div>
+                <div key={col.header} role="cell" className={`lc-bt__cell lc-bt__cell--${col.key}`}>{col.cell(row)}</div>
               ))}
-              <div className="lc-bt__cell lc-bt__cell--actions">
+              <div role="cell" className="lc-bt__cell lc-bt__cell--actions">
                 {showIconActions ? (
                   <>
                     {(variant === 'rules' || variant === 'fields') && <RuleSwitch row={row} onToggle={onToggleRow} />}
@@ -518,10 +524,10 @@ export function BotTemplatesTable({
                   />
                 )}
               </div>
-            </div>
+            </DataTableRow>
           ))
         )}
-      </div>
+      </DataTable>
     </div>
   );
 }

@@ -167,51 +167,7 @@
   height: 16px;
 }
 
-.lc-bt__table {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
-  background: white;
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-.lc-bt__table[data-scrolling='true'] {
-  scrollbar-color: var(--lc-color-gray-250) transparent;
-}
-
-.lc-bt__row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px 12px 16px;
-}
-
-.lc-bt__row--head {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--lc-color-blue-50);
-}
-
-.lc-bt__row--body {
-  height: 60px;
-  flex-shrink: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  border-bottom: 1px solid var(--lc-color-gray-225);
-  transition: background-color 150ms ease;
-}
-
-.lc-bt__row--body:last-child {
-  border-bottom: none;
-}
-
-.lc-bt__row--body:hover {
-  background: var(--lc-color-gray-100);
-}
+/* Table frame (scroll, sticky header, 60px rows) comes from DataTable. */
 
 .lc-bt__cell {
   min-width: 0;
@@ -371,13 +327,6 @@
 
 .lc-bt__scope[data-scope='global'] { background: var(--lc-color-stone-600); }
 .lc-bt__scope[data-scope='account'] { background: var(--lc-color-blue-600); }
-
-.lc-bt__empty {
-  padding: 32px 16px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--lc-color-gray-500);
-}
 
 /* Light chips — blue tinted fill, no border, regular weight. */
 .lc-bt__chips[data-light] .lc-bt__chip {
