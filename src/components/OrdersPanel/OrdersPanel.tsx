@@ -33,7 +33,7 @@ import { Button } from '../Button';
 import { Modal } from '../Modal';
 import './OrdersPanel.css';
 import { iconProps } from '../iconProps';
-import { CloseIcon as ClearIcon, TrashIcon, CheckIcon } from '../icons';
+import { Icon, CloseIcon as ClearIcon, TrashIcon, CheckIcon } from '../icons';
 import { formatINR } from '../formatINR';
 import { addressesEqual, draftToOrder, emptyDraft, formatAddressForCopy, isDraftValid, type OrderDraft } from '../../data/orderDraft';
 import { thumbPalette, useTypingPlaceholder } from '../catalogUtils';
@@ -134,31 +134,10 @@ const SearchIcon = () => (
     <path d="M21 21l-6 -6" />
   </svg>
 );
-const SortIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M4 8l4 -4l4 4" />
-    <path d="M8 4l0 16" />
-    <path d="M20 16l-4 4l-4 -4" />
-    <path d="M16 20l0 -16" />
-  </svg>
-);
-const BackIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M15 6l-6 6l6 6" />
-  </svg>
-);
-const PlusIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M12 5l0 14" />
-    <path d="M5 12l14 0" />
-  </svg>
-);
-const EditIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-    <path d="M13.5 6.5l4 4" />
-  </svg>
-);
+const SortIcon = () => <Icon name="arrows-sort" />;
+const BackIcon = () => <Icon name="chevron-left" />;
+const PlusIcon = () => <Icon name="plus" />;
+const EditIcon = () => <Icon name="pencil" />;
 const LinkIcon = () => (
   <svg {...iconProps()}>
     <path d="M9 15l6 -6" />

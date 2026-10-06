@@ -21,6 +21,7 @@ import {
 import { IntegrationsHomePage } from '../IntegrationsHomePage';
 import { TagsInput } from '../TagsInput';
 import { Button } from '../Button';
+import { Icon } from '../icons';
 import {
   AGENT_INBOXES,
   BOT_TEMPLATE_INDUSTRIES,
@@ -67,19 +68,9 @@ export interface SettingsScreenProps {
   onManageIndustriesChange: (next: boolean) => void;
 }
 
-const WhatsAppIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="#8C8C8C" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9" />
-    <path d="M9 10a0.5 .5 0 0 0 1 0v-1a0.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a0.5 .5 0 0 0 0 -1h-1a0.5 .5 0 0 0 -1 0" />
-  </svg>
-);
+const WhatsAppIcon = () => <Icon name="whatsapp" stroke="#8C8C8C" />;
 
-const PlusIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M12 5v14" />
-    <path d="M5 12h14" />
-  </svg>
-);
+const PlusIcon = () => <Icon name="plus" />;
 
 const BOT_NAMES = [
   'Sales Bot',

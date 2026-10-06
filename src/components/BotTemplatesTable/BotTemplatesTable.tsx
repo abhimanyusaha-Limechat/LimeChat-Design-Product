@@ -12,6 +12,7 @@ import { Tooltip } from '../Tooltip';
 import { InboxIcon, type InboxType } from '../InboxesTable';
 import { TemplateIcon } from '../TemplatesHomePage';
 import { DataTable, DataTableEmpty, DataTableHead, DataTableRow } from '../DataTable';
+import { Icon } from '../icons';
 import './BotTemplatesTable.css';
 
 export type BotTemplateType = 'task' | 'flow';
@@ -84,41 +85,6 @@ function Chips({ items, light }: { items: string[]; light?: boolean }) {
     </div>
   );
 }
-
-const iconProps = {
-  viewBox: '0 0 24 24',
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 2,
-  strokeLinecap: 'round',
-  strokeLinejoin: 'round',
-  'aria-hidden': true,
-} as const;
-
-const EditIcon = () => (
-  <svg {...iconProps}>
-    <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-    <path d="M13.5 6.5l4 4" />
-  </svg>
-);
-
-const TrashIcon = () => (
-  <svg {...iconProps}>
-    <path d="M4 7h16" />
-    <path d="M10 11v6" />
-    <path d="M14 11v6" />
-    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-  </svg>
-);
-
-const DotsIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <circle cx="12" cy="5" r="1" />
-    <circle cx="12" cy="12" r="1" />
-    <circle cx="12" cy="19" r="1" />
-  </svg>
-);
 
 interface Column {
   /** Suffix of the `lc-bt__cell--*` width class. */
@@ -497,19 +463,19 @@ export function BotTemplatesTable({
                     {(variant === 'rules' || variant === 'fields') && <RuleSwitch row={row} onToggle={onToggleRow} />}
                     <Tooltip label="Edit">
                       <button type="button" className="lc-bt__icon-btn" aria-label={`Edit ${row.name}`} onClick={() => onRowEdit?.(row)}>
-                        <EditIcon />
+                        <Icon name="pencil" />
                       </button>
                     </Tooltip>
                     <Tooltip label="Delete">
                       <button type="button" className="lc-bt__icon-btn lc-bt__icon-btn--danger" aria-label={`Delete ${row.name}`} onClick={() => onRowDelete?.(row)}>
-                        <TrashIcon />
+                        <Icon name="trash" />
                       </button>
                     </Tooltip>
                   </>
                 ) : (
                   <ActionMenu
                     ariaLabel="Template actions"
-                    icon={<DotsIcon />}
+                    icon={<Icon name="dots-vertical" />}
                     items={[
                       { label: 'Edit', onClick: () => onRowEdit?.(row) },
                       { label: 'Clone', onClick: () => onRowClone?.(row) },

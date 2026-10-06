@@ -35,7 +35,7 @@ import { Modal, ModalTextarea, ModalCheckbox } from '../Modal';
 import { Button } from '../Button';
 import './TicketDetailsPanel.css';
 import { iconProps } from '../iconProps';
-import { ChevronDownIcon, CloseIcon as TagCloseIcon, TrashIcon } from '../icons';
+import { Icon, ChevronDownIcon, CloseIcon as TagCloseIcon, TrashIcon } from '../icons';
 
 const RANDOM_AGENT_NAMES = [
   'Aditi Sharma',
@@ -61,12 +61,7 @@ const TicketIcon = () => (
   </svg>
 );
 
-const PlusIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M12 5l0 14" />
-    <path d="M5 12l14 0" />
-  </svg>
-);
+const PlusIcon = () => <Icon name="plus" />;
 const ChevronIcon = ({ open }: { open: boolean }) => (
   <ChevronDownIcon style={{ transform: open ? 'rotate(180deg)' : undefined, transition: 'transform 150ms ease' }} />
 );
@@ -79,17 +74,8 @@ const SectionChevronIcon = ({ open }: { open: boolean }) => (
     }}
   />
 );
-const MailIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
-    <path d="M3 7l9 6l9 -6" />
-  </svg>
-);
-const PhoneIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
-  </svg>
-);
+const MailIcon = () => <Icon name="email" />;
+const PhoneIcon = () => <Icon name="phone" />;
 const OverviewIcon = () => (
   <svg {...iconProps()}>
     <rect x="4" y="4" width="7" height="7" rx="1" />
@@ -584,9 +570,7 @@ function Section({
         >
           <span className="lc-tdp__section-chevron" aria-hidden="true">
             {focused ? (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 6l-6 6l6 6" />
-              </svg>
+              <Icon name="chevron-left" />
             ) : (
               <SectionChevronIcon open={open} />
             )}

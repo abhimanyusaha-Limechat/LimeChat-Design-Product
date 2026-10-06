@@ -19,7 +19,7 @@ export const helpdeskSidebar: SidebarPreset = {
   items: [
     { id: 'tickets', label: 'Tickets', icon: 'message-circle' },
     { id: 'analytics', label: 'Analytics', icon: 'chart-bar' },
-    { id: 'contacts', label: 'Contacts', icon: 'users' },
+    { id: 'contacts', label: 'Contacts', icon: 'users-sidebar' },
     { id: 'templates', label: 'Templates', icon: 'layout' },
     { id: 'settings', label: 'Settings', icon: 'settings' },
   ],
@@ -32,7 +32,7 @@ export const marketingSidebar: SidebarPreset = {
     { id: 'broadcast', label: 'Broadcast', icon: 'speakerphone' },
     { id: 'automation-flows', label: 'Automation flows', icon: 'share' },
     { id: 'templates', label: 'Templates', icon: 'layout' },
-    { id: 'segments', label: 'Segments', icon: 'users' },
+    { id: 'segments', label: 'Segments', icon: 'users-sidebar' },
     { id: 'settings', label: 'Settings', icon: 'settings' },
   ],
   footerItems: [
@@ -43,7 +43,7 @@ export const marketingSidebar: SidebarPreset = {
 
 export const automationSidebar: SidebarPreset = {
   items: [
-    { id: 'agents', label: 'Agents', icon: 'headset' },
+    { id: 'agents', label: 'Agents', icon: 'headset-sidebar' },
     { id: 'tasks', label: 'Tasks', icon: 'list-check' },
     { id: 'flows', label: 'Flows', icon: 'share' },
     { id: 'quiz-builder', label: 'Quiz Builder', icon: 'help-circle' },

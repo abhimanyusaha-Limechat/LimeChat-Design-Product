@@ -185,7 +185,7 @@ export function marketingCanvas(options: MarketingCanvasOptions = {}): Partial<C
             color="primary"
             size="sm"
             textTransform="none"
-            leftSection={<CanvasIcon name="floppy" />}
+            leftSection={<CanvasIcon name="save" />}
             onClick={onSaveDraft}
           >
             {saveLabel}

@@ -14,7 +14,7 @@ import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
 import './ProductsPanel.css';
 import { iconProps } from '../iconProps';
-import { CloseIcon as ClearIcon, CheckIcon, ChevronDownIcon, TrashIcon } from '../icons';
+import { Icon, CloseIcon as ClearIcon, CheckIcon, ChevronDownIcon, TrashIcon } from '../icons';
 import { formatINR } from '../formatINR';
 import { useTypingPlaceholder } from '../catalogUtils';
 import { ProductThumb } from '../ProductThumb';
@@ -66,24 +66,9 @@ const FilterIcon = () => (
     <path d="M11 18h2" />
   </svg>
 );
-const SortIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M4 8l4 -4l4 4" />
-    <path d="M8 4l0 16" />
-    <path d="M20 16l-4 4l-4 -4" />
-    <path d="M16 20l0 -16" />
-  </svg>
-);
-const BackIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M15 6l-6 6l6 6" />
-  </svg>
-);
-const StarIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
-    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-  </svg>
-);
+const SortIcon = () => <Icon name="arrows-sort" />;
+const BackIcon = () => <Icon name="chevron-left" />;
+const StarIcon = () => <Icon name="star" fill="currentColor" stroke="none" />;
 const ShareIcon = () => (
   <svg {...iconProps()}>
     <circle cx="6" cy="12" r="2" />

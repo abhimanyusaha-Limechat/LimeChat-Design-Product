@@ -9,17 +9,11 @@ import { Button } from '../Button';
 import { Menu, type MenuItemData, type MenuTriggerRenderProps } from '../Menu';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
 import { formatINR } from '../formatINR';
-import { iconProps } from '../iconProps';
-import { PhotoIcon } from '../icons';
+import { Icon, PhotoIcon } from '../icons';
 import { thumbPalette } from '../catalogUtils';
 import './AddProductMenu.css';
 
-const PlusIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M12 5l0 14" />
-    <path d="M5 12l14 0" />
-  </svg>
-);
+const PlusIcon = () => <Icon name="plus" />;
 
 function ItemThumb({ product }: { product: Product }) {
   const palette = thumbPalette(product.id);
