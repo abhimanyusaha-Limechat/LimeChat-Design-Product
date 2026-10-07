@@ -69,6 +69,7 @@ export const InspectorToolbar = memo(function InspectorToolbar({
           type="button"
           className="lc-inspector__main"
           aria-label="Inspect spacing and type"
+          aria-keyshortcuts="Shift+I"
           aria-expanded={expanded && !closing}
           onClick={onToggleExpanded}
         >
@@ -101,7 +102,13 @@ export const InspectorToolbar = memo(function InspectorToolbar({
           </div>
           <span className="lc-inspector__divider" aria-hidden="true" />
           <Tooltip label="Close (Esc)" position={tooltipPosition} openDelay={TOOLTIP_DELAY} disabled={dragging}>
-            <button type="button" className="lc-inspector__tool" aria-label="Close inspect mode" onClick={onClose}>
+            <button
+              type="button"
+              className="lc-inspector__tool"
+              aria-label="Close inspect mode"
+              aria-keyshortcuts="Escape"
+              onClick={onClose}
+            >
               <Icon name="close" size={18} />
             </button>
           </Tooltip>

@@ -20,7 +20,7 @@ import {
 import { createPortal, flushSync } from 'react-dom';
 import { InspectorOverlay } from './InspectorOverlay';
 import { InspectorToolbar } from './InspectorToolbar';
-import type { Tool, ToolSet } from './report';
+import { describePin, type Tool, type ToolSet } from './report';
 import { SpecPanel } from './SpecPanel';
 import { useBarMotion } from './useBarMotion';
 import { useDraggable, type Size } from './useDraggable';
@@ -36,6 +36,9 @@ const SCREEN_MARGIN = 16;
 const TOOLTIP_CLEARANCE = 44;
 
 const ALL_TOOLS: ToolSet = { type: true, padding: true, gap: true };
+
+/** Announced on opening and after unpinning: how to pin without a pointer. */
+const OPEN_ANNOUNCEMENT = 'Inspect mode on. Press Alt+Enter to pin the focused element.';
 
 /**
  * Bottom-right, left of Agentation's dev toolbar, and clear of the sidebar's
@@ -100,7 +103,8 @@ export function Inspector() {
   // Inspecting doesn't depend on the tools: with all of them off you still
   // hover and pin, and see the element's outline and size.
   const inspecting = expanded && !closing;
-  const { hovered, pinned, canSelectParent, unpin, selectParent, pinFocused } = useInspectTarget(inspecting);
+  const { hovered, pinned, canSelectParent, pinId, hoveredByFocus, unpin, selectParent, pinFocused } =
+    useInspectTarget(inspecting);
 
   const dockRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
@@ -211,7 +215,9 @@ export function Inspector() {
     <>
       {/* Hidden mid-drag: you're moving the tool, and hover can't update while the
           bar slides under a still pointer, so a stale label would linger. */}
-      {inspecting && !dragging && <InspectorOverlay hovered={hovered} pinned={pinned} tools={tools} />}
+      {inspecting && !dragging && (
+        <InspectorOverlay hovered={hovered} pinned={pinned} tools={tools} hoveredByFocus={hoveredByFocus} />
+      )}
       <div
         ref={dockRef}
         className="lc-inspector"
@@ -242,6 +248,11 @@ export function Inspector() {
             onToggleTool={toggleTool}
             onClose={close}
           />
+        </div>
+        {/* Always mounted, so screen readers are listening before it changes. Keyed
+            by the pin, so re-pinning an element that reads the same is announced. */}
+        <div className="lc-inspector__announce" role="status">
+          <span key={pinId}>{inspecting ? (pinned ? describePin(pinned, tools) : OPEN_ANNOUNCEMENT) : ''}</span>
         </div>
         {inspecting && pinned && (
           <div className="lc-inspector__panel-slot" style={panelPlacement(position.x, position.y)}>

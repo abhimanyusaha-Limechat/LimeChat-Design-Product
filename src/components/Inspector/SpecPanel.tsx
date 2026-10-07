@@ -54,7 +54,13 @@ export const SpecPanel = memo(function SpecPanel({ spec, tools, canSelectParent,
             {spec.anchor && ` · ${spec.name}`}
           </span>
         </div>
-        <button type="button" className="lc-inspector__tool" aria-label="Unpin element" onClick={onUnpin}>
+        <button
+          type="button"
+          className="lc-inspector__tool"
+          aria-label="Unpin element"
+          aria-keyshortcuts="Escape"
+          onClick={onUnpin}
+        >
           <Icon name="close" size={16} />
         </button>
       </header>
@@ -102,6 +108,7 @@ export const SpecPanel = memo(function SpecPanel({ spec, tools, canSelectParent,
           disabled={!canSelectParent}
           onClick={onSelectParent}
           title="Alt+↑"
+          aria-keyshortcuts="Alt+ArrowUp"
         >
           Select parent
         </Button>

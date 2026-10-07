@@ -236,6 +236,47 @@ describe('pinning', () => {
     expect(fab()).toHaveFocus();
   });
 
+  it('announces opening, pinning and selecting the parent to screen readers', async () => {
+    const user = setup(
+      <div className="app-card">
+        <button type="button" className="app-btn">
+          Save
+        </button>
+      </div>,
+    );
+    const announcer = () => screen.getAllByRole('status').find((el) => !panel()?.contains(el))!;
+    expect(announcer().textContent).toBe('');
+
+    await user.click(fab());
+    await waitFor(() => expect(announcer()).toHaveTextContent('Inspect mode on. Press Alt+Enter to pin the focused element.'));
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(announcer()).toHaveTextContent(/^Pinned button\.app-btn, 100 by 20\./));
+
+    // Same text, new node: re-pinning an element that reads the same is still announced.
+    const before = announcer().firstChild;
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(announcer().firstChild).not.toBe(before));
+
+    await user.keyboard('{Alt>}{ArrowUp}{/Alt}');
+    await waitFor(() => expect(announcer()).toHaveTextContent(/^Pinned div\.app-card/));
+  });
+
+  it('hints Alt+Enter on an element highlighted by keyboard focus, not by the pointer', async () => {
+    const user = setup(
+      <button type="button" className="app-btn">
+        Save
+      </button>,
+    );
+    await user.click(fab());
+    await user.hover(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(screen.getByText('button.app-btn')).toBeInTheDocument());
+    expect(screen.queryByText('Alt+Enter to pin')).not.toBeInTheDocument();
+
+    act(() => screen.getByRole('button', { name: 'Save' }).focus());
+    await waitFor(() => expect(screen.getByText('Alt+Enter to pin')).toBeInTheDocument());
+  });
+
   it('pins the focused element with Alt+Enter', async () => {
     const user = setup(
       <button type="button" className="focus-me">

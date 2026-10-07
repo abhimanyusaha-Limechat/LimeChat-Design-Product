@@ -114,7 +114,10 @@ function Chip({ kind, offScale, text, rect }: ChipProps) {
   );
 }
 
-function Label({ spec, tools }: { spec: Spec; tools: ToolSet }) {
+/** Shown on a keyboard-focused element, where clicking isn't how you'd pin it. */
+const FOCUS_HINT = 'Alt+Enter to pin';
+
+function Label({ spec, tools, focusHint }: { spec: Spec; tools: ToolSet; focusHint: boolean }) {
   const { rect } = spec;
   const above = rect.top >= 28;
   const style: CSSProperties = {
@@ -124,15 +127,31 @@ function Label({ spec, tools }: { spec: Spec; tools: ToolSet }) {
     transform: above ? 'translateY(-100%)' : undefined,
   };
   return (
-    <div className="lc-inspector__label" data-off-scale={hasIssues(buildReport(spec, tools)) || undefined} style={style}>
+    <div
+      className="lc-inspector__label"
+      data-off-scale={hasIssues(buildReport(spec, tools)) || undefined}
+      data-hint={focusHint || undefined}
+      style={style}
+    >
       <span className="lc-inspector__label-name">{spec.anchor ?? spec.name}</span>
       <span className="lc-inspector__label-meta">{buildLabel(spec, tools)}</span>
+      {focusHint && <span className="lc-inspector__label-hint">{FOCUS_HINT}</span>}
     </div>
   );
 }
 
 /** Full enabled layers for one element: fills, then the outline, then value chips so nothing covers them. */
-function Layers({ spec, tools, withLabel }: { spec: Spec; tools: ToolSet; withLabel: boolean }) {
+function Layers({
+  spec,
+  tools,
+  withLabel,
+  focusHint = false,
+}: {
+  spec: Spec;
+  tools: ToolSet;
+  withLabel: boolean;
+  focusHint?: boolean;
+}) {
   const marks = marksFor(spec, tools);
   return (
     <>
@@ -148,7 +167,7 @@ function Layers({ spec, tools, withLabel }: { spec: Spec; tools: ToolSet; withLa
       {placeChips(marks).map((chip, i) => (
         <Chip key={i} {...chip} />
       ))}
-      {withLabel && <Label spec={spec} tools={tools} />}
+      {withLabel && <Label spec={spec} tools={tools} focusHint={focusHint} />}
     </>
   );
 }
@@ -157,6 +176,8 @@ interface InspectorOverlayProps {
   hovered: Spec | null;
   pinned: Spec | null;
   tools: ToolSet;
+  /** The hovered element has keyboard focus: its label says how to pin it. */
+  hoveredByFocus: boolean;
 }
 
 /**
@@ -164,7 +185,7 @@ interface InspectorOverlayProps {
  * hovered element gets every enabled layer; once something is pinned it keeps
  * the layers and the hovered element only gets an outline and label.
  */
-export function InspectorOverlay({ hovered, pinned, tools }: InspectorOverlayProps) {
+export function InspectorOverlay({ hovered, pinned, tools, hoveredByFocus }: InspectorOverlayProps) {
   return (
     <div className="lc-inspector__overlay" aria-hidden="true">
       {pinned && <Layers spec={pinned} tools={tools} withLabel={false} />}
@@ -172,10 +193,10 @@ export function InspectorOverlay({ hovered, pinned, tools }: InspectorOverlayPro
         (pinned ? (
           <>
             <div className="lc-inspector__outline" style={box(hovered.rect)} />
-            <Label spec={hovered} tools={tools} />
+            <Label spec={hovered} tools={tools} focusHint={hoveredByFocus} />
           </>
         ) : (
-          <Layers spec={hovered} tools={tools} withLabel />
+          <Layers spec={hovered} tools={tools} withLabel focusHint={hoveredByFocus} />
         ))}
     </div>
   );
