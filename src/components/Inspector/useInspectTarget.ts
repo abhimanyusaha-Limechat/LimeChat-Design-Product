@@ -23,6 +23,11 @@ export interface InspectView {
 
 const EMPTY: InspectView = { hovered: null, pinned: null, canSelectParent: false };
 
+/** Specs are plain data, so equal JSON means nothing on screen would change. */
+function sameSpec(a: Spec | null, b: Spec | null): boolean {
+  return a === b || (a !== null && b !== null && JSON.stringify(a) === JSON.stringify(b));
+}
+
 /**
  * Tracks the hovered and pinned elements while `active`, and measures them on
  * every animation frame something moved. All listeners live only while
@@ -41,11 +46,22 @@ export function useInspectTarget(active: boolean) {
     const raw = rawHover.current?.isConnected ? rawHover.current : null;
     const hovered = raw ? resolveTarget(raw) : null;
     const pin = pinned.current;
-    setView({
-      // The pinned element already shows its full layers; don't stack a hover on it.
-      hovered: hovered && hovered !== pin ? measureElement(hovered) : null,
-      pinned: pin ? measureElement(pin) : null,
-      canSelectParent: pin !== null && pin !== document.body && pin.parentElement !== null,
+    // The pinned element already shows its full layers; don't stack a hover on it.
+    const nextHovered = hovered && hovered !== pin ? measureElement(hovered) : null;
+    const nextPinned = pin ? measureElement(pin) : null;
+    const canSelectParent = pin !== null && pin !== document.body && pin.parentElement !== null;
+    // Most frames (the pointer moving within one element) measure the same
+    // values. Keep the old objects then, so nothing re-renders, and so memoized
+    // parts (the panel) skip renders when only the other spec changed.
+    setView((prev) => {
+      const next = {
+        hovered: sameSpec(prev.hovered, nextHovered) ? prev.hovered : nextHovered,
+        pinned: sameSpec(prev.pinned, nextPinned) ? prev.pinned : nextPinned,
+        canSelectParent,
+      };
+      const unchanged =
+        next.hovered === prev.hovered && next.pinned === prev.pinned && canSelectParent === prev.canSelectParent;
+      return unchanged ? prev : next;
     });
   }, []);
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { Button } from '../Button';
 import { Icon } from '../icons';
 import type { Spec } from './measure';
@@ -16,8 +16,11 @@ interface SpecPanelProps {
   onUnpin: () => void;
 }
 
-/** The pinned element's values, grouped by tool, with off-scale ones called out. */
-export function SpecPanel({ spec, tools, canSelectParent, onSelectParent, onUnpin }: SpecPanelProps) {
+/**
+ * The pinned element's values, grouped by tool, with off-scale ones called out.
+ * Memoized: hovering other elements re-renders the Inspector, not this.
+ */
+export const SpecPanel = memo(function SpecPanel({ spec, tools, canSelectParent, onSelectParent, onUnpin }: SpecPanelProps) {
   const sections = buildReport(spec, tools);
   const [copy, setCopy] = useState<CopyState>('idle');
   const timer = useRef<number | undefined>(undefined);
@@ -119,4 +122,4 @@ export function SpecPanel({ spec, tools, canSelectParent, onSelectParent, onUnpi
       </footer>
     </section>
   );
-}
+});

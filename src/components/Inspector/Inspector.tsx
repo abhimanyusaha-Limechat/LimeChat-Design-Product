@@ -170,6 +170,12 @@ export function Inspector() {
   }, [rescueFocus, unpin]);
 
   const toggleTool = useCallback((tool: Tool) => setTools((t) => ({ ...t, [tool]: !t[tool] })), []);
+  // Stable, so the memoized toolbar skips the renders that hovering causes.
+  const toggleExpanded = useCallback(
+    () => (inspecting ? collapse(true) : expand(true)),
+    [inspecting, collapse, expand],
+  );
+  const close = useCallback(() => collapse(true), [collapse]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -232,9 +238,9 @@ export function Inspector() {
             tools={tools}
             barRef={barRef}
             mainRef={mainRef}
-            onToggleExpanded={() => (inspecting ? collapse(true) : expand(true))}
+            onToggleExpanded={toggleExpanded}
             onToggleTool={toggleTool}
-            onClose={() => collapse(true)}
+            onClose={close}
           />
         </div>
         {inspecting && pinned && (

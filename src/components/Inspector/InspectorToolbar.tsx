@@ -1,4 +1,4 @@
-import type { RefObject } from 'react';
+import { memo, type RefObject } from 'react';
 import { Icon } from '../icons';
 import type { IconName } from '../iconPaths';
 import { Tooltip } from '../Tooltip';
@@ -33,8 +33,12 @@ interface InspectorToolbarProps {
   onClose: () => void;
 }
 
-/** The FAB, and the pill of tool toggles it expands into. Presentational. */
-export function InspectorToolbar({
+/**
+ * The FAB, and the pill of tool toggles it expands into. Presentational.
+ * Memoized: the Inspector re-renders as the hovered element changes, which
+ * this doesn't depend on.
+ */
+export const InspectorToolbar = memo(function InspectorToolbar({
   expanded,
   closing,
   dragging,
@@ -105,4 +109,4 @@ export function InspectorToolbar({
       )}
     </div>
   );
-}
+});
