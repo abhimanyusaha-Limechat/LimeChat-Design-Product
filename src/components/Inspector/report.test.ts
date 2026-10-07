@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Spec, TypeSpec } from './measure';
-import { buildLabel, buildReport, hasIssues, shorthand, specToCss, type ToolSet } from './report';
+import { buildLabel, buildReport, describePin, hasIssues, shorthand, specToCss, type ToolSet } from './report';
 
 const ALL: ToolSet = { type: true, padding: true, gap: true };
 const sides = (top: number, right = top, bottom = top, left = right) => ({ top, right, bottom, left });
@@ -25,6 +25,7 @@ function spec(overrides: Partial<Spec> = {}): Spec {
     scale: 1,
     padding: sides(8, 12),
     border: sides(0),
+    scrollbar: { width: 0, height: 0 },
     gap: { row: 8, column: 8 },
     gapStrips: [],
     textLines: [],
@@ -117,6 +118,28 @@ describe('buildReport', () => {
 
   it('notes when padding bands cannot be drawn', () => {
     expect(rows(spec({ drawBands: false })).Overlay.value).toMatch(/not drawn/);
+  });
+});
+
+describe('describePin', () => {
+  const NONE: ToolSet = { type: false, padding: false, gap: false };
+
+  it('names the element and its size, and says whether values are on scale', () => {
+    expect(describePin(spec({ type: null, gap: null }), ALL)).toBe('Pinned button.lc-btn, 80 by 32. All values on scale.');
+  });
+
+  it('counts off-scale values', () => {
+    expect(describePin(spec({ type: null, padding: sides(7, 12), gap: null }), ALL)).toBe(
+      'Pinned button.lc-btn, 80 by 32. 1 value off scale.',
+    );
+    expect(describePin(spec({ type: null, padding: sides(7, 12), gap: { row: 5, column: 5 } }), ALL)).toBe(
+      'Pinned button.lc-btn, 80 by 32. 2 values off scale.',
+    );
+  });
+
+  it('prefers the Anchor name, reports CSS px, and skips the scale with every tool off', () => {
+    const scaled = spec({ anchor: 'ticket-row', scale: 0.5, rect: { left: 0, top: 0, width: 40, height: 16 } });
+    expect(describePin(scaled, NONE)).toBe('Pinned ticket-row, 80 by 32.');
   });
 });
 

@@ -1,4 +1,4 @@
-import type { RefObject } from 'react';
+import { memo, type RefObject } from 'react';
 import { Icon } from '../icons';
 import type { IconName } from '../iconPaths';
 import { Tooltip } from '../Tooltip';
@@ -33,8 +33,12 @@ interface InspectorToolbarProps {
   onClose: () => void;
 }
 
-/** The FAB, and the pill of tool toggles it expands into. Presentational. */
-export function InspectorToolbar({
+/**
+ * The FAB, and the pill of tool toggles it expands into. Presentational.
+ * Memoized: the Inspector re-renders as the hovered element changes, which
+ * this doesn't depend on.
+ */
+export const InspectorToolbar = memo(function InspectorToolbar({
   expanded,
   closing,
   dragging,
@@ -65,6 +69,7 @@ export function InspectorToolbar({
           type="button"
           className="lc-inspector__main"
           aria-label="Inspect spacing and type"
+          aria-keyshortcuts="Shift+I"
           aria-expanded={expanded && !closing}
           onClick={onToggleExpanded}
         >
@@ -97,7 +102,13 @@ export function InspectorToolbar({
           </div>
           <span className="lc-inspector__divider" aria-hidden="true" />
           <Tooltip label="Close (Esc)" position={tooltipPosition} openDelay={TOOLTIP_DELAY} disabled={dragging}>
-            <button type="button" className="lc-inspector__tool" aria-label="Close inspect mode" onClick={onClose}>
+            <button
+              type="button"
+              className="lc-inspector__tool"
+              aria-label="Close inspect mode"
+              aria-keyshortcuts="Escape"
+              onClick={onClose}
+            >
               <Icon name="close" size={18} />
             </button>
           </Tooltip>
@@ -105,4 +116,4 @@ export function InspectorToolbar({
       )}
     </div>
   );
-}
+});

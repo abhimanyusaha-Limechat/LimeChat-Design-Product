@@ -19,9 +19,18 @@ export interface InspectView {
   pinned: Spec | null;
   /** False with nothing pinned, or when the pin is already `body`. */
   canSelectParent: boolean;
+  /** Changes whenever the pin moves, even to an element that measures the same. */
+  pinId: number;
+  /** The hovered element is the keyboard-focused one, not the one under the pointer. */
+  hoveredByFocus: boolean;
 }
 
-const EMPTY: InspectView = { hovered: null, pinned: null, canSelectParent: false };
+const EMPTY: InspectView = { hovered: null, pinned: null, canSelectParent: false, pinId: 0, hoveredByFocus: false };
+
+/** Specs are plain data, so equal JSON means nothing on screen would change. */
+function sameSpec(a: Spec | null, b: Spec | null): boolean {
+  return a === b || (a !== null && b !== null && JSON.stringify(a) === JSON.stringify(b));
+}
 
 /**
  * Tracks the hovered and pinned elements while `active`, and measures them on
@@ -31,21 +40,44 @@ const EMPTY: InspectView = { hovered: null, pinned: null, canSelectParent: false
 export function useInspectTarget(active: boolean) {
   const [view, setView] = useState<InspectView>(EMPTY);
   const rawHover = useRef<Element | null>(null);
+  const rawHoverByFocus = useRef(false);
   const pinned = useRef<Element | null>(null);
+  const pinId = useRef(0);
   const frame = useRef(0);
   const observer = useRef<ResizeObserver | null>(null);
 
   const measure = useCallback(() => {
     frame.current = 0;
-    if (pinned.current && !pinned.current.isConnected) pinned.current = null;
+    if (pinned.current && !pinned.current.isConnected) {
+      pinned.current = null;
+      pinId.current += 1;
+    }
     const raw = rawHover.current?.isConnected ? rawHover.current : null;
     const hovered = raw ? resolveTarget(raw) : null;
     const pin = pinned.current;
-    setView({
-      // The pinned element already shows its full layers; don't stack a hover on it.
-      hovered: hovered && hovered !== pin ? measureElement(hovered) : null,
-      pinned: pin ? measureElement(pin) : null,
-      canSelectParent: pin !== null && pin !== document.body && pin.parentElement !== null,
+    // The pinned element already shows its full layers; don't stack a hover on it.
+    const nextHovered = hovered && hovered !== pin ? measureElement(hovered) : null;
+    const nextPinned = pin ? measureElement(pin) : null;
+    const canSelectParent = pin !== null && pin !== document.body && pin.parentElement !== null;
+    const hoveredByFocus = nextHovered !== null && rawHoverByFocus.current;
+    // Most frames (the pointer moving within one element) measure the same
+    // values. Keep the old objects then, so nothing re-renders, and so memoized
+    // parts (the panel) skip renders when only the other spec changed.
+    setView((prev) => {
+      const next = {
+        hovered: sameSpec(prev.hovered, nextHovered) ? prev.hovered : nextHovered,
+        pinned: sameSpec(prev.pinned, nextPinned) ? prev.pinned : nextPinned,
+        canSelectParent,
+        pinId: pinId.current,
+        hoveredByFocus,
+      };
+      const unchanged =
+        next.hovered === prev.hovered &&
+        next.pinned === prev.pinned &&
+        canSelectParent === prev.canSelectParent &&
+        next.pinId === prev.pinId &&
+        hoveredByFocus === prev.hoveredByFocus;
+      return unchanged ? prev : next;
     });
   }, []);
 
@@ -56,6 +88,7 @@ export function useInspectTarget(active: boolean) {
   const pin = useCallback(
     (el: Element | null) => {
       pinned.current = el ? resolveTarget(el) : null;
+      pinId.current += 1;
       observer.current?.disconnect();
       if (pinned.current) observer.current?.observe(pinned.current);
       schedule();
@@ -91,6 +124,7 @@ export function useInspectTarget(active: boolean) {
 
     const onPointerMove = (e: PointerEvent) => {
       rawHover.current = isIgnoredUi(e.target) || !(e.target instanceof Element) ? null : e.target;
+      rawHoverByFocus.current = false;
       schedule();
     };
     const onLeave = (e: MouseEvent) => {
@@ -102,6 +136,7 @@ export function useInspectTarget(active: boolean) {
     const onFocusIn = (e: FocusEvent) => {
       if (isIgnoredUi(e.target) || !(e.target instanceof Element)) return;
       rawHover.current = e.target;
+      rawHoverByFocus.current = true;
       schedule();
     };
     const onPress = (e: Event) => {

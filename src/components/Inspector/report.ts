@@ -160,6 +160,17 @@ export function hasIssues(sections: ReportSection[]): boolean {
   return sections.some((s) => s.rows.some((r) => r.issue));
 }
 
+/** What a screen reader hears on pinning, e.g. `Pinned button.lc-btn, 80 by 32. 1 value off scale.` */
+export function describePin(spec: Spec, tools: ToolSet): string {
+  const size = `${fmt(spec.rect.width / spec.scale)} by ${fmt(spec.rect.height / spec.scale)}`;
+  const pinned = `Pinned ${spec.anchor ?? spec.name}, ${size}.`;
+  const sections = buildReport(spec, tools);
+  if (sections.length === 0) return pinned;
+  const issues = sections.reduce((n, s) => n + s.rows.filter((r) => r.issue).length, 0);
+  if (issues === 0) return `${pinned} All values on scale.`;
+  return `${pinned} ${issues} ${issues === 1 ? 'value' : 'values'} off scale.`;
+}
+
 /** One-line hover summary, e.g. `14/20 Lato 700 · p 8 12 · gap 8`. */
 export function buildLabel(spec: Spec, tools: ToolSet): string {
   const parts: string[] = [];

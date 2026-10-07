@@ -126,6 +126,27 @@ describe('pinning', () => {
     expect(onMouseDown).not.toHaveBeenCalled();
   });
 
+  it('keeps inspecting with every tool off: the pin stays and the app still sees no presses', async () => {
+    const onClick = vi.fn();
+    const user = setup(
+      <button type="button" className="app-btn" onClick={onClick}>
+        Save
+      </button>,
+    );
+    await user.click(fab());
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(panel()).toBeInTheDocument());
+
+    const tools = within(screen.getByRole('group', { name: 'Inspect tools' }));
+    for (const name of ['Type', 'Padding', 'Gap']) await user.click(tools.getByRole('button', { name }));
+
+    expect(within(panel()!).getByText('button.app-btn')).toBeInTheDocument();
+    expect(within(panel()!).getByText('Turn on a tool to see values.')).toBeInTheDocument();
+    expect(within(panel()!).getByRole('button', { name: /Copy CSS/ })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
   it("doesn't close an open Menu when opening Inspect mode or pinning outside it", async () => {
     const user = setup(
       <>
@@ -213,6 +234,47 @@ describe('pinning', () => {
     await user.keyboard('{Escape}');
     await waitFor(() => expect(panel()).not.toBeInTheDocument());
     expect(fab()).toHaveFocus();
+  });
+
+  it('announces opening, pinning and selecting the parent to screen readers', async () => {
+    const user = setup(
+      <div className="app-card">
+        <button type="button" className="app-btn">
+          Save
+        </button>
+      </div>,
+    );
+    const announcer = () => screen.getAllByRole('status').find((el) => !panel()?.contains(el))!;
+    expect(announcer().textContent).toBe('');
+
+    await user.click(fab());
+    await waitFor(() => expect(announcer()).toHaveTextContent('Inspect mode on. Press Alt+Enter to pin the focused element.'));
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(announcer()).toHaveTextContent(/^Pinned button\.app-btn, 100 by 20\./));
+
+    // Same text, new node: re-pinning an element that reads the same is still announced.
+    const before = announcer().firstChild;
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(announcer().firstChild).not.toBe(before));
+
+    await user.keyboard('{Alt>}{ArrowUp}{/Alt}');
+    await waitFor(() => expect(announcer()).toHaveTextContent(/^Pinned div\.app-card/));
+  });
+
+  it('hints Alt+Enter on an element highlighted by keyboard focus, not by the pointer', async () => {
+    const user = setup(
+      <button type="button" className="app-btn">
+        Save
+      </button>,
+    );
+    await user.click(fab());
+    await user.hover(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(screen.getByText('button.app-btn')).toBeInTheDocument());
+    expect(screen.queryByText('Alt+Enter to pin')).not.toBeInTheDocument();
+
+    act(() => screen.getByRole('button', { name: 'Save' }).focus());
+    await waitFor(() => expect(screen.getByText('Alt+Enter to pin')).toBeInTheDocument());
   });
 
   it('pins the focused element with Alt+Enter', async () => {
