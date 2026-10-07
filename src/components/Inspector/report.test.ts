@@ -25,6 +25,7 @@ function spec(overrides: Partial<Spec> = {}): Spec {
     scale: 1,
     padding: sides(8, 12),
     border: sides(0),
+    scrollbar: { width: 0, height: 0 },
     gap: { row: 8, column: 8 },
     gapStrips: [],
     textLines: [],

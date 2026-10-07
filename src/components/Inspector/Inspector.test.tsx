@@ -126,6 +126,27 @@ describe('pinning', () => {
     expect(onMouseDown).not.toHaveBeenCalled();
   });
 
+  it('keeps inspecting with every tool off: the pin stays and the app still sees no presses', async () => {
+    const onClick = vi.fn();
+    const user = setup(
+      <button type="button" className="app-btn" onClick={onClick}>
+        Save
+      </button>,
+    );
+    await user.click(fab());
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(panel()).toBeInTheDocument());
+
+    const tools = within(screen.getByRole('group', { name: 'Inspect tools' }));
+    for (const name of ['Type', 'Padding', 'Gap']) await user.click(tools.getByRole('button', { name }));
+
+    expect(within(panel()!).getByText('button.app-btn')).toBeInTheDocument();
+    expect(within(panel()!).getByText('Turn on a tool to see values.')).toBeInTheDocument();
+    expect(within(panel()!).getByRole('button', { name: /Copy CSS/ })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
   it("doesn't close an open Menu when opening Inspect mode or pinning outside it", async () => {
     const user = setup(
       <>

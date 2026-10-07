@@ -10,6 +10,7 @@ import {
   readType,
   renderedWeight,
   renderScale,
+  stripValue,
   toHex,
   type ChildStyleLike,
   type Rect,
@@ -198,6 +199,16 @@ describe('renderScale', () => {
     expect(renderScale(50, style({ boxSizing: 'content-box', width: '80px' }), sides, zero)).toBeCloseTo(0.5);
   });
 
+  it('adds back the vertical scrollbar that a content-box width leaves out', () => {
+    // Declared 200px wide with a 15px scrollbar: computed width is 185, rendered 220.
+    const padded = { top: 8, right: 8, bottom: 8, left: 8 };
+    const bordered = { top: 2, right: 2, bottom: 2, left: 2 };
+    const s = style({ boxSizing: 'content-box', width: '185px' });
+    expect(renderScale(220, s, padded, bordered, 15)).toBe(1);
+    // border-box widths already include it.
+    expect(renderScale(200, style({ boxSizing: 'border-box', width: '200px' }), padded, bordered, 15)).toBe(1);
+  });
+
   it('is 1 for inline boxes, whose width is auto', () => {
     expect(renderScale(40, style({ width: 'auto' }), zero, zero)).toBe(1);
   });
@@ -207,19 +218,19 @@ describe('gapRects', () => {
   it('finds column gaps between children on a row', () => {
     const strips = gapRects([rect(0, 0, 50, 20), rect(58, 0, 50, 30), rect(116, 0, 50, 20)], 'row', VIEWPORT);
     expect(strips).toEqual([
-      { rect: rect(50, 0, 8, 30), axis: 'column' },
-      { rect: rect(108, 0, 8, 30), axis: 'column' },
+      { rect: rect(50, 0, 8, 30), axis: 'column', size: 8 },
+      { rect: rect(108, 0, 8, 30), axis: 'column', size: 8 },
     ]);
   });
 
   it('finds row gaps between stacked children', () => {
     const strips = gapRects([rect(0, 0, 100, 20), rect(0, 32, 80, 20)], 'column', VIEWPORT);
-    expect(strips).toEqual([{ rect: rect(0, 20, 100, 12), axis: 'row' }]);
+    expect(strips).toEqual([{ rect: rect(0, 20, 100, 12), axis: 'row', size: 12 }]);
   });
 
   it('uses on-screen order, so reversed or reordered children work', () => {
     const strips = gapRects([rect(58, 0, 50, 20), rect(0, 0, 50, 20)], 'row', VIEWPORT);
-    expect(strips).toEqual([{ rect: rect(50, 0, 8, 20), axis: 'column' }]);
+    expect(strips).toEqual([{ rect: rect(50, 0, 8, 20), axis: 'column', size: 8 }]);
   });
 
   it('finds both gaps in wrapped rows', () => {
@@ -229,10 +240,15 @@ describe('gapRects', () => {
       VIEWPORT,
     );
     expect(strips).toEqual([
-      { rect: rect(40, 0, 8, 20), axis: 'column' },
-      { rect: rect(40, 28, 8, 20), axis: 'column' },
-      { rect: rect(0, 20, 88, 8), axis: 'row' },
+      { rect: rect(40, 0, 8, 20), axis: 'column', size: 8 },
+      { rect: rect(40, 28, 8, 20), axis: 'column', size: 8 },
+      { rect: rect(0, 20, 88, 8), axis: 'row', size: 8 },
     ]);
+  });
+
+  it('keeps the full size of a strip that is clipped', () => {
+    const strips = gapRects([rect(0, 0, 50, 20), rect(80, 0, 50, 20)], 'row', rect(0, 0, 60, 20));
+    expect(strips).toEqual([{ rect: rect(50, 0, 10, 20), axis: 'column', size: 30 }]);
   });
 
   it('skips touching and empty children, and clips to the visible area', () => {
@@ -241,7 +257,22 @@ describe('gapRects', () => {
       'row',
       rect(0, 0, 104, 10),
     );
-    expect(strips).toEqual([{ rect: rect(100, 0, 4, 10), axis: 'column' }]);
+    expect(strips).toEqual([{ rect: rect(100, 0, 4, 10), axis: 'column', size: 8 }]);
+  });
+});
+
+describe('stripValue', () => {
+  it('is the declared gap when the space on screen matches it', () => {
+    expect(stripValue(8, 8, 1)).toBe(8);
+    // Sub-pixel layout and scale rounding don't read as off-grid.
+    expect(stripValue(7.7, 8, 1)).toBe(8);
+    expect(stripValue(3.98, 8, 0.5)).toBe(8);
+  });
+
+  it('is the measured space when it differs (space-between, child margins)', () => {
+    expect(stripValue(37.333, 8, 1)).toBe(37.33);
+    expect(stripValue(16, 8, 1)).toBe(16);
+    expect(stripValue(24, 8, 2)).toBe(12);
   });
 });
 

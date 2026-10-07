@@ -97,8 +97,9 @@ export function Inspector() {
   const [opensLeft, setOpensLeft] = useState(false);
   // Stays as the reviewer left it for the rest of the session.
   const [tools, setTools] = useState<ToolSet>(ALL_TOOLS);
-  const open = expanded && !closing;
-  const inspecting = open && (tools.type || tools.padding || tools.gap);
+  // Inspecting doesn't depend on the tools: with all of them off you still
+  // hover and pin, and see the element's outline and size.
+  const inspecting = expanded && !closing;
   const { hovered, pinned, canSelectParent, unpin, selectParent, pinFocused } = useInspectTarget(inspecting);
 
   const dockRef = useRef<HTMLDivElement>(null);
@@ -178,10 +179,10 @@ export function Inspector() {
 
       // Ctrl/Cmd+Shift+I opens DevTools — never take it.
       if (e.shiftKey && noCtrl && !e.altKey && e.key.toLowerCase() === 'i' && !isEditable(e.target)) {
-        if (open) collapse(false);
+        if (inspecting) collapse(false);
         else expand(false);
         handled = true;
-      } else if (open && e.key === 'Escape') {
+      } else if (inspecting && e.key === 'Escape') {
         if (!unpinKeepingFocus()) collapse(false);
         handled = true;
       } else if (inspecting && e.altKey && noCtrl && e.key === 'ArrowUp') {
@@ -198,7 +199,7 @@ export function Inspector() {
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
-  }, [open, inspecting, expand, collapse, unpinKeepingFocus, selectParent, pinFocused]);
+  }, [inspecting, expand, collapse, unpinKeepingFocus, selectParent, pinFocused]);
 
   return createPortal(
     <>
@@ -231,7 +232,7 @@ export function Inspector() {
             tools={tools}
             barRef={barRef}
             mainRef={mainRef}
-            onToggleExpanded={() => (open ? collapse(true) : expand(true))}
+            onToggleExpanded={() => (inspecting ? collapse(true) : expand(true))}
             onToggleTool={toggleTool}
             onClose={() => collapse(true)}
           />

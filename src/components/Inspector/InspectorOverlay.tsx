@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { isAllowedFontSize, isOnSpacingGrid } from './designScale';
-import { intersect, type Rect, type Spec } from './measure';
+import { intersect, stripValue, type Rect, type Spec } from './measure';
 import { buildLabel, buildReport, fmt, hasIssues, type ToolSet } from './report';
 
 /** Chips need this much run along a band or strip (rendered px), or they'd collide at corners. */
@@ -24,13 +24,13 @@ const spacingMark = (kind: 'padding' | 'gap', rect: Rect, value: number): Mark =
   offScale: !isOnSpacingGrid(value),
 });
 
-/** Padding bands, inside the border, at the element's rendered scale. */
-function paddingMarks({ rect, padding: p, border: b, scale: s }: Spec): Mark[] {
+/** Padding bands, inside the border and any scrollbar, at the element's rendered scale. */
+function paddingMarks({ rect, padding: p, border: b, scrollbar: sb, scale: s }: Spec): Mark[] {
   const inner = {
     left: rect.left + b.left * s,
     top: rect.top + b.top * s,
-    width: rect.width - (b.left + b.right) * s,
-    height: rect.height - (b.top + b.bottom) * s,
+    width: rect.width - (b.left + b.right + sb.width) * s,
+    height: rect.height - (b.top + b.bottom + sb.height) * s,
   };
   const middleTop = inner.top + p.top * s;
   const middleHeight = inner.height - (p.top + p.bottom) * s;
@@ -56,7 +56,9 @@ function marksFor(spec: Spec, tools: ToolSet): Mark[] {
   const { gap } = spec;
   if (tools.gap && gap) {
     marks.push(
-      ...spec.gapStrips.map(({ rect, axis }) => spacingMark('gap', rect, axis === 'column' ? gap.column : gap.row)),
+      ...spec.gapStrips.map(({ rect, axis, size }) =>
+        spacingMark('gap', rect, stripValue(size, axis === 'column' ? gap.column : gap.row, spec.scale)),
+      ),
     );
   }
   return marks.filter((m) => m.rect.width > 0 && m.rect.height > 0);

@@ -38,6 +38,8 @@ export interface GapStrip {
   rect: Rect;
   /** `column` separates side-by-side children (column-gap), `row` stacked ones (row-gap). */
   axis: 'row' | 'column';
+  /** The space's full length across the strip (rendered px), before clipping. */
+  size: number;
 }
 
 export interface Spec {
@@ -52,6 +54,8 @@ export interface Spec {
   scale: number;
   padding: Sides;
   border: Sides;
+  /** Space taken by classic scrollbars, CSS px: `width` by a vertical one, `height` by a horizontal one. */
+  scrollbar: { width: number; height: number };
   /** `null` when the element isn't a flex or grid container. */
   gap: { row: number; column: number } | null;
   gapStrips: GapStrip[];
@@ -143,13 +147,22 @@ export function readBorder(style: StyleLike): Sides {
  * Rendered px per CSS px, so a `transform: scale()` on the element or an
  * ancestor doesn't skew the bands. The computed `width` is the fractional,
  * untransformed layout width (unlike the integer `offsetWidth`); it's `auto`
- * for inline boxes, which then count as unscaled.
+ * for inline boxes, which then count as unscaled. For `content-box` it leaves
+ * out a vertical scrollbar, so `scrollbarWidth` is added back.
  */
-export function renderScale(renderedWidth: number, style: StyleLike, padding: Sides, border: Sides): number {
+export function renderScale(
+  renderedWidth: number,
+  style: StyleLike,
+  padding: Sides,
+  border: Sides,
+  scrollbarWidth = 0,
+): number {
   const width = parsePx(style.width);
   if (width <= 0 || renderedWidth <= 0) return 1;
   const borderBox =
-    style.boxSizing === 'border-box' ? width : width + padding.left + padding.right + border.left + border.right;
+    style.boxSizing === 'border-box'
+      ? width
+      : width + padding.left + padding.right + border.left + border.right + scrollbarWidth;
   const scale = renderedWidth / borderBox;
   // Sub-pixel noise isn't a transform.
   return Math.abs(scale - 1) < 0.001 ? 1 : scale;
@@ -313,7 +326,11 @@ export function gapRects(children: Rect[], direction: 'row' | 'column', clip: Re
       if (b[main.start] - end(a, main) < 0.5) continue;
       const crossStart = Math.min(a[cross.start], b[cross.start]);
       const crossEnd = Math.max(end(a, cross), end(b, cross));
-      strips.push({ rect: makeRect(main, end(a, main), b[main.start], crossStart, crossEnd), axis: mainAxis });
+      strips.push({
+        rect: makeRect(main, end(a, main), b[main.start], crossStart, crossEnd),
+        axis: mainAxis,
+        size: b[main.start] - end(a, main),
+      });
     }
   }
 
@@ -322,13 +339,28 @@ export function gapRects(children: Rect[], direction: 'row' | 'column', clip: Re
     const next = bounds(lines[i], cross);
     if (next.start - prev.end < 0.5) continue;
     const span = bounds([...lines[i - 1], ...lines[i]], main);
-    strips.push({ rect: makeRect(main, span.start, span.end, prev.end, next.start), axis: crossAxis });
+    strips.push({
+      rect: makeRect(main, span.start, span.end, prev.end, next.start),
+      axis: crossAxis,
+      size: next.start - prev.end,
+    });
   }
 
   return strips.flatMap((s) => {
     const rect = intersect(s.rect, clip);
-    return rect ? [{ rect, axis: s.axis }] : [];
+    return rect ? [{ ...s, rect }] : [];
   });
+}
+
+/**
+ * What a gap strip's chip shows, in CSS px: the space actually on screen,
+ * which is more than the declared gap under `justify-content: space-between`
+ * or child margins. Within half a pixel of `declared` it's the declared value,
+ * so sub-pixel layout doesn't read as off-grid.
+ */
+export function stripValue(size: number, declared: number, scale: number): number {
+  const measured = size / scale;
+  return Math.abs(measured - declared) < 0.5 ? declared : Math.round(measured * 100) / 100;
 }
 
 /**
@@ -429,6 +461,22 @@ function childSpacing(child: Element): ChildStyleLike {
   return spacing;
 }
 
+/** Below this, an offset/client difference is rounding, not a scrollbar. */
+const MIN_SCROLLBAR = 2;
+
+/**
+ * Classic scrollbars sit between the padding and the border. Overlay
+ * scrollbars (macOS default, mobile) take no space and read as 0.
+ */
+function scrollbarSize(el: Element, border: Sides): Spec['scrollbar'] {
+  if (!(el instanceof HTMLElement)) return { width: 0, height: 0 };
+  const gutter = (n: number) => (n >= MIN_SCROLLBAR ? n : 0);
+  return {
+    width: gutter(el.offsetWidth - el.clientWidth - border.left - border.right),
+    height: gutter(el.offsetHeight - el.clientHeight - border.top - border.bottom),
+  };
+}
+
 function viewportRect(): Rect {
   return { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
 }
@@ -444,7 +492,8 @@ export function measureElement(el: Element): Spec {
   const rect: Rect = { left: box.left, top: box.top, width: box.width, height: box.height };
   const padding = readPadding(style);
   const border = readBorder(style);
-  const scale = renderScale(rect.width, style, padding, border);
+  const scrollbar = scrollbarSize(el, border);
+  const scale = renderScale(rect.width, style, padding, border, scrollbar.width);
 
   const children = [...el.children].map((child) => ({ child, style: childSpacing(child) }));
   const inFlow = children.filter((c) => isInFlow(c.style));
@@ -475,6 +524,7 @@ export function measureElement(el: Element): Spec {
     scale,
     padding,
     border,
+    scrollbar,
     gap,
     gapStrips,
     childMargins: collectChildMargins(children.map((c) => c.style)),
