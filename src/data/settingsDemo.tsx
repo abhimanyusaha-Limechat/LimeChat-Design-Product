@@ -1,6 +1,7 @@
 import { type SettingsTab } from '../components/SettingsPage';
 import { BigCommerceIcon, BlueDartIcon, CashfreeIcon, ClickPostIcon, DelhiveryIcon, EasyEcomIcon, EzyslipsIcon, FreshdeskIcon, GoogleSheetsIcon, HubSpotIcon, InitialsIcon, KaptureIcon, MagentoIcon, OdooIcon, OnedirectIcon, PayUIcon, PickrrIcon, RazorpayIcon, SalesforceIcon, ShipDelightIcon, ShiprocketIcon, ShopifyIcon, SlackIcon, StripeIcon, UnicommerceIcon, WebhookIcon, WhatsAppBusinessIcon, WooCommerceIcon, ZendeskIcon, ZohoCrmIcon, ZohoDeskIcon, type IntegrationCategory } from '../components/IntegrationsHomePage';
 import { type InboxRowData } from '../components/InboxesTable';
+import { type EventRowData } from '../components/EventsTable';
 import { type BotTemplateRow } from '../components/BotTemplatesTable';
 import { PAST_DATES } from './demoHelpers';
 
@@ -144,6 +145,21 @@ export const DEMO_INBOXES: InboxRowData[] = INBOX_NAMES.map((name, i) => ({
   metaId: 'N/A',
   createdOn: inboxCreatedOn(i),
 }));
+
+const EVENT_NAMES = ['test_var', 'order_placed', 'cart_abandoned', 'checkout_started', 'order_delivered', 'test_var'];
+const EVENT_PHONES = ['+91-6205127441', '+91-9876543210', '+91-8123456789', '+91-7012345678'];
+
+export const DEMO_EVENTS: EventRowData[] = Array.from({ length: 24 }, (_, i) => {
+  const name = EVENT_NAMES[i % EVENT_NAMES.length];
+  const phone = EVENT_PHONES[i % EVENT_PHONES.length];
+  return {
+    id: `ev${i + 1}`,
+    name,
+    phone,
+    createdAt: inboxCreatedOn(i),
+    payload: { event: name, phone: phone.replace('-', ''), properties: { order_id: `#${10240 + i}`, value: 499 + i * 150, currency: 'INR' } },
+  };
+});
 
 export const DEMO_BOT_TEMPLATES: BotTemplateRow[] = [
   { id: 'bt1', name: 'Cart & Checkout Management', description: 'Helps in managing carts and Checkout', type: 'task', usecases: ['Sales'], industries: [], scope: 'global' },

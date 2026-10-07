@@ -1,0 +1,177 @@
+/**
+ * EventsTable — Settings → Events log. Same tokens, toolbar and row rhythm as
+ * InboxesTable, scoped to "lc-ev". Table frame comes from DataTable.
+ */
+
+.lc-ev {
+  --lc-ev-border: var(--lc-color-gray-300);
+  --lc-ev-text-title: var(--lc-color-green-900);
+  --lc-ev-secondary-dark: var(--lc-color-stone-600);
+  --lc-ev-text-placeholder: var(--lc-color-gray-500);
+  --lc-ev-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--lc-ev-text-title);
+  box-sizing: border-box;
+  transition: opacity 220ms var(--lc-ev-ease-out), transform 220ms var(--lc-ev-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(1.004);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-ev {
+    transition: opacity 220ms ease;
+    transform: none;
+  }
+}
+
+.lc-ev *,
+.lc-ev *::before,
+.lc-ev *::after {
+  box-sizing: border-box;
+}
+
+/* --- Toolbar ---------------------------------------------------------------- */
+
+.lc-ev__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.lc-ev__toolbar-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.lc-ev__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 280px;
+  max-width: 100%;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid var(--lc-ev-border);
+  border-radius: 4px;
+  cursor: text;
+}
+
+.lc-ev__search:focus-within {
+  border-color: var(--lc-color-green-500);
+}
+
+.lc-ev__search-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--lc-ev-text-placeholder);
+  flex-shrink: 0;
+}
+
+.lc-ev__search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-ev-text-title);
+}
+
+.lc-ev__search-input::placeholder {
+  color: var(--lc-ev-text-placeholder);
+}
+
+.lc-ev__info {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--lc-ev-secondary-dark);
+  border-radius: 50%;
+  cursor: help;
+}
+
+.lc-ev__info:focus-visible {
+  outline: 2px solid var(--lc-color-green-500);
+  outline-offset: 2px;
+}
+
+.lc-ev__info svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* --- Table ------------------------------------------------------------------ */
+
+.lc-ev__cell {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--lc-ev-secondary-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[role='columnheader'].lc-ev__cell {
+  font-size: 12px;
+  line-height: 15px;
+}
+
+.lc-ev__cell--name {
+  flex: 1 1 0;
+  min-width: 160px;
+}
+
+.lc-ev__cell--phone {
+  flex: 0 0 160px;
+}
+
+.lc-ev__cell--date {
+  flex: 0 0 200px;
+}
+
+.lc-ev__cell--actions {
+  flex: 0 0 110px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.lc-ev__name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--lc-ev-text-title);
+}
+
+/* --- Payload modal ---------------------------------------------------------- */
+
+.lc-ev__payload {
+  margin: 0;
+  max-height: 50vh;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 4px;
+  background: var(--lc-color-gray-100);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--lc-color-green-900);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
