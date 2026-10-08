@@ -2,7 +2,8 @@
 import { Fragment, memo, useCallback, useMemo, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { sidebarPresets, type SidebarProduct } from './components/Sidebar/presets';
-import { isCanvasPage, useAppNavigation } from './hooks/useAppNavigation';
+import { isCanvasPage, useAppNavigation, type Page } from './hooks/useAppNavigation';
+import { useDemoLoading } from './hooks/useDemoLoading';
 import { TopNavBar } from './components/TopNavBar';
 import {
   campaignsTopNav,
@@ -44,6 +45,7 @@ import {
 } from './components/TemplatesHomePage';
 import { SettingsPage } from './components/SettingsPage';
 import { SettingsScreen } from './components/SettingsScreen';
+import { ContactsScreen } from './components/ContactsScreen';
 import { SETTINGS_COPY } from './components/SettingsScreen/settingsTabs';
 import { BotTemplatesTable } from './components/BotTemplatesTable';
 import { ProfileSettings } from './components/ProfileSettings';
@@ -305,6 +307,18 @@ export function App() {
     sms: DEMO_TEMPLATES,
     email: DEMO_TEMPLATES,
   };
+
+  // Demo: each list "fetches" again whenever what it shows changes (tab, page, server-side filters).
+  const listKeys: Partial<Record<Page, string>> = {
+    'broadcast-list': `${broadcastTab}:${broadcastPage}`,
+    'flows-list': `${flowTab}:${flowPage}`,
+    'bot-flows-list': `${botFlowTab}:${botFlowPage}`,
+    segments: `${segmentTab}:${segmentPage}`,
+    templates: `${templateChannel}:${templateInboxFilter}:${templateTypeFilter}:${templateCategoryFilter}:${templatePage}`,
+    'knowledge-base': `${kbTab}:${kbSource}`,
+  };
+  const listKey = `${page}:${listKeys[page] ?? ''}`;
+  const listLoading = useDemoLoading(listKey);
 
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
@@ -742,6 +756,7 @@ export function App() {
           {page === 'broadcast-list' && (
             <BroadcastHomePage
               broadcasts={BROADCASTS_BY_TAB[broadcastTab]}
+              loading={listLoading}
               activeTab={broadcastTab}
               onTabChange={(tab) => {
                 setBroadcastTab(tab);
@@ -763,6 +778,7 @@ export function App() {
           {page === 'flows-list' && (
             <FlowsHomePage
               flows={FLOWS_BY_TAB[flowTab]}
+              loading={listLoading}
               activeTab={flowTab}
               onTabChange={(tab) => {
                 setFlowTab(tab);
@@ -786,6 +802,7 @@ export function App() {
           {page === 'bot-flows-list' && (
             <BotFlowsHomePage
               flows={BOT_FLOWS_BY_TAB[botFlowTab]}
+              loading={listLoading}
               activeTab={botFlowTab}
               onTabChange={(tab) => {
                 setBotFlowTab(tab);
@@ -810,6 +827,7 @@ export function App() {
           {page === 'segments' && (
             <SegmentsHomePage
               segments={SEGMENTS_BY_TAB[segmentTab]}
+              loading={listLoading}
               activeTab={segmentTab}
               onTabChange={(tab) => {
                 setSegmentTab(tab);
@@ -832,6 +850,7 @@ export function App() {
           {page === 'templates' && (
             <TemplatesHomePage
               templates={TEMPLATES_BY_CHANNEL[templateChannel]}
+              loading={listLoading}
               activeChannel={templateChannel}
               onChannelChange={(channel) => {
                 setTemplateChannel(channel);
@@ -884,6 +903,7 @@ export function App() {
                   activeTab={kbSource}
                   onTabChange={setKbSource}
                   templates={visibleKbFiles}
+                  loading={listLoading}
                   searchValue={kbSearch}
                   onSearchChange={setKbSearch}
                   searchPlaceholder={`Search for ${KB_SOURCE_TABS.find((t) => t.id === kbSource)?.label ?? ''}`}
@@ -906,6 +926,8 @@ export function App() {
               onManageIndustriesChange={setManageIndustries}
             />
           )}
+
+          {page === 'contacts' && <ContactsScreen />}
 
           {page === 'tickets' && (
             <HelpdeskTicketsPage

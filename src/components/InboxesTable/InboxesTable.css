@@ -136,52 +136,6 @@
   color: var(--lc-ib-text-dimmed);
 }
 
-.lc-ib__head-label {
-  font-size: 12px;
-  line-height: 15px;
-  font-weight: 400;
-  color: var(--lc-ib-secondary-dark);
-  white-space: nowrap;
-}
-
-.lc-ib__sort-btn {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  border: none;
-  background: transparent;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  color: inherit;
-}
-
-.lc-ib__sort-icon {
-  width: 12px;
-  height: 12px;
-  color: var(--lc-ib-border);
-  transition: transform 150ms ease, color 150ms ease;
-}
-
-.lc-ib__sort-btn:hover .lc-ib__sort-icon {
-  color: var(--lc-ib-text-dimmed);
-}
-
-.lc-ib__sort-btn[data-sort='asc'] .lc-ib__sort-icon {
-  color: var(--lc-ib-primary);
-  transform: rotate(180deg);
-}
-
-.lc-ib__sort-btn[data-sort='desc'] .lc-ib__sort-icon {
-  color: var(--lc-ib-primary);
-}
-
-.lc-ib__sort-btn[data-sort] .lc-ib__head-label {
-  color: var(--lc-ib-text-title);
-  font-weight: 700;
-}
-
 .lc-ib__name-block {
   display: flex;
   flex-direction: column;
@@ -244,6 +198,19 @@
   height: 24px;
   flex-shrink: 0;
   color: var(--lc-ib-text-dimmed);
+}
+
+/* Channel brand colours; email/sms have no brand and stay neutral. */
+.lc-ib__row-icon[data-type='whatsapp'] {
+  color: #25d366;
+}
+
+.lc-ib__row-icon[data-type='instagram'] {
+  color: #e4405f;
+}
+
+.lc-ib__row-icon[data-type='facebook'] {
+  color: #1877f2;
 }
 
 .lc-ib__type-block {

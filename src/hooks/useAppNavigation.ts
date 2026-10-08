@@ -18,6 +18,7 @@ export type Page =
   | 'templates'
   | 'settings'
   | 'knowledge-base'
+  | 'contacts'
   | 'home';
 
 export const isCanvasPage = (page: Page) =>
@@ -51,6 +52,7 @@ export function useAppNavigation() {
   else if (selected === 'settings') page = 'settings';
   else if (product === 'automation' && selected === 'knowledge-base') page = 'knowledge-base';
   else if (product === 'helpdesk' && selected === 'tickets') page = 'tickets';
+  else if (product === 'helpdesk' && selected === 'contacts') page = 'contacts';
 
   /** Shows whatever the hash says, rewriting it in place (no history entry) if any of it was broken. */
   const followHash = () => {

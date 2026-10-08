@@ -113,3 +113,38 @@ describe('SettingsScreen Manage industries', () => {
     expect(onManageIndustriesChange).toHaveBeenCalledWith(true);
   });
 });
+
+describe('SettingsScreen SLA rule reordering', () => {
+  const ruleNames = () =>
+    screen.getAllByRole('row').slice(1).map((row) => row.querySelector('.lc-bt__name')?.textContent ?? '');
+
+  it('moves a rule with the keyboard and keeps the new order after saving', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="sla-rules" />);
+    const [first, second] = ruleNames();
+
+    await user.click(screen.getByRole('button', { name: 'Reorder' }));
+    expect(screen.getByRole('button', { name: 'Save order' })).toBeDisabled();
+
+    screen.getByRole('button', { name: new RegExp(`^Reorder ${first}`) }).focus();
+    await user.keyboard('{ArrowDown}');
+    expect(ruleNames().slice(0, 2)).toEqual([second, first]);
+
+    await user.click(screen.getByRole('button', { name: 'Save order' }));
+    expect(await screen.findByRole('button', { name: 'Reorder' }, { timeout: 2000 })).toBeInTheDocument();
+    expect(ruleNames().slice(0, 2)).toEqual([second, first]);
+  });
+
+  it('discards the new order on Cancel', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="sla-rules" />);
+    const before = ruleNames();
+
+    await user.click(screen.getByRole('button', { name: 'Reorder' }));
+    screen.getByRole('button', { name: new RegExp(`^Reorder ${before[0]}`) }).focus();
+    await user.keyboard('{ArrowDown}');
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(ruleNames()).toEqual(before);
+  });
+});

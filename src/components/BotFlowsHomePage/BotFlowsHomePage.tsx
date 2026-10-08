@@ -15,12 +15,21 @@
  *     onRowClick={openFlowInEditor}
  *   />
  */
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
 import { ActionMenu } from '../Menu';
 import { BotFlowIcon } from './icons';
-import { DataTable, DataTableEmpty, DataTableHead, DataTableRow } from '../DataTable';
+import {
+  DataTable,
+  DataTableEmpty,
+  DataTableHead,
+  DataTableRow,
+  DataTableSkeleton,
+  DataTableSortHeader,
+  Skeleton,
+  useTableSort,
+} from '../DataTable';
 import './BotFlowsHomePage.css';
 
 export type BotFlowTab = 'active' | 'inactive';
@@ -68,6 +77,8 @@ function RowActions({
 }
 
 export interface BotFlowsHomePageProps {
+  /** Shows skeleton rows in place of the list while its data loads. */
+  loading?: boolean;
   flows: BotFlowRowData[];
   activeTab?: BotFlowTab;
   onTabChange?: (tab: BotFlowTab) => void;
@@ -101,15 +112,12 @@ export function BotFlowsHomePage({
   page = 1,
   totalPages = 1,
   onPageChange,
+  loading = false,
 }: BotFlowsHomePageProps) {
-  const [sortDir, setSortDir] = useState<'asc' | 'desc' | null>(null);
-  const toggleSort = () => setSortDir((d) => (d === null ? 'asc' : d === 'asc' ? 'desc' : null));
-
-  const sortedFlows = (() => {
-    if (!sortDir) return flows;
-    const sorted = [...flows].sort((a, b) => a.name.localeCompare(b.name));
-    return sortDir === 'asc' ? sorted : sorted.reverse();
-  })();
+  const { sorted: sortedFlows, sort, toggle: toggleSort } = useTableSort(
+    flows,
+    (row, key: 'name' | 'description') => row[key],
+  );
 
   const pageNumbers = new Set<number>(
     [1, 2, 3, 4, 5, totalPages].filter((n) => n <= totalPages),
@@ -159,26 +167,24 @@ export function BotFlowsHomePage({
         </div>
       </div>
 
-      <DataTable aria-label="Bot flows" data-anchor="bot-flow-table">
+      <DataTable aria-busy={loading || undefined} aria-label="Bot flows" data-anchor="bot-flow-table">
         <DataTableHead className="lc-bf__row--head">
-          <div role="columnheader" className="lc-bf__cell--name lc-bf__cell">
-            <button
-              type="button"
-              className="lc-bf__sort-btn"
-              data-sort={sortDir ?? undefined}
-              onClick={toggleSort}
-            >
-              <span className="lc-bf__head-label">Flow</span>
-              <BotFlowIcon name="chevron-down" className="lc-bf__sort-icon" />
-            </button>
-          </div>
-          <div role="columnheader" className="lc-bf__cell--description lc-bf__cell">
-            <span className="lc-bf__head-label">Description</span>
-          </div>
+          <DataTableSortHeader className="lc-bf__cell--name lc-bf__cell" label="Flow" sortKey="name" sort={sort} onSort={toggleSort} />
+          <DataTableSortHeader className="lc-bf__cell--description lc-bf__cell" label="Description" sortKey="description" sort={sort} onSort={toggleSort} />
           <div role="columnheader" className="lc-bf__cell--actions lc-bf__cell" aria-label="Actions" />
         </DataTableHead>
 
-        {sortedFlows.length === 0 ? (
+        {loading ? (
+          <DataTableSkeleton>
+            <div className="lc-bf__cell--name lc-bf__cell">
+              <Skeleton lines={2} />
+            </div>
+            <div className="lc-bf__cell--description lc-bf__cell">
+              <Skeleton />
+            </div>
+            <div className="lc-bf__cell--actions lc-bf__cell" />
+          </DataTableSkeleton>
+        ) : sortedFlows.length === 0 ? (
           <DataTableEmpty>No flows found</DataTableEmpty>
         ) : (
           sortedFlows.map((row) => (

@@ -14,7 +14,18 @@ import { Button } from '../Button';
 import { Modal } from '../Modal';
 import { Tooltip } from '../Tooltip';
 import { Icon } from '../icons';
-import { DataTable, DataTableEmpty, DataTableHead, DataTableRow } from '../DataTable';
+import {
+  DataTable,
+  DataTableEmpty,
+  DataTableHead,
+  DataTableRow,
+  DataTableSkeleton,
+  DataTableSortHeader,
+  digitsOf,
+  Skeleton,
+  toTimestamp,
+  useTableSort,
+} from '../DataTable';
 import './EventsTable.css';
 
 export interface EventRowData {
@@ -28,20 +39,25 @@ export interface EventRowData {
 }
 
 export interface EventsTableProps {
+  /** Shows skeleton rows in place of the list while its data loads. */
+  loading?: boolean;
   events: EventRowData[];
   onCustomEvents?: () => void;
 }
 
-export function EventsTable({ events, onCustomEvents }: EventsTableProps) {
+export function EventsTable({ events, onCustomEvents, loading = false }: EventsTableProps) {
   const [phoneSearch, setPhoneSearch] = useState('');
   const [nameSearch, setNameSearch] = useState('');
   const [openEvent, setOpenEvent] = useState<EventRowData | null>(null);
 
   // Phone matches on digits only, so "+91 620" and "91-620" both find "+91-6205127441".
-  const phoneDigits = phoneSearch.replace(/\D/g, '');
+  const phoneDigits = digitsOf(phoneSearch);
   const nameQuery = nameSearch.trim().toLowerCase();
   const visible = events.filter(
-    (e) => e.phone.replace(/\D/g, '').includes(phoneDigits) && e.name.toLowerCase().includes(nameQuery),
+    (e) => digitsOf(e.phone).includes(phoneDigits) && e.name.toLowerCase().includes(nameQuery),
+  );
+  const { sorted, sort, toggle } = useTableSort(visible, (row, key: 'name' | 'phone' | 'createdAt') =>
+    key === 'phone' ? Number(digitsOf(row.phone)) : key === 'createdAt' ? toTimestamp(row.createdAt) : row.name,
   );
 
   return (
@@ -84,18 +100,31 @@ export function EventsTable({ events, onCustomEvents }: EventsTableProps) {
         </div>
       </div>
 
-      <DataTable aria-label="Events">
+      <DataTable aria-busy={loading || undefined} aria-label="Events">
         <DataTableHead>
-          <div role="columnheader" className="lc-ev__cell lc-ev__cell--name">Event Name</div>
-          <div role="columnheader" className="lc-ev__cell lc-ev__cell--phone">Phone</div>
-          <div role="columnheader" className="lc-ev__cell lc-ev__cell--date">Created At</div>
+          <DataTableSortHeader className="lc-ev__cell lc-ev__cell--name" label="Event Name" sortKey="name" sort={sort} onSort={toggle} />
+          <DataTableSortHeader className="lc-ev__cell lc-ev__cell--phone" label="Phone" sortKey="phone" sort={sort} onSort={toggle} />
+          <DataTableSortHeader className="lc-ev__cell lc-ev__cell--date" label="Created At" sortKey="createdAt" sort={sort} onSort={toggle} />
           <div role="columnheader" className="lc-ev__cell lc-ev__cell--actions" aria-label="Actions" />
         </DataTableHead>
 
-        {visible.length === 0 ? (
+        {loading ? (
+          <DataTableSkeleton>
+            <div className="lc-ev__cell lc-ev__cell--name">
+              <Skeleton />
+            </div>
+            <div className="lc-ev__cell lc-ev__cell--phone">
+              <Skeleton />
+            </div>
+            <div className="lc-ev__cell lc-ev__cell--date">
+              <Skeleton />
+            </div>
+            <div className="lc-ev__cell lc-ev__cell--actions" />
+          </DataTableSkeleton>
+        ) : visible.length === 0 ? (
           <DataTableEmpty>{events.length === 0 ? 'No events received yet' : 'No events found'}</DataTableEmpty>
         ) : (
-          visible.map((row) => (
+          sorted.map((row) => (
             <DataTableRow key={row.id}>
               <div role="cell" className="lc-ev__cell lc-ev__cell--name lc-ev__name">{row.name}</div>
               <div role="cell" className="lc-ev__cell lc-ev__cell--phone">{row.phone}</div>

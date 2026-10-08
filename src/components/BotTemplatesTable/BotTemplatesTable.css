@@ -197,43 +197,33 @@
 .lc-bt__cell--industries,
 .lc-bt__cell--scope { flex: 0 0 140px; }
 .lc-bt__cell--actions { flex: 0 0 32px; display: flex; justify-content: flex-end; }
-.lc-bt[data-icon-actions] .lc-bt__cell--actions { flex-basis: 72px; gap: 8px; }
-.lc-bt[data-icon-actions]:not([data-variant='collaborators']):not([data-variant='agents']):not([data-variant='teams']):not([data-variant='rules']):not([data-variant='fields']) .lc-bt__cell--actions { flex-basis: 68px; gap: 4px; }
 
-.lc-bt__icon-btn {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: none;
+.lc-bt__name-line { display: flex; align-items: center; gap: 8px; min-width: 0; }
+
+.lc-bt__badge {
+  flex-shrink: 0;
+  padding: 0 6px;
   border-radius: 4px;
-  background: transparent;
-  color: var(--lc-color-stone-600);
-  cursor: pointer;
-  transition: background-color 150ms ease, color 150ms ease;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
 }
 
-.lc-bt__icon-btn svg {
-  width: 18px;
-  height: 18px;
+.lc-bt__badge[data-tone='danger'] {
+  background: var(--lc-color-red-50);
+  color: var(--lc-color-red-700);
 }
 
-.lc-bt__icon-btn:hover {
-  background: var(--lc-color-gray-200); /* row hover is gray-100 */
-  color: var(--lc-color-green-900);
+/* amber-600 alone is too light for 11px text on a yellow tint; darken it for contrast. */
+.lc-bt__badge[data-tone='warning'] {
+  background: color-mix(in srgb, var(--lc-color-amber-500) 18%, white);
+  color: color-mix(in srgb, var(--lc-color-amber-600) 65%, black);
+  cursor: default;
 }
 
-.lc-bt__icon-btn--danger:hover {
-  background: #fff1f0;
-  color: #cf1322;
-}
-
-.lc-bt__icon-btn:focus-visible {
+.lc-bt__badge:focus-visible {
   outline: 2px solid var(--lc-color-green-500);
-  outline-offset: 2px;
+  outline-offset: 1px;
 }
 
 .lc-bt__name {
@@ -399,7 +389,11 @@
 .lc-bt__inbox-icon svg { width: 20px; height: 20px; }
 
 .lc-bt[data-variant='rules'] .lc-bt__cell--actions,
-.lc-bt[data-variant='fields'] .lc-bt__cell--actions { flex-basis: 112px; align-items: center; }
+.lc-bt[data-variant='tags'] .lc-bt__cell--actions,
+.lc-bt[data-variant='fields'] .lc-bt__cell--actions { flex-basis: 76px; gap: 12px; align-items: center; }
+/* Tags: switch + add-child "+" + menu. */
+.lc-bt[data-variant='tags'] .lc-bt__cell--actions { flex-basis: 104px; }
+.lc-bt__action-slot { width: 24px; flex-shrink: 0; }
 .lc-bt__toggle {
   display: inline-flex;
   align-items: center;
@@ -439,3 +433,131 @@
   font-weight: 700;
 }
 .lc-bt__type-badge svg { width: 16px; height: 16px; }
+
+/* --- Reorder mode ---------------------------------------------------------- */
+
+/* Same height as the tabs + search row it replaces, so the table doesn't jump. */
+.lc-bt__reorder-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--lc-color-stone-600);
+}
+
+.lc-bt__reorder-hint svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--lc-color-sage-500);
+}
+
+.lc-bt__cell--handle { flex: 0 0 24px; display: flex; align-items: center; }
+
+.lc-bt__drag-handle {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--lc-color-gray-400);
+  cursor: grab;
+  touch-action: none; /* let touch drags move the row instead of scrolling the table */
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+/* The grip icon is 3×2 dots; turn it into the usual vertical 2×3 handle. */
+.lc-bt__drag-handle svg {
+  width: 18px;
+  height: 18px;
+  transform: rotate(90deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lc-bt__drag-handle:hover {
+    background: var(--lc-color-gray-200);
+    color: var(--lc-color-green-900);
+  }
+}
+
+.lc-bt__drag-handle:focus-visible {
+  outline: 2px solid var(--lc-color-green-500);
+  outline-offset: 0;
+  color: var(--lc-color-green-900);
+}
+
+.lc-bt__row--body[data-dragging] {
+  position: relative;
+  z-index: 2;
+  background: white;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12), 0 0 0 1px var(--lc-color-gray-225);
+}
+
+.lc-bt__row--body[data-dragging] .lc-bt__drag-handle {
+  cursor: grabbing;
+  color: var(--lc-color-green-900);
+}
+
+
+.lc-bt__search-by { width: 150px; flex-shrink: 0; }
+
+/* --- Tree mode (Tags) --------------------------------------------------------- */
+
+/* The tag being dragged stays in place, dimmed; the drop target shows where it will land. */
+.lc-bt__row--body[data-tree-id] {
+  position: relative;
+}
+
+.lc-bt__row--body[data-tree-id][data-dragging] {
+  box-shadow: none;
+  background: transparent;
+}
+
+/* Dim the cells, not the row: the row's entry animation holds its opacity at 1. */
+.lc-bt__row--body[data-tree-id][data-dragging] > * {
+  opacity: 0.45;
+}
+
+/* Before / after: a line across the target row — the row is indented to its level, so the line shows which level it lands on. */
+.lc-bt__row--body[data-drop='before']::after,
+.lc-bt__row--body[data-drop='after']::after {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 20px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--lc-color-green-500);
+  pointer-events: none;
+}
+
+.lc-bt__row--body[data-drop='before']::after { top: -1px; }
+.lc-bt__row--body[data-drop='after']::after { bottom: -1px; }
+
+/* Inside: the target row itself lights up — the tag will become its child. */
+.lc-bt__row--body[data-drop='inside'] {
+  background: var(--lc-color-green-50);
+  box-shadow: inset 0 0 0 1.5px var(--lc-color-green-500);
+}
+
+/* Loading: indent placeholder rows like a tag tree (levels 1·2·3·3·2·1) so the skeleton hints at the hierarchy.
+   Same 60px-per-level indent as real tag rows (TREE_INDENT). Skeleton rows follow the header and a
+   screen-reader row, so the first one is :nth-child(3). */
+.lc-bt[data-variant='tags'] .lc-dt__row--skeleton:nth-child(4),
+.lc-bt[data-variant='tags'] .lc-dt__row--skeleton:nth-child(7) { margin-left: 60px; }
+.lc-bt[data-variant='tags'] .lc-dt__row--skeleton:nth-child(5),
+.lc-bt[data-variant='tags'] .lc-dt__row--skeleton:nth-child(6) { margin-left: 120px; }
+
+/* Each tag level has its own name colour: level 1 blue, level 2 purple, level 3 the default dark green.
+   No purple token exists in the palette yet; #8250b0 keeps about 5.6:1 contrast on white. */
+.lc-bt__row--body[data-level='1'] .lc-bt__name { color: var(--lc-color-blue-600); }
+.lc-bt__row--body[data-level='2'] .lc-bt__name { color: #8250b0; }
+.lc-bt__row--body[data-level='3'] .lc-bt__name { color: var(--lc-color-green-900); }

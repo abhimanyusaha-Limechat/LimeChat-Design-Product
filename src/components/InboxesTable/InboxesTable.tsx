@@ -17,7 +17,16 @@ import { Button } from '../Button';
 import { ActionMenu } from '../Menu';
 import { Tooltip } from '../Tooltip';
 import { InboxIcon, type InboxIconName } from './icons';
-import { DataTable, DataTableEmpty, DataTableHead, DataTableRow } from '../DataTable';
+import {
+  DataTable,
+  DataTableEmpty,
+  DataTableHead,
+  DataTableRow,
+  DataTableSkeleton,
+  DataTableSortHeader,
+  Skeleton,
+  useTableSort,
+} from '../DataTable';
 import './InboxesTable.css';
 
 export type InboxType = 'whatsapp' | 'email' | 'instagram' | 'sms' | 'facebook';
@@ -73,6 +82,8 @@ function IdChip({ id }: { id: string }) {
 }
 
 export interface InboxesTableProps {
+  /** Shows skeleton rows in place of the list while its data loads. */
+  loading?: boolean;
   inboxes: InboxRowData[];
   searchValue?: string;
   onSearchChange?: (value: string) => void;
@@ -91,16 +102,13 @@ export function InboxesTable({
   syncing = false,
   onRowEdit,
   onRowDelete,
+  loading = false,
 }: InboxesTableProps) {
 
-  const [sortDir, setSortDir] = useState<'asc' | 'desc' | null>(null);
-  const toggleSort = () => setSortDir((d) => (d === null ? 'asc' : d === 'asc' ? 'desc' : null));
-
-  const sortedInboxes = (() => {
-    if (!sortDir) return inboxes;
-    const sorted = [...inboxes].sort((a, b) => a.name.localeCompare(b.name));
-    return sortDir === 'asc' ? sorted : sorted.reverse();
-  })();
+  const { sorted: sortedInboxes, sort, toggle: toggleSort } = useTableSort(
+    inboxes,
+    (row, key: 'name' | 'type' | 'metaId') => (key === 'type' ? TYPE_LABEL[row.type] : row[key]),
+  );
 
   return (
     <div className="lc-ib">
@@ -129,35 +137,38 @@ export function InboxesTable({
         )}
       </div>
 
-      <DataTable aria-label="Inboxes" data-anchor="inbox-table">
+      <DataTable aria-busy={loading || undefined} aria-label="Inboxes" data-anchor="inbox-table">
         <DataTableHead>
-          <div role="columnheader" className="lc-ib__cell--name lc-ib__cell">
-            <button
-              type="button"
-              className="lc-ib__sort-btn"
-              data-sort={sortDir ?? undefined}
-              onClick={toggleSort}
-            >
-              <span className="lc-ib__head-label">Name</span>
-              <InboxIcon name="chevron-down" className="lc-ib__sort-icon" />
-            </button>
-          </div>
-          <div role="columnheader" className="lc-ib__cell--type lc-ib__cell">
-            <span className="lc-ib__head-label">Type</span>
-          </div>
-          <div role="columnheader" className="lc-ib__cell--meta lc-ib__cell">
-            <span className="lc-ib__head-label">Meta ID</span>
-          </div>
+          <DataTableSortHeader className="lc-ib__cell--name lc-ib__cell" label="Name" sortKey="name" sort={sort} onSort={toggleSort} />
+          <DataTableSortHeader className="lc-ib__cell--type lc-ib__cell" label="Type" sortKey="type" sort={sort} onSort={toggleSort} />
+          <DataTableSortHeader className="lc-ib__cell--meta lc-ib__cell" label="Meta ID" sortKey="metaId" sort={sort} onSort={toggleSort} />
           <div role="columnheader" className="lc-ib__cell--actions lc-ib__cell" aria-label="Actions" />
         </DataTableHead>
 
-        {inboxes.length === 0 ? (
+        {loading ? (
+          <DataTableSkeleton>
+            <div className="lc-ib__cell--name lc-ib__cell">
+              <Skeleton lines={2} />
+            </div>
+            <div className="lc-ib__cell--type lc-ib__cell">
+              <Skeleton lines={2} />
+            </div>
+            <div className="lc-ib__cell--meta lc-ib__cell">
+              <Skeleton />
+            </div>
+            <div className="lc-ib__cell--actions lc-ib__cell" />
+          </DataTableSkeleton>
+        ) : inboxes.length === 0 ? (
           <DataTableEmpty>No inboxes found</DataTableEmpty>
         ) : (
           sortedInboxes.map((row) => (
             <DataTableRow key={row.id} data-anchor="inbox-row" data-anchor-key={row.id}>
               <div role="cell" className="lc-ib__cell--name lc-ib__cell">
-                <InboxIcon name={TYPE_ICON[row.type]} className="lc-ib__row-icon" />
+                <InboxIcon
+                  name={TYPE_ICON[row.type]}
+                  className="lc-ib__row-icon"
+                  data-type={row.type}
+                />
                 <div className="lc-ib__name-block">
                   <div className="lc-ib__name-line">
                     <IdChip id={row.id} />
