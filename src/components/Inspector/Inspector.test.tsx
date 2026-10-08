@@ -41,7 +41,7 @@ function setup(app: React.ReactNode = null) {
 }
 
 describe('Inspector toolbar', () => {
-  it('expands into independent tool toggles, all on', async () => {
+  it('expands into independent tool toggles, with only Type on', async () => {
     const user = setup();
     expect(fab()).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByRole('group', { name: 'Inspect tools' })).not.toBeInTheDocument();
@@ -49,12 +49,13 @@ describe('Inspector toolbar', () => {
     await user.click(fab());
     expect(fab()).toHaveAttribute('aria-expanded', 'true');
     const tools = within(screen.getByRole('group', { name: 'Inspect tools' }));
-    for (const name of ['Type', 'Padding', 'Gap']) {
-      expect(tools.getByRole('button', { name })).toHaveAttribute('aria-pressed', 'true');
+    expect(tools.getByRole('button', { name: 'Type' })).toHaveAttribute('aria-pressed', 'true');
+    for (const name of ['Color', 'Padding', 'Gap']) {
+      expect(tools.getByRole('button', { name })).toHaveAttribute('aria-pressed', 'false');
     }
 
-    await user.click(tools.getByRole('button', { name: 'Padding' }));
-    expect(tools.getByRole('button', { name: 'Padding' })).toHaveAttribute('aria-pressed', 'false');
+    await user.click(tools.getByRole('button', { name: 'Color' }));
+    expect(tools.getByRole('button', { name: 'Color' })).toHaveAttribute('aria-pressed', 'true');
     expect(tools.getByRole('button', { name: 'Type' })).toHaveAttribute('aria-pressed', 'true');
   });
 
@@ -66,7 +67,7 @@ describe('Inspector toolbar', () => {
     expect(fab()).toHaveAttribute('aria-expanded', 'false');
 
     await user.click(fab());
-    expect(screen.getByRole('button', { name: 'Gap' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: 'Gap' })).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('returns keyboard focus to the FAB when the focused × unmounts', async () => {
@@ -138,13 +139,38 @@ describe('pinning', () => {
     await waitFor(() => expect(panel()).toBeInTheDocument());
 
     const tools = within(screen.getByRole('group', { name: 'Inspect tools' }));
-    for (const name of ['Type', 'Padding', 'Gap']) await user.click(tools.getByRole('button', { name }));
+    await user.click(tools.getByRole('button', { name: 'Type' }));
 
     expect(within(panel()!).getByText('button.app-btn')).toBeInTheDocument();
     expect(within(panel()!).getByText('Turn on a tool to see values.')).toBeInTheDocument();
     expect(within(panel()!).getByRole('button', { name: /Copy CSS/ })).toBeDisabled();
     await user.click(screen.getByRole('button', { name: 'Save' }));
     expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it('previews edits on the pinned element, resets them, and undoes them on close', async () => {
+    const user = setup(
+      <p className="edit-me" style={{ padding: '8px' }}>
+        Edit
+      </p>,
+    );
+    const target = screen.getByText('Edit');
+    await user.click(fab());
+    await user.click(screen.getByRole('button', { name: 'Padding' }));
+    await user.click(target);
+    await waitFor(() => expect(panel()).toBeInTheDocument());
+
+    fireEvent.change(within(panel()!).getByRole('spinbutton', { name: 'Padding T' }), { target: { value: '16' } });
+    expect(target.style.paddingTop).toBe('16px');
+    await waitFor(() => expect(within(panel()!).getByText(/1 previewed change/)).toBeInTheDocument());
+
+    await user.click(within(panel()!).getByRole('button', { name: 'Reset' }));
+    expect(target.style.paddingTop).toBe('8px');
+
+    fireEvent.change(within(panel()!).getByRole('spinbutton', { name: 'Padding L' }), { target: { value: '20' } });
+    expect(target.style.paddingLeft).toBe('20px');
+    await user.click(screen.getByRole('button', { name: 'Close inspect mode' }));
+    expect(target.style.paddingLeft).toBe('8px');
   });
 
   it("doesn't close an open Menu when opening Inspect mode or pinning outside it", async () => {
@@ -319,7 +345,7 @@ describe('pinning', () => {
 
     const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     await user.click(within(panel()!).getByRole('button', { name: /Copy CSS/ }));
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('padding: 0;'));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('font-size:'));
     expect(within(panel()!).getByRole('status')).toHaveTextContent('Copied');
 
     writeText.mockRejectedValue(new Error('denied'));

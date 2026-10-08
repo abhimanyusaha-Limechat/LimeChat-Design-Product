@@ -1,5 +1,5 @@
 /**
- * Inspect mode — a draggable FAB that expands into Type / Padding / Gap tools.
+ * Inspect mode — a draggable FAB that expands into Type / Color / Padding / Gap tools.
  * Hover an element to see its spacing and type, click to pin it and read the
  * values; anything off the design scale is flagged. Read-only: it never
  * changes the page, and while inspecting the app receives no presses.
@@ -10,19 +10,18 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
   type MouseEvent as ReactMouseEvent,
   type SyntheticEvent,
 } from 'react';
-import { createPortal, flushSync } from 'react-dom';
+import { createPortal } from 'react-dom';
+import { resetAll } from './edits';
 import { InspectorOverlay } from './InspectorOverlay';
 import { InspectorToolbar } from './InspectorToolbar';
-import { describePin, type Tool, type ToolSet } from './report';
+import { DEFAULT_TOOLS, describePin, type Tool, type ToolSet } from './report';
 import { SpecPanel } from './SpecPanel';
-import { useBarMotion } from './useBarMotion';
 import { useDraggable, type Size } from './useDraggable';
 import { useInspectTarget } from './useInspectTarget';
 import './Inspector.css';
@@ -35,16 +34,14 @@ const SCREEN_MARGIN = 16;
 /** Room a one-line tooltip needs above the bar: 32px bubble + 12px gap and arrow. */
 const TOOLTIP_CLEARANCE = 44;
 
-const ALL_TOOLS: ToolSet = { type: true, padding: true, gap: true };
-
 /** Announced on opening and after unpinning: how to pin without a pointer. */
 const OPEN_ANNOUNCEMENT = 'Inspect mode on. Press Alt+Enter to pin the focused element.';
 
 /**
- * Bottom-right, left of Agentation's dev toolbar, and clear of the sidebar's
- * profile button that bottom-left would cover. It expands leftward from there.
+ * Bottom-right, left of Agentation's dev toolbar (dev only), and clear of the
+ * sidebar's profile button that bottom-left would cover. It expands leftward.
  */
-const AGENTATION_CLEARANCE = 72;
+const AGENTATION_CLEARANCE = import.meta.env.DEV ? 72 : 0;
 const defaultPosition = (viewport: Size) => ({
   x: viewport.width - BAR_SIZE - SCREEN_MARGIN - AGENTATION_CLEARANCE,
   y: viewport.height - BAR_SIZE - SCREEN_MARGIN,
@@ -91,30 +88,29 @@ function tooltipPlacement(y: number, panelOpen: boolean): 'top' | 'bottom' {
 }
 
 export function Inspector() {
-  // `expanded`: the tools are mounted. `closing`: the close animation is
-  // playing — the bar already acts collapsed, it just hasn't finished leaving.
+  // `expanded`: the tools are mounted. `motion` picks the CSS animation; `null`
+  // (keyboard) switches instantly. While it is 'close' the bar already acts
+  // collapsed (`closing`), it just hasn't finished leaving.
   const [expanded, setExpanded] = useState(false);
-  const [closing, setClosing] = useState(false);
+  const [motion, setMotion] = useState<'open' | 'close' | null>(null);
+  const closing = motion === 'close';
   // Decided when the bar opens and kept until it opens again, so closing
   // retraces the same edge and the ruler button never moves.
   const [opensLeft, setOpensLeft] = useState(false);
   // Stays as the reviewer left it for the rest of the session.
-  const [tools, setTools] = useState<ToolSet>(ALL_TOOLS);
+  const [tools, setTools] = useState<ToolSet>(DEFAULT_TOOLS);
   // Inspecting doesn't depend on the tools: with all of them off you still
   // hover and pin, and see the element's outline and size.
   const inspecting = expanded && !closing;
-  const { hovered, pinned, canSelectParent, pinId, hoveredByFocus, unpin, selectParent, pinFocused } =
+  const { hovered, pinned, canSelectParent, pinId, hoveredByFocus, unpin, selectParent, pinFocused, editPinned, resetPinned } =
     useInspectTarget(inspecting);
 
   const dockRef = useRef<HTMLDivElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLButtonElement>(null);
   const { position, dragging, handleProps, onClickCapture } = useDraggable(dockRef, defaultPosition, {
     anchorRight: opensLeft,
     layoutKey: expanded,
   });
-  const motion = useBarMotion(barRef, BAR_SIZE);
-  const animateOpen = useRef(false);
 
   // Before the panel or the tool buttons unmount: if keyboard focus is in
   // them, move it to the always-mounted ruler button instead of <body>.
@@ -125,53 +121,41 @@ export function Inspector() {
   /** Clicks animate; keyboard shortcuts (used far more often) switch instantly. */
   const expand = useCallback(
     (animate: boolean) => {
-      if (closing) {
-        // Re-opened mid-close: reverse from where the bar is.
-        setClosing(false);
-        if (animate) motion.play('open', opensLeft);
-        else motion.cancel();
-        return;
-      }
-      setOpensLeft(position.x + BAR_SIZE / 2 > window.innerWidth / 2);
+      // Re-opened mid-close: keep the side it was opening to.
+      if (!closing) setOpensLeft(position.x + BAR_SIZE / 2 > window.innerWidth / 2);
       setExpanded(true);
-      animateOpen.current = animate;
+      setMotion(animate ? 'open' : null);
     },
-    [closing, motion, opensLeft, position.x],
+    [closing, position.x],
   );
+
+  const finishClose = useCallback(() => {
+    setExpanded(false);
+    setMotion(null);
+  }, []);
 
   const collapse = useCallback(
     (animate: boolean) => {
       rescueFocus();
-      if (!animate) {
-        motion.cancel();
-        setClosing(false);
-        setExpanded(false);
-        return;
-      }
-      setClosing(true);
-      // Commit before the next paint, or the bar flashes back to full width
-      // for a frame between the animation ending and the tools unmounting.
-      motion.play('close', opensLeft, () =>
-        flushSync(() => {
-          setClosing(false);
-          setExpanded(false);
-        }),
-      );
+      // Where animations are missing (jsdom) none would end, so close at once.
+      if (!animate || typeof document.body.animate !== 'function') return finishClose();
+      setMotion('close');
     },
-    [rescueFocus, motion, opensLeft],
+    [rescueFocus, finishClose],
   );
 
-  // The pill is now laid out at full width and anchored; reveal it before paint.
-  useLayoutEffect(() => {
-    if (!expanded || !animateOpen.current) return;
-    animateOpen.current = false;
-    motion.play('open', opensLeft);
-  }, [expanded, motion, opensLeft]);
+  // The unmount waits for the close animation; its last frame holds until then.
+  const onMotionEnd = useCallback(() => {
+    if (closing) finishClose();
+  }, [closing, finishClose]);
 
   const unpinKeepingFocus = useCallback(() => {
     rescueFocus();
     return unpin();
   }, [rescueFocus, unpin]);
+
+  // Live-preview edits are undone when Inspect closes.
+  useEffect(() => (inspecting ? resetAll : undefined), [inspecting]);
 
   const toggleTool = useCallback((tool: Tool) => setTools((t) => ({ ...t, [tool]: !t[tool] })), []);
   // Stable, so the memoized toolbar skips the renders that hovering causes.
@@ -238,15 +222,16 @@ export function Inspector() {
           <InspectorToolbar
             expanded={expanded}
             closing={closing}
+            motion={motion}
             dragging={dragging}
             opensLeft={opensLeft}
             tooltipPosition={tooltipPlacement(position.y, Boolean(inspecting && pinned))}
             tools={tools}
-            barRef={barRef}
             mainRef={mainRef}
             onToggleExpanded={toggleExpanded}
             onToggleTool={toggleTool}
             onClose={close}
+            onMotionEnd={onMotionEnd}
           />
         </div>
         {/* Always mounted, so screen readers are listening before it changes. Keyed
@@ -262,6 +247,8 @@ export function Inspector() {
               canSelectParent={canSelectParent}
               onSelectParent={selectParent}
               onUnpin={unpinKeepingFocus}
+              onEdit={editPinned}
+              onResetEdits={resetPinned}
             />
           </div>
         )}
