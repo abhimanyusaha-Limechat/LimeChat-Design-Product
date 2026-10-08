@@ -2,6 +2,7 @@ import { type SettingsTab } from '../components/SettingsPage';
 import { BigCommerceIcon, BlueDartIcon, CashfreeIcon, ClickPostIcon, DelhiveryIcon, EasyEcomIcon, EzyslipsIcon, FreshdeskIcon, GoogleSheetsIcon, HubSpotIcon, InitialsIcon, KaptureIcon, MagentoIcon, OdooIcon, OnedirectIcon, PayUIcon, PickrrIcon, RazorpayIcon, SalesforceIcon, ShipDelightIcon, ShiprocketIcon, ShopifyIcon, SlackIcon, StripeIcon, UnicommerceIcon, WebhookIcon, WhatsAppBusinessIcon, WooCommerceIcon, ZendeskIcon, ZohoCrmIcon, ZohoDeskIcon, type IntegrationCategory } from '../components/IntegrationsHomePage';
 import { type InboxRowData } from '../components/InboxesTable';
 import { type EventRowData } from '../components/EventsTable';
+import { type OptOutUserRowData } from '../components/OptOutUsersTable';
 import { type BotTemplateRow } from '../components/BotTemplatesTable';
 import { PAST_DATES } from './demoHelpers';
 
@@ -160,6 +161,17 @@ export const DEMO_EVENTS: EventRowData[] = Array.from({ length: 24 }, (_, i) => 
     payload: { event: name, phone: phone.replace('-', ''), properties: { order_id: `#${10240 + i}`, value: 499 + i * 150, currency: 'INR' } },
   };
 });
+
+const OPT_OUT_NAMES = [
+  'Riya Sen', 'Aditya Verma', 'Neha Joshi', 'Karan Gupta', 'Priya Nair', 'Manish Patel', 'Sanya Kohli', 'Rahul Bose',
+  'Kavya Iyer', 'Dev Malhotra', 'Ishita Roy', 'Aman Sethi', 'Nandini Rao', 'Varun Chopra', 'Zoya Ahmed', 'Siddharth Jain',
+];
+
+export const DEMO_OPT_OUT_USERS: OptOutUserRowData[] = OPT_OUT_NAMES.map((name, i) => ({
+  id: `oo${i + 1}`,
+  name,
+  phone: `+91-${9000000000 - i * 13579241}`,
+}));
 
 export const DEMO_BOT_TEMPLATES: BotTemplateRow[] = [
   { id: 'bt1', name: 'Cart & Checkout Management', description: 'Helps in managing carts and Checkout', type: 'task', usecases: ['Sales'], industries: [], scope: 'global' },

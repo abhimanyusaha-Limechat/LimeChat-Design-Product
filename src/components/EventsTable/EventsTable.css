@@ -146,6 +146,10 @@
   flex: 0 0 200px;
 }
 
+.lc-ev__cell--end {
+  text-align: right;
+}
+
 .lc-ev__cell--actions {
   flex: 0 0 110px;
   display: flex;

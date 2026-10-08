@@ -12,6 +12,7 @@ import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsPage } from '../SettingsPage';
 import { InboxesTable } from '../InboxesTable';
 import { EventsTable } from '../EventsTable';
+import { OptOutUsersTable } from '../OptOutUsersTable';
 import { BotTemplatesTable, type BotTemplateRow } from '../BotTemplatesTable';
 import { DataSecuritySettings, type PiiTypeKey, type ProfanityWord } from '../DataSecuritySettings';
 import { AttributionSettings, type AttributionWindowKey, type AttributionWindowValue } from '../AttributionSettings';
@@ -24,6 +25,7 @@ import {
 import { IntegrationsHomePage } from '../IntegrationsHomePage';
 import { TagsInput } from '../TagsInput';
 import { Button } from '../Button';
+import { Menu } from '../Menu';
 import { CheckboxPill } from '../CheckboxPill';
 import { Icon } from '../icons';
 import {
@@ -41,6 +43,7 @@ import {
   DEMO_EVENTS,
   DEMO_INBOXES,
   DEMO_INDUSTRIES,
+  DEMO_OPT_OUT_USERS,
   DEMO_RULES,
   DEMO_RULE_LIBRARY,
   DEMO_SLA,
@@ -355,6 +358,19 @@ export function SettingsScreen({
           >
             {HELPDESK_ADD_CTA[settingsTab]}
           </Button>
+        ) : settingsTab === 'opt-out-users' ? (
+          <Menu
+            ariaLabel="Add opt out numbers"
+            items={[
+              { label: 'Single number', icon: <Icon name="phone" />, onClick: () => alert('Add a single number') },
+              { label: 'Bulk upload CSV', icon: <Icon name="paperclip" />, onClick: () => alert('Upload a CSV of numbers') },
+            ]}
+            trigger={({ ref, onClick }) => (
+              <Button ref={ref} variant="filled" color="primary" size="sm" leftSection={<PlusIcon />} onClick={onClick}>
+                Number
+              </Button>
+            )}
+          />
         ) : settingsTab === 'variable' ? (
           <Button
             variant="filled"
@@ -463,6 +479,8 @@ export function SettingsScreen({
         />
       ) : settingsTab === 'events' ? (
         <EventsTable loading={tableLoading} events={DEMO_EVENTS} onCustomEvents={() => alert('Manage custom events')} />
+      ) : settingsTab === 'opt-out-users' ? (
+        <OptOutUsersTable loading={tableLoading} users={DEMO_OPT_OUT_USERS} />
       ) : settingsTab === 'inboxes' ? (
         <InboxesTable
           loading={tableLoading}
