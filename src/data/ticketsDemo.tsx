@@ -324,11 +324,14 @@ export const TICKET_CUSTOM_FIELDS: TicketDetailsField[] = [
   },
 ];
 
+// Grouped the way agents look for things: other tickets, then tags, then fields, then
+// call history. The two most-checked sections start open.
 export const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
   {
     id: 'previous-tickets',
+    defaultOpen: true,
     label: 'Previous tickets',
-    group: 'tickets',
+    group: 'Tickets',
     hideAdd: true,
     // Same paging as the Vue app's previous conversations: 1 shown, 5 fetched per page.
     pagination: { collapsedCount: 1, pageSize: 5 },
@@ -350,22 +353,11 @@ export const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
   {
     id: 'sub-tickets',
     label: 'Sub tickets',
-    group: 'tickets',
+    group: 'Tickets',
     emptyText: 'There are no sub tickets for this customer',
     items: [
       { title: 'Refund_Request', timestamp: '5 days ago', preview: 'Splitting this off to track the refund separately...' },
       { title: 'Replacement_Item', timestamp: '2 days ago', preview: 'Logging the replacement request for the damaged item.' },
-    ],
-  },
-  {
-    id: 'voice-logs',
-    label: 'Voice logs',
-    group: 'tickets',
-    emptyText: 'There are no voice logs for this customer',
-    hideAdd: true,
-    items: [
-      { title: 'Ananya Rao', timestamp: '5th Aug | 10:00 am', duration: '5 minutes 10 seconds' },
-      { title: 'Ananya Rao', timestamp: '2nd Aug | 3:45 pm', duration: '2 minutes 45 seconds' },
     ],
   },
   {
@@ -381,7 +373,7 @@ export const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
         onCreated={() => setDetail(null)}
       />
     ),
-    group: 'tickets',
+    group: 'Tickets',
     emptyText: 'There are no CRM tickets for this customer',
     items: [
       { title: 'Salesforce_Case_00931', timestamp: '3 months ago', preview: 'Escalated to account manager for loyalty credit...' },
@@ -390,29 +382,30 @@ export const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
   },
   {
     id: 'conversation-tags',
+    defaultOpen: true,
     label: 'Conversation tags',
-    group: 'tags',
+    group: 'Tags',
     emptyText: 'There are no tags for this customer',
     tags: ['Order delay', 'Delivery issue', 'Follow-up needed'],
   },
   {
     id: 'contact-tags',
     label: 'Contact tags',
-    group: 'tags',
+    group: 'Tags',
     emptyText: 'There are no tags for this customer',
     tags: ['Returning customer', 'VIP'],
   },
   {
     id: 'shopify-tags',
     label: 'Shopify tags',
-    group: 'tags',
+    group: 'Tags',
     emptyText: 'There are no tags for this customer',
     tags: ['Shopify Plus', 'High LTV'],
   },
   {
     id: 'conversation-fields',
     label: 'Conversation fields',
-    group: 'fields',
+    group: 'Fields',
     emptyText: 'There are no fields for this customer',
     hideAdd: true,
     fields: TICKET_CUSTOM_FIELDS,
@@ -420,10 +413,21 @@ export const TICKET_DETAIL_SECTIONS: TicketDetailsSection[] = [
   {
     id: 'contact-fields',
     label: 'Contact fields',
-    group: 'fields',
+    group: 'Fields',
     emptyText: 'There are no fields for this customer',
     hideAdd: true,
     fields: TICKET_CUSTOM_FIELDS,
+  },
+  {
+    id: 'voice-logs',
+    label: 'Voice logs',
+    group: 'Activity',
+    emptyText: 'There are no voice logs for this customer',
+    hideAdd: true,
+    items: [
+      { title: 'Ananya Rao', timestamp: '5th Aug | 10:00 am', duration: '5 minutes 10 seconds' },
+      { title: 'Ananya Rao', timestamp: '2nd Aug | 3:45 pm', duration: '2 minutes 45 seconds' },
+    ],
   },
 ];
 

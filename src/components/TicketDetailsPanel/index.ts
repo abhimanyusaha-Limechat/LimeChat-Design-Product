@@ -4,7 +4,6 @@ export type {
   TicketDetailsSection,
   FocusedDetail,
   FocusedContext,
-  TicketDetailsSectionGroup,
   TicketDetailsSectionItem,
   TicketDetailsField,
   TicketFieldOption,

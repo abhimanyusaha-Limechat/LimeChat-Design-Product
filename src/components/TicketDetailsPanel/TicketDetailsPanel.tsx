@@ -18,7 +18,6 @@ import {
   forwardRef,
   useEffect,
   useId,
-  useLayoutEffect,
   useRef,
   useState,
   type HTMLAttributes,
@@ -35,7 +34,7 @@ import { Modal, ModalTextarea, ModalCheckbox } from '../Modal';
 import { Button } from '../Button';
 import './TicketDetailsPanel.css';
 import { iconProps } from '../iconProps';
-import { Icon, ChevronDownIcon, CloseIcon as TagCloseIcon, TrashIcon } from '../icons';
+import { Icon, ChevronDownIcon, CloseIcon as TagCloseIcon } from '../icons';
 
 const RANDOM_AGENT_NAMES = [
   'Aditi Sharma',
@@ -52,30 +51,26 @@ const RANDOM_AGENT_NAMES = [
   'Rohan Kulkarni',
 ];
 
-const TicketIcon = () => (
-  <svg {...iconProps()} width={16} height={16}>
-    <path d="M15 5l0 2" />
-    <path d="M15 11l0 2" />
-    <path d="M15 17l0 2" />
-    <path d="M5 5h14a2 2 0 0 1 2 2v3a2 2 0 0 0 0 4v3a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-3a2 2 0 0 0 0 -4v-3a2 2 0 0 1 2 -2" />
+const PlusIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M12 5l0 14" />
+    <path d="M5 12l14 0" />
   </svg>
 );
-
-const PlusIcon = () => <Icon name="plus" />;
 const ChevronIcon = ({ open }: { open: boolean }) => (
   <ChevronDownIcon style={{ transform: open ? 'rotate(180deg)' : undefined, transition: 'transform 150ms ease' }} />
 );
-/** Section accordion: right when collapsed, down when expanded (matches Figma row chevron). */
-const SectionChevronIcon = ({ open }: { open: boolean }) => (
-  <ChevronDownIcon
-    style={{
-      transform: open ? 'rotate(0deg)' : 'rotate(-90deg)',
-      transition: 'transform 200ms cubic-bezier(0.23, 1, 0.32, 1)',
-    }}
-  />
+const MailIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
+    <path d="M3 7l9 6l9 -6" />
+  </svg>
 );
-const MailIcon = () => <Icon name="email" />;
-const PhoneIcon = () => <Icon name="phone" />;
+const PhoneIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
+  </svg>
+);
 const OverviewIcon = () => (
   <svg {...iconProps()}>
     <rect x="4" y="4" width="7" height="7" rx="1" />
@@ -153,25 +148,11 @@ export interface TicketDetailsField {
   options?: TicketFieldOption[];
 }
 
-export type TicketDetailsSectionGroup = 'tickets' | 'tags' | 'fields';
-
-const SECTION_GROUPS: { id: TicketDetailsSectionGroup; label: string }[] = [
-  { id: 'tickets', label: 'Tickets' },
-  { id: 'tags', label: 'Tags' },
-  { id: 'fields', label: 'Fields' },
-];
-
 export interface TicketDetailsSection {
   id: string;
   label: string;
-  /** Category heading in the overview accordion — defaults to `tickets`. */
-  group?: TicketDetailsSectionGroup;
   count?: number;
   items?: TicketDetailsSectionItem[];
-  /** "See more (N)" paging for `items`, ported from the Vue app's previous-conversations list:
-   * shows `collapsedCount` items, the first "See more" expands to the already-fetched page, each
-   * later click fetches the next `pageSize`, and "See less" collapses once everything is loaded. */
-  pagination?: { collapsedCount: number; pageSize: number; total?: number };
   fields?: TicketDetailsField[];
   /** Removable chips, e.g. conversation/contact tags. */
   tags?: string[];
@@ -179,6 +160,13 @@ export interface TicketDetailsSection {
   defaultOpen?: boolean;
   onAdd?: () => void;
   hideAdd?: boolean;
+  /** Sections sharing a group render under one small heading (e.g. "Tickets", "Tags"),
+   * in order of first appearance. Ungrouped sections render without a heading. */
+  group?: string;
+  /** "See more (N)" paging for `items`, ported from the Vue app's previous-conversations list:
+   * shows `collapsedCount` items, the first "See more" expands to the already-fetched page, each
+   * later click fetches the next `pageSize`, and "See less" collapses once everything is loaded. */
+  pagination?: { collapsedCount: number; pageSize: number; total?: number };
   /** Title shown instead of `label` while the section is opened on its own via +. */
   focusedLabel?: string | ((detail: FocusedDetail | null) => string);
   /** Rendered instead of the section's items while it is opened on its own via +. */
@@ -202,7 +190,7 @@ export interface TicketDetailsPanelProps extends HTMLAttributes<HTMLDivElement> 
 }
 
 /** Copy-to-clipboard detail value — "Click to copy" tooltip; flips to "Copied" briefly on click. */
-function CopyableTicketId({ value }: { value: string }) {
+function CopyableDetailValue({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | undefined>(undefined);
 
@@ -223,28 +211,52 @@ function CopyableTicketId({ value }: { value: string }) {
     <Tooltip label="Click to copy" position="bottom">
       <button
         type="button"
-        className={`lc-tdp__ticket-id lc-tdp__detail-value--copyable${
+        className={`lc-tdp__detail-value lc-tdp__detail-value--copyable${
           copied ? ' lc-tdp__detail-value--copied' : ''
         }`}
-        aria-label="Ticket Id"
         aria-live="polite"
         onClick={handleClick}
       >
-        <TicketIcon />
-        <span className="lc-tdp__ticket-id-text">{copied ? 'Copied' : value}</span>
+        {copied ? 'Copied' : value}
       </button>
     </Tooltip>
   );
 }
 
-/** Trigger + popover with a search box — used to assign an agent/team from a searchable option list. */
+function DetailRow({
+  icon,
+  label,
+  value,
+  action,
+  copyable,
+}: {
+  icon?: ReactNode;
+  label: string;
+  value: string;
+  action?: ReactNode;
+  copyable?: boolean;
+}) {
+  return (
+    <div className="lc-tdp__detail-row">
+      {icon != null && <span className="lc-tdp__detail-icon">{icon}</span>}
+      <span className="lc-tdp__detail-label">{label}</span>
+      {copyable ? <CopyableDetailValue value={value} /> : <span className="lc-tdp__detail-value">{value}</span>}
+      {action}
+    </div>
+  );
+}
+
+/** Trigger + popover with a search box — used to assign an agent/team from a long, searchable name list. */
 function AssigneeSearchSelect({
   value,
   options,
+  noun,
   onChange,
 }: {
   value: string;
   options: string[];
+  /** Plural noun for the search copy, e.g. "agents" / "teams". */
+  noun: string;
   onChange: (next: string) => void;
 }) {
   const [query, setQuery] = useState('');
@@ -262,8 +274,8 @@ function AssigneeSearchSelect({
           <input
             type="text"
             className="lc-tdp__assignee-search"
-            aria-label="Search agents"
-            placeholder="Search agents…"
+            aria-label={`Search ${noun}`}
+            placeholder={`Search ${noun}…`}
             value={query}
             autoFocus
             onChange={(e) => setQuery(e.currentTarget.value)}
@@ -271,7 +283,7 @@ function AssigneeSearchSelect({
           />
         </div>
       }
-      emptyState={<p className="lc-tdp__assignee-empty">No agents found.</p>}
+      emptyState={<p className="lc-tdp__assignee-empty">No {noun} found.</p>}
       items={filtered.map((name) => ({
         key: name,
         label: name,
@@ -291,7 +303,7 @@ function AssigneeSearchSelect({
             aria-expanded={open}
             onClick={onClick}
           >
-            <span className="lc-tdp__assignee-trigger-value">{value || 'Select...'}</span>
+            <span className="lc-tdp__assignee-trigger-value">{value || 'Unassigned'}</span>
             <ChevronIcon open={open} />
           </button>
         );
@@ -300,14 +312,29 @@ function AssigneeSearchSelect({
   );
 }
 
-function AssignmentRow({ icon, label, field }: { icon?: ReactNode; label: string; field: AssignmentField }) {
+function AssignmentRow({
+  icon,
+  label,
+  noun,
+  field,
+}: {
+  icon?: ReactNode;
+  label: string;
+  noun: string;
+  field: AssignmentField;
+}) {
   return (
     <div className="lc-tdp__assignment-row">
       <span className="lc-tdp__assignment-label">
         {icon != null && <span className="lc-tdp__detail-icon">{icon}</span>}
         {label}
       </span>
-      <AssigneeSearchSelect value={field.value} options={field.options} onChange={(next) => field.onChange?.(next)} />
+      <AssigneeSearchSelect
+        value={field.value}
+        options={field.options}
+        noun={noun}
+        onChange={(next) => field.onChange?.(next)}
+      />
     </div>
   );
 }
@@ -497,73 +524,20 @@ function SubTicketModal({ open, onClose }: { open: boolean; onClose: () => void 
   );
 }
 
-// ponytail: static mock SLA data, wire to ticket SLA fields when the backend provides them
-const SLA_ROWS: { label: string; due: string; tone?: 'warning' | 'danger' }[] = [
-  { label: 'First Response due by', due: '04:39 pm, Today' },
-  { label: 'Next Response due by', due: '02:09 pm, Today', tone: 'warning' },
-  { label: 'Resolution due by', due: '04:39 pm, 2 Oct', tone: 'danger' },
-];
-
-function SlaRows() {
+/** What a collapsed header counts: explicit `count`, else items/tags/fields present. */
+function sectionCount(section: TicketDetailsSection): number {
   return (
-    <div className="lc-tdp__sla">
-      {SLA_ROWS.map(({ label, due, tone }) => (
-        <div key={label} className="lc-tdp__sla-row">
-          <span className="lc-tdp__sla-label">{label}</span>
-          <span className="lc-tdp__sla-due" data-tone={tone}>
-            {due}
-          </span>
-          <Tooltip label="Set as per Service Level Agreement rules (SLA)" position="top-end" arrowPosition="side" multiline>
-            <button type="button" className="lc-tdp__sla-info" aria-label={`${label} details`}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 8h.01" />
-                <path d="M11 12h1v4h1" />
-              </svg>
-            </button>
-          </Tooltip>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/**
- * Animated accordion body: the grid-rows 0fr→1fr trick animates to the content's natural height.
- * Stays mounted when closed (hidden from tab order/AT via `visibility`). Pass-through when not `enabled`.
- */
-function Collapse({ open, enabled, children }: { open: boolean; enabled: boolean; children: ReactNode }) {
-  if (!enabled) return <>{children}</>;
-  return (
-    <div className="lc-tdp__collapse" data-open={open || undefined}>
-      <div className="lc-tdp__collapse-inner">{children}</div>
-    </div>
+    section.count ??
+    section.pagination?.total ??
+    section.items?.length ??
+    section.tags?.length ??
+    section.fields?.length ??
+    0
   );
 }
 
 /** Simulated fetch time for the next page of items. */
 const SEE_MORE_DELAY_MS = 450;
-
-function SectionItem({ item }: { item: TicketDetailsSectionItem }) {
-  const isVoice = item.duration != null;
-  return (
-    <div className="lc-tdp__item">
-      <div className="lc-tdp__item-heading">
-        <span className="lc-tdp__item-icon">{item.icon ?? (isVoice ? <PhoneIcon /> : <MailIcon />)}</span>
-        <span className="lc-tdp__item-title">{item.title}</span>
-        {item.timestamp && <span className="lc-tdp__item-timestamp">{item.timestamp}</span>}
-      </div>
-      {isVoice ? (
-        <div className="lc-tdp__item-title-row lc-tdp__item-subline">
-          <span className="lc-tdp__item-preview">{item.duration}</span>
-          <span className="lc-tdp__voice-transcript">See transcript</span>
-        </div>
-      ) : (
-        item.preview && <p className="lc-tdp__item-preview lc-tdp__item-subline">{item.preview}</p>
-      )}
-    </div>
-  );
-}
 
 function PaginatedItems({
   items,
@@ -593,7 +567,7 @@ function PaginatedItems({
       setExpanded(false);
       return;
     }
-    // No fetch on the first click: that page is already loaded; fetch from the second on.
+    // No fetch on the first click — that page is already loaded; fetch from the second on.
     if (canLoadMore && expanded) {
       setFetching(true);
       timer.current = window.setTimeout(() => {
@@ -626,13 +600,13 @@ function PaginatedItems({
           ) : showingAll ? (
             <>
               See less
-              <Icon name="chevron-down" className="lc-tdp__see-more-icon" data-up="" />
+              <ChevronDownIcon className="lc-tdp__see-more-icon" data-up="" />
             </>
           ) : (
             <>
               See more
               <span className="lc-tdp__badge">{remaining}</span>
-              <Icon name="chevron-down" className="lc-tdp__see-more-icon" />
+              <ChevronDownIcon className="lc-tdp__see-more-icon" />
             </>
           )}
         </button>
@@ -641,7 +615,30 @@ function PaginatedItems({
   );
 }
 
-/** Header click toggles the accordion; the + button opens the section on its own (`focused`) with a back button. */
+function SectionItem({ item }: { item: TicketDetailsSectionItem }) {
+  const isVoice = item.duration != null;
+  return (
+    <div className="lc-tdp__item">
+      <span className="lc-tdp__item-icon">{item.icon ?? (isVoice ? <PhoneIcon /> : <MailIcon />)}</span>
+      <div className="lc-tdp__item-text">
+        <div className="lc-tdp__item-title-row">
+          <span className="lc-tdp__item-title">{item.title}</span>
+          {item.timestamp && <span className="lc-tdp__item-timestamp">{item.timestamp}</span>}
+        </div>
+        {isVoice ? (
+          <div className="lc-tdp__item-title-row">
+            <span className="lc-tdp__item-preview">{item.duration}</span>
+            <span className="lc-tdp__voice-transcript">See transcript</span>
+          </div>
+        ) : (
+          item.preview && <p className="lc-tdp__item-preview">{item.preview}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Header click toggles the accordion; + on a section with `focusedContent` opens it on its own, with a back button. */
 function Section({
   section,
   focused,
@@ -653,67 +650,58 @@ function Section({
   onFocus: () => void;
   onBack: () => void;
 }) {
-  const [detail, setDetail] = useState<FocusedDetail | null>(null);
-  const formId = useId();
   const [expanded, setExpanded] = useState(section.defaultOpen ?? false);
   const open = focused || expanded;
+  const [detail, setDetail] = useState<FocusedDetail | null>(null);
+  const formId = useId();
   const focusedLabel = focused ? section.focusedLabel : undefined;
-  const focusedTitle = typeof focusedLabel === 'function' ? focusedLabel(detail) : (focusedLabel ?? section.label);
+  const title = typeof focusedLabel === 'function' ? focusedLabel(detail) : (focusedLabel ?? section.label);
   // Back steps out of a picked detail first, then out of the focused section.
   const goBack = detail ? () => setDetail(null) : onBack;
+  const showContent = focused && section.focusedContent;
   const [subTicketModalOpen, setSubTicketModalOpen] = useState(false);
+  const bodyId = useId();
+  const count = sectionCount(section);
   return (
-    <div className="lc-tdp__section" data-open={open || undefined}>
+    <div className="lc-tdp__section" data-open={open || undefined} data-empty={count === 0 || undefined}>
       <div className="lc-tdp__section-header">
         <button
           type="button"
           className="lc-tdp__section-toggle"
           aria-expanded={focused ? undefined : open}
+          aria-controls={bodyId}
           aria-label={focused ? `Back from ${section.label}` : undefined}
           onClick={focused ? goBack : () => setExpanded((v) => !v)}
         >
-          <span className="lc-tdp__section-chevron" aria-hidden="true">
-            {focused ? (
-              <Icon name="chevron-left" />
-            ) : (
-              <SectionChevronIcon open={open} />
-            )}
+          <span className="lc-tdp__chevron" aria-hidden="true">
+            {focused ? <Icon name="chevron-left" /> : <ChevronDownIcon />}
           </span>
-          <span className="lc-tdp__section-title">
-            <span key={focusedTitle} className="lc-tdp__title-text">{focusedTitle}</span>
-            {section.count != null && <span className="lc-tdp__badge">{section.count}</span>}
-          </span>
+          <span key={title} className="lc-tdp__section-title lc-tdp__title-text">{title}</span>
+          {!focused && count > 0 && <span className="lc-tdp__badge">{count}</span>}
         </button>
-        {/* Sections with their own focused flow (CRM tickets) leave via the back chevron, not the bin. */}
-        {!section.hideAdd && !(focused && section.focusedContent) && (
-          <button
-            type="button"
-            className="lc-tdp__action-icon"
-            aria-label={focused ? `Discard ${section.label}` : `Add ${section.label}`}
-            onClick={() => {
-              if (focused) {
-                onBack();
-              } else if (section.id === 'sub-tickets') {
-                setSubTicketModalOpen(true);
-              } else if (section.onAdd) {
-                section.onAdd();
-              } else {
-                onFocus();
-              }
-            }}
-          >
-            {focused ? <TrashIcon size={16} /> : <PlusIcon />}
-          </button>
-        )}
         {focused && detail && (
           <Button type="submit" form={formId} variant="filled" color="primary" size="xs">
             Create
           </Button>
         )}
+        {!focused && !section.hideAdd && (
+          <button
+            type="button"
+            className="lc-tdp__icon-btn"
+            aria-label={`Add ${section.label}`}
+            onClick={() => {
+              if (section.id === 'sub-tickets') setSubTicketModalOpen(true);
+              else if (section.onAdd) section.onAdd();
+              else if (section.focusedContent) onFocus();
+            }}
+          >
+            <PlusIcon />
+          </button>
+        )}
       </div>
-      <Collapse open={open} enabled={!focused}>
-        <div className="lc-tdp__section-body">
-          {focused && section.focusedContent?.({ detail, setDetail, formId })}
+      {open && (
+        <div className="lc-tdp__section-body" id={bodyId}>
+          {showContent && section.focusedContent?.({ detail, setDetail, formId })}
           {section.fields && section.fields.length > 0 && (
             <div className="lc-tdp__fields">
               {section.fields.map((field) => (
@@ -722,19 +710,19 @@ function Section({
             </div>
           )}
           {section.tags && <TagList tags={section.tags} />}
-          {!(focused && section.focusedContent) && section.items && section.items.length > 0
+          {!showContent && section.items && section.items.length > 0
             ? section.pagination
               ? <PaginatedItems items={section.items} pagination={section.pagination} />
               : section.items.map((item, i) => (
                   // eslint-disable-next-line react/no-array-index-key
                   <SectionItem key={i} item={item} />
                 ))
-            : !(focused && section.focusedContent) &&
+            : !showContent &&
               !section.fields?.length &&
               !section.tags &&
               section.emptyText && <p className="lc-tdp__empty">{section.emptyText}</p>}
         </div>
-      </Collapse>
+      )}
       {section.id === 'sub-tickets' && (
         <SubTicketModal open={subTicketModalOpen} onClose={() => setSubTicketModalOpen(false)} />
       )}
@@ -742,47 +730,28 @@ function Section({
   );
 }
 
-/** Cart tab button — needs its own component (rather than the shared tab-button JSX) to read the cart count via context. */
-function CartTabButton({
-  active,
-  id,
-  panelId,
-  onClick,
-  tabRef,
-}: {
-  active: boolean;
-  id: string;
-  panelId: string;
-  onClick: () => void;
-  tabRef: (el: HTMLButtonElement | null) => void;
-}) {
+/** Sections bucketed by `group`, preserving first-appearance order. */
+function groupSections(sections: TicketDetailsSection[]) {
+  const groups: { name?: string; sections: TicketDetailsSection[] }[] = [];
+  for (const section of sections) {
+    const last = groups[groups.length - 1];
+    const existing = section.group ? groups.find((g) => g.name === section.group) : undefined;
+    if (existing) existing.sections.push(section);
+    else if (!section.group && last && !last.name) last.sections.push(section);
+    else groups.push({ name: section.group, sections: [section] });
+  }
+  return groups;
+}
+
+/** Item-count badge on the Cart tab; reads the cart from the Commerce session. */
+function CartCount() {
   const { items } = useCommerce();
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
-  const Icon = TAB_ICONS.Cart;
+  if (count === 0) return null;
   return (
-    <Tooltip label="Cart" position="bottom">
-      <button
-        ref={tabRef}
-        type="button"
-        id={id}
-        role="tab"
-        aria-selected={active}
-        aria-controls={panelId}
-        aria-label={count > 0 ? `Cart, ${count} item${count === 1 ? '' : 's'}` : 'Cart'}
-        className="lc-tdp__tab"
-        data-active={active || undefined}
-        onClick={onClick}
-      >
-        <span className="lc-tdp__tab-icon">
-          {Icon ? <Icon /> : 'Cart'}
-          {count > 0 && (
-            <span className="lc-tdp__tab-badge" aria-hidden="true">
-              {count > 99 ? '99+' : count}
-            </span>
-          )}
-        </span>
-      </button>
-    </Tooltip>
+    <span className="lc-tdp__tab-badge" aria-label={`${count} item${count === 1 ? '' : 's'}`}>
+      {count > 99 ? '99+' : count}
+    </span>
   );
 }
 
@@ -806,35 +775,6 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   const idBase = useId();
   const tabId = (tab: string) => `${idBase}-tab-${tab}`;
   const panelId = (tab: string) => `${idBase}-panel-${tab}`;
-
-  const tabsRef = useRef<HTMLDivElement | null>(null);
-  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
-  // Read inside the ResizeObserver callback below, which must stay mounted
-  // once — re-subscribing it on every active-tab change (or on every parent
-  // re-render, since `tabs` is usually an inline array literal) is wasted work.
-  const activeTabRef = useRef(resolvedActiveTab);
-  activeTabRef.current = resolvedActiveTab;
-  useLayoutEffect(() => {
-    const el = tabRefs.current[resolvedActiveTab];
-    if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
-  }, [resolvedActiveTab]);
-  // Re-measure on any layout change (panel resize, the Cart tab's item-count
-  // badge changing its width) — the effect above only fires when the active
-  // tab itself changes, so without this the pill drifts out of alignment.
-  useEffect(() => {
-    const container = tabsRef.current;
-    if (!container) return undefined;
-    const observer = new ResizeObserver(() => {
-      const el = tabRefs.current[activeTabRef.current];
-      if (el) setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
-    });
-    observer.observe(container);
-    for (const el of Object.values(tabRefs.current)) {
-      if (el) observer.observe(el);
-    }
-    return () => observer.disconnect();
-  }, []);
   const panelProps = (tab: string) => ({
     className: 'lc-tdp__body',
     id: panelId(tab),
@@ -848,97 +788,65 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
     // carrying over cart items and orders from a different customer.
     <CommerceProvider key={ticketId} showTab={onTabChange}>
     <div {...rest} ref={ref} className={`lc-tdp${className ? ` ${className}` : ''}`}>
-      <div className="lc-tdp__tabs" role="tablist" ref={tabsRef}>
-        {indicator && (
-          <div
-            className="lc-tdp__tab-indicator"
-            style={{ transform: `translateX(${indicator.left}px)`, width: indicator.width }}
-            aria-hidden="true"
-          />
-        )}
-        {tabs.map((tab) => {
-          if (tab === 'Cart') {
+      <div className="lc-tdp__tabs-wrap">
+        <div className="lc-tdp__tabs" role="tablist">
+          {tabs.map((tab) => {
+            const TabIcon = TAB_ICONS[tab];
+            const active = resolvedActiveTab === tab;
             return (
-              <CartTabButton
-                key={tab}
-                active={resolvedActiveTab === tab}
-                id={tabId(tab)}
-                panelId={panelId(tab)}
-                onClick={() => onTabChange?.(tab)}
-                tabRef={(el) => {
-                  tabRefs.current[tab] = el;
-                }}
-              />
-            );
-          }
-          const Icon = TAB_ICONS[tab];
-          return (
-            <Tooltip key={tab} label={tab} position="bottom">
               <button
-                ref={(el) => {
-                  tabRefs.current[tab] = el;
-                }}
+                key={tab}
                 type="button"
                 id={tabId(tab)}
                 role="tab"
-                aria-selected={resolvedActiveTab === tab}
+                aria-selected={active}
                 aria-controls={panelId(tab)}
-                aria-label={tab}
+                // Inactive tabs collapse to their icon; the label stays in the DOM for the accessible name.
+                title={active ? undefined : tab}
                 className="lc-tdp__tab"
-                data-active={resolvedActiveTab === tab || undefined}
+                data-active={active || undefined}
                 onClick={() => onTabChange?.(tab)}
               >
-                {Icon ? <Icon /> : tab}
+                {TabIcon && <TabIcon />}
+                <span className="lc-tdp__tab-label">{tab}</span>
+                {tab === 'Cart' && <CartCount />}
               </button>
-            </Tooltip>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {resolvedActiveTab === 'Overview' && (
         <div {...panelProps('Overview')} data-focused={focusedSection ? true : undefined}>
-          <div className="lc-tdp__info">
-            {ticketId && (
-              <div className="lc-tdp__detail-row">
-                <CopyableTicketId value={ticketId} />
-              </div>
-            )}
-            {ticketId && (agent || team) && (
-              <hr className="lc-tdp__info-divider" aria-hidden="true" />
-            )}
-            {agent && <AssignmentRow label="Assign Agent" field={agent} />}
-            {team && <AssignmentRow label="Assign Team" field={team} />}
-            {(ticketId || agent || team) && <hr className="lc-tdp__info-divider" aria-hidden="true" />}
-            <SlaRows />
-          </div>
+          {(ticketId || agent || team) && (
+            <div className="lc-tdp__info">
+              {ticketId && <DetailRow label="Ticket" value={`#${ticketId}`} copyable />}
+              {agent && <AssignmentRow label="Agent" noun="agents" field={agent} />}
+              {team && <AssignmentRow label="Team" noun="teams" field={team} />}
+            </div>
+          )}
 
           {focusedSection ? (
             <div className="lc-tdp__sections">
               <Section section={focusedSection} focused onFocus={() => undefined} onBack={() => setFocusedSectionId(null)} />
             </div>
           ) : (
-            <div className="lc-tdp__sections">
-              {SECTION_GROUPS.map(({ id, label }) => {
-                const grouped = sections.filter((section) => (section.group ?? 'tickets') === id);
-                if (grouped.length === 0) return null;
-                return (
-                  <div key={id} className="lc-tdp__section-group">
-                    <h3 className="lc-tdp__section-group-label">{label}</h3>
-                    <div className="lc-tdp__section-group-list">
-                      {grouped.map((section) => (
-                        <Section
-                          key={section.id}
-                          section={section}
-                          focused={false}
-                          onFocus={() => setFocusedSectionId(section.id)}
-                          onBack={() => setFocusedSectionId(null)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            groupSections(sections).map((group, gi) => (
+              <div key={group.name ?? `ungrouped-${gi}`} className="lc-tdp__group">
+                {group.name && <p className="lc-tdp__group-label">{group.name}</p>}
+                <div className="lc-tdp__sections">
+                  {group.sections.map((section) => (
+                    <Section
+                      key={section.id}
+                      section={section}
+                      focused={false}
+                      onFocus={() => setFocusedSectionId(section.id)}
+                      onBack={() => setFocusedSectionId(null)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))
           )}
         </div>
       )}
