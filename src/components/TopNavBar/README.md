@@ -92,7 +92,9 @@ Overridable via CSS custom properties on `.lc-topnav` (see [`TopNavBar.css`](./T
 | ------------------------------ | --------- | -------------------------------- |
 | `--lc-topnav-height`           | `64px`    | —                              |
 | `--lc-topnav-bg`               | `#ffffff` | `background/default`            |
-| `--lc-topnav-border`           | `#d9d9d9` | `border/gray/light`            |
+| `--lc-topnav-border`           | `#d9d9d9` | popover borders only           |
+| `--lc-topnav-shadow`           | `0 1px 2px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.05)` | — |
+| `--lc-topnav-gap`              | `6px`     | — (space below the bar)        |
 | `--lc-topnav-fg`               | `#3c492c` | `text/default`                |
 | `--lc-topnav-fg-dimmed`        | `#808975` | `text/dimmed`                 |
 | `--lc-topnav-info-badge-bg`    | `#e7f2f6` | `background/secondary/light`   |
@@ -102,13 +104,11 @@ Overridable via CSS custom properties on `.lc-topnav` (see [`TopNavBar.css`](./T
 | `--lc-topnav-avatar-bg`        | `#cdf0a2` | `~green/green-2`             |
 | `--lc-topnav-avatar-fg`        | `#6bac1b` | `~green/green-6-anchor`      |
 | `--lc-topnav-font-family`      | `Lato, …` | LimeChat default typeface       |
-| `--lc-topnav-logo-width`       | `148px`   | fixed wordmark slot            |
 | `--lc-topnav-logo-height`      | `20px`    | wordmark render height         |
 
-The wordmark sits in a **fixed-width slot** (`--lc-topnav-logo-width`) and renders
-at a **fixed height** (`--lc-topnav-logo-height`), left-aligned. This keeps the
-breadcrumb start position and the logo→breadcrumb gap identical for every product,
-regardless of how wide each wordmark asset is.
+The wordmark renders at a **fixed height** (`--lc-topnav-logo-height`), left-aligned, and the
+breadcrumb sits flush against it (the slot hugs the wordmark, so the breadcrumb start
+position varies slightly per product).
 
 Load Lato yourself (e.g. Google Fonts `Lato:wght@400;700;900`) — the component
 sets the family but does not import the webfont.

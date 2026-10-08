@@ -45,7 +45,7 @@ border/background/selected state, so no extra list wrapper styling is needed.
 | `message`         | `string` — preview text                          | —           |
 | `assignee`        | `string` — teal mention after the message        | —           |
 | `unreadCount`     | `number` — green count badge                     | —           |
-| `selected`        | `boolean` — green left accent bar, no bottom border | `false`  |
+| `selected`        | `boolean` — no bottom border | `false`  |
 | `showCheckbox`    | `boolean`                                        | `true`      |
 | `checked`         | `boolean`                                        | `false`     |
 | `onCheckedChange` | `(checked: boolean) => void`                     | —           |
@@ -60,8 +60,7 @@ Also accepts native `<div>` attributes and forwards `ref`.
 - **Hover**: light green background; if `onMoreActions` is set, the timestamp
   fades out and a `⋮` trigger fades in over the same spot (matches Figma's
   masking approach rather than shifting layout).
-- **Selected**: light green background, no bottom border, 4px primary-green
-  left accent bar.
+- **Selected**: light green background, no bottom border.
 - The checkbox and `⋮` trigger stop click propagation, so they don't also
   fire `onClick`.
 

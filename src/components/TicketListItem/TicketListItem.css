@@ -75,8 +75,8 @@
   border-bottom-color: var(--lc-tr-border-hover);
 }
 
-/* Selected is neutral + a brand accent bar, so it stays distinct from hover
-   and doesn't compete with the unread badge (the one green a row may carry). */
+/* Selected is neutral, so it stays distinct from hover and doesn't compete
+   with the unread badge (the one green a row may carry). */
 .lc-ticket-row[data-selected],
 .lc-ticket-row[data-selected]:hover {
   background: var(--lc-tr-selected);
@@ -102,13 +102,6 @@
   outline-offset: -2px;
 }
 
-.lc-ticket-row__accent {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: var(--lc-tr-primary);
-}
-
 /* --- Checkbox --------------------------------------------------------- */
 .lc-ticket-row__checkbox {
   flex-shrink: 0;
@@ -126,6 +119,30 @@
 .lc-ticket-row__checkbox[data-checked='true'] {
   background: var(--lc-tr-primary, var(--lc-color-green-500));
   border-color: var(--lc-tr-primary, var(--lc-color-green-500));
+}
+
+/* Hover select: overlays the channel icon (same 20px slot, so nothing shifts) and
+   swaps in for it on row hover/focus. */
+.lc-ticket-row__checkbox--hover {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+}
+.lc-ticket-row[data-hover-select]:hover .lc-ticket-row__checkbox--hover,
+.lc-ticket-row[data-hover-select]:has(.lc-ticket-row__checkbox--hover:focus-visible) .lc-ticket-row__checkbox--hover {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lc-ticket-row[data-hover-select]:hover .lc-ticket-row__channel-icon,
+.lc-ticket-row[data-hover-select]:has(.lc-ticket-row__checkbox--hover:focus-visible) .lc-ticket-row__channel-icon {
+  opacity: 0;
+}
+.lc-ticket-row__checkbox:focus-visible {
+  outline: 2px solid var(--lc-tr-primary);
+  outline-offset: 1px;
 }
 
 .lc-ticket-row__checkbox-icon {

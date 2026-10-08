@@ -151,6 +151,11 @@
   background: transparent;
   color: var(--c-text);
 }
+.lc-btn[data-variant='tertiary'] {
+  background: transparent;
+  color: var(--lc-text-primary);
+  box-shadow: none;
+}
 .lc-btn[data-variant='white'] {
   background: var(--lc-color-white);
   color: var(--c-text);
@@ -172,6 +177,9 @@
 .lc-btn[data-variant='outline']:not(:disabled):not([data-disabled]):not([data-loading]):hover,
 .lc-btn[data-variant='subtle']:not(:disabled):not([data-disabled]):not([data-loading]):hover {
   background: var(--c-soft);
+}
+.lc-btn[data-variant='tertiary']:not(:disabled):not([data-disabled]):not([data-loading]):hover {
+  background: var(--lc-surface-hover);
 }
 .lc-btn[data-variant='white']:not(:disabled):not([data-disabled]):not([data-loading]):hover,
 .lc-btn[data-variant='default']:not(:disabled):not([data-disabled]):not([data-loading]):hover {

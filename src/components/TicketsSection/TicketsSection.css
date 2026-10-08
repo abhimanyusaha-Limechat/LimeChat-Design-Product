@@ -55,84 +55,6 @@
   height: 18px;
   color: var(--lc-ts-primary);
 }
-/* Status filter: a horizontally scrolling single-select row. Chips share the
-   button radius (4px) so every control in the column has the same corner. */
-.lc-tickets-section__status-row {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  /* Fade the trailing edge so it reads as "more to scroll", not "cut off". */
-  mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
-  padding-right: 24px;
-}
-.lc-tickets-section__status-row::-webkit-scrollbar {
-  display: none;
-}
-.lc-tickets-section__status-chip {
-  --chip-accent: var(--lc-color-gray-400);
-  --chip-bg: var(--lc-status-neutral-bg);
-  --chip-text: var(--lc-status-neutral-text);
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 28px;
-  padding: 0 10px;
-  border: 1px solid var(--lc-ts-input-border);
-  border-radius: var(--lc-radius-control);
-  background: var(--lc-color-white);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--lc-ts-dimmed);
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
-}
-.lc-tickets-section__status-chip:hover {
-  background: var(--lc-surface-hover);
-  color: var(--lc-ts-title);
-}
-.lc-tickets-section__status-chip:focus-visible {
-  outline: 2px solid var(--lc-action-primary);
-  outline-offset: 1px;
-}
-/* The dot carries the status hue on every chip; the fill only on the active one. */
-.lc-tickets-section__status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--chip-accent);
-}
-.lc-tickets-section__status-chip[data-active] {
-  background: var(--chip-bg);
-  border-color: color-mix(in srgb, var(--chip-text) 35%, transparent);
-  color: var(--chip-text);
-  font-weight: 700;
-}
-.lc-tickets-section__status-chip[data-status='Open'] {
-  --chip-accent: var(--lc-status-open-text);
-  --chip-bg: var(--lc-status-open-bg);
-  --chip-text: var(--lc-status-open-text);
-}
-.lc-tickets-section__status-chip[data-status='Waiting'] {
-  --chip-accent: var(--lc-color-amber-500);
-  --chip-bg: var(--lc-status-warning-bg);
-  --chip-text: var(--lc-status-warning-text);
-}
-.lc-tickets-section__status-chip[data-status='Follow up'] {
-  --chip-accent: var(--lc-status-followup-text);
-  --chip-bg: var(--lc-status-followup-bg);
-  --chip-text: var(--lc-status-followup-text);
-}
-.lc-tickets-section__status-chip[data-status='Resolved'] {
-  --chip-accent: var(--lc-status-success-text);
-  --chip-bg: var(--lc-status-success-bg);
-  --chip-text: var(--lc-status-success-text);
-}
-/* Closed, Bot, Voice bot, Outbound stay neutral: they're queues, not states that need attention. */
-
 .lc-tickets-section__search-row {
   display: flex;
   align-items: center;
@@ -258,6 +180,22 @@
   cursor: pointer;
   text-align: center;
   transition: background-color 150ms ease, color 150ms ease;
+}
+.lc-tickets-section__tab-count {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: var(--lc-color-gray-100);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+  color: var(--lc-ts-dimmed);
+}
+.lc-tickets-section__tab[data-active] .lc-tickets-section__tab-count {
+  background: var(--lc-color-gray-200);
+  color: var(--lc-ts-title);
 }
 .lc-tickets-section__tab:not([data-active]):hover {
   background: var(--lc-color-gray-100);

@@ -65,6 +65,9 @@ export interface TicketListItemProps extends Omit<HTMLAttributes<HTMLDivElement>
    * "More actions" popover, shown in place of the timestamp on hover/focus.
    * Provide at least one handler to enable the trigger; omit all to keep the
    * timestamp always visible instead.
+   *
+   * `onSelect` also drives the hover select checkbox (shown over the channel icon
+   * while `showCheckbox` is off): clicking it should start selection mode with this row checked.
    */
   onSelect?: () => void;
   onSelectAll?: () => void;
@@ -72,10 +75,22 @@ export interface TicketListItemProps extends Omit<HTMLAttributes<HTMLDivElement>
   onClick?: () => void;
 }
 
-export function TicketRowCheckbox({ checked, onChange }: { checked: boolean; onChange: (next: boolean) => void }) {
+export function TicketRowCheckbox({
+  checked,
+  onChange,
+  className,
+  label,
+}: {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  className?: string;
+  /** Accessible name — rows pass the contact so each checkbox is distinguishable. */
+  label?: string;
+}) {
   return (
     <span
-      className="lc-ticket-row__checkbox"
+      className={`lc-ticket-row__checkbox${className ? ` ${className}` : ''}`}
+      aria-label={label}
       data-checked={checked}
       role="checkbox"
       aria-checked={checked}
@@ -135,6 +150,7 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
       data-selected={selected || undefined}
       data-unread={unread || undefined}
       data-checked={(showCheckbox && checked) || undefined}
+      data-hover-select={(!showCheckbox && onSelect != null) || undefined}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
@@ -149,10 +165,17 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
           : undefined
       }
     >
-      {selected && <span className="lc-ticket-row__accent" aria-hidden="true" />}
-
-      {showCheckbox && (
-        <TicketRowCheckbox checked={checked} onChange={(next) => onCheckedChange?.(next)} />
+      {showCheckbox ? (
+        <TicketRowCheckbox checked={checked} label={`Select ${user}`} onChange={(next) => onCheckedChange?.(next)} />
+      ) : (
+        onSelect != null && (
+          <TicketRowCheckbox
+            className="lc-ticket-row__checkbox--hover"
+            checked={false}
+            label={`Select ${user}`}
+            onChange={() => onSelect()}
+          />
+        )
       )}
 
       <div className="lc-ticket-row__body">

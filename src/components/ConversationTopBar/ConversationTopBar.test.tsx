@@ -29,4 +29,14 @@ describe('ConversationTopBar', () => {
     expect(onResolve).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Resolve' })).toBeInTheDocument();
   });
+
+  it('toggles the overview panel with a pressed-state button', async () => {
+    const user = userEvent.setup();
+    const onToggleDetails = vi.fn();
+    render(<ConversationTopBar name="John" detailsOpen onToggleDetails={onToggleDetails} />);
+    const toggle = screen.getByRole('button', { name: 'Hide overview panel' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    await user.click(toggle);
+    expect(onToggleDetails).toHaveBeenCalledTimes(1);
+  });
 });

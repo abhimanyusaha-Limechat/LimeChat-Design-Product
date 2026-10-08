@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { TicketListItem } from './TicketListItem';
 
 describe('TicketListItem', () => {
@@ -14,5 +14,14 @@ describe('TicketListItem', () => {
   it('leaves read rows unmarked', () => {
     const { container } = render(<TicketListItem user="John" timestamp="4m" message="Thanks!" />);
     expect(container.firstChild).not.toHaveAttribute('data-unread');
+  });
+
+  it('hover select checkbox starts selection without opening the ticket', () => {
+    const onSelect = vi.fn();
+    const onClick = vi.fn();
+    render(<TicketListItem user="John" timestamp="4m" message="Hi" showCheckbox={false} onSelect={onSelect} onClick={onClick} />);
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Select John' }));
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onClick).not.toHaveBeenCalled();
   });
 });

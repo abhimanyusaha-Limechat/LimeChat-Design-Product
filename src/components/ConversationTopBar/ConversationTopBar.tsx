@@ -48,6 +48,13 @@ const BellOffIcon = () => (
   </svg>
 );
 
+const PanelRightIcon = () => (
+  <svg {...iconProps()}>
+    <path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+    <path d="M15 4v16" />
+  </svg>
+);
+
 const RESOLVE_STATUSES = ['Open', 'Resolve', 'Follow Up', 'Waiting'] as const;
 
 export interface ConversationTopBarProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onResize'> {
@@ -68,6 +75,10 @@ export interface ConversationTopBarProps extends Omit<HTMLAttributes<HTMLDivElem
   /** "More actions" popover — star/mute this ticket. */
   onStarTicket?: () => void;
   onMuteTicket?: () => void;
+  /** Shows a button that hides/opens the overview (right) panel. Omit to hide the button. */
+  onToggleDetails?: () => void;
+  /** Whether the overview panel is currently open (drives `aria-pressed`). Default `true`. */
+  detailsOpen?: boolean;
 }
 
 export const ConversationTopBar = forwardRef<HTMLDivElement, ConversationTopBarProps>(function ConversationTopBar(
@@ -85,6 +96,8 @@ export const ConversationTopBar = forwardRef<HTMLDivElement, ConversationTopBarP
     resolveLabel = 'Resolve',
     onStarTicket,
     onMuteTicket,
+    onToggleDetails,
+    detailsOpen = true,
     className,
     ...rest
   },
@@ -162,6 +175,19 @@ export const ConversationTopBar = forwardRef<HTMLDivElement, ConversationTopBarP
             { label: 'Mute ticket notifications', icon: <BellOffIcon />, onClick: onMuteTicket },
           ]}
         />
+
+        {onToggleDetails && (
+          <button
+            type="button"
+            className="lc-conv-top__icon-btn"
+            data-active={detailsOpen || undefined}
+            aria-label={detailsOpen ? 'Hide overview panel' : 'Show overview panel'}
+            aria-pressed={detailsOpen}
+            onClick={onToggleDetails}
+          >
+            <PanelRightIcon />
+          </button>
+        )}
       </div>
     </div>
   );

@@ -111,6 +111,9 @@
   background: var(--lc-color-gray-100);
   color: var(--lc-ct-title);
 }
+.lc-conv-top__icon-btn[data-active] {
+  color: var(--lc-ct-title);
+}
 .lc-conv-top__icon-btn svg {
   width: 18px;
   height: 18px;

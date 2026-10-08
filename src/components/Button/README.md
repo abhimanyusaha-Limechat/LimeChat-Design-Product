@@ -21,7 +21,7 @@ import { Button } from './components/Button';
 
 | Prop            | Type                                                            | Default     |
 | --------------- | ------------------------------------------------------------- | ----------- |
-| `variant`       | `filled` \| `light` \| `outline` \| `subtle` \| `white` \| `default` | `filled` |
+| `variant`       | `filled` \| `light` \| `outline` \| `subtle` \| `tertiary` \| `white` \| `default` | `filled` |
 | `color`         | `primary` \| `green` \| `gray` \| `red` \| `yellow`             | `primary`   |
 | `size`          | `xs` \| `sm` \| `md` \| `lg` \| `xl`                            | `sm`        |
 | `leftSection` / `rightSection` | `ReactNode`                                     | —           |
@@ -58,6 +58,7 @@ Gap `8px` (`spacing/xs`), radius `4px` (`radius/2xs`). Icons render at `16px`
 | yellow | `#e8a325` / `#c68610` | `#fcf2e7` / `#faeee1` | `#c68610`                         | `#e8a325`        |
 
 `default` variant: white bg, `#d9d9d9` border, `#3c492c` text, `#fafafa` hover.
+`tertiary` variant: transparent bg, no border/shadow, primary text, `--lc-surface-hover` on hover.
 `white` variant: white bg + `0 1px 2px rgba(0,0,0,.06)` shadow, colour text.
 Disabled (all variants): `#f0f0f0` bg / `#bfbfbf` text.
 

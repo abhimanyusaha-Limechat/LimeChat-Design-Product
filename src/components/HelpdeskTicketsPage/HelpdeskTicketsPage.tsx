@@ -23,33 +23,16 @@ import {
   forwardRef,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
   type HTMLAttributes,
   type ReactNode,
 } from 'react';
-import { Virtuoso, type ItemProps, type VirtuosoHandle } from 'react-virtuoso';
+import { ChatList, type ConversationItem } from '../ChatList';
 import './HelpdeskTicketsPage.css';
 import '../scrollbar-hidden.css';
 
-export interface ConversationItem {
-  id: string;
-  node: ReactNode;
-}
-
-/**
- * Virtuoso wraps every item in its own plain `<div>`, breaking two things a real message
- * bubble (`MessageBubble`) relies on when it's a direct child of a flex column: its
- * `align-self` (left/right per side) has no effect outside a flex container, and its
- * `margin-top` spacing can collapse through a plain block wrapper. Rendering that wrapper
- * as a flex column itself fixes both, matching the non-virtualized conversation's layout.
- */
-function VirtuosoItem({ item: _item, ...rest }: ItemProps<ConversationItem>) {
-  return (
-    <div {...rest} style={{ ...rest.style, display: 'flex', flexDirection: 'column', padding: '0 12px' }} />
-  );
-}
+export type { ConversationItem };
 
 /**
  * A column width draggable via a handle on one edge, clamped to [min, max].
@@ -142,6 +125,9 @@ export interface HelpdeskTicketsPageProps extends HTMLAttributes<HTMLDivElement>
   conversationKey?: string;
   composer?: ReactNode;
   detailsPanel?: ReactNode;
+  /** Hides the details column (and its resize handle) when `false`; the conversation column
+   * grows to fill the space. Default `true`. */
+  detailsOpen?: boolean;
   /** Initial width of the ticket list column, in px. Default `336`. */
   defaultListWidth?: number;
   /** Minimum width the list column can be dragged to, in px. Default `280`. */
@@ -168,6 +154,7 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
     conversationKey,
     composer,
     detailsPanel,
+    detailsOpen = true,
     defaultListWidth = 336,
     minListWidth = 280,
     maxListWidth = 520,
@@ -196,16 +183,6 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageCount, conversationKey]);
 
-  // Kept mounted across thread switches (no `key` remount, which forced a full re-measure
-  // and flashed the list blank) — jump straight to the bottom on `conversationKey` change
-  // instead, and let `followOutput` below handle new messages arriving in the same thread.
-  const virtuosoRef = useRef<VirtuosoHandle>(null);
-  useLayoutEffect(() => {
-    if (!conversationItems) return;
-    virtuosoRef.current?.scrollToIndex({ index: conversationItems.length - 1, align: 'end' });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationKey]);
-
   return (
     <div {...rest} ref={ref} className={`lc-hd-tickets${className ? ` ${className}` : ''}`}>
       <div className="lc-hd-tickets__list" style={{ width: list.width }}>
@@ -229,18 +206,7 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
       <div className="lc-hd-tickets__main">
         {conversationTopBar && <div className="lc-hd-tickets__topbar">{conversationTopBar}</div>}
         {conversationItems ? (
-          <Virtuoso
-            ref={virtuosoRef}
-            className="lc-hd-tickets__conversation lc-hd-tickets__conversation--virtual lc-scrollbar-hidden"
-            style={{ paddingTop: 8, paddingBottom: 8 }}
-            data={conversationItems}
-            computeItemKey={(_, item) => item.id}
-            itemContent={(_, item) => item.node}
-            components={{ Item: VirtuosoItem }}
-            initialTopMostItemIndex={conversationItems.length - 1}
-            followOutput="smooth"
-            alignToBottom
-          />
+          <ChatList items={conversationItems} listKey={conversationKey} />
         ) : (
           <div
             className="lc-hd-tickets__conversation lc-scrollbar-hidden"
@@ -253,7 +219,7 @@ export const HelpdeskTicketsPage = forwardRef<HTMLDivElement, HelpdeskTicketsPag
         {composer && <div className="lc-hd-tickets__composer">{composer}</div>}
       </div>
 
-      {detailsPanel && (
+      {detailsPanel && detailsOpen && (
         <>
           <div
             className="lc-hd-tickets__resize-handle"

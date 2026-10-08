@@ -265,7 +265,11 @@
 }
 
 /* --- Tail ---------------------------------------------------------------- */
+/* Hidden: the 15x18 crescent mostly sits under the 12px corner radius, so all that
+   showed was a thin hairline sliver hanging off the bubble's bottom corner (white on the
+   customer side, where it read as a stray white line). Rule kept so it can be restored. */
 .lc-message-bubble__tail {
+  display: none;
   position: absolute;
   bottom: -1px;
   width: 15px;

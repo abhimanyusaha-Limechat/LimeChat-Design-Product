@@ -1546,6 +1546,9 @@ export function App() {
   // details panel (they previously disagreed: row "Jane", panel "John Adams").
   const [assignments, setAssignments] = useState(INITIAL_ASSIGNMENTS);
   const selectedAssignment = assignments[selectedTicketId] ?? { agent: '', team: '' };
+  const [ticketsDetailsOpen, setTicketsDetailsOpen] = useState(true);
+  // "Mine" = tickets with an agent assigned; the list itself isn't filtered by tab in this prototype.
+  const mineTicketCount = TICKETS.filter((t) => assignments[t.id]?.agent).length;
   const assign = (field: 'agent' | 'team', value: string) =>
     setAssignments((prev) => ({ ...prev, [selectedTicketId]: { ...selectedAssignment, [field]: value } }));
 
@@ -2395,6 +2398,7 @@ export function App() {
 
           {showTicketsHome && (
             <HelpdeskTicketsPage
+              detailsOpen={ticketsDetailsOpen}
               conversationAlign={selectedTicket?.channel === 'email' ? 'start' : 'end'}
               ticketsSection={
                 <TicketsSection
@@ -2417,9 +2421,9 @@ export function App() {
                   selectedInboxes={ticketsSelectedInboxes}
                   onSelectedInboxesChange={setTicketsSelectedInboxes}
                   tabs={[
-                    { id: 'mine', label: 'Mine' },
-                    { id: 'queued', label: 'Queued' },
-                    { id: 'all', label: 'All' },
+                    { id: 'mine', label: 'Mine', count: mineTicketCount },
+                    { id: 'queued', label: 'Queued', count: TICKETS.length - mineTicketCount },
+                    { id: 'all', label: 'All', count: TICKETS.length },
                   ]}
                   activeTab={ticketsTab}
                   onTabChange={setTicketsTab}
@@ -2432,6 +2436,10 @@ export function App() {
                     setCheckedTicketIdsAndExit(checked ? new Set(TICKETS.map((t) => t.id)) : new Set())
                   }
                   onModify={() => setTicketsBulkModifyOpen(true)}
+                  onCancelSelection={() => {
+                    setTicketsSelectMode(false);
+                    setCheckedTicketIds(new Set());
+                  }}
                 >
                   {TICKETS.map((ticket) => (
                     <TicketListItem
@@ -2456,7 +2464,11 @@ export function App() {
                         else nextIds.delete(ticket.id);
                         setCheckedTicketIdsAndExit(nextIds);
                       }}
-                      onSelect={() => setTicketsSelectMode(true)}
+                      onSelect={() => {
+                        // Starts selection mode with this row checked, keeping any earlier picks.
+                        setTicketsSelectMode(true);
+                        setCheckedTicketIds((prev) => new Set(prev).add(ticket.id));
+                      }}
                       onSelectAll={() => {
                         setTicketsSelectMode(true);
                         setCheckedTicketIds(new Set(TICKETS.map((t) => t.id)));
@@ -2480,6 +2492,8 @@ export function App() {
                   onResolveStatusChange={(status) => alert(`Marked as ${status.toLowerCase()}`)}
                   onStarTicket={() => alert('Star mark ticket')}
                   onMuteTicket={() => alert('Mute ticket notifications')}
+                  detailsOpen={ticketsDetailsOpen}
+                  onToggleDetails={() => setTicketsDetailsOpen((open) => !open)}
                 />
               }
               conversation={

@@ -1,0 +1,19 @@
+/* The virtualized list is itself the scroller — it needs a plain block root instead of
+   `.lc-hd-tickets__conversation`'s flex column. Horizontal padding is set per-item (on
+   Virtuoso's own `Item` wrapper) because padding on the scroller made Virtuoso size items
+   to its full padding-box width, bleeding content past the clipped edge. */
+.lc-hd-tickets__conversation.lc-chat-list {
+  display: block;
+  padding: 0;
+}
+
+.lc-chat-list__item {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 12px;
+}
+
+/* breathing room so the last message doesn't touch the composer */
+.lc-chat-list__footer {
+  height: 8px;
+}

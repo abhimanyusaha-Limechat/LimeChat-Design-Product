@@ -75,7 +75,7 @@
   --lc-text-secondary: var(--lc-color-sage-600); /* 5.0:1 on white (sage-500 was 3.7:1) */
 
   --lc-surface-hover: var(--lc-color-gray-50);
-  --lc-surface-selected: var(--lc-color-stone-150); /* neutral; the accent bar carries the brand */
+  --lc-surface-selected: var(--lc-color-stone-150); /* neutral */
   --lc-border-subtle: var(--lc-color-gray-200);
 
   --lc-indicator-unread: var(--lc-action-primary);

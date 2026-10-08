@@ -18,32 +18,30 @@ function Harness({ onChange }: { onChange: (s: string) => void }) {
 }
 
 describe('TicketsSection status filter', () => {
-  it('lays statuses out as a single-select row, one click to switch', async () => {
+  it('switches status from a dropdown at the right of the title row', async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
     render(<Harness onChange={onChange} />);
 
-    const group = screen.getByRole('radiogroup', { name: 'Filter by status' });
-    expect(group).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: 'Open' })).toHaveAttribute('aria-checked', 'true');
+    const trigger = screen.getByRole('button', { name: 'Status: Open' });
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('radio', { name: 'Waiting' }));
+    await user.click(trigger);
+    await user.click(screen.getByRole('menuitem', { name: 'Waiting' }));
     expect(onChange).toHaveBeenLastCalledWith('Waiting');
-    expect(screen.getByRole('radio', { name: 'Waiting' })).toHaveAttribute('aria-checked', 'true');
+    expect(screen.getByRole('button', { name: 'Status: Waiting' })).toBeInTheDocument();
   });
 
-  it('moves between statuses with arrow keys, keeping one tab stop', async () => {
+  it('shows a count next to a tab label', () => {
+    render(<TicketsSection tabs={[{ id: 'mine', label: 'Mine', count: 3 }]} activeTab="mine" />);
+    expect(screen.getByRole('tab', { name: /^Mine\s*3$/ })).toBeInTheDocument();
+  });
+
+  it('exits selection mode from the Cancel button', async () => {
     const user = userEvent.setup();
-    const onChange = vi.fn();
-    render(<Harness onChange={onChange} />);
-
-    const open = screen.getByRole('radio', { name: 'Open' });
-    expect(open).toHaveAttribute('tabindex', '0');
-    expect(screen.getByRole('radio', { name: 'Closed' })).toHaveAttribute('tabindex', '-1');
-
-    open.focus();
-    await user.keyboard('{ArrowRight}');
-    expect(onChange).toHaveBeenLastCalledWith('Closed');
-    expect(screen.getByRole('radio', { name: 'Closed' })).toHaveFocus();
+    const onCancel = vi.fn();
+    render(<TicketsSection selectedCount={2} onCancelSelection={onCancel} />);
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 });

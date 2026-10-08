@@ -14,7 +14,7 @@
 import { forwardRef, type AnchorHTMLAttributes, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import './Button.css';
 
-export type ButtonVariant = 'filled' | 'light' | 'outline' | 'subtle' | 'white' | 'default';
+export type ButtonVariant = 'filled' | 'light' | 'outline' | 'subtle' | 'tertiary' | 'white' | 'default';
 export type ButtonColor = 'primary' | 'green' | 'gray' | 'red' | 'yellow';
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 

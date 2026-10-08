@@ -1,7 +1,7 @@
 /**
  * TicketsSection — LimeChat design system (Figma node 8977:4521's
  * `tickets_section` list wrapper), the left-hand column of the Helpdesk
- * Tickets page: title + status dropdown, search + filters, Mine/Queued/All
+ * Tickets page: title + status dropdown (right-aligned), search + filters, Mine/Queued/All
  * tabs, and a sort row. Renders `<TicketListItem />` rows as `children`.
  *
  *   <TicketsSection
@@ -13,7 +13,7 @@
  *     {tickets.map((t) => <TicketListItem key={t.id} {...t} />)}
  *   </TicketsSection>
  */
-import { forwardRef, useEffect, useId, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useId, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Menu } from '../Menu';
 import { TicketIcon, TicketRowCheckbox, type TicketChannel } from '../TicketListItem';
@@ -79,6 +79,8 @@ export type TicketsStatusOption = (typeof TICKETS_STATUS_OPTIONS)[number];
 export interface TicketsSectionTab {
   id: string;
   label: string;
+  /** Ticket count shown next to the label. */
+  count?: number;
 }
 
 export interface TicketsSectionProps extends HTMLAttributes<HTMLDivElement> {
@@ -116,6 +118,8 @@ export interface TicketsSectionProps extends HTMLAttributes<HTMLDivElement> {
   allSelected?: boolean;
   onSelectAllChange?: (checked: boolean) => void;
   onModify?: () => void;
+  /** Shows a "Cancel" button in the selection bar that exits selection mode. */
+  onCancelSelection?: () => void;
 }
 
 export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(function TicketsSection(
@@ -148,19 +152,13 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
     allSelected = false,
     onSelectAllChange,
     onModify,
+    onCancelSelection,
     className,
     ...rest
   },
   ref,
 ) {
   const listId = useId();
-  const statusRowRef = useRef<HTMLDivElement>(null);
-  // Keep the active chip in view when it changes (e.g. via arrow keys past the fold).
-  useEffect(() => {
-    statusRowRef.current
-      ?.querySelector<HTMLElement>('[data-active]')
-      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-  }, [status]);
   const [inboxQuery, setInboxQuery] = useState('');
   const filteredInboxOptions = (inboxOptions ?? []).filter((name) =>
     name.toLowerCase().includes(inboxQuery.trim().toLowerCase()),
@@ -177,47 +175,34 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
       <div className="lc-tickets-section__header-filters">
         <div className="lc-tickets-section__header">
           <span className="lc-tickets-section__title">{title}</span>
-        </div>
-
-        {status && (
-          // Laid out flat rather than in a dropdown: status is the filter agents flip most,
-          // and a visible row shows every queue at once and switches in one click.
-          <div
-            ref={statusRowRef}
-            className="lc-tickets-section__status-row"
-            role="radiogroup"
-            aria-label="Filter by status"
-          >
-            {statusOptions.map((option, i) => {
-              const active = option === status;
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  tabIndex={active ? 0 : -1}
-                  className="lc-tickets-section__status-chip"
-                  data-status={option}
-                  data-active={active || undefined}
-                  onClick={() => onStatusChange?.(option)}
-                  onKeyDown={(e) => {
-                    const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-                    if (!step) return;
-                    e.preventDefault();
-                    const next = (i + step + statusOptions.length) % statusOptions.length;
-                    onStatusChange?.(statusOptions[next]);
-                    const chips = statusRowRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]');
-                    chips?.[next]?.focus();
-                  }}
+          {status && (
+            <Menu
+              ariaLabel="Filter by status"
+              align="end"
+              width={160}
+              items={statusOptions.map((option) => ({
+                key: option,
+                label: option,
+                selected: option === status,
+                trailingIcon: option === status ? <CheckIcon /> : undefined,
+                onClick: () => onStatusChange?.(option),
+              }))}
+              trigger={({ ref, onClick }) => (
+                <Button
+                  ref={ref}
+                  variant="tertiary"
+                  size="sm"
+                  textTransform="none"
+                  aria-label={`Status: ${status}`}
+                  rightSection={<ChevronDownIcon />}
+                  onClick={onClick}
                 >
-                  <span className="lc-tickets-section__status-dot" aria-hidden="true" />
-                  {option}
-                </button>
-              );
-            })}
-          </div>
-        )}
+                  {status}
+                </Button>
+              )}
+            />
+          )}
+        </div>
 
         <div className="lc-tickets-section__search-row">
           <div className="lc-tickets-section__search">
@@ -299,6 +284,7 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
               onClick={() => onTabChange?.(tab.id)}
             >
               {tab.label}
+              {tab.count != null && <span className="lc-tickets-section__tab-count">{tab.count}</span>}
             </button>
           ))}
         </div>
@@ -333,6 +319,11 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
           <span className="lc-tickets-section__selection-label">
             Select All <span className="lc-tickets-section__selection-count">{selectedCount}</span>
           </span>
+          {onCancelSelection && (
+            <Button variant="default" size="xs" textTransform="none" onClick={onCancelSelection}>
+              Cancel
+            </Button>
+          )}
           <Button variant="filled" color="primary" size="xs" textTransform="none" onClick={onModify}>
             MODIFY
           </Button>
