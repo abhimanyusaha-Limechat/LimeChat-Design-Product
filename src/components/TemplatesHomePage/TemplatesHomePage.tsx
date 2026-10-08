@@ -15,7 +15,16 @@ import { NativeSelect } from '../Select';
 import { Tooltip } from '../Tooltip';
 import { ActionMenu } from '../Menu';
 import { TemplateIcon } from './icons';
-import { DataTable, DataTableEmpty, DataTableHead, DataTableRow } from '../DataTable';
+import {
+  DataTable,
+  DataTableEmpty,
+  DataTableHead,
+  DataTableRow,
+  DataTableSkeleton,
+  DataTableSortHeader,
+  Skeleton,
+  useTableSort,
+} from '../DataTable';
 import './TemplatesHomePage.css';
 
 export type TemplateStatus = 'in-review' | 'active' | 'rejected' | 'paused';
@@ -127,6 +136,8 @@ function RowActions({
 }
 
 export interface TemplatesHomePageProps {
+  /** Shows skeleton rows in place of the list while its data loads. */
+  loading?: boolean;
   templates: TemplateRowData[];
   activeChannel?: TemplateChannel;
   onChannelChange?: (channel: TemplateChannel) => void;
@@ -170,15 +181,17 @@ export function TemplatesHomePage({
   page = 1,
   totalPages = 1,
   onPageChange,
+  loading = false,
 }: TemplatesHomePageProps) {
-  const [sortDir, setSortDir] = useState<'asc' | 'desc' | null>(null);
-  const toggleSort = () => setSortDir((d) => (d === null ? 'asc' : d === 'asc' ? 'desc' : null));
-
-  const sortedTemplates = (() => {
-    if (!sortDir) return templates;
-    const sorted = [...templates].sort((a, b) => a.name.localeCompare(b.name));
-    return sortDir === 'asc' ? sorted : sorted.reverse();
-  })();
+  const { sorted: sortedTemplates, sort, toggle: toggleSort } = useTableSort(
+    templates,
+    (row, key: 'name' | 'status' | 'category' | 'fallbackTemplate') =>
+    key === 'status'
+      ? STATUS_LABEL[row.status]
+      : key === 'category' && activeChannel === 'sms'
+        ? smsCategory(row.category)
+        : row[key],
+  );
 
   const pageNumbers = new Set<number>(
     [1, 2, 3, 4, 5, totalPages].filter((n) => n <= totalPages),
@@ -283,36 +296,40 @@ export function TemplatesHomePage({
         </div>
       </div>
 
-      <DataTable aria-label="Templates" data-anchor="template-table">
+      <DataTable aria-busy={loading || undefined} aria-label="Templates" data-anchor="template-table">
         <DataTableHead className="lc-th__row">
-          <div role="columnheader" className="lc-th__cell--name lc-th__cell">
-            <button
-              type="button"
-              className="lc-th__sort-btn"
-              data-sort={sortDir ?? undefined}
-              onClick={toggleSort}
-            >
-              <span className="lc-th__head-label">Name</span>
-              <TemplateIcon name="chevron-down" className="lc-th__sort-icon" />
-            </button>
-          </div>
+          <DataTableSortHeader className="lc-th__cell--name lc-th__cell" label="Name" sortKey="name" sort={sort} onSort={toggleSort} />
           {activeChannel !== 'email' && (
-            <div role="columnheader" className="lc-th__cell--status lc-th__cell">
-              <span className="lc-th__head-label">Status</span>
-            </div>
+            <DataTableSortHeader className="lc-th__cell--status lc-th__cell" label="Status" sortKey="status" sort={sort} onSort={toggleSort} />
           )}
-          <div role="columnheader" className="lc-th__cell--category lc-th__cell">
-            <span className="lc-th__head-label">Category</span>
-          </div>
+          <DataTableSortHeader className="lc-th__cell--category lc-th__cell" label="Category" sortKey="category" sort={sort} onSort={toggleSort} />
           {activeChannel === 'whatsapp' && (
-            <div role="columnheader" className="lc-th__cell--fallback lc-th__cell">
-              <span className="lc-th__head-label">Fallback Template</span>
-            </div>
+            <DataTableSortHeader className="lc-th__cell--fallback lc-th__cell" label="Fallback Template" sortKey="fallbackTemplate" sort={sort} onSort={toggleSort} />
           )}
           <div role="columnheader" className="lc-th__cell--actions lc-th__cell" aria-label="Actions" />
         </DataTableHead>
 
-        {sortedTemplates.length === 0 ? (
+        {loading ? (
+          <DataTableSkeleton>
+            <div className="lc-th__cell--name lc-th__cell">
+              <Skeleton lines={2} />
+            </div>
+            {activeChannel !== 'email' && (
+              <div className="lc-th__cell--status lc-th__cell">
+                <Skeleton lines={2} />
+              </div>
+            )}
+            <div className="lc-th__cell--category lc-th__cell">
+              <Skeleton />
+            </div>
+            {activeChannel === 'whatsapp' && (
+              <div className="lc-th__cell--fallback lc-th__cell">
+                <Skeleton />
+              </div>
+            )}
+            <div className="lc-th__cell--actions lc-th__cell" />
+          </DataTableSkeleton>
+        ) : sortedTemplates.length === 0 ? (
           <DataTableEmpty>No templates found</DataTableEmpty>
         ) : (
           sortedTemplates.map((row) => (

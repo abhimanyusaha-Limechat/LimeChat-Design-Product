@@ -6,6 +6,8 @@
  * The search box resets on every tab switch.
  */
 import { useState } from 'react';
+import { useDemoLoading } from '../../hooks/useDemoLoading';
+import { canMove, flattenTree, keyboardTarget, moveTag, type DropTarget } from './tagTree';
 import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsPage } from '../SettingsPage';
 import { InboxesTable } from '../InboxesTable';
@@ -22,6 +24,7 @@ import {
 import { IntegrationsHomePage } from '../IntegrationsHomePage';
 import { TagsInput } from '../TagsInput';
 import { Button } from '../Button';
+import { CheckboxPill } from '../CheckboxPill';
 import { Icon } from '../icons';
 import {
   AGENT_INBOXES,
@@ -33,6 +36,7 @@ import {
   DEMO_CANNED_LIBRARY,
   DEMO_COLLABORATORS,
   DEMO_CONTACT_FIELDS,
+  DEMO_CONTACT_TAGS,
   DEMO_CONVERSATION_FIELDS,
   DEMO_EVENTS,
   DEMO_INBOXES,
@@ -41,6 +45,7 @@ import {
   DEMO_RULE_LIBRARY,
   DEMO_SLA,
   DEMO_SLA_LIBRARY,
+  DEMO_TAGS,
   DEMO_TEAMS,
   DEMO_USE_CASES,
   DEMO_VARIABLES,
@@ -88,7 +93,14 @@ const BOT_NAMES = [
   'Multilingual Support Bot',
 ];
 
-export function SettingsScreen({ product, settingsTab, manageIndustries, onTabChange, onManageIndustriesChange }: SettingsScreenProps) {
+export function SettingsScreen({
+  product,
+  settingsTab,
+  manageIndustries,
+  onTabChange,
+  onManageIndustriesChange,
+}: SettingsScreenProps) {
+  const copy = SETTINGS_COPY[settingsTab];
   // The search box is shared by every tab's table but belongs to one tab: reading it under a
   // different tab gives '' so it resets on any tab change, including back/forward in the URL.
   const [searchState, setSearchState] = useState({ tab: settingsTab, value: '' });
@@ -120,6 +132,40 @@ export function SettingsScreen({ product, settingsTab, manageIndustries, onTabCh
   // The Inbox dropdown is shared by Agents and Custom fields.
   const [agentInbox, setAgentInbox] = useState('all');
   const [fieldType, setFieldType] = useState('all');
+  // SLA rules apply top to bottom, so their order is editable. `slaDraft` is the order being edited (null when not reordering).
+  const [slaOrder, setSlaOrder] = useState(DEMO_SLA);
+  const [slaDraft, setSlaDraft] = useState<BotTemplateRow[] | null>(null);
+  const [savingSlaOrder, setSavingSlaOrder] = useState(false);
+  const reorderingSla = settingsTab === 'sla-rules' && slaDraft !== null;
+  const slaOrderChanged = slaDraft?.some((row, i) => row.id !== slaOrder[i].id) ?? false;
+  const moveSlaRule = (from: number, to: number) =>
+    setSlaDraft((draft) => {
+      if (!draft) return draft;
+      const next = [...draft];
+      next.splice(to, 0, ...next.splice(from, 1));
+      return next;
+    });
+  const saveSlaOrder = () => {
+    const draft = slaDraft;
+    if (!draft) return;
+    setSavingSlaOrder(true);
+    window.setTimeout(() => {
+      setSlaOrder(draft);
+      setSlaDraft(null);
+      setSavingSlaOrder(false);
+    }, 700);
+  };
+  // Demo: a table's data "loads" again when the tab, list tab or sub-page changes.
+  const tableLoading = useDemoLoading(
+    [settingsTab, listTab, manageIndustries, industryTab, variableScope].join(':'),
+  );
+  const [tagsInInternalTickets, setTagsInInternalTickets] = useState(false);
+  // Tags: one tree per tab (Customer / Contact). Moves apply immediately.
+  const [tagTrees, setTagTrees] = useState({ customer: DEMO_TAGS, contact: DEMO_CONTACT_TAGS });
+  const tagTab = listTab === 'contact' ? 'contact' : 'customer';
+  const tagRows = flattenTree(tagTrees[tagTab], query);
+  const moveTagTo = (id: string, target: DropTarget) =>
+    setTagTrees((prev) => ({ ...prev, [tagTab]: moveTag(prev[tagTab], id, target) }));
   const withSwitches = (rows: BotTemplateRow[]) => rows.map((r) => ({ ...r, enabled: switchOn[r.id] ?? r.enabled }));
   const peopleRows: Record<string, BotTemplateRow[]> = {
     collaborators: DEMO_COLLABORATORS,
@@ -127,7 +173,7 @@ export function SettingsScreen({ product, settingsTab, manageIndustries, onTabCh
     teams: DEMO_TEAMS,
     'automation-rules': withSwitches(listTab === 'library' ? DEMO_RULE_LIBRARY : DEMO_RULES),
     'canned-responses': listTab === 'library' ? DEMO_CANNED_LIBRARY : DEMO_CANNED,
-    'sla-rules': withSwitches(listTab === 'library' ? DEMO_SLA_LIBRARY : DEMO_SLA),
+    'sla-rules': withSwitches(listTab === 'library' ? DEMO_SLA_LIBRARY : (slaDraft ?? slaOrder)),
     'custom-fields': withFieldMeta(withSwitches(listTab === 'contact' ? DEMO_CONTACT_FIELDS : DEMO_CONVERSATION_FIELDS)),
   };
   const visibleCollaborators = (peopleRows[settingsTab] ?? []).filter(
@@ -211,11 +257,11 @@ export function SettingsScreen({ product, settingsTab, manageIndustries, onTabCh
       tabs={SETTINGS_TABS_BY_PRODUCT[product]}
       activeTab={settingsTab}
       onTabChange={onTabChange}
-      title={manageIndustries ? 'Manage industries' : SETTINGS_COPY[settingsTab].title}
-      description={manageIndustries ? SETTINGS_COPY.variable.description : SETTINGS_COPY[settingsTab].description}
+      title={manageIndustries ? 'Manage industries' : copy.title}
+      description={manageIndustries ? SETTINGS_COPY.variable.description : copy.description}
       contentPadding={settingsTab === 'custom-fields' ? 20 : undefined}
-      onWatchVideo={() => alert(`Play tutorial video: ${SETTINGS_COPY[settingsTab].title}`)}
-      onViewDocs={() => alert(`Open docs: ${SETTINGS_COPY[settingsTab].title}`)}
+      onWatchVideo={() => alert(`Play tutorial video: ${copy.title}`)}
+      onViewDocs={() => alert(`Open docs: ${copy.title}`)}
       headerActions={
         manageIndustries ? (
           <>
@@ -245,6 +291,58 @@ export function SettingsScreen({ product, settingsTab, manageIndustries, onTabCh
               onClick={() => alert('New template')}
             >
               Template
+            </Button>
+          </>
+        ) : reorderingSla ? (
+          <>
+            <Button variant="default" size="sm" disabled={savingSlaOrder} onClick={() => setSlaDraft(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="filled"
+              color="primary"
+              size="sm"
+              loading={savingSlaOrder}
+              disabled={!slaOrderChanged}
+              onClick={saveSlaOrder}
+            >
+              Save order
+            </Button>
+          </>
+        ) : settingsTab === 'sla-rules' && listTab !== 'library' ? (
+          <>
+            <Button
+              variant="default"
+              size="sm"
+              leftSection={<Icon name="arrows-sort" />}
+              onClick={() => {
+                setSearch(''); // reorder the whole list, never a filtered slice of it
+                setSlaDraft(slaOrder);
+              }}
+            >
+              Reorder
+            </Button>
+            <Button
+              variant="filled"
+              color="primary"
+              size="sm"
+              leftSection={<PlusIcon />}
+              onClick={() => alert(`New ${HELPDESK_ADD_CTA[settingsTab].toLowerCase()}`)}
+            >
+              {HELPDESK_ADD_CTA[settingsTab]}
+            </Button>
+          </>
+        ) : settingsTab === 'tags' ? (
+          <>
+            <CheckboxPill checked={tagsInInternalTickets} onChange={setTagsInInternalTickets} label="Use in Internal tickets" />
+            <Button
+              variant="filled"
+              color="primary"
+              size="sm"
+              leftSection={<PlusIcon />}
+              onClick={() => alert('New tag')}
+            >
+              {HELPDESK_ADD_CTA.tags}
             </Button>
           </>
         ) : product === 'helpdesk' && HELPDESK_ADD_CTA[settingsTab] ? (
@@ -364,9 +462,10 @@ export function SettingsScreen({ product, settingsTab, manageIndustries, onTabCh
           }
         />
       ) : settingsTab === 'events' ? (
-        <EventsTable events={DEMO_EVENTS} onCustomEvents={() => alert('Manage custom events')} />
+        <EventsTable loading={tableLoading} events={DEMO_EVENTS} onCustomEvents={() => alert('Manage custom events')} />
       ) : settingsTab === 'inboxes' ? (
         <InboxesTable
+          loading={tableLoading}
           inboxes={visibleInboxes}
           searchValue={search}
           onSearchChange={setSearch}
@@ -384,11 +483,53 @@ export function SettingsScreen({ product, settingsTab, manageIndustries, onTabCh
         />
       ) : settingsTab === 'bot-templates' || settingsTab === 'variable' || isPeopleTab ? (
         <BotTemplatesTable
+          // Remount on entering/leaving reorder mode so a column sort never hides the manual order.
+          key={reorderingSla ? 'reorder' : 'view'}
+          loading={tableLoading}
+          tree={
+            settingsTab === 'tags'
+              ? {
+                  levels: new Map(tagRows.map((r) => [r.tag.id, { depth: r.depth, hasChildren: r.hasChildren }])),
+                  canDrop: (id, target) => canMove(tagTrees[tagTab], id, target),
+                  onDrop: moveTagTo,
+                  onKeyMove: (id, key) => {
+                    const target = keyboardTarget(tagTrees[tagTab], id, key);
+                    if (target) moveTagTo(id, target);
+                  },
+                  dragDisabled: query !== '',
+                  onAddChild: (parentId) =>
+                    setTagTrees((prev) => ({
+                      ...prev,
+                      [tagTab]: [
+                        ...prev[tagTab],
+                        {
+                          id: crypto.randomUUID(),
+                          name: 'New tag',
+                          description: '',
+                          type: 'task',
+                          usecases: [],
+                          industries: [],
+                          scope: 'account',
+                          enabled: true,
+                          parentId,
+                        },
+                      ],
+                    })),
+                }
+              : undefined
+          }
+          reorder={
+            reorderingSla
+              ? {
+                  onMove: moveSlaRule,
+                  hint: 'Drag rules to set their priority. Each ticket gets the first matching rule, from top to bottom.',
+                }
+              : undefined
+          }
           variant={manageIndustries ? 'industries' : settingsTab === 'variable' ? 'variables' : (peopleVariant ?? 'templates')}
           searchPlaceholder={SEARCH_PLACEHOLDER[manageIndustries ? 'variable' : settingsTab]}
           hideFilters={isPeopleTab || manageIndustries}
           hideSearch={manageIndustries}
-          iconActions={manageIndustries}
           showUseCases={industryTab === 'industries'}
           chipFilter={
             manageIndustries && industryTab === 'use-cases'
@@ -435,7 +576,9 @@ export function SettingsScreen({ product, settingsTab, manageIndustries, onTabCh
               : DEMO_INDUSTRIES
             : settingsTab === 'variable'
               ? visibleVariables
-              : isPeopleTab
+              : settingsTab === 'tags'
+                ? withSwitches(tagRows.map((r) => r.tag))
+                : isPeopleTab
                 ? visibleCollaborators
                 : visibleBotTemplates}
           searchValue={search}

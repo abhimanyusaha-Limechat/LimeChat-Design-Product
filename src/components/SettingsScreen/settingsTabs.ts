@@ -180,6 +180,7 @@ export const SEARCH_PLACEHOLDER: Record<string, string> = {
   'automation-rules': 'Search for automation rules',
   'canned-responses': 'Search for canned responses',
   'sla-rules': 'Search for SLA rules',
+  tags: 'Search for tags',
   'custom-fields': 'Search for custom fields',
 };
 
@@ -197,13 +198,14 @@ export const USE_CASE_CATEGORIES = [
   { id: 'Real estate', label: 'Real estate' },
 ];
 
-export const PEOPLE_VARIANT: Record<string, 'collaborators' | 'agents' | 'teams' | 'rules' | 'fields'> = {
+export const PEOPLE_VARIANT: Record<string, 'collaborators' | 'agents' | 'teams' | 'rules' | 'tags' | 'fields'> = {
   collaborators: 'collaborators',
   agents: 'agents',
   teams: 'teams',
   'automation-rules': 'rules',
   'canned-responses': 'teams', // name-only list, same as Teams
   'sla-rules': 'rules',
+  tags: 'tags', // like Automation rules (on/off switch) but name only, nested up to three levels
   'custom-fields': 'fields',
 };
 
@@ -217,6 +219,10 @@ export const LIST_PAGE_TABS: Record<string, { id: string; label: string }[]> = {
   'automation-rules': RULE_TABS,
   'canned-responses': RULE_TABS,
   'sla-rules': RULE_TABS,
+  tags: [
+    { id: 'customer', label: 'Customer' },
+    { id: 'contact', label: 'Contact' },
+  ],
   'custom-fields': [
     { id: 'conversation', label: 'Conversation' },
     { id: 'contact', label: 'Contact' },

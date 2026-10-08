@@ -246,6 +246,32 @@ export const DEMO_TEAMS: BotTemplateRow[] = [
   { id: 't9', name: 'Social Media', description: 'Responds to Instagram and Facebook messages and comments', type: 'task', usecases: [], industries: [], scope: 'account' },
 ];
 
+// Tags nest up to three levels: `parentId` points at the parent tag; siblings keep this order.
+export const DEMO_TAGS: BotTemplateRow[] = [
+  { id: 'tg-orders', name: 'Orders', description: 'Anything about placing or receiving an order', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'tg-delivery', name: 'Delivery', description: 'Shipping and courier issues', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true, parentId: 'tg-orders' },
+  { id: 'tg-delay', name: 'Delivery delay', description: 'Order is late or stuck in transit', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true, parentId: 'tg-delivery' },
+  { id: 'tg-address', name: 'Wrong address', description: 'Shipped to an old or incorrect address', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false, parentId: 'tg-delivery' },
+  { id: 'tg-returns', name: 'Returns', description: 'Customer wants to send something back', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true, parentId: 'tg-orders' },
+  { id: 'tg-damaged', name: 'Damaged item', description: 'Product arrived broken or defective', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true, parentId: 'tg-returns' },
+  { id: 'tg-wrong', name: 'Wrong item', description: 'Customer received a different product', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false, parentId: 'tg-returns' },
+  { id: 'tg-payments', name: 'Payments', description: 'Charges, refunds and payment methods', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'tg-refund', name: 'Refund', description: 'Customer is asking for money back on an order', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true, parentId: 'tg-payments' },
+  { id: 'tg-failed', name: 'Payment failed', description: 'Charge declined or money deducted without an order', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true, parentId: 'tg-payments' },
+  { id: 'tg-feedback', name: 'Feedback', description: 'Compliments, suggestions or general feedback', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false },
+  { id: 'tg-spam', name: 'Spam', description: 'Irrelevant or automated messages', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+];
+
+export const DEMO_CONTACT_TAGS: BotTemplateRow[] = [
+  { id: 'tgc-type', name: 'Customer type', description: 'Who the contact is to the business', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'tgc-vip', name: 'VIP', description: 'High-value customer; prioritise the reply', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true, parentId: 'tgc-type' },
+  { id: 'tgc-repeat', name: 'Repeat buyer', description: 'Has ordered more than once', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true, parentId: 'tgc-type' },
+  { id: 'tgc-new', name: 'New customer', description: 'First order placed in the last 30 days', type: 'task', usecases: [], industries: [], scope: 'account', enabled: false, parentId: 'tgc-type' },
+  { id: 'tgc-business', name: 'Business', description: 'Contacts buying for a company', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+  { id: 'tgc-wholesale', name: 'Wholesale', description: 'Buys in bulk on business pricing', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true, parentId: 'tgc-business' },
+  { id: 'tgc-dnc', name: 'Do not contact', description: 'Opted out of marketing messages', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
+];
+
 export const DEMO_RULES: BotTemplateRow[] = [
   { id: 'r1', name: 'Auto-assign by inbox', description: 'Routes new tickets to the team that owns the inbox', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
   { id: 'r2', name: 'Tag VIP customers', description: 'Adds the VIP tag when a high-value customer writes in', type: 'task', usecases: [], industries: [], scope: 'account', enabled: true },
@@ -327,17 +353,20 @@ export const DEMO_CONTACT_FIELDS: BotTemplateRow[] = [
 
 export const CUSTOM_FIELD_TYPES = ['Text', 'Number', 'Date', 'Dropdown'];
 
-// Demo: give each custom field a data type and a couple of inboxes so the Type / Inbox filters have something to match.
+// Demo: give each custom field a data type and a couple of inboxes so the Type / Inbox filters have something to match,
+// and mark a scattered few as mandatory.
 export const withFieldMeta = (rows: BotTemplateRow[]): BotTemplateRow[] =>
   rows.map((r, i) => ({
     ...r,
+    mandatory: (i * 7) % 5 < 2,
     kind: CUSTOM_FIELD_TYPES[i % CUSTOM_FIELD_TYPES.length],
     inboxes: [AGENT_INBOXES[i % AGENT_INBOXES.length], AGENT_INBOXES[(i + 2) % AGENT_INBOXES.length]],
   }));
 
-// Demo: each agent sits in 2–3 of the first few inboxes.
+// Demo: each agent sits in 2–3 of the first few inboxes, and a few are still pending verification.
 export const DEMO_AGENTS: BotTemplateRow[] = DEMO_COLLABORATORS.map((c, i) => ({
   ...c,
+  pending: i % 5 === 0,
   inboxes: Array.from({ length: 2 + (i % 2) }, (_, k) => AGENT_INBOXES[(i + k) % AGENT_INBOXES.length]),
 }));
 

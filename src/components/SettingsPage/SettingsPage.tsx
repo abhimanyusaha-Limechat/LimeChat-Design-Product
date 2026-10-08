@@ -16,9 +16,10 @@ export interface SettingsTab {
 }
 
 export interface SettingsPageProps {
-  tabs: SettingsTab[];
-  activeTab: string;
-  onTabChange: (id: string) => void;
+  /** Left tab list. Omit for a single page with no tab list. */
+  tabs?: SettingsTab[];
+  activeTab?: string;
+  onTabChange?: (id: string) => void;
   title: string;
   description?: string;
   /** "Watch video" header CTA — opens a tutorial for this settings section. Omit to hide. */
@@ -70,6 +71,7 @@ export function SettingsPage({
 
   return (
     <div className="lc-sp">
+      {tabs && (
       <nav className="lc-sp__side-panel" data-anchor="settings-tab-list" aria-label="Settings" {...navScroll}>
         {tabs.map((tab) => (
           <button
@@ -77,13 +79,14 @@ export function SettingsPage({
             type="button"
             className="lc-sp__tab"
             data-active={tab.id === activeTab}
-            onClick={() => onTabChange(tab.id)}
+            onClick={() => onTabChange?.(tab.id)}
           >
             <span className="lc-sp__tab-accent" />
             {tab.label}
           </button>
         ))}
       </nav>
+      )}
 
       <div className="lc-sp__main">
         <div className="lc-sp__card">

@@ -10,12 +10,21 @@
  *     onCreateSegment={() => setOpen(true)}
  *   />
  */
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
 import { ActionMenu } from '../Menu';
 import { SegmentIcon } from './icons';
-import { DataTable, DataTableEmpty, DataTableHead, DataTableRow } from '../DataTable';
+import {
+  DataTable,
+  DataTableEmpty,
+  DataTableHead,
+  DataTableRow,
+  DataTableSkeleton,
+  DataTableSortHeader,
+  Skeleton,
+  useTableSort,
+} from '../DataTable';
 import './SegmentsHomePage.css';
 
 export type SegmentSourceTab = 'lc-segments' | 'imported';
@@ -43,11 +52,13 @@ function formatSize(size: number) {
 
 function RowActions({
   row,
+  onEdit,
   onClone,
   onDownload,
   onDelete,
 }: {
   row: SegmentRowData;
+  onEdit?: (row: SegmentRowData) => void;
   onClone?: (row: SegmentRowData) => void;
   onDownload?: (row: SegmentRowData) => void;
   onDelete?: (row: SegmentRowData) => void;
@@ -57,6 +68,7 @@ function RowActions({
       ariaLabel="Segment actions"
       icon={<SegmentIcon name="dots-vertical" />}
       items={[
+        { label: 'Edit', icon: <SegmentIcon name="edit" />, onClick: () => onEdit?.(row) },
         { label: 'Clone', icon: <SegmentIcon name="copy" />, onClick: () => onClone?.(row) },
         { label: 'Download', icon: <SegmentIcon name="download" />, onClick: () => onDownload?.(row) },
         { label: 'Delete', icon: <SegmentIcon name="trash" />, danger: true, onClick: () => onDelete?.(row) },
@@ -66,6 +78,8 @@ function RowActions({
 }
 
 export interface SegmentsHomePageProps {
+  /** Shows skeleton rows in place of the list while its data loads. */
+  loading?: boolean;
   segments: SegmentRowData[];
   activeTab?: SegmentSourceTab;
   onTabChange?: (tab: SegmentSourceTab) => void;
@@ -97,15 +111,12 @@ export function SegmentsHomePage({
   page = 1,
   totalPages = 1,
   onPageChange,
+  loading = false,
 }: SegmentsHomePageProps) {
-  const [sortDir, setSortDir] = useState<'asc' | 'desc' | null>(null);
-  const toggleSort = () => setSortDir((d) => (d === null ? 'asc' : d === 'asc' ? 'desc' : null));
-
-  const sortedSegments = (() => {
-    if (!sortDir) return segments;
-    const sorted = [...segments].sort((a, b) => a.name.localeCompare(b.name));
-    return sortDir === 'asc' ? sorted : sorted.reverse();
-  })();
+  const { sorted: sortedSegments, sort, toggle: toggleSort } = useTableSort(
+    segments,
+    (row, key: 'name' | 'description' | 'size') => row[key],
+  );
 
   const pageNumbers = new Set<number>(
     [1, 2, 3, 4, 5, totalPages].filter((n) => n <= totalPages),
@@ -155,29 +166,28 @@ export function SegmentsHomePage({
         </div>
       </div>
 
-      <DataTable aria-label="Segments" data-anchor="segment-table">
+      <DataTable aria-busy={loading || undefined} aria-label="Segments" data-anchor="segment-table">
         <DataTableHead className="lc-sg__row--head">
-          <div role="columnheader" className="lc-sg__cell--name lc-sg__cell">
-            <button
-              type="button"
-              className="lc-sg__sort-btn"
-              data-sort={sortDir ?? undefined}
-              onClick={toggleSort}
-            >
-              <span className="lc-sg__head-label">Segment</span>
-              <SegmentIcon name="chevron-down" className="lc-sg__sort-icon" />
-            </button>
-          </div>
-          <div role="columnheader" className="lc-sg__cell--description lc-sg__cell">
-            <span className="lc-sg__head-label">Description</span>
-          </div>
-          <div role="columnheader" className="lc-sg__cell--size lc-sg__cell">
-            <span className="lc-sg__head-label">Size</span>
-          </div>
+          <DataTableSortHeader className="lc-sg__cell--name lc-sg__cell" label="Segment" sortKey="name" sort={sort} onSort={toggleSort} />
+          <DataTableSortHeader className="lc-sg__cell--description lc-sg__cell" label="Description" sortKey="description" sort={sort} onSort={toggleSort} />
+          <DataTableSortHeader className="lc-sg__cell--size lc-sg__cell" label="Size" sortKey="size" sort={sort} onSort={toggleSort} />
           <div role="columnheader" className="lc-sg__cell--actions lc-sg__cell" aria-label="Actions" />
         </DataTableHead>
 
-        {sortedSegments.length === 0 ? (
+        {loading ? (
+          <DataTableSkeleton>
+            <div className="lc-sg__cell--name lc-sg__cell">
+              <Skeleton lines={2} />
+            </div>
+            <div className="lc-sg__cell--description lc-sg__cell">
+              <Skeleton />
+            </div>
+            <div className="lc-sg__cell--size lc-sg__cell">
+              <Skeleton lines={2} />
+            </div>
+            <div className="lc-sg__cell--actions lc-sg__cell" />
+          </DataTableSkeleton>
+        ) : sortedSegments.length === 0 ? (
           <DataTableEmpty>No segments found</DataTableEmpty>
         ) : (
           sortedSegments.map((row) => (
@@ -214,17 +224,7 @@ export function SegmentsHomePage({
                     <SegmentIcon name="refresh" />
                   </button>
                 </Tooltip>
-                <Tooltip label="Edit segment">
-                  <button
-                    type="button"
-                    className="lc-sg__action-btn"
-                    aria-label="Edit segment"
-                    onClick={() => onRowEdit?.(row)}
-                  >
-                    <SegmentIcon name="edit" />
-                  </button>
-                </Tooltip>
-                <RowActions row={row} onClone={onRowClone} onDownload={onRowDownload} onDelete={onRowDelete} />
+                <RowActions row={row} onEdit={onRowEdit} onClone={onRowClone} onDownload={onRowDownload} onDelete={onRowDelete} />
               </div>
             </DataTableRow>
           ))
