@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { isStyled, resetElement, setStyle } from './edits';
 import { measureElement, resolveTarget, type Spec } from './measure';
 
 /**
- * Elements Inspect mode never targets or blocks: its own UI, and Agentation's
- * (dev only), which uses the same capture-phase interception.
+ * Elements Inspect mode never targets or blocks: its own UI, and in dev
+ * Agentation's, which uses the same capture-phase interception.
  */
-const IGNORED_UI = '[data-inspector-ui], [data-agentation-root], [data-feedback-toolbar], [data-annotation-marker]';
+const IGNORED_UI = import.meta.env.DEV
+  ? '[data-inspector-ui], [data-agentation-root], [data-feedback-toolbar], [data-annotation-marker]'
+  : '[data-inspector-ui]';
 
 export function isIgnoredUi(target: EventTarget | null): boolean {
   return target instanceof Element && target.closest(IGNORED_UI) !== null;
@@ -27,6 +30,9 @@ export interface InspectView {
 
 const EMPTY: InspectView = { hovered: null, pinned: null, canSelectParent: false, pinId: 0, hoveredByFocus: false };
 
+/** The element's parent, stopping at `body`. */
+const parentOf = (el: Element) => (el === document.body ? null : el.parentElement);
+
 /** Specs are plain data, so equal JSON means nothing on screen would change. */
 function sameSpec(a: Spec | null, b: Spec | null): boolean {
   return a === b || (a !== null && b !== null && JSON.stringify(a) === JSON.stringify(b));
@@ -39,8 +45,7 @@ function sameSpec(a: Spec | null, b: Spec | null): boolean {
  */
 export function useInspectTarget(active: boolean) {
   const [view, setView] = useState<InspectView>(EMPTY);
-  const rawHover = useRef<Element | null>(null);
-  const rawHoverByFocus = useRef(false);
+  const rawHover = useRef<{ el: Element; byFocus: boolean } | null>(null);
   const pinned = useRef<Element | null>(null);
   const pinId = useRef(0);
   const frame = useRef(0);
@@ -52,32 +57,26 @@ export function useInspectTarget(active: boolean) {
       pinned.current = null;
       pinId.current += 1;
     }
-    const raw = rawHover.current?.isConnected ? rawHover.current : null;
-    const hovered = raw ? resolveTarget(raw) : null;
+    const raw = rawHover.current?.el.isConnected ? rawHover.current : null;
+    const hovered = raw ? resolveTarget(raw.el) : null;
     const pin = pinned.current;
     // The pinned element already shows its full layers; don't stack a hover on it.
     const nextHovered = hovered && hovered !== pin ? measureElement(hovered) : null;
     const nextPinned = pin ? measureElement(pin) : null;
-    const canSelectParent = pin !== null && pin !== document.body && pin.parentElement !== null;
-    const hoveredByFocus = nextHovered !== null && rawHoverByFocus.current;
+    const canSelectParent = pin !== null && parentOf(pin) !== null;
+    const hoveredByFocus = nextHovered !== null && raw?.byFocus === true;
     // Most frames (the pointer moving within one element) measure the same
     // values. Keep the old objects then, so nothing re-renders, and so memoized
     // parts (the panel) skip renders when only the other spec changed.
     setView((prev) => {
-      const next = {
+      const next: InspectView = {
         hovered: sameSpec(prev.hovered, nextHovered) ? prev.hovered : nextHovered,
         pinned: sameSpec(prev.pinned, nextPinned) ? prev.pinned : nextPinned,
         canSelectParent,
         pinId: pinId.current,
         hoveredByFocus,
       };
-      const unchanged =
-        next.hovered === prev.hovered &&
-        next.pinned === prev.pinned &&
-        canSelectParent === prev.canSelectParent &&
-        next.pinId === prev.pinId &&
-        hoveredByFocus === prev.hoveredByFocus;
-      return unchanged ? prev : next;
+      return (Object.keys(next) as (keyof InspectView)[]).every((k) => next[k] === prev[k]) ? prev : next;
     });
   }, []);
 
@@ -105,9 +104,9 @@ export function useInspectTarget(active: boolean) {
 
   /** Moves the pin to its parent; returns whether it moved. */
   const selectParent = useCallback(() => {
-    const current = pinned.current;
-    if (!current || current === document.body || !current.parentElement) return false;
-    pin(current.parentElement);
+    const parent = pinned.current && parentOf(pinned.current);
+    if (!parent) return false;
+    pin(parent);
     return true;
   }, [pin]);
 
@@ -123,8 +122,7 @@ export function useInspectTarget(active: boolean) {
     if (!active) return;
 
     const onPointerMove = (e: PointerEvent) => {
-      rawHover.current = isIgnoredUi(e.target) || !(e.target instanceof Element) ? null : e.target;
-      rawHoverByFocus.current = false;
+      rawHover.current = isIgnoredUi(e.target) || !(e.target instanceof Element) ? null : { el: e.target, byFocus: false };
       schedule();
     };
     const onLeave = (e: MouseEvent) => {
@@ -135,8 +133,7 @@ export function useInspectTarget(active: boolean) {
     };
     const onFocusIn = (e: FocusEvent) => {
       if (isIgnoredUi(e.target) || !(e.target instanceof Element)) return;
-      rawHover.current = e.target;
-      rawHoverByFocus.current = true;
+      rawHover.current = { el: e.target, byFocus: true };
       schedule();
     };
     const onPress = (e: Event) => {
@@ -178,5 +175,21 @@ export function useInspectTarget(active: boolean) {
     };
   }, [active, pin, schedule]);
 
-  return { ...view, unpin, selectParent, pinFocused };
+  /** Live-preview a style on the pinned element (see `edits.ts`). */
+  const editPinned = useCallback(
+    (prop: string, value: string) => {
+      if (!isStyled(pinned.current)) return;
+      setStyle(pinned.current, prop, value);
+      schedule();
+    },
+    [schedule],
+  );
+
+  const resetPinned = useCallback(() => {
+    if (!isStyled(pinned.current)) return;
+    resetElement(pinned.current);
+    schedule();
+  }, [schedule]);
+
+  return { ...view, unpin, selectParent, pinFocused, editPinned, resetPinned };
 }

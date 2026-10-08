@@ -38,21 +38,8 @@ export function clampToViewport(pos: Point, size: Size, viewport: Size, margin =
 /** The saved position, or `null` when missing, malformed or storage is unavailable. */
 export function readStoredPosition(): Point | null {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const value: unknown = JSON.parse(raw);
-    if (
-      typeof value === 'object' &&
-      value !== null &&
-      'x' in value &&
-      'y' in value &&
-      typeof value.x === 'number' &&
-      typeof value.y === 'number' &&
-      Number.isFinite(value.x) &&
-      Number.isFinite(value.y)
-    ) {
-      return { x: value.x, y: value.y };
-    }
+    const { x, y }: Partial<Point> = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? 'null');
+    if (Number.isFinite(x) && Number.isFinite(y)) return { x: x!, y: y! };
   } catch {
     // Private mode, blocked storage or bad JSON: fall back to the default.
   }
@@ -90,10 +77,8 @@ export function useDraggable(
   const suppressClick = useRef(false);
   /** True once a press has moved past the tap threshold, until release. */
   const [dragging, setDragging] = useState(false);
+  // Updated with every setPosition, so handlers read the newest value between renders.
   const latest = useRef(position);
-  useEffect(() => {
-    latest.current = position;
-  }, [position]);
 
   const clamp = useCallback(
     (pos: Point) => {
@@ -130,10 +115,9 @@ export function useDraggable(
     };
   }, [clamp, ref, anchorRight, layoutKey]);
 
-  // Removes the window listeners of a drag in progress (also on unmount).
-  const stopTracking = useRef<() => void>(() => {});
-  const tracking = useRef<number | null>(null);
-  useEffect(() => () => stopTracking.current(), []);
+  // The drag in progress: its pointer, and how to remove its window listeners.
+  const drag = useRef<{ id: number; stop: () => void } | null>(null);
+  useEffect(() => () => drag.current?.stop(), []);
 
   // After pointerdown the pointer is followed on `window`, not the handle: a
   // quick flick can leave a 32px button before the drag threshold is crossed,
@@ -146,10 +130,9 @@ export function useDraggable(
       // One pointer at a time: a second finger mid-drag must not restart it.
       // The same pointer pressing again means its release was missed (e.g.
       // let go outside the window), so start over.
-      if (tracking.current !== null && tracking.current !== e.pointerId) return;
-      stopTracking.current();
+      if (drag.current && drag.current.id !== e.pointerId) return;
+      drag.current?.stop();
       const pointerId = e.pointerId;
-      tracking.current = pointerId;
       const start = { x: e.clientX, y: e.clientY };
       const origin = latest.current;
       let moved = false;
@@ -171,7 +154,7 @@ export function useDraggable(
       };
       const finish = (ev: globalThis.PointerEvent) => {
         if (ev.pointerId !== pointerId) return;
-        stopTracking.current();
+        drag.current?.stop();
         if (!moved) return;
         storePosition(latest.current);
         // The browser fires `click` right after `pointerup` when the drag ends
@@ -187,13 +170,15 @@ export function useDraggable(
       window.addEventListener('pointermove', onMove, opts);
       window.addEventListener('pointerup', finish, opts);
       window.addEventListener('pointercancel', finish, opts);
-      stopTracking.current = () => {
-        window.removeEventListener('pointermove', onMove, opts);
-        window.removeEventListener('pointerup', finish, opts);
-        window.removeEventListener('pointercancel', finish, opts);
-        tracking.current = null;
-        setDragging(false);
-        stopTracking.current = () => {};
+      drag.current = {
+        id: pointerId,
+        stop: () => {
+          window.removeEventListener('pointermove', onMove, opts);
+          window.removeEventListener('pointerup', finish, opts);
+          window.removeEventListener('pointercancel', finish, opts);
+          drag.current = null;
+          setDragging(false);
+        },
       };
     },
     [clamp],

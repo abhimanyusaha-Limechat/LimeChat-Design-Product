@@ -1,3 +1,6 @@
+import { editsOf, type Edit } from './edits';
+import { sourceOf, type SourceInfo } from './reactSource';
+
 /**
  * Reads what Inspect mode shows about an element. The geometry and style
  * parsing are pure (and unit tested — jsdom has no layout); `measureElement`
@@ -22,8 +25,6 @@ export interface TypeSpec {
   family: string;
   size: number;
   weight: number;
-  /** The weight the browser will actually draw, or `null` when it can't be verified. */
-  renderedWeight: number | null;
   /** The family has registered font faces and every one failed to load. */
   fontFailed: boolean;
   /** `null` = `normal`. */
@@ -61,6 +62,12 @@ export interface Spec {
   gapStrips: GapStrip[];
   /** Distinct non-zero margins on in-flow children, ascending. */
   childMargins: number[];
+  /** Live style tweaks made from the panel, not saved anywhere. */
+  edits: Edit[];
+  /** Where it's written in the source; `null` outside dev. */
+  source: SourceInfo | null;
+  /** `null` = transparent / no border. Hex, with an alpha byte when translucent. */
+  colors: { background: string | null; border: string | null };
   /** `null` when the element has no text of its own. */
   type: TypeSpec | null;
   /** Line boxes of the element's own text, clipped to the viewport; empty without `type`. */
@@ -88,6 +95,8 @@ export type StyleLike = Pick<
   | 'lineHeight'
   | 'letterSpacing'
   | 'color'
+  | 'backgroundColor'
+  | 'borderTopColor'
 >;
 
 export type ChildStyleLike = Pick<CSSStyleDeclaration, SideKeys<'margin'> | 'position' | 'display'>;
@@ -95,7 +104,6 @@ export type ChildStyleLike = Pick<CSSStyleDeclaration, SideKeys<'margin'> | 'pos
 /** Minimal shape of a `FontFace`, so tests can pass plain objects. */
 export interface FontFaceLike {
   family: string;
-  weight: string;
   status: string;
 }
 
@@ -123,6 +131,21 @@ export function toHex(color: string): string {
   if (m[4] == null) return hex;
   const alpha = m[5] === '%' ? Number(m[4]) / 100 : Number(m[4]);
   return alpha >= 1 ? hex : `${hex}${byte(alpha * 255)}`;
+}
+
+/** Hex for a visible color; `null` for fully transparent. */
+function visibleColor(color: string): string | null {
+  const hex = toHex(color);
+  return hex === 'transparent' || /^#[0-9a-f]{6}00$/.test(hex) ? null : hex;
+}
+
+export function readColors(style: StyleLike, border: Sides): Spec['colors'] {
+  const hasBorder = border.top > 0 || border.right > 0 || border.bottom > 0 || border.left > 0;
+  return {
+    background: visibleColor(style.backgroundColor),
+    // Borders are read from the top edge; per-side colors are rare.
+    border: hasBorder ? visibleColor(style.borderTopColor) : null,
+  };
 }
 
 export function readPadding(style: StyleLike): Sides {
@@ -168,11 +191,7 @@ export function renderScale(
   return Math.abs(scale - 1) < 0.001 ? 1 : scale;
 }
 
-const LAYOUT_CONTAINERS = new Set(['flex', 'inline-flex', 'grid', 'inline-grid']);
-
-export function isLayoutContainer(display: string): boolean {
-  return LAYOUT_CONTAINERS.has(display);
-}
+export const isLayoutContainer = (display: string) => /^(inline-)?(flex|grid)$/.test(display);
 
 /** Declared gaps; `normal` counts as 0. `null` when gap doesn't apply. */
 export function readGap(style: StyleLike): Spec['gap'] {
@@ -203,64 +222,26 @@ export function collectChildMargins(children: ChildStyleLike[]): number[] {
   return [...values].sort((a, b) => a - b);
 }
 
-/** Parses a FontFace weight descriptor: `"700"`, a variable range `"100 900"`, or a keyword. */
-function weightRange(weight: string): [number, number] | null {
-  if (weight === 'normal') return [400, 400];
-  if (weight === 'bold') return [700, 700];
-  const parts = weight.trim().split(/\s+/).map(Number);
-  if (parts.some((n) => !Number.isFinite(n) || n <= 0)) return null;
-  return [parts[0], parts[parts.length - 1]];
-}
-
-/**
- * Which face the browser will draw for `declared`, per the CSS Fonts 4 weight
- * matching rules, given the weights registered for the family. `null` when
- * nothing is registered (a system font, or the font stylesheet never loaded).
- */
-export function renderedWeight(declared: number, faces: readonly [number, number][]): number | null {
-  if (faces.length === 0) return null;
-  if (faces.some(([lo, hi]) => declared >= lo && declared <= hi)) return declared;
-  // Outside every face, the nearest edge of each face is a candidate.
-  const candidates = [...new Set(faces.flatMap(([lo, hi]) => [lo, hi]))];
-  const above = candidates.filter((w) => w > declared).sort((a, b) => a - b);
-  const below = candidates.filter((w) => w < declared).sort((a, b) => b - a);
-  if (declared >= 400 && declared <= 500) {
-    const upTo500 = above.filter((w) => w <= 500);
-    const over500 = above.filter((w) => w > 500);
-    return upTo500[0] ?? below[0] ?? over500[0] ?? null;
-  }
-  if (declared < 400) return below[0] ?? above[0] ?? null;
-  return above[0] ?? below[0] ?? null;
-}
-
-/** Weight ranges of `family`'s usable faces, and whether every face failed. */
-export function familyFaces(
-  family: string,
-  faces: Iterable<FontFaceLike>,
-): { ranges: [number, number][]; failed: boolean } {
+/** The family has registered font faces and every one failed to load. */
+export function allFacesFailed(family: string, faces: Iterable<FontFaceLike>): boolean {
   const wanted = family.toLowerCase();
-  const ranges: [number, number][] = [];
   let total = 0;
+  let failed = 0;
   for (const face of faces) {
     if (firstFamily(face.family).toLowerCase() !== wanted) continue;
     total += 1;
-    if (face.status === 'error') continue;
-    const range = weightRange(face.weight);
-    if (range) ranges.push(range);
+    if (face.status === 'error') failed += 1;
   }
-  return { ranges, failed: total > 0 && ranges.length === 0 };
+  return total > 0 && failed === total;
 }
 
 export function readType(style: StyleLike, faces: Iterable<FontFaceLike>): TypeSpec {
   const family = firstFamily(style.fontFamily);
-  const weight = parseInt(style.fontWeight, 10) || 400;
-  const { ranges, failed } = familyFaces(family, faces);
   return {
     family,
     size: parsePx(style.fontSize),
-    weight,
-    renderedWeight: renderedWeight(weight, ranges),
-    fontFailed: failed,
+    weight: parseInt(style.fontWeight, 10) || 400,
+    fontFailed: allFacesFailed(family, faces),
     lineHeight: parseOptionalPx(style.lineHeight),
     letterSpacing: parseOptionalPx(style.letterSpacing),
     color: toHex(style.color),
@@ -527,6 +508,9 @@ export function measureElement(el: Element): Spec {
     scrollbar,
     gap,
     gapStrips,
+    colors: readColors(style, border),
+    source: sourceOf(el),
+    edits: editsOf(el),
     childMargins: collectChildMargins(children.map((c) => c.style)),
     type,
     textLines,

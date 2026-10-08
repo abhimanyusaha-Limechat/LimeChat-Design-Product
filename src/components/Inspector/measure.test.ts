@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
   collectChildMargins,
-  familyFaces,
+  allFacesFailed,
   firstFamily,
   gapRects,
   lineBoxes,
   parsePx,
   readGap,
   readType,
-  renderedWeight,
   renderScale,
   stripValue,
   toHex,
@@ -42,6 +41,8 @@ function style(overrides: Partial<StyleLike> = {}): StyleLike {
     lineHeight: '20px',
     letterSpacing: 'normal',
     color: 'rgb(60, 73, 44)',
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    borderTopColor: 'rgb(0, 0, 0)',
     ...overrides,
   };
 }
@@ -108,62 +109,24 @@ describe('collectChildMargins', () => {
   });
 });
 
-describe('renderedWeight', () => {
-  const LATO: [number, number][] = [
-    [400, 400],
-    [700, 700],
-    [900, 900],
-  ];
-
-  it('keeps a weight that has a face', () => {
-    expect(renderedWeight(400, LATO)).toBe(400);
-    expect(renderedWeight(700, LATO)).toBe(700);
-  });
-
-  it('follows CSS font matching for missing weights', () => {
-    expect(renderedWeight(600, LATO)).toBe(700); // above 500: heavier first
-    expect(renderedWeight(500, LATO)).toBe(400); // 400–500: up to 500, then lighter
-    expect(renderedWeight(300, LATO)).toBe(400); // below 400: lighter first, else heavier
-    expect(renderedWeight(800, LATO)).toBe(900);
-    expect(renderedWeight(950, LATO)).toBe(900);
-  });
-
-  it('treats a variable font range as covering every weight in it', () => {
-    expect(renderedWeight(600, [[100, 900]])).toBe(600);
-  });
-
-  it('is null when nothing is registered', () => {
-    expect(renderedWeight(600, [])).toBeNull();
-  });
-});
-
-describe('familyFaces', () => {
-  it('collects usable weights for the family, case-insensitively', () => {
-    const faces = [
-      { family: '"Lato"', weight: '400', status: 'loaded' },
-      { family: 'Lato', weight: '700', status: 'unloaded' },
-      { family: 'lato', weight: 'bold', status: 'error' },
-      { family: 'Inter', weight: '600', status: 'loaded' },
-    ];
-    expect(familyFaces('Lato', faces)).toEqual({
-      ranges: [
-        [400, 400],
-        [700, 700],
-      ],
-      failed: false,
-    });
-  });
-
-  it('reports failed only when every face errored', () => {
-    expect(familyFaces('Lato', [{ family: 'Lato', weight: '400', status: 'error' }]).failed).toBe(true);
-    expect(familyFaces('Lato', []).failed).toBe(false);
+describe('allFacesFailed', () => {
+  it('is true only when the family has faces and every one errored', () => {
+    expect(allFacesFailed('Lato', [{ family: '"Lato"', status: 'error' }])).toBe(true);
+    expect(
+      allFacesFailed('Lato', [
+        { family: 'Lato', status: 'error' },
+        { family: 'lato', status: 'loaded' },
+      ]),
+    ).toBe(false);
+    expect(allFacesFailed('Lato', [{ family: 'Inter', status: 'error' }])).toBe(false);
+    expect(allFacesFailed('Lato', [])).toBe(false);
   });
 });
 
 describe('readType', () => {
   const faces = [
-    { family: 'Lato', weight: '400', status: 'loaded' },
-    { family: 'Lato', weight: '700', status: 'loaded' },
+    { family: 'Lato', status: 'loaded' },
+    { family: 'Lato', status: 'loaded' },
   ];
 
   it('reads the type values', () => {
@@ -171,16 +134,11 @@ describe('readType', () => {
       family: 'Lato',
       size: 14,
       weight: 600,
-      renderedWeight: 700,
       fontFailed: false,
       lineHeight: null,
       letterSpacing: 0.5,
       color: '#3c492c',
     });
-  });
-
-  it("can't verify the weight of a family with no registered faces", () => {
-    expect(readType(style({ fontFamily: '-apple-system, sans-serif' }), faces).renderedWeight).toBeNull();
   });
 });
 
