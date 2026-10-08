@@ -9,6 +9,7 @@ import { useState } from 'react';
 import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsPage } from '../SettingsPage';
 import { InboxesTable } from '../InboxesTable';
+import { EventsTable } from '../EventsTable';
 import { BotTemplatesTable, type BotTemplateRow } from '../BotTemplatesTable';
 import { DataSecuritySettings, type PiiTypeKey, type ProfanityWord } from '../DataSecuritySettings';
 import { AttributionSettings, type AttributionWindowKey, type AttributionWindowValue } from '../AttributionSettings';
@@ -33,6 +34,7 @@ import {
   DEMO_COLLABORATORS,
   DEMO_CONTACT_FIELDS,
   DEMO_CONVERSATION_FIELDS,
+  DEMO_EVENTS,
   DEMO_INBOXES,
   DEMO_INDUSTRIES,
   DEMO_RULES,
@@ -361,6 +363,8 @@ export function SettingsScreen({ product, settingsTab, manageIndustries, onTabCh
             setCsatReminderDelay((prev) => ({ ...prev, [field]: value }))
           }
         />
+      ) : settingsTab === 'events' ? (
+        <EventsTable events={DEMO_EVENTS} onCustomEvents={() => alert('Manage custom events')} />
       ) : settingsTab === 'inboxes' ? (
         <InboxesTable
           inboxes={visibleInboxes}
