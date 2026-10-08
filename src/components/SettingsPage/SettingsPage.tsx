@@ -4,7 +4,8 @@
  * Generic settings layout: a vertical tab list on the left, a titled content
  * card on the right. `children` renders inside the card.
  */
-import { useRef, useState, type ReactNode, type UIEvent } from 'react';
+import type { ReactNode } from 'react';
+import { useScrollFade } from '../../hooks/useScrollFade';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
 import './SettingsPage.css';
@@ -15,9 +16,10 @@ export interface SettingsTab {
 }
 
 export interface SettingsPageProps {
-  tabs: SettingsTab[];
-  activeTab: string;
-  onTabChange: (id: string) => void;
+  /** Left tab list. Omit for a single page with no tab list. */
+  tabs?: SettingsTab[];
+  activeTab?: string;
+  onTabChange?: (id: string) => void;
   title: string;
   description?: string;
   /** "Watch video" header CTA — opens a tutorial for this settings section. Omit to hide. */
@@ -26,6 +28,8 @@ export interface SettingsPageProps {
   onViewDocs?: () => void;
   /** Rendered at the right end of the header (e.g. a Save button), after the video/docs CTAs. */
   headerActions?: ReactNode;
+  /** Overrides the content card's padding in px (default 16). */
+  contentPadding?: number;
   children?: ReactNode;
 }
 
@@ -46,18 +50,6 @@ const DocsIcon = () => (
   </svg>
 );
 
-/** Flags `data-scrolling` for 600ms after each scroll — same fade-in-thumb pattern as the tables. */
-function useScrollFade() {
-  const [isScrolling, setIsScrolling] = useState(false);
-  const timeout = useRef<number>();
-  const onScroll = (_e: UIEvent<HTMLElement>) => {
-    setIsScrolling(true);
-    window.clearTimeout(timeout.current);
-    timeout.current = window.setTimeout(() => setIsScrolling(false), 600);
-  };
-  return { 'data-scrolling': isScrolling || undefined, onScroll } as const;
-}
-
 export function SettingsPage({
   tabs,
   activeTab,
@@ -67,75 +59,66 @@ export function SettingsPage({
   onWatchVideo,
   onViewDocs,
   headerActions,
+  contentPadding,
   children,
 }: SettingsPageProps) {
   const navScroll = useScrollFade();
   const contentScroll = useScrollFade();
+  const helpCtas = [
+    onWatchVideo && { label: 'Video', tip: 'a video explainer', icon: <PlayCircleIcon />, onClick: onWatchVideo },
+    onViewDocs && { label: 'Docs', tip: 'Documentation', icon: <DocsIcon />, onClick: onViewDocs },
+  ].filter((cta) => !!cta);
 
   return (
     <div className="lc-sp">
-      <nav className="lc-sp__side-panel" aria-label="Settings" {...navScroll}>
+      {tabs && (
+      <nav className="lc-sp__side-panel" data-anchor="settings-tab-list" aria-label="Settings" {...navScroll}>
         {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
             className="lc-sp__tab"
             data-active={tab.id === activeTab}
-            onClick={() => onTabChange(tab.id)}
+            onClick={() => onTabChange?.(tab.id)}
           >
             <span className="lc-sp__tab-accent" />
             {tab.label}
           </button>
         ))}
       </nav>
+      )}
 
       <div className="lc-sp__main">
         <div className="lc-sp__card">
-          <div className="lc-sp__header">
+          <div className="lc-sp__header" data-anchor="settings-header">
             <div className="lc-sp__header-text">
               <h1 className="lc-sp__title">{title}</h1>
               {description && <p className="lc-sp__description">{description}</p>}
             </div>
-            {(onWatchVideo || onViewDocs || headerActions) && (
+            {(helpCtas.length > 0 || headerActions) && (
               <div className="lc-sp__header-actions">
-                {(onWatchVideo || onViewDocs) && (
+                {helpCtas.length > 0 && (
                   <div className="lc-sp__help-ctas">
-                    {onWatchVideo && (
-                      <Tooltip label={`Learn more on ${title} on a video explainer`} position="bottom">
-                        <Button
-                          variant="light"
-                          color="primary"
-                          size="sm"
-                          leftSection={<PlayCircleIcon />}
-                          onClick={onWatchVideo}
-                        >
-                          Video
+                    {helpCtas.map((cta) => (
+                      <Tooltip key={cta.label} label={`Learn more on ${title} on ${cta.tip}`} position="bottom">
+                        <Button variant="default" size="sm" leftSection={cta.icon} onClick={cta.onClick}>
+                          {cta.label}
                         </Button>
                       </Tooltip>
-                    )}
-                    {onViewDocs && (
-                      <Tooltip label={`Learn more on ${title} on Documentation`} position="bottom">
-                        <Button
-                          variant="light"
-                          color="primary"
-                          size="sm"
-                          leftSection={<DocsIcon />}
-                          onClick={onViewDocs}
-                        >
-                          Docs
-                        </Button>
-                      </Tooltip>
-                    )}
+                    ))}
                   </div>
                 )}
-                {(onWatchVideo || onViewDocs) && headerActions && (
-                  <span className="lc-sp__header-divider" aria-hidden="true" />
-                )}
+                {helpCtas.length > 0 && headerActions && <span className="lc-sp__header-divider" aria-hidden="true" />}
                 {headerActions}
               </div>
             )}
           </div>
-          <div className="lc-sp__content" {...contentScroll}>
+          <div
+            className="lc-sp__content"
+            data-anchor="settings-content"
+            style={{ padding: contentPadding }}
+            {...contentScroll}
+          >
             {children}
           </div>
         </div>

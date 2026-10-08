@@ -2,7 +2,6 @@ export { TopNavBar, default } from './TopNavBar';
 export type {
   TopNavBarProps,
   TopNavCrumb,
-  TopNavBadge,
   TopNavAccount,
 } from './TopNavBar';
 export { TopNavIcon } from './icons';

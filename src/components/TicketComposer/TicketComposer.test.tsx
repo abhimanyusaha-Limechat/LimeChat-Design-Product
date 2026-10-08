@@ -1,8 +1,17 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TicketComposer } from './TicketComposer';
+
+// jsdom has no ResizeObserver; the composer only uses it to re-measure the tab indicator.
+beforeAll(() => {
+  globalThis.ResizeObserver ??= class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+});
 
 function Harness({ onSend, initial = '' }: { onSend: () => void; initial?: string }) {
   const [value, setValue] = useState(initial);

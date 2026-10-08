@@ -15,11 +15,21 @@
  *     onRowClick={openFlowInEditor}
  *   />
  */
-import { useRef, useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
 import { ActionMenu } from '../Menu';
 import { BotFlowIcon } from './icons';
+import {
+  DataTable,
+  DataTableEmpty,
+  DataTableHead,
+  DataTableRow,
+  DataTableSkeleton,
+  DataTableSortHeader,
+  Skeleton,
+  useTableSort,
+} from '../DataTable';
 import './BotFlowsHomePage.css';
 
 export type BotFlowTab = 'active' | 'inactive';
@@ -67,6 +77,8 @@ function RowActions({
 }
 
 export interface BotFlowsHomePageProps {
+  /** Shows skeleton rows in place of the list while its data loads. */
+  loading?: boolean;
   flows: BotFlowRowData[];
   activeTab?: BotFlowTab;
   onTabChange?: (tab: BotFlowTab) => void;
@@ -100,23 +112,12 @@ export function BotFlowsHomePage({
   page = 1,
   totalPages = 1,
   onPageChange,
+  loading = false,
 }: BotFlowsHomePageProps) {
-  const [sortDir, setSortDir] = useState<'asc' | 'desc' | null>(null);
-  const toggleSort = () => setSortDir((d) => (d === null ? 'asc' : d === 'asc' ? 'desc' : null));
-
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeout = useRef<number>();
-  const handleTableScroll = () => {
-    setIsScrolling(true);
-    window.clearTimeout(scrollTimeout.current);
-    scrollTimeout.current = window.setTimeout(() => setIsScrolling(false), 600);
-  };
-
-  const sortedFlows = (() => {
-    if (!sortDir) return flows;
-    const sorted = [...flows].sort((a, b) => a.name.localeCompare(b.name));
-    return sortDir === 'asc' ? sorted : sorted.reverse();
-  })();
+  const { sorted: sortedFlows, sort, toggle: toggleSort } = useTableSort(
+    flows,
+    (row, key: 'name' | 'description') => row[key],
+  );
 
   const pageNumbers = new Set<number>(
     [1, 2, 3, 4, 5, totalPages].filter((n) => n <= totalPages),
@@ -124,7 +125,7 @@ export function BotFlowsHomePage({
 
   return (
     <div className="lc-bf">
-      <div className="lc-bf__toolbar">
+      <div className="lc-bf__toolbar" data-anchor="bot-flow-toolbar">
         <div className="lc-bf__search">
           <BotFlowIcon name="search" className="lc-bf__search-icon" />
           <input
@@ -148,7 +149,7 @@ export function BotFlowsHomePage({
         </div>
       </div>
 
-      <div className="lc-bf__nav-row">
+      <div className="lc-bf__nav-row" data-anchor="bot-flow-tab-bar">
         <div className="lc-bf__tabs" role="tablist">
           {TABS.map((tab) => (
             <button
@@ -166,74 +167,76 @@ export function BotFlowsHomePage({
         </div>
       </div>
 
-      <div className="lc-bf__table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
-        <div className="lc-bf__row lc-bf__row--head">
-          <div className="lc-bf__cell--name lc-bf__cell">
-            <button
-              type="button"
-              className="lc-bf__sort-btn"
-              data-sort={sortDir ?? undefined}
-              onClick={toggleSort}
-            >
-              <span className="lc-bf__head-label">Flow</span>
-              <BotFlowIcon name="chevron-down" className="lc-bf__sort-icon" />
-            </button>
-          </div>
-          <div className="lc-bf__cell--description lc-bf__cell">
-            <span className="lc-bf__head-label">Description</span>
-          </div>
-          <div className="lc-bf__cell--actions lc-bf__cell" aria-hidden="true" />
-        </div>
+      <DataTable aria-busy={loading || undefined} aria-label="Bot flows" data-anchor="bot-flow-table">
+        <DataTableHead className="lc-bf__row--head">
+          <DataTableSortHeader className="lc-bf__cell--name lc-bf__cell" label="Flow" sortKey="name" sort={sort} onSort={toggleSort} />
+          <DataTableSortHeader className="lc-bf__cell--description lc-bf__cell" label="Description" sortKey="description" sort={sort} onSort={toggleSort} />
+          <div role="columnheader" className="lc-bf__cell--actions lc-bf__cell" aria-label="Actions" />
+        </DataTableHead>
 
-        {sortedFlows.map((row) => (
-          <div key={row.id} className="lc-bf__row lc-bf__row--body">
+        {loading ? (
+          <DataTableSkeleton>
             <div className="lc-bf__cell--name lc-bf__cell">
-              <div className="lc-bf__name-block">
-                <span className="lc-bf__name">{row.name}</span>
-                <span className="lc-bf__meta-line">
-                  Last edited: {row.updatedOn} · {row.nodeCount} nodes
-                </span>
-              </div>
+              <Skeleton lines={2} />
             </div>
             <div className="lc-bf__cell--description lc-bf__cell">
-              {row.description ? (
-                <span className="lc-bf__description">{row.description}</span>
-              ) : (
-                <span className="lc-bf__description lc-bf__description--empty">No description</span>
-              )}
+              <Skeleton />
             </div>
-            <div className="lc-bf__cell--actions lc-bf__cell">
-              <Tooltip label={row.status === 'active' ? 'Deactivate flow' : 'Activate flow'}>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={row.status === 'active'}
-                  aria-label={row.status === 'active' ? 'Deactivate flow' : 'Activate flow'}
-                  className="lc-bf__toggle"
-                  data-checked={row.status === 'active' || undefined}
-                  onClick={() => onRowToggleActive?.(row)}
-                >
-                  <span className="lc-bf__toggle-thumb" aria-hidden="true" />
-                </button>
-              </Tooltip>
-              <Tooltip label="Edit flow">
-                <button
-                  type="button"
-                  className="lc-bf__action-btn"
-                  aria-label="Edit flow"
-                  onClick={() => onRowClick?.(row)}
-                >
-                  <BotFlowIcon name="edit" />
-                </button>
-              </Tooltip>
-              <RowActions row={row} onClone={onRowClone} onDownload={onRowDownload} onDelete={onRowDelete} />
-            </div>
-          </div>
-        ))}
-      </div>
+            <div className="lc-bf__cell--actions lc-bf__cell" />
+          </DataTableSkeleton>
+        ) : sortedFlows.length === 0 ? (
+          <DataTableEmpty>No flows found</DataTableEmpty>
+        ) : (
+          sortedFlows.map((row) => (
+            <DataTableRow key={row.id} data-anchor="bot-flow-row" data-anchor-key={row.id}>
+              <div role="cell" className="lc-bf__cell--name lc-bf__cell">
+                <div className="lc-bf__name-block">
+                  <span className="lc-bf__name">{row.name}</span>
+                  <span className="lc-bf__meta-line">
+                    Last edited: {row.updatedOn} · {row.nodeCount} nodes
+                  </span>
+                </div>
+              </div>
+              <div role="cell" className="lc-bf__cell--description lc-bf__cell">
+                {row.description ? (
+                  <span className="lc-bf__description">{row.description}</span>
+                ) : (
+                  <span className="lc-bf__description lc-bf__description--empty">No description</span>
+                )}
+              </div>
+              <div role="cell" className="lc-bf__cell--actions lc-bf__cell">
+                <Tooltip label={row.status === 'active' ? 'Deactivate flow' : 'Activate flow'}>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={row.status === 'active'}
+                    aria-label={row.status === 'active' ? 'Deactivate flow' : 'Activate flow'}
+                    className="lc-bf__toggle"
+                    data-checked={row.status === 'active' || undefined}
+                    onClick={() => onRowToggleActive?.(row)}
+                  >
+                    <span className="lc-bf__toggle-thumb" aria-hidden="true" />
+                  </button>
+                </Tooltip>
+                <Tooltip label="Edit flow">
+                  <button
+                    type="button"
+                    className="lc-bf__action-btn"
+                    aria-label="Edit flow"
+                    onClick={() => onRowClick?.(row)}
+                  >
+                    <BotFlowIcon name="edit" />
+                  </button>
+                </Tooltip>
+                <RowActions row={row} onClone={onRowClone} onDownload={onRowDownload} onDelete={onRowDelete} />
+              </div>
+            </DataTableRow>
+          ))
+        )}
+      </DataTable>
 
       {totalPages > 1 && (
-        <div className="lc-bf__pagination">
+        <div className="lc-bf__pagination" data-anchor="bot-flow-pagination">
           {Array.from(pageNumbers)
             .sort((a, b) => a - b)
             .flatMap((n, i, arr) => {

@@ -99,7 +99,7 @@
   height: 44px;
   border-radius: 4px;
   background: rgba(59, 144, 182, 0.24); /* ~blue/blue-5 @ 24% — placeholder */
-  color: #3b90b6;
+  color: #3B90B6;
   overflow: hidden;
 }
 .lc-product-switcher__icon svg,

@@ -47,6 +47,7 @@ export function ChatList({ items, listKey }: ChatListProps) {
   return (
     <Virtuoso
       ref={virtuosoRef}
+      data-anchor="conversation"
       className="lc-hd-tickets__conversation lc-chat-list lc-scrollbar-hidden"
       data={items}
       computeItemKey={(_, item) => item.id}

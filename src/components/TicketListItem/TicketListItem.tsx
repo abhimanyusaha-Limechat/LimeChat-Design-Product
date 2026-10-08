@@ -138,7 +138,7 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
   ref,
 ) {
   const resolvedMessageIcon =
-    messageIcon === false ? null : (messageIcon ?? <TicketIcon name="share" className="lc-ticket-row__message-icon" />);
+    messageIcon === false ? null : (messageIcon ?? <TicketIcon name="forward" className="lc-ticket-row__message-icon" />);
   const hasMoreActions = onSelect != null || onSelectAll != null || onMarkAsStarred != null;
   const unread = unreadCount != null && unreadCount > 0;
 
@@ -207,7 +207,7 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
                   align="start"
                   width={170}
                   triggerClassName="lc-ticket-row__more"
-                  icon={<TicketIcon name="dots-horizontal" />}
+                  icon={<TicketIcon name="dots" fill="currentColor" strokeWidth={1} />}
                   items={[
                     { key: 'select', label: 'Select', onClick: () => onSelect?.() },
                     { key: 'select-all', label: 'Select all', onClick: () => onSelectAll?.() },

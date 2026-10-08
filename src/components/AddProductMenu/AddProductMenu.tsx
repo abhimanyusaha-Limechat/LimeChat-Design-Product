@@ -9,15 +9,28 @@ import { Button } from '../Button';
 import { Menu, type MenuItemData, type MenuTriggerRenderProps } from '../Menu';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
 import { formatINR } from '../formatINR';
-import { iconProps } from '../iconProps';
+import { Icon, PhotoIcon } from '../icons';
+import { thumbPalette } from '../catalogUtils';
 import './AddProductMenu.css';
 
-const PlusIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M12 5l0 14" />
-    <path d="M5 12l14 0" />
-  </svg>
-);
+const PlusIcon = () => <Icon name="plus" />;
+
+function ItemThumb({ product }: { product: Product }) {
+  const palette = thumbPalette(product.id);
+  return (
+    <span
+      className="lc-add-product__item-thumb"
+      style={product.imageUrl ? undefined : { background: palette.bg, color: palette.fg }}
+      aria-hidden="true"
+    >
+      {product.imageUrl ? (
+        <img className="lc-add-product__item-thumb-img" src={product.imageUrl} alt="" />
+      ) : (
+        <PhotoIcon />
+      )}
+    </span>
+  );
+}
 
 const defaultTrigger = ({ ref, onClick }: MenuTriggerRenderProps) => (
   <Button ref={ref} variant="default" size="xs" leftSection={<PlusIcon />} onClick={onClick}>
@@ -43,6 +56,7 @@ export function AddProductMenu({
         key: p.id,
         label: (
           <span className="lc-add-product__item">
+            <ItemThumb product={p} />
             <span className="lc-add-product__item-name">{p.name}</span>
             <span className="lc-add-product__item-price">{formatINR(p.discountedPrice)}</span>
           </span>
@@ -55,7 +69,7 @@ export function AddProductMenu({
     <Menu
       items={items}
       ariaLabel="Add product"
-      width={240}
+      width={300}
       className="lc-add-product"
       header={
         <div className="lc-add-product__search">

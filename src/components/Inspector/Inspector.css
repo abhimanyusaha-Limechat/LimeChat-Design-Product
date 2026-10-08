@@ -1,0 +1,680 @@
+/**
+ * Inspect mode. Sits above every app layer, including Tooltip (2147483000):
+ * overlay 2147483600, bar + panel 2147483647.
+ */
+.lc-inspector {
+  --lc-inspector-surface: var(--lc-color-green-900);
+  --lc-inspector-on-surface: var(--lc-color-white);
+  --lc-inspector-hover: rgb(255 255 255 / 10%);
+  --lc-inspector-on-fill: rgb(255 255 255 / 14%);
+  --lc-inspector-on-fill-hover: rgb(255 255 255 / 20%);
+  --lc-inspector-off-icon: rgb(255 255 255 / 55%);
+  --lc-inspector-off: var(--lc-color-red-600);
+
+  position: fixed;
+  z-index: 2147483647;
+  font-family: var(--lc-font-family, 'Lato', sans-serif);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* Overlay lives outside .lc-inspector, so it declares its own layer colors. */
+.lc-inspector__overlay {
+  --lc-inspector-padding: color-mix(in srgb, var(--lc-color-green-500) 30%, transparent);
+  --lc-inspector-gap: color-mix(in srgb, var(--lc-color-blue-600) 40%, transparent);
+  --lc-inspector-gap-tint: color-mix(in srgb, var(--lc-color-blue-600) 10%, transparent);
+  --lc-inspector-text: color-mix(in srgb, var(--lc-color-amber-500) 28%, transparent);
+  --lc-inspector-off: var(--lc-color-red-600);
+  --lc-inspector-off-fill: color-mix(in srgb, var(--lc-color-red-500) 35%, transparent);
+
+  position: fixed;
+  inset: 0;
+  z-index: 2147483600;
+  pointer-events: none;
+  font-family: var(--lc-font-family, 'Lato', sans-serif);
+}
+
+/* ---- Bar / FAB ---- */
+
+.lc-inspector__handle {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  /* drop-shadow traces the bar's clipped shape on every frame of the reveal. */
+  filter: drop-shadow(0 4px 12px rgb(0 0 0 / 22%));
+  transition:
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    filter 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Picked up: lifts slightly and casts a deeper shadow while it follows the pointer. */
+.lc-inspector__handle[data-dragging] {
+  transform: scale(1.04);
+  filter: drop-shadow(0 10px 20px rgb(0 0 0 / 28%));
+}
+
+.lc-inspector__handle[data-dragging],
+.lc-inspector__handle[data-dragging] * {
+  cursor: grabbing;
+}
+
+.lc-inspector__bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--lc-inspector-bar);
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--lc-inspector-surface);
+  color: var(--lc-inspector-on-surface);
+  /* A hairline highlight for edge definition on dark page areas. The outer
+     shadow lives on the handle: the open/close clip-path would cut it off here. */
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 8%);
+}
+
+/* The ruler button fills the bar's height, so the collapsed FAB is exactly it. */
+.lc-inspector__bar[data-expanded] {
+  padding-right: 4px;
+}
+
+/* Opening leftward: tools on the ruler's left, so the ruler stays put. */
+.lc-inspector__bar[data-opens-left] {
+  flex-direction: row-reverse;
+  padding-right: 0;
+  padding-left: 4px;
+}
+
+.lc-inspector__extras {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lc-inspector__bar[data-opens-left] .lc-inspector__extras,
+.lc-inspector__bar[data-opens-left] .lc-inspector__tools {
+  flex-direction: row-reverse;
+}
+
+.lc-inspector__tools {
+  display: flex;
+  gap: 4px;
+}
+
+.lc-inspector__main,
+.lc-inspector__tool {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.lc-inspector__main {
+  width: var(--lc-inspector-bar);
+  height: var(--lc-inspector-bar);
+}
+
+/* Press feedback — except on the ruler mid-drag, where the lift takes over. */
+.lc-inspector__main:active,
+.lc-inspector__tool:active {
+  transform: scale(0.97);
+}
+
+.lc-inspector__handle[data-dragging] .lc-inspector__main:active {
+  transform: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lc-inspector__main:hover,
+  .lc-inspector__tool:hover {
+    background: var(--lc-inspector-hover);
+  }
+}
+
+/* On: a soft fill and a lit icon. Off: dimmed icon. One active style for the
+   whole bar — the open pill itself already says the mode is on. */
+.lc-inspector__tool[aria-pressed='true'],
+.lc-inspector__main[aria-expanded='true'] {
+  background: var(--lc-inspector-on-fill);
+  color: var(--lc-color-green-200);
+}
+
+.lc-inspector__tool[aria-pressed='false'] {
+  color: var(--lc-inspector-off-icon);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lc-inspector__tool[aria-pressed='true']:hover,
+  .lc-inspector__main[aria-expanded='true']:hover {
+    background: var(--lc-inspector-on-fill-hover);
+  }
+}
+
+.lc-inspector__main:focus-visible,
+.lc-inspector__tool:focus-visible {
+  outline: 2px solid var(--lc-color-white);
+  outline-offset: 1px;
+}
+
+.lc-inspector__divider {
+  width: 1px;
+  height: 20px;
+  background: rgb(255 255 255 / 24%);
+}
+
+/* ---- Open / close motion ----
+   The pill is laid out at full width at once (so dragging and clamping see its
+   real size); a clip-path reveals it from the ruler outward and the tools fade
+   in one after another (--i), sliding away from the ruler. Closing plays it
+   backward, and the bar's animationend unmounts the tools. Only clip-path,
+   opacity and transform animate. No data-motion = instant (keyboard). */
+
+.lc-inspector__bar {
+  --lc-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --lc-shift: -8px;
+  --lc-full: inset(0 round calc(var(--lc-inspector-bar) / 2));
+  --lc-shut: inset(0 calc(100% - var(--lc-inspector-bar)) 0 0 round calc(var(--lc-inspector-bar) / 2));
+}
+
+.lc-inspector__bar[data-opens-left] {
+  --lc-shift: 8px;
+  --lc-shut: inset(0 0 0 calc(100% - var(--lc-inspector-bar)) round calc(var(--lc-inspector-bar) / 2));
+}
+
+@keyframes lc-inspector-open {
+  from {
+    clip-path: var(--lc-shut);
+  }
+  to {
+    clip-path: var(--lc-full);
+  }
+}
+
+@keyframes lc-inspector-close {
+  from {
+    clip-path: var(--lc-full);
+  }
+  to {
+    clip-path: var(--lc-shut);
+  }
+}
+
+@keyframes lc-inspector-item-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--lc-shift));
+  }
+}
+
+@keyframes lc-inspector-item-out {
+  to {
+    opacity: 0;
+    transform: translateX(var(--lc-shift));
+  }
+}
+
+/* Reduced motion: a no-op on the bar that still lasts as long as the fades. */
+@keyframes lc-inspector-hold {
+  from,
+  to {
+    opacity: 1;
+  }
+}
+
+.lc-inspector__bar[data-motion='open'] {
+  animation: lc-inspector-open 200ms var(--lc-ease-out) backwards;
+}
+
+.lc-inspector__bar[data-motion='close'] {
+  animation: lc-inspector-close 160ms var(--lc-ease-out) forwards;
+}
+
+.lc-inspector__bar[data-motion='open'] .lc-inspector__extras :is(.lc-inspector__tool, .lc-inspector__divider) {
+  animation: lc-inspector-item-in 200ms var(--lc-ease-out) calc(var(--i) * 25ms) backwards;
+}
+
+.lc-inspector__bar[data-motion='close'] .lc-inspector__extras :is(.lc-inspector__tool, .lc-inspector__divider) {
+  animation: lc-inspector-item-out 160ms var(--lc-ease-out) forwards;
+}
+
+/* ---- Panel ---- */
+
+.lc-inspector__panel-slot {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+}
+
+.lc-inspector__panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 8px;
+  background: var(--lc-color-white);
+  color: var(--lc-color-green-900);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 16%);
+}
+
+.lc-inspector__panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid var(--lc-color-gray-200);
+}
+
+.lc-inspector__panel-head .lc-inspector__tool {
+  width: 24px;
+  height: 24px;
+  color: var(--lc-color-stone-600);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lc-inspector__panel-head .lc-inspector__tool:hover {
+    background: var(--lc-color-gray-100);
+  }
+}
+
+.lc-inspector__panel-head .lc-inspector__tool:focus-visible {
+  outline-color: var(--lc-color-green-700);
+}
+
+.lc-inspector__panel-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lc-inspector__panel-name {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.lc-inspector__panel-size {
+  color: var(--lc-color-stone-600);
+  overflow-wrap: anywhere;
+}
+
+.lc-inspector__section {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--lc-color-gray-200);
+}
+
+.lc-inspector__section-title {
+  margin: 0 0 4px;
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--lc-color-stone-600);
+}
+
+.lc-inspector__rows {
+  margin: 0;
+}
+
+.lc-inspector__row {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.lc-inspector__row dt {
+  color: var(--lc-color-stone-600);
+}
+
+.lc-inspector__row dd {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  min-width: 0;
+}
+
+.lc-inspector__value {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+/* Inset hairline so white and near-white colors still read against the panel. */
+.lc-inspector__swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 12%);
+  vertical-align: -2px;
+}
+
+.lc-inspector__detail {
+  color: var(--lc-color-stone-600);
+  font-variant-numeric: tabular-nums;
+  user-select: text;
+}
+
+.lc-inspector__row[data-off-scale] .lc-inspector__value {
+  color: var(--lc-inspector-off);
+  font-weight: 700;
+}
+
+.lc-inspector__issue {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 4px;
+  color: var(--lc-inspector-off);
+}
+
+.lc-inspector__issue svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.lc-inspector__empty {
+  margin: 0;
+  color: var(--lc-color-stone-600);
+}
+
+.lc-inspector__panel-foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 12px 12px;
+}
+
+/* ---- Editing ---- */
+
+.lc-inspector__fields {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.lc-inspector__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--lc-color-stone-600);
+  font-size: 10px;
+}
+
+.lc-inspector__field input,
+.lc-inspector__select {
+  box-sizing: border-box;
+  height: 24px;
+  padding: 0 4px;
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 4px;
+  background: var(--lc-color-white);
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lc-inspector__field input {
+  width: 48px;
+}
+
+.lc-inspector__select {
+  max-width: 100%;
+}
+
+.lc-inspector__field input:focus-visible,
+.lc-inspector__select:focus-visible {
+  outline: 2px solid var(--lc-color-green-700);
+  outline-offset: 1px;
+}
+
+/* A row whose value you've changed. */
+.lc-inspector__row[data-edited] dt::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 4px;
+  border-radius: 50%;
+  background: var(--lc-color-blue-600);
+}
+
+.lc-inspector__edits {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--lc-color-gray-200);
+  color: var(--lc-color-blue-600);
+}
+
+.lc-inspector__link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.lc-inspector__source-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+
+.lc-inspector__source-link:focus-visible {
+  outline: 2px solid var(--lc-color-green-700);
+  outline-offset: 1px;
+}
+
+.lc-inspector__copy-state {
+  color: var(--lc-color-stone-600);
+}
+
+/* ---- Overlay ---- */
+
+.lc-inspector__outline {
+  position: fixed;
+  box-sizing: border-box;
+  border: 1px solid var(--lc-color-blue-600);
+}
+
+.lc-inspector__outline[data-pinned] {
+  border: 2px solid var(--lc-color-green-700);
+}
+
+.lc-inspector__padding,
+.lc-inspector__gap,
+.lc-inspector__text {
+  position: fixed;
+}
+
+.lc-inspector__padding {
+  background: var(--lc-inspector-padding);
+}
+
+/* Hatched so it never reads as padding; the tint keeps 2–4px strips visible. */
+.lc-inspector__gap {
+  background:
+    repeating-linear-gradient(-45deg, var(--lc-inspector-gap) 0 2px, transparent 2px 6px),
+    var(--lc-inspector-gap-tint);
+}
+
+/* One box per line, at the full line height. */
+.lc-inspector__text {
+  background: var(--lc-inspector-text);
+}
+
+/* Off-scale: red, plus a dashed edge so it doesn't rely on red vs green alone. */
+.lc-inspector__padding[data-off-scale],
+.lc-inspector__text[data-off-scale] {
+  background: var(--lc-inspector-off-fill);
+}
+
+.lc-inspector__gap[data-off-scale] {
+  background:
+    repeating-linear-gradient(-45deg, var(--lc-inspector-off-fill) 0 2px, transparent 2px 6px),
+    color-mix(in srgb, var(--lc-color-red-500) 10%, transparent);
+}
+
+.lc-inspector__padding[data-off-scale],
+.lc-inspector__gap[data-off-scale],
+.lc-inspector__text[data-off-scale] {
+  outline: 1px dashed var(--lc-inspector-off);
+  outline-offset: -1px;
+}
+
+/* Value chip, centered on its band or strip. Solid, so it reads over any
+   content; it may overhang a thin band rather than hide the number. */
+.lc-inspector__chip {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--lc-color-green-800);
+  color: var(--lc-color-white);
+  /* A white ring separates the chip from dark page areas. */
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 85%);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.lc-inspector__chip[data-kind='gap'] {
+  background: var(--lc-color-blue-900);
+}
+
+.lc-inspector__chip[data-off-scale] {
+  background: var(--lc-inspector-off);
+}
+
+.lc-inspector__label {
+  position: fixed;
+  display: flex;
+  gap: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--lc-color-green-900);
+  color: var(--lc-color-white);
+  /* Lifts it off the page so it doesn't read as part of the content beneath. */
+  box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.lc-inspector__label[data-off-scale] {
+  background: var(--lc-color-red-600);
+}
+
+/* A long name truncates; the values never do — they're what the label is for. */
+.lc-inspector__label-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 700;
+}
+
+.lc-inspector__label-meta {
+  flex: none;
+  color: var(--lc-color-green-200);
+  font-variant-numeric: tabular-nums;
+}
+
+.lc-inspector__label[data-off-scale] .lc-inspector__label-meta {
+  color: var(--lc-color-white);
+}
+
+/* The keyboard hint takes its own line, so it never squeezes the values. A
+   grid, not a wrapping flex row, so the label stays as wide as its longest line. */
+.lc-inspector__label[data-hint] {
+  display: grid;
+  grid-template-columns: minmax(0, auto) auto;
+  gap: 0 6px;
+}
+
+.lc-inspector__label-hint {
+  grid-column: 1 / -1;
+  color: var(--lc-color-green-200);
+}
+
+.lc-inspector__label[data-off-scale] .lc-inspector__label-hint {
+  color: var(--lc-color-white);
+}
+
+/* Screen-reader-only announcements. */
+.lc-inspector__announce {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reduced motion: keep the color feedback, drop the scaling. */
+@media (prefers-reduced-motion: reduce) {
+  .lc-inspector__bar {
+    --lc-shift: 0px;
+  }
+
+  .lc-inspector__bar[data-motion='open'] {
+    animation: lc-inspector-hold 200ms backwards;
+  }
+
+  .lc-inspector__bar[data-motion='close'] {
+    animation: lc-inspector-hold 160ms forwards;
+  }
+
+  .lc-inspector__handle,
+  .lc-inspector__main,
+  .lc-inspector__tool {
+    transition:
+      background-color 120ms ease,
+      color 120ms ease;
+  }
+
+  .lc-inspector__handle[data-dragging],
+  .lc-inspector__main:active,
+  .lc-inspector__tool:active {
+    transform: none;
+  }
+}
+
+@media print {
+  .lc-inspector,
+  .lc-inspector__overlay {
+    display: none;
+  }
+}

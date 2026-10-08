@@ -11,6 +11,7 @@ import { forwardRef, type HTMLAttributes } from 'react';
 import { Button } from '../Button';
 import './EmailMessage.css';
 import { iconProps } from '../iconProps';
+import { Icon } from '../icons';
 
 const MergeIcon = () => (
   <svg {...iconProps()}>
@@ -28,18 +29,8 @@ const NotebookIcon = () => (
     <path d="M6.5 11h1" />
   </svg>
 );
-const ReplyIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M9 14l-4 -4l4 -4" />
-    <path d="M5 10h11a4 4 0 1 1 0 8h-1" />
-  </svg>
-);
-const ForwardIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M15 14l4 -4l-4 -4" />
-    <path d="M19 10h-11a4 4 0 1 0 0 8h1" />
-  </svg>
-);
+const ReplyIcon = () => <Icon name="undo" />;
+const ForwardIcon = () => <Icon name="redo" />;
 
 export interface EmailComposerBarProps extends HTMLAttributes<HTMLDivElement> {
   onMerge?: () => void;

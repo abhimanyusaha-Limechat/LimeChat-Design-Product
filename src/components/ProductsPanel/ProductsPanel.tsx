@@ -9,13 +9,18 @@
 import { useEffect, useId, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockProducts';
+import { useCommerce } from '../../context/CommerceContext';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
 import { LoadMore } from '../LoadMore';
 import './ProductsPanel.css';
 import { iconProps } from '../iconProps';
-import { CloseIcon as ClearIcon, CheckIcon, ChevronDownIcon } from '../icons';
+import { Icon, CloseIcon as ClearIcon, CheckIcon, ChevronDownIcon, TrashIcon } from '../icons';
 import { formatINR } from '../formatINR';
+import { useTypingPlaceholder } from '../catalogUtils';
+import { ProductThumb } from '../ProductThumb';
+import { QtyStepper } from '../QtyStepper';
+import { HighlightMatch } from '../HighlightMatch';
 import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 
 type SortKey = 'relevance' | 'price_low_high' | 'price_high_low' | 'rating' | 'recently_added';
@@ -35,56 +40,7 @@ const STATUS_LABEL: Record<Availability, string> = {
   discontinued: 'Discontinued',
 };
 
-const THUMB_PALETTE = [
-  { bg: '#f1f7e9', fg: '#6bac1b' },
-  { bg: '#e7f3f8', fg: '#097ba3' },
-  { bg: '#fdf3e0', fg: '#b5762b' },
-  { bg: '#fdecec', fg: '#c92a2a' },
-  { bg: '#f0eefc', fg: '#6949c9' },
-];
-
-function hashString(value: string): number {
-  let hash = 0;
-  for (let i = 0; i < value.length; i += 1) {
-    hash = (hash << 5) - hash + value.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
-
 const SEARCH_PLACEHOLDER_PHRASES = ['product name', 'SKU', 'keyword'];
-
-/** Types out, pauses, then deletes each phrase in turn — a rotating typewriter placeholder. */
-function useTypingPlaceholder(phrases: string[]): string {
-  const [text, setText] = useState('');
-  const [phraseIndex, setPhraseIndex] = useState(0);
-  const [deleting, setDeleting] = useState(false);
-  const reducedMotion = useRef(
-    typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
-  ).current;
-
-  useEffect(() => {
-    if (reducedMotion) return undefined;
-    const current = phrases[phraseIndex % phrases.length];
-    let timeout: number;
-    if (!deleting && text === current) {
-      timeout = window.setTimeout(() => setDeleting(true), 1300);
-    } else if (deleting && text === '') {
-      timeout = window.setTimeout(() => {
-        setDeleting(false);
-        setPhraseIndex((i) => (i + 1) % phrases.length);
-      }, 300);
-    } else {
-      timeout = window.setTimeout(
-        () => setText((t) => (deleting ? current.slice(0, t.length - 1) : current.slice(0, t.length + 1))),
-        deleting ? 30 : 60,
-      );
-    }
-    return () => window.clearTimeout(timeout);
-  }, [text, deleting, phraseIndex, phrases, reducedMotion]);
-
-  return reducedMotion ? phrases[0] : text;
-}
 
 /** Animated overlay placeholder for the search input — cycles "Search by product name / SKU / keyword...". */
 function AnimatedSearchPlaceholder({ visible }: { visible: boolean }) {
@@ -111,36 +67,18 @@ const FilterIcon = () => (
     <path d="M11 18h2" />
   </svg>
 );
-const SortIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M4 8l4 -4l4 4" />
-    <path d="M8 4l0 16" />
-    <path d="M20 16l-4 4l-4 -4" />
-    <path d="M16 20l0 -16" />
-  </svg>
-);
-const BackIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M15 6l-6 6l6 6" />
-  </svg>
-);
-const StarIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
-    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-  </svg>
-);
-/** Forward arrow — same glyph as the Vue app's `share` icon (sends the product to the customer). */
+const SortIcon = () => <Icon name="arrows-sort" />;
+const BackIcon = () => <Icon name="chevron-left" />;
+const StarIcon = () => <Icon name="star" fill="currentColor" stroke="none" />;
 const ShareIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M21.2218 11.3782L13.6218 3.77815C13.4889 3.64533 13.3196 3.55488 13.1354 3.51824C12.9511 3.4816 12.7602 3.50042 12.5866 3.5723C12.413 3.64419 12.2647 3.76593 12.1603 3.92212C12.0559 4.07831 12.0001 4.26194 12.0001 4.44981V7.81759C9.40495 8.05775 6.99281 9.25768 5.23573 11.1826C3.47866 13.1074 2.50311 15.6187 2.5 18.225V19.65C2.50015 19.8472 2.56166 20.0394 2.67601 20.2001C2.79036 20.3608 2.95187 20.4819 3.13815 20.5466C3.32442 20.6113 3.52622 20.6165 3.71557 20.5614C3.90491 20.5063 4.0724 20.3936 4.19482 20.239C5.12554 19.1322 6.26751 18.222 7.554 17.5615C8.84049 16.901 10.2457 16.5036 11.6875 16.3924C11.735 16.3867 11.8538 16.3772 12.0001 16.3677V19.65C12.0001 19.8378 12.0559 20.0215 12.1603 20.1777C12.2647 20.3339 12.413 20.4556 12.5866 20.5275C12.7602 20.5994 12.9511 20.6182 13.1354 20.5815C13.3196 20.5449 13.4889 20.4544 13.6218 20.3216L21.2218 12.7215C21.4 12.5434 21.5 12.3018 21.5 12.0499C21.5 11.798 21.4 11.5564 21.2218 11.3782ZM13.9001 17.3566V15.3749C13.9001 15.123 13.8 14.8813 13.6219 14.7032C13.4437 14.525 13.2021 14.4249 12.9501 14.4249C12.7079 14.4249 11.7189 14.4724 11.4662 14.5057C8.90579 14.7416 6.46859 15.7143 4.44942 17.3063C4.6786 15.211 5.6726 13.2738 7.24108 11.8657C8.80956 10.4576 10.8423 9.67757 12.9501 9.67486C13.2021 9.67486 13.4437 9.57477 13.6219 9.39661C13.8 9.21845 13.9001 8.97681 13.9001 8.72485V6.74313L19.2069 12.0499L13.9001 17.3566Z" />
   </svg>
 );
-const PhotoIcon = () => (
+const ShareArrowIcon = () => (
   <svg {...iconProps()}>
-    <rect x="4" y="5" width="16" height="14" rx="2" />
-    <circle cx="9" cy="10" r="1.5" />
-    <path d="M4 15l4.5 -4.5c0.8 -0.8 2 -0.8 2.8 0l5.7 5.5" />
-    <path d="M14.5 13.5l1.5 -1.5c0.8 -0.8 2 -0.8 2.8 0l1.2 1.2" />
+    <path d="M15 13l4 -4l-4 -4" />
+    <path d="M19 9h-11a4 4 0 0 0 0 8h1" />
   </svg>
 );
 const CartIcon = () => (
@@ -151,24 +89,6 @@ const CartIcon = () => (
     <path d="M6 5l14 1l-1 7h-13" />
   </svg>
 );
-
-/** ProductThumbnail — colored-initial tile, or the product image when available. */
-function ProductThumbnail({ product, size = 'sm' }: { product: Product; size?: 'sm' | 'lg' }) {
-  const palette = THUMB_PALETTE[hashString(product.id) % THUMB_PALETTE.length];
-
-  return (
-    <span
-      className={`lc-pp__thumb${size === 'lg' ? ' lc-pp__thumb--lg' : ''}`}
-      style={product.imageUrl ? undefined : { background: palette.bg, color: palette.fg }}
-    >
-      {product.imageUrl ? (
-        <img className="lc-pp__thumb-img" src={product.imageUrl} alt="" aria-hidden="true" />
-      ) : (
-        <PhotoIcon />
-      )}
-    </span>
-  );
-}
 
 function RatingStars({ rating, count, showCount = true }: { rating: number; count: number; showCount?: boolean }) {
   return (
@@ -240,22 +160,6 @@ function CopyableValue({ value }: { value: string }) {
   );
 }
 
-/** Wraps the first case-insensitive match of `query` inside `text` in a highlight mark. */
-function HighlightMatch({ text, query }: { text: string; query: string }) {
-  const q = query.trim();
-  if (!q) return <>{text}</>;
-  const idx = text.toLowerCase().indexOf(q.toLowerCase());
-  if (idx === -1) return <>{text}</>;
-  return (
-    <>
-      {text.slice(0, idx)}
-      <mark className="lc-pp__highlight">{text.slice(idx, idx + q.length)}</mark>
-      {text.slice(idx + q.length)}
-    </>
-  );
-}
-
-/** Icon-only share CTA shown on `.lc-pp__row` hover — sends the product to the customer. */
 function RowShareButton({ product }: { product: Product }) {
   const [shared, setShared] = useState(false);
   const timer = useRef<number | undefined>(undefined);
@@ -275,7 +179,7 @@ function RowShareButton({ product }: { product: Product }) {
       aria-label={shared ? 'Shared' : `Share ${product.name} with the customer`}
       onClick={handleShare}
     >
-      {shared ? <CheckIcon /> : <ShareIcon />}
+      {shared ? <CheckIcon /> : <ShareArrowIcon />}
     </button>
   );
 }
@@ -304,7 +208,7 @@ function ProductRow({
         }
       }}
     >
-      <ProductThumbnail product={product} />
+      <ProductThumb colorKey={product.id} imageUrl={product.imageUrl} name={product.name} />
       <span className="lc-pp__row-body">
         <span className="lc-pp__row-heading">
           <span className="lc-pp__row-name">
@@ -355,19 +259,16 @@ function EmptyState({ searching }: { searching: boolean }) {
   );
 }
 
-/** Share + Add to cart CTAs shown in the product detail view. */
-function DetailCtas() {
+/** Share + Add to cart CTAs shown in the product detail view. Once the current variant is in the cart, the
+ * "Add to cart" button becomes a quantity stepper + remove control instead of staying an inert "Added" state. */
+function DetailCtas({ product, size, color }: { product: Product; size?: string; color?: string }) {
+  const { items, addItem, removeItem, setQuantity } = useCommerce();
   const [shared, setShared] = useState(false);
-  const [added, setAdded] = useState(false);
   const shareTimer = useRef<number | undefined>(undefined);
-  const addTimer = useRef<number | undefined>(undefined);
-  useEffect(
-    () => () => {
-      window.clearTimeout(shareTimer.current);
-      window.clearTimeout(addTimer.current);
-    },
-    [],
-  );
+  useEffect(() => () => window.clearTimeout(shareTimer.current), []);
+
+  const cartIndex = items.findIndex((i) => i.productId === product.id && i.size === size && i.color === color);
+  const cartItem = cartIndex !== -1 ? items[cartIndex] : undefined;
 
   const handleShare = () => {
     setShared(true);
@@ -376,9 +277,7 @@ function DetailCtas() {
   };
 
   const handleAddToCart = () => {
-    setAdded(true);
-    window.clearTimeout(addTimer.current);
-    addTimer.current = window.setTimeout(() => setAdded(false), 1500);
+    addItem({ productId: product.id, name: product.name, sku: product.sku, unitPrice: product.discountedPrice, size, color });
   };
 
   return (
@@ -393,16 +292,30 @@ function DetailCtas() {
       >
         {shared ? 'Shared' : 'Share'}
       </Button>
-      <Button
-        variant="outline"
-        color="primary"
-        size="sm"
-        style={{ flex: 1 }}
-        leftSection={added ? <CheckIcon /> : <CartIcon />}
-        onClick={handleAddToCart}
-      >
-        {added ? 'Added' : 'Add to cart'}
-      </Button>
+      {cartItem ? (
+        <div className="lc-pp__detail-qty" style={{ flex: 1 }}>
+          <QtyStepper variant="field" value={cartItem.quantity} onChange={(q) => setQuantity(cartIndex, q)} />
+          <button
+            type="button"
+            className="lc-pp__detail-qty-remove"
+            aria-label={`Remove ${product.name} from cart`}
+            onClick={() => removeItem(cartIndex)}
+          >
+            <TrashIcon />
+          </button>
+        </div>
+      ) : (
+        <Button
+          variant="filled"
+          color="primary"
+          size="sm"
+          style={{ flex: 1 }}
+          leftSection={<CartIcon />}
+          onClick={handleAddToCart}
+        >
+          Add to cart
+        </Button>
+      )}
     </div>
   );
 }
@@ -414,7 +327,7 @@ function TruncatedDescription({ text }: { text: string }) {
     <>
       <p className={`lc-pp__detail-desc${expanded ? '' : ' lc-pp__detail-desc--clamped'}`}>{text}</p>
       <button type="button" className="lc-pp__detail-desc-toggle" onClick={() => setExpanded((v) => !v)}>
-        {expanded ? 'Show less' : 'Read more'}
+        {expanded ? 'Read less' : 'Read more'}
       </button>
     </>
   );
@@ -471,7 +384,7 @@ function ProductDetailView({ product, onBack }: { product: Product; onBack: () =
 
       <div className="lc-pp__detail-content">
         <div className="lc-pp__detail-banner">
-          <ProductThumbnail product={product} size="lg" />
+          <ProductThumb colorKey={product.id} imageUrl={product.imageUrl} name={product.name} size="lg" />
         </div>
         <div className="lc-pp__detail-header">
           <div className="lc-pp__detail-name-row">
@@ -496,7 +409,11 @@ function ProductDetailView({ product, onBack }: { product: Product; onBack: () =
           <PriceBlock product={product} />
         </div>
 
-        <DetailCtas />
+        <DetailCtas
+          product={product}
+          size={product.variants && product.variants.length > 0 ? selectedSize : undefined}
+          color={product.variants && product.variants.length > 0 ? selectedColor : undefined}
+        />
 
         <div className="lc-pp__detail-section">
           <p className="lc-pp__detail-section-title">Description</p>

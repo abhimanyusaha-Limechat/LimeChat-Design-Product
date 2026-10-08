@@ -36,9 +36,9 @@ import { marketingCanvas, automationCanvas } from './components/CanvasChrome/pre
   />
 </div>
 
-// Automation — Saving… + collaborators + Revert / Publish
+// Automation — Saving… + collaborators + Publish
 <CanvasChrome
-  {...automationCanvas({ onAdd, saving, collaborators, onRevert, onPublish, onMore })}
+  {...automationCanvas({ onAdd, saving, collaborators, onPublish, onMore })}
   flow={{ title: 'Bot flows', subtitle: 'flow_9x8y', badge: 'Active', onBack, onEdit }}
 />
 ```

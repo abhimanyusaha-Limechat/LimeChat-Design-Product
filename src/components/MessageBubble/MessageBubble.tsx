@@ -35,7 +35,7 @@ import { ActionMenu, type MenuItemData, type MenuTriggerRenderProps } from '../M
 import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 import './MessageBubble.css';
 import { iconProps } from '../iconProps';
-import { TrashIcon, CloseIcon as RemoveReactionIcon } from '../icons';
+import { Icon, TrashIcon, CloseIcon as RemoveReactionIcon } from '../icons';
 
 const DEFAULT_REACTION_OPTIONS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 
@@ -109,24 +109,14 @@ const LockIcon = () => (
     <path d="M8 11v-4a4 4 0 0 1 8 0v4" />
   </svg>
 );
-const EyeIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-  </svg>
-);
+const EyeIcon = () => <Icon name="eye" />;
 const ViewOnceIcon = () => (
   <svg {...iconProps()}>
     <circle cx="12" cy="12" r="8" />
     <path d="M12 8v4l3 2" />
   </svg>
 );
-const PrivateIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-  </svg>
-);
+const PrivateIcon = () => <Icon name="eye" />;
 const TicketIcon = () => (
   <svg {...iconProps()}>
     <path d="M15 5l6 6l-1.5 1.5a2.121 2.121 0 0 0 -3 3l-6.5 6.5l-6 -6l6.5 -6.5a2.121 2.121 0 0 0 3 -3z" />
@@ -139,14 +129,7 @@ const ArrowRightIcon = () => (
     <path d="M13 6l6 6" />
   </svg>
 );
-const ReactIcon = () => (
-  <svg {...iconProps()}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M9 10l.01 0" />
-    <path d="M15 10l.01 0" />
-    <path d="M9.5 15a3.5 3.5 0 0 0 5 0" />
-  </svg>
-);
+const ReactIcon = () => <Icon name="mood-smile" />;
 const DotsHorizontalIcon = () => (
   <svg {...iconProps()}>
     <circle cx="5" cy="12" r="1" fill="currentColor" />

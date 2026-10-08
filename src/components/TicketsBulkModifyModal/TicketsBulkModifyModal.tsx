@@ -17,14 +17,10 @@ import { Menu } from '../Menu';
 import { Modal } from '../Modal';
 import { NativeSelect } from '../Select';
 import { TICKETS_STATUS_OPTIONS } from '../TicketsSection';
-import { ChevronDownIcon, CheckIcon } from '../icons';
+import { Icon, ChevronDownIcon, CheckIcon } from '../icons';
 import './TicketsBulkModifyModal.css';
 
-const StarIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-  </svg>
-);
+const StarIcon = () => <Icon name="star" />;
 const SearchIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <circle cx="10" cy="10" r="7" />

@@ -7,10 +7,10 @@
  * System V3 (Figma node 8773:1123).
  *
  * The component is presentation-only and fully data-driven: pass the nav
- * `items`, the `selectedId`, and an `onSelect` handler (or per-item `href`s for
- * link-based routing). Product presets live in `./presets`.
+ * `items`, the `selectedId`, and an `onSelect` handler. Product presets live
+ * in `./presets`.
  */
-import { useId, useRef, useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { LimeChatLogo, SidebarIcon, type SidebarIconName } from './icons';
 import { Tooltip } from '../Tooltip';
 import { Avatar } from '../Avatar';
@@ -30,14 +30,10 @@ export interface SidebarMenuItem {
 export interface SidebarItem {
   /** Stable identifier, also used as the selection key. */
   id: string;
-  /** Accessible label — shown to assistive tech and as the native tooltip. */
+  /** Accessible label — shown as the hover tooltip. */
   label: string;
   /** Named icon from the built-in set, or any custom node (e.g. an <svg />). */
-  icon: SidebarIconName | React.ReactNode;
-  /** Render as a link instead of a button when provided. */
-  href?: string;
-  /** Per-item click handler; receives the item id. Runs after `onSelect`. */
-  onClick?: (id: string) => void;
+  icon: SidebarIconName | ReactNode;
 }
 
 export interface SidebarProps {
@@ -49,23 +45,10 @@ export interface SidebarProps {
   onSelect?: (id: string) => void;
   /** Secondary actions pinned above the avatar (e.g. WhatsApp, notifications). */
   footerItems?: SidebarItem[];
-  /** Signed-in user. Renders initials when `avatarUrl` is omitted. */
-  profile?: {
-    name: string;
-    avatarUrl?: string;
-    /** Ignored when `menuItems` is set — the avatar opens the popover instead. */
-    onClick?: () => void;
-    /** Shown as a popover menu above the avatar when clicked (e.g. Profile settings, Account settings, Logout). */
-    menuItems?: SidebarMenuItem[];
-  };
-  /** Brand-mark target. A string renders an anchor; a function renders a button. */
-  logo?: { href?: string; onClick?: () => void; label?: string };
-  /** Accessible name for the <nav> landmark. */
-  ariaLabel?: string;
-  /** Show a label tooltip to the right of each item on hover / focus. Default `true`. */
-  showTooltips?: boolean;
-  className?: string;
-  style?: React.CSSProperties;
+  /** Signed-in user, shown as initials; the avatar opens `menuItems` as a popover. */
+  profile?: { name: string; menuItems: SidebarMenuItem[] };
+  /** Brand-mark click handler. */
+  logo?: { onClick: () => void };
 }
 
 function renderIcon(icon: SidebarItem['icon']): ReactNode {
@@ -92,98 +75,16 @@ function ProfileMenu({ items, onSelect }: { items: SidebarMenuItem[]; onSelect: 
   );
 }
 
-function SidebarLogo({ logo }: { logo: SidebarProps['logo'] }) {
-  const label = logo?.label ?? 'LimeChat home';
-
-  if (logo?.href) {
-    return (
-      <a className="lc-sidebar__logo" href={logo.href} onClick={logo.onClick} aria-label={label}>
-        <LimeChatLogo />
-      </a>
-    );
-  }
-  if (logo?.onClick) {
-    return (
-      <button type="button" className="lc-sidebar__logo" onClick={logo.onClick} aria-label={label}>
-        <LimeChatLogo />
-      </button>
-    );
-  }
-  return (
-    <div className="lc-sidebar__logo" aria-label={label}>
-      <LimeChatLogo />
-    </div>
-  );
-}
-
-function ActionControl({
-  item,
-  selected,
-  onSelect,
-  nativeTitle = true,
-  ...rest
-}: {
-  item: SidebarItem;
-  selected: boolean;
-  onSelect?: (id: string) => void;
-  /** Set the native `title` attribute (disable when a custom Tooltip wraps this). */
-  nativeTitle?: boolean;
-  /** Forwarded to the rendered control (e.g. `aria-describedby` injected by Tooltip). */
-  'aria-describedby'?: string;
-}) {
-  const className = `lc-sidebar__item${selected ? ' lc-sidebar__item--selected' : ''}`;
-  const title = nativeTitle ? item.label : undefined;
-  const activate = () => {
-    onSelect?.(item.id);
-    item.onClick?.(item.id);
-  };
-
-  if (item.href) {
-    return (
-      <a
-        className={className}
-        href={item.href}
-        aria-label={item.label}
-        title={title}
-        aria-current={selected ? 'page' : undefined}
-        onClick={activate}
-        {...rest}
-      >
-        {renderIcon(item.icon)}
-      </a>
-    );
-  }
-
-  return (
-    <button
-      type="button"
-      className={className}
-      aria-label={item.label}
-      title={title}
-      aria-pressed={selected}
-      onClick={activate}
-      {...rest}
-    >
-      {renderIcon(item.icon)}
-    </button>
-  );
-}
-
-/** An ActionControl, optionally wrapped in a right-aligned label Tooltip. */
+/** A nav button wrapped in a right-aligned label Tooltip. */
 function SidebarEntry({
   item,
   selected,
   onSelect,
-  withTooltip,
 }: {
   item: SidebarItem;
   selected: boolean;
   onSelect?: (id: string) => void;
-  withTooltip: boolean;
 }) {
-  if (!withTooltip || !item.label) {
-    return <ActionControl item={item} selected={selected} onSelect={onSelect} />;
-  }
   return (
     <Tooltip
       label={item.label}
@@ -193,7 +94,15 @@ function SidebarEntry({
       closeDelay={50}
       instantGrace={false}
     >
-      <ActionControl item={item} selected={selected} onSelect={onSelect} nativeTitle={false} />
+      <button
+        type="button"
+        className={`lc-sidebar__item${selected ? ' lc-sidebar__item--selected' : ''}`}
+        aria-label={item.label}
+        aria-pressed={selected}
+        onClick={() => onSelect?.(item.id)}
+      >
+        {renderIcon(item.icon)}
+      </button>
     </Tooltip>
   );
 }
@@ -207,95 +116,58 @@ function initials(name: string) {
     .join('');
 }
 
-export function Sidebar({
-  items,
-  selectedId,
-  onSelect,
-  footerItems = [],
-  profile,
-  logo,
-  ariaLabel = 'Primary',
-  showTooltips = true,
-  className,
-  style,
-}: SidebarProps) {
-  const navId = useId();
+export function Sidebar({ items, selectedId, onSelect, footerItems = [], profile, logo }: SidebarProps) {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileWrapRef = useRef<HTMLDivElement>(null);
-  const hasProfileMenu = !!profile?.menuItems && profile.menuItems.length > 0;
 
   useDismiss([
     { open: profileMenuOpen, ref: profileWrapRef, onClose: () => setProfileMenuOpen(false) },
   ]);
 
   return (
-    <div className={`lc-sidebar${className ? ` ${className}` : ''}`} style={style}>
-      <SidebarLogo logo={logo} />
+    <div className="lc-sidebar" data-anchor="sidebar">
+      <button type="button" className="lc-sidebar__logo" onClick={logo?.onClick} aria-label="LimeChat home">
+        <LimeChatLogo />
+      </button>
 
-      <nav
-        className="lc-sidebar__nav lc-scrollbar-hidden"
-        aria-label={ariaLabel}
-        id={navId}
-        aria-orientation="vertical"
-      >
+      <nav className="lc-sidebar__nav lc-scrollbar-hidden" aria-label="Primary">
         {items.map((item) => (
-          <SidebarEntry
-            key={item.id}
-            item={item}
-            selected={item.id === selectedId}
-            onSelect={onSelect}
-            withTooltip={showTooltips}
-          />
+          <SidebarEntry key={item.id} item={item} selected={item.id === selectedId} onSelect={onSelect} />
         ))}
       </nav>
 
-      {(footerItems.length > 0 || profile) && (
-        <div className="lc-sidebar__footer">
-          {footerItems.map((item) => (
-            <SidebarEntry
-              key={item.id}
-              item={item}
-              selected={item.id === selectedId}
-              onSelect={onSelect}
-              withTooltip={showTooltips}
-            />
-          ))}
+      <div className="lc-sidebar__footer">
+        {footerItems.map((item) => (
+          <SidebarEntry key={item.id} item={item} selected={item.id === selectedId} onSelect={onSelect} />
+        ))}
 
-          {profile && (
-            <div className="lc-sidebar__profile-wrap" ref={profileWrapRef}>
-              <Avatar
-                className="lc-sidebar__avatar"
-                src={profile.avatarUrl}
-                alt={profile.name}
-                size="md"
-                radius="xs"
-                {...(hasProfileMenu
-                  ? {
-                      onClick: () => setProfileMenuOpen((o) => !o),
-                      role: 'button' as const,
-                      tabIndex: 0,
-                      'aria-haspopup': 'menu' as const,
-                      'aria-expanded': profileMenuOpen,
-                    }
-                  : profile.onClick
-                    ? { onClick: profile.onClick, role: 'button' as const, tabIndex: 0 }
-                    : {})}
-              >
-                {profile.avatarUrl ? undefined : initials(profile.name)}
-              </Avatar>
-              {hasProfileMenu && profileMenuOpen && (
-                <ProfileMenu
-                  items={profile.menuItems!}
-                  onSelect={(item) => {
-                    setProfileMenuOpen(false);
-                    item.onClick?.();
-                  }}
-                />
-              )}
-            </div>
-          )}
-        </div>
-      )}
+        {profile && (
+          <div className="lc-sidebar__profile-wrap" ref={profileWrapRef}>
+            <Avatar
+              className="lc-sidebar__avatar"
+              alt={profile.name}
+              size="md"
+              radius="xs"
+              role="button"
+              tabIndex={0}
+              aria-haspopup="menu"
+              aria-expanded={profileMenuOpen}
+              onClick={() => setProfileMenuOpen((o) => !o)}
+            >
+              {initials(profile.name)}
+            </Avatar>
+            {profileMenuOpen && (
+              <ProfileMenu
+                items={profile.menuItems}
+                onSelect={(item) => {
+                  setProfileMenuOpen(false);
+                  item.onClick?.();
+                }}
+              />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

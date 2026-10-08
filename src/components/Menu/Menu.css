@@ -74,7 +74,7 @@
   transition: background-color 120ms ease, transform 120ms ease;
 }
 .lc-menu__item:hover:not(:disabled) {
-  background: #f4f4f0;
+  background: #F0F0F0;
 }
 .lc-menu__item:active:not(:disabled) {
   transform: scale(0.98);
@@ -88,7 +88,7 @@
   color: var(--lc-color-red-700);
 }
 .lc-menu__item--danger:hover:not(:disabled) {
-  background: #fff0f0;
+  background: #FCF3F3;
 }
 
 .lc-menu__item--selected {

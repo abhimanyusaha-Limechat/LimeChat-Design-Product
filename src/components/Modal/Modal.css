@@ -544,7 +544,7 @@
   width: 100%;
   padding: 10px 12px;
   border-radius: 8px;
-  background: #e1eff4;
+  background: #EDF7FF;
 }
 .lc-modal__banner-text {
   margin: 0;
@@ -636,7 +636,7 @@
   cursor: pointer;
 }
 .lc-modal__chip-remove:hover {
-  background: #e5e5e2;
+  background: #E3E5E1;
   color: var(--lc-modal-fg);
 }
 

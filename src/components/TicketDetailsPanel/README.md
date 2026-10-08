@@ -32,6 +32,7 @@ import { TicketDetailsPanel } from './components/TicketDetailsPanel';
 | ------------- | ------------------------------|
 | `id`          | `string`                       |
 | `label`       | `string`                       |
+| `group`       | `'tickets' \| 'tags' \| 'fields'` — overview category heading (defaults to `tickets`) |
 | `count`       | `number` — badge next to label |
 | `items`       | `{ icon?, title, timestamp?, preview? }[]` |
 | `emptyText`   | `string` — shown when `items` is empty/omitted |

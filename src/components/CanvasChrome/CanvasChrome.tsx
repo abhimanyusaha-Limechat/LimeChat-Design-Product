@@ -177,7 +177,7 @@ export interface CanvasChromeProps {
   /** Overlapping avatar stack + caret (Automation pattern). */
   collaborators?: CanvasCollaborator[];
   onCollaborators?: () => void;
-  /** CTA node — a set of `<Button>`s (Reports / Draft / Publish, or Revert / Publish). */
+  /** CTA node — a set of `<Button>`s (Reports / Draft / Publish, or Publish). */
   actions?: ReactNode;
   /** Trailing kebab button — plain callback. Ignored when `menu` is set. */
   onMore?: () => void;
@@ -189,6 +189,8 @@ export interface CanvasChromeProps {
   /* -- status bar (bottom) ------------------------------------------- */
   /** Hide the bottom status bar. Default `true` (shown). */
   showStatusBar?: boolean;
+  /** Undo / redo pill next to the minimap. Default `true`. */
+  showHistory?: boolean;
   /** Zoom percentage shown in the minimap pill. Default `100`. */
   zoom?: number;
   onZoomChange?: (zoom: number) => void;
@@ -677,7 +679,7 @@ function CanvasSearchBar({
 }
 
 /**
- * Minimap / zoom control (Figma node 62:20517) — compressed pill by default,
+ * Minimap / zoom control (Figma node 62:20517) — compressed pill (zoom % + fit/expand, Figma 357:49382) by default,
  * expands to a 250×180 panel with a scaled preview of the canvas.
  */
 function CanvasMinimap({
@@ -701,16 +703,35 @@ function CanvasMinimap({
     });
   };
 
+  // browser fullscreen for the whole page; Esc exits natively
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void document.documentElement.requestFullscreen?.();
+  };
+
   return (
     <div className="lc-canvas__minimap" data-expanded={expanded || undefined}>
       <div className="lc-canvas__minimap-bar">
         <span className="lc-canvas__minimap-group">
-          <IconButton icon="zoom-in" label="Zoom in" onClick={onZoomIn} />
+          {expanded && (
+            <>
+              <IconButton icon="zoom-in" label="Zoom in" onClick={onZoomIn} />
+              <span className="lc-canvas__pill-divider" />
+            </>
+          )}
           <span className="lc-canvas__zoom">{Math.round(zoom)}%</span>
-          <IconButton icon="zoom-out" label="Zoom out" onClick={onZoomOut} />
+          {expanded && (
+            <>
+              <span className="lc-canvas__pill-divider" />
+              <IconButton icon="zoom-out" label="Zoom out" onClick={onZoomOut} />
+            </>
+          )}
         </span>
         <span className="lc-canvas__minimap-group">
-          <span className="lc-canvas__pill-divider" />
+          {!expanded && <span className="lc-canvas__pill-divider" />}
+          {expanded && (
+            <IconButton icon="expand" label="Full screen" onClick={toggleFullscreen} />
+          )}
           <IconButton icon="fit-view" label="Fit to view" onClick={onFitView} />
           <IconButton
             icon={expanded ? 'minimize' : 'expand'}
@@ -724,14 +745,14 @@ function CanvasMinimap({
         <div className="lc-canvas__minimap-panel" aria-hidden="true">
           {/* scaled placeholder preview — Figma node rects (62:20304–62:20311),
               coordinates translated from the card into this panel */}
-          <span className="lc-canvas__minimap-paper" style={{ left: 8, top: 35, width: 226, height: 70 }} />
-          <span className="lc-canvas__minimap-node" style={{ left: 29.5, top: 16.7, width: 29, height: 22.7, background: '#fafafa' }} />
-          <span className="lc-canvas__minimap-node" style={{ left: 29.5, top: 35, width: 29, height: 4.4 }} />
-          <span className="lc-canvas__minimap-node" style={{ left: 30, top: 41, width: 29, height: 52 }} />
-          <span className="lc-canvas__minimap-node" style={{ left: 63, top: 53, width: 29, height: 46 }} />
-          <span className="lc-canvas__minimap-node" style={{ left: 95, top: 41, width: 29, height: 46 }} />
-          <span className="lc-canvas__minimap-node" style={{ left: 128, top: 54, width: 29, height: 46 }} />
-          <span className="lc-canvas__minimap-node" style={{ left: 160, top: 41, width: 29, height: 46 }} />
+          <span className="lc-canvas__minimap-paper" style={{ left: 8, top: 33, width: 226, height: 70 }} />
+          <span className="lc-canvas__minimap-node" style={{ left: 29.5, top: 14.7, width: 29, height: 22.7, background: '#FAFAFA' }} />
+          <span className="lc-canvas__minimap-node" style={{ left: 29.5, top: 33, width: 29, height: 4.4 }} />
+          <span className="lc-canvas__minimap-node" style={{ left: 30, top: 39, width: 29, height: 52 }} />
+          <span className="lc-canvas__minimap-node" style={{ left: 63, top: 51, width: 29, height: 46 }} />
+          <span className="lc-canvas__minimap-node" style={{ left: 95, top: 39, width: 29, height: 46 }} />
+          <span className="lc-canvas__minimap-node" style={{ left: 128, top: 52, width: 29, height: 46 }} />
+          <span className="lc-canvas__minimap-node" style={{ left: 160, top: 39, width: 29, height: 46 }} />
         </div>
       )}
     </div>
@@ -762,6 +783,7 @@ export function CanvasChrome({
   menu,
   lastEditedBy,
   showStatusBar = true,
+  showHistory = true,
   zoom = 100,
   onZoomChange,
   onZoomIn,
@@ -815,7 +837,7 @@ export function CanvasChrome({
   return (
     <div className={`lc-canvas${className ? ` ${className}` : ''}`} style={style} aria-hidden={false}>
       {/* --- Canvas navigation ------------------------------------------ */}
-      <div className="lc-canvas__nav">
+      <div className="lc-canvas__nav" data-anchor="canvas-header">
         <div
           className="lc-canvas__flow"
           data-active={flow.active === undefined ? undefined : String(flow.active)}
@@ -936,15 +958,15 @@ export function CanvasChrome({
 
       {/* --- Floating toolbar ----------------------------------------- */}
       {showToolbar && (
-        <div className="lc-canvas__toolbar">
+        <div className="lc-canvas__toolbar" data-anchor="canvas-toolbar">
           <div className="lc-canvas__toolbar-panel" role="toolbar" aria-label="Canvas tools" aria-orientation="vertical">
             {nodePalette && nodePalette.length > 0 ? (
               <div className="lc-canvas__palette-wrap" ref={paletteWrapRef}>
                 <IconButton
                   icon="plus"
                   label={addLabel}
-                  size="lg"
-                  variant="filled"
+                  size="xl"
+                  variant="light"
                   tooltip
                   active={paletteOpen}
                   onClick={() => setPaletteOpen((o) => !o)}
@@ -965,8 +987,8 @@ export function CanvasChrome({
                 <IconButton
                   icon="plus"
                   label={addLabel}
-                  size="lg"
-                  variant="filled"
+                  size="xl"
+                  variant="light"
                   tooltip
                   onClick={onAdd}
                 />
@@ -1022,7 +1044,7 @@ export function CanvasChrome({
 
       {/* --- Status bar --------------------------------------------- */}
       {showStatusBar && (
-        <div className="lc-canvas__statusbar">
+        <div className="lc-canvas__statusbar" data-anchor="canvas-status-bar">
           <CanvasMinimap
             zoom={zoom}
             onZoomIn={onZoomIn ?? (() => onZoomChange?.(Math.round(zoom) + 10))}
@@ -1031,11 +1053,13 @@ export function CanvasChrome({
             onExpandChange={onExpand}
           />
 
+          {showHistory && (
           <div className="lc-canvas__pill">
             <IconButton icon="undo" label="Undo" onClick={onUndo} disabled={!canUndo} />
             <span className="lc-canvas__pill-divider" />
             <IconButton icon="redo" label="Redo" onClick={onRedo} disabled={!canRedo} />
           </div>
+          )}
         </div>
       )}
     </div>

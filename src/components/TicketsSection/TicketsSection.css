@@ -283,7 +283,7 @@
   padding-right: 16px;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-color: #d4d4d1 transparent;
+  scrollbar-color: #CFD1CD transparent;
   scrollbar-width: thin;
 }
 .lc-tickets-section__list::-webkit-scrollbar {
@@ -293,7 +293,7 @@
   background: transparent;
 }
 .lc-tickets-section__list::-webkit-scrollbar-thumb {
-  background-color: #d4d4d1;
+  background-color: #CFD1CD;
   border-radius: 999px;
 }
 .lc-tickets-section__list::-webkit-scrollbar-thumb:hover {

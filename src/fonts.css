@@ -1,0 +1,28 @@
+/**
+ * Lato Medium (500) and SemiBold (600) — the weights behind the design
+ * system's "Text/Medium" and "Text SemiBold/*" styles.
+ *
+ * Google Fonts (index.html) serves only Lato 1.x, which has no 500 or 600,
+ * so the browser was drawing every `font-weight: 600` as Bold (700) and every
+ * `500` as Regular (400). These faces come from Lato 2.015 and join the same
+ * `Lato` family, so existing `font-weight` declarations pick them up unchanged.
+ * Both share Lato's vertical metrics, so line boxes don't shift.
+ *
+ * The files are unmodified (OFL: Lato is a Reserved Font Name, so a subset
+ * couldn't keep the name) — see assets/fonts/lato/OFL.txt.
+ */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./assets/fonts/lato/lato-medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('./assets/fonts/lato/lato-semibold.woff2') format('woff2');
+}

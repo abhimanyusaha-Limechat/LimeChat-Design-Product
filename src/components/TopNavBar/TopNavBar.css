@@ -6,10 +6,7 @@
  *  - bar fill .......... background/default            var(--lc-color-white)
  *  - separator ......... soft bottom shadow (no border) + 6px gap below
  *  - control radius .... radius/2xs                    4px
- *  - crumb text ........ text/dimmed var(--lc-color-sage-500) / current text/default var(--lc-text-primary)
- *  - info badge ........ bg background/secondary/light var(--lc-color-blue-50) · text var(--lc-color-blue-900)
- *  - draft badge ....... bg #e1eff4 · text/secondary/default var(--lc-color-blue-600)
- *  - account name ...... text/primary/dark            var(--lc-color-green-800)
+ *  - crumb text ........ text/dimmed var(--lc-color-sage-500) / current text/default var(--lc-color-green-900)
  *  - company avatar .... ~green/green-2 var(--lc-color-green-200) · ~green/green-6-anchor var(--lc-color-green-500)
  *  - shadow ............ 0 1px 1px rgba(0,0,0,.05)
  */
@@ -24,17 +21,11 @@
   --lc-topnav-fg-dimmed: var(--lc-color-sage-500);
   --lc-topnav-fg-muted: #595959;
   --lc-topnav-separator: var(--lc-color-gray-400);
-  --lc-topnav-info-badge-bg: var(--lc-color-blue-50);
-  --lc-topnav-info-badge-fg: var(--lc-color-blue-900);
-  --lc-topnav-draft-badge-bg: #e1eff4;
-  --lc-topnav-draft-badge-fg: var(--lc-color-blue-600);
-  --lc-topnav-updated-fg: var(--lc-color-blue-600);
-  --lc-topnav-account-fg: var(--lc-color-green-800);
   --lc-topnav-avatar-bg: var(--lc-color-green-200);
   --lc-topnav-avatar-fg: var(--lc-color-green-500);
   --lc-topnav-hover-bg: var(--lc-color-stone-100);
   /* Account chip hover — one notch up the grey palette from the shared hover fill. */
-  --lc-topnav-account-hover-bg: #e7e5e4;
+  --lc-topnav-account-hover-bg: #E3E5E1;
   --lc-topnav-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
   --lc-topnav-logo-height: 20px;
@@ -100,12 +91,6 @@
   color: var(--lc-topnav-avatar-fg);
   white-space: nowrap;
   overflow: hidden;
-}
-.lc-topnav__logo--button {
-  cursor: pointer;
-}
-.lc-topnav__logo--button:hover {
-  background: var(--lc-topnav-hover-bg);
 }
 .lc-topnav__logo img,
 .lc-topnav__logo svg {
@@ -210,37 +195,7 @@ button.lc-topnav__crumb-link--copyable:hover {
   flex-shrink: 0;
 }
 
-/* --- Badges --------------------------------------------------------- */
-.lc-topnav__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  padding: 0;
-  border-radius: var(--lc-topnav-radius);
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-.lc-topnav__badge--info {
-  background: var(--lc-topnav-info-badge-bg);
-  color: var(--lc-topnav-info-badge-fg);
-}
-.lc-topnav__badge--draft {
-  background: var(--lc-topnav-draft-badge-bg);
-  color: var(--lc-topnav-draft-badge-fg);
-}
-
-.lc-topnav__updated {
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--lc-topnav-updated-fg);
-  white-space: nowrap;
-}
-
-/* --- Icon button (edit pencil, apps menu) -------------------------- */
+/* --- Icon button (apps menu) ------------------------------------------ */
 .lc-topnav__icon-button {
   display: inline-flex;
   align-items: center;
@@ -259,14 +214,6 @@ button.lc-topnav__crumb-link--copyable:hover {
 .lc-topnav__icon-button:focus-visible {
   outline: 2px solid var(--lc-topnav-avatar-fg);
   outline-offset: 2px;
-}
-.lc-topnav__icon-button--edit {
-  width: 20px;
-  height: 20px;
-}
-.lc-topnav__icon-button--edit .lc-topnav__icon {
-  width: 14px;
-  height: 14px;
 }
 .lc-topnav__icon-button--apps {
   width: 32px;
@@ -371,46 +318,25 @@ button.lc-topnav__crumb-link--copyable:hover {
   color: var(--lc-topnav-fg-dimmed);
 }
 
-/* --- Account chip ---------------------------------------------------- */
+/* --- Account chip ("No name" variant, Figma node 9755:6709) — avatar only --- */
 .lc-topnav__account {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  width: 142px;
   height: 36px;
-  padding: 4px 4px 4px 12px;
+  padding: 4px;
   border: 1px solid var(--lc-topnav-border);
-  border-radius: var(--lc-topnav-radius);
+  border-radius: 8px; /* radius/xs */
   background: var(--lc-topnav-bg);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
   font: inherit;
-  text-align: left;
-}
-button.lc-topnav__account {
   cursor: pointer;
 }
-button.lc-topnav__account:hover {
+.lc-topnav__account:hover {
   background: var(--lc-topnav-account-hover-bg);
 }
 
-/* Compact "No name" variant (Figma node 9755:6709) — avatar only. */
-.lc-topnav__account--compact {
-  width: auto;
-  padding: 4px;
-  border-radius: 8px; /* radius/xs */
-}
-.lc-topnav__account-name {
-  flex: 1 1 0;
-  min-width: 0;
-  overflow: hidden;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 20px;
-  color: var(--lc-topnav-account-fg);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 /* The shared <Avatar>, tinted to the account chip's green-2 chip look. */
 .lc-topnav__account-avatar {
   --lc-avatar-light-bg: var(--lc-topnav-avatar-bg); /* var(--lc-color-green-200) */

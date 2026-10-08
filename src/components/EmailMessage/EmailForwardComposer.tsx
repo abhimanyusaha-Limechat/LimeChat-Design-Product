@@ -25,7 +25,7 @@
 import { forwardRef, useEffect, useState, type HTMLAttributes, type KeyboardEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from '../Button';
-import { TrashIcon } from '../icons';
+import { Icon, TrashIcon } from '../icons';
 import './EmailMessage.css';
 
 function iconProps(size = 24) {
@@ -68,33 +68,15 @@ const LinkIcon = () => (
     <path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" />
   </svg>
 );
-const RedoIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M15 14l4 -4l-4 -4" />
-    <path d="M19 10h-11a4 4 0 1 0 0 8h1" />
-  </svg>
-);
+const RedoIcon = () => <Icon name="redo" />;
 const RepeatIcon = () => (
   <svg {...iconProps()}>
     <path d="M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3" />
     <path d="M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3" />
   </svg>
 );
-const ListIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M9 6l11 0" />
-    <path d="M9 12l11 0" />
-    <path d="M9 18l11 0" />
-    <path d="M5 6l0 .01" />
-    <path d="M5 12l0 .01" />
-    <path d="M5 18l0 .01" />
-  </svg>
-);
-const PaperclipIcon = () => (
-  <svg {...iconProps()}>
-    <path d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" />
-  </svg>
-);
+const ListIcon = () => <Icon name="list" />;
+const PaperclipIcon = () => <Icon name="paperclip" />;
 const WandIcon = () => (
   <svg {...iconProps()}>
     <path d="M6 21l15 -15l-3 -3l-15 15z" />

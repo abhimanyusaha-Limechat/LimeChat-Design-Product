@@ -6,26 +6,17 @@
  *
  *   <CartPanel />
  */
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
+import { useCommerce } from '../../context/CommerceContext';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import './CartPanel.css';
 import { iconProps } from '../iconProps';
-import { TrashIcon } from '../icons';
 import { formatINR } from '../formatINR';
-
-interface CartLineItem {
-  productId: string;
-  name: string;
-  sku: string;
-  unitPrice: number;
-  quantity: number;
-  size?: string;
-  color?: string;
-}
-
-const TAX_RATE = 12;
+import { DEFAULT_TAX_RATE, orderTotals } from '../../data/orderDraft';
+import { ProductThumb } from '../ProductThumb';
+import { QtyStepper } from '../QtyStepper';
 
 const EmptyCartIcon = () => (
   <svg {...iconProps()} width="40" height="40">
@@ -36,16 +27,6 @@ const EmptyCartIcon = () => (
   </svg>
 );
 
-const THUMB_PALETTE = ['#6bac1b', '#097ba3', '#b5762b', '#6949c9', '#c92a2a', '#2b9c8f'];
-function hashString(value: string): number {
-  let hash = 0;
-  for (let i = 0; i < value.length; i++) hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
-  return hash;
-}
-function thumbColor(sku: string): string {
-  return THUMB_PALETTE[hashString(sku) % THUMB_PALETTE.length];
-}
-
 const PRODUCT_IMAGE_BY_SKU: Record<string, string> = Object.fromEntries(
   MOCK_PRODUCTS.filter((p) => p.imageUrl).map((p) => [p.sku, p.imageUrl!]),
 );
@@ -54,77 +35,13 @@ const PRODUCT_BY_ID: Record<string, Product> = Object.fromEntries(MOCK_PRODUCTS.
 /** Mirrors ProductsPanel's color picker — the catalog has no per-product color variant list. */
 const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
 
-/** SKUs encode a trailing color code (e.g. `NK-PG41-BLK` → Black). */
-const SKU_COLOR_SUFFIX: Record<string, string> = {
-  BLK: 'Black',
-  WHT: 'White',
-  GRY: 'Grey',
-  NVY: 'Navy',
-  RED: 'Red',
-  BLU: 'Blue',
-  GRN: 'Green',
-  CHK: 'Chalk',
-};
-
-function productToLineItem(product: Product): CartLineItem {
-  const suffix = product.sku.split('-').pop()?.toUpperCase();
-  return {
-    productId: product.id,
-    name: product.name,
-    sku: product.sku,
-    unitPrice: product.discountedPrice,
-    quantity: 1,
-    size: product.variants?.[0],
-    color: suffix ? SKU_COLOR_SUFFIX[suffix] : undefined,
-  };
-}
-
-/** Demo seed: agents can't add products here — the cart mirrors the customer's store cart. */
-const INITIAL_CART: CartLineItem[] = MOCK_PRODUCTS.filter((p) => p.availability === 'in_stock')
-  .slice(0, 2)
-  .map((p, i) => ({ ...productToLineItem(p), quantity: i + 1 }));
-
-function Stepper({ value, onChange }: { value: number; onChange: (next: number) => void }) {
-  return (
-    <span className="lc-cp__stepper">
-      <button type="button" aria-label="Decrease quantity" onClick={() => onChange(Math.max(1, value - 1))}>
-        −
-      </button>
-      <span className="lc-cp__stepper-value">{value}</span>
-      <button type="button" aria-label="Increase quantity" onClick={() => onChange(value + 1)}>
-        +
-      </button>
-    </span>
-  );
-}
-
-const REMOVE_ANIM_MS = 180;
-
 export function CartPanel() {
-  const [items, setItems] = useState<CartLineItem[]>(INITIAL_CART);
-  const [removingKeys, setRemovingKeys] = useState<Set<string>>(new Set());
+  const { items, clearCart, startOrderFromCart, setQuantity, setSize: setItemSize, setColor: setItemColor } = useCommerce();
+  const setQty = setQuantity;
+  const setSize = setItemSize;
+  const setColor = setItemColor;
 
-  const removeItem = (index: number, key: string) => {
-    setRemovingKeys((prev) => new Set(prev).add(key));
-    window.setTimeout(() => {
-      setItems((prev) => prev.filter((_, i) => i !== index));
-      setRemovingKeys((prev) => {
-        const next = new Set(prev);
-        next.delete(key);
-        return next;
-      });
-    }, REMOVE_ANIM_MS);
-  };
-  const setQty = (index: number, quantity: number) =>
-    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, quantity } : item)));
-  const setSize = (index: number, size: string) =>
-    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, size } : item)));
-  const setColor = (index: number, color: string) =>
-    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, color } : item)));
-
-  const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0), [items]);
-  const taxAmount = Math.round((subtotal * TAX_RATE) / 100);
-  const total = subtotal + taxAmount;
+  const { subtotal, taxAmount, total } = useMemo(() => orderTotals(items, { taxRate: DEFAULT_TAX_RATE }), [items]);
 
   return (
     <div className="lc-cp">
@@ -136,41 +53,25 @@ export function CartPanel() {
             <p className="lc-cp__empty-text">Items the customer adds to their store cart show up here.</p>
           </div>
         ) : (
-          <div className="lc-cp__items">
-            {items.map((item, i) => {
+          <>
+            <p className="lc-cp__count-line">
+              {items.length} {items.length === 1 ? 'product' : 'products'} in cart
+            </p>
+            <div className="lc-cp__items">
+              {items.map((item, i) => {
               const key = `${item.sku}-${i}`;
               return (
-                <div key={key} className="lc-cp__item-wrap" data-removing={removingKeys.has(key) || undefined}>
+                <div key={key} className="lc-cp__item-wrap">
                   <div className="lc-cp__item-row">
-                    <span
-                      className="lc-cp__item-thumb"
-                      style={PRODUCT_IMAGE_BY_SKU[item.sku] ? undefined : { background: thumbColor(item.sku) }}
-                      aria-hidden="true"
-                    >
-                      {PRODUCT_IMAGE_BY_SKU[item.sku] ? (
-                        <img className="lc-cp__item-thumb-img" src={PRODUCT_IMAGE_BY_SKU[item.sku]} alt="" />
-                      ) : (
-                        item.name.charAt(0).toUpperCase()
-                      )}
-                    </span>
+                    <ProductThumb colorKey={item.sku} imageUrl={PRODUCT_IMAGE_BY_SKU[item.sku]} name={item.name} size={36} />
                     <div className="lc-cp__item-main">
                       <div className="lc-cp__item-top">
                         <span className="lc-cp__item-name">{item.name}</span>
-                        <div className="lc-cp__item-actions">
-                          <Stepper value={item.quantity} onChange={(q) => setQty(i, q)} />
-                          <button
-                            type="button"
-                            className="lc-cp__item-remove"
-                            aria-label={`Remove ${item.name}`}
-                            onClick={() => removeItem(i, key)}
-                          >
-                            <TrashIcon />
-                          </button>
-                        </div>
+                        <span className="lc-cp__item-unit-price">{formatINR(item.unitPrice)}</span>
                       </div>
                       {(() => {
                         const variants = PRODUCT_BY_ID[item.productId]?.variants;
-                        return (item.size || item.color) ? (
+                        return (
                           <div className="lc-cp__item-variants">
                             {item.size && (
                               <NativeSelect
@@ -192,19 +93,17 @@ export function CartPanel() {
                                 onChange={(e) => setColor(i, e.currentTarget.value)}
                               />
                             )}
+                            <QtyStepper value={item.quantity} onChange={(q) => setQty(i, q)} />
                           </div>
-                        ) : null;
+                        );
                       })()}
-                      <div className="lc-cp__item-bottom">
-                        <span className="lc-cp__item-sku">{item.sku}</span>
-                        <span className="lc-cp__item-price">{formatINR(item.unitPrice * item.quantity)}</span>
-                      </div>
                     </div>
                   </div>
                 </div>
               );
-            })}
-          </div>
+              })}
+            </div>
+          </>
         )}
       </div>
 
@@ -215,16 +114,27 @@ export function CartPanel() {
             <span>{formatINR(subtotal)}</span>
           </div>
           <div className="lc-cp__summary-row">
-            <span>Tax ({TAX_RATE}%)</span>
+            <span>Tax ({DEFAULT_TAX_RATE}%)</span>
             <span>{formatINR(taxAmount)}</span>
           </div>
           <div className="lc-cp__summary-total">
             <span>Total</span>
             <span>{formatINR(total)}</span>
           </div>
-          <Button variant="filled" color="primary" size="sm" fullWidth>
-            Create order
-          </Button>
+          <div className="lc-cp__summary-ctas">
+            <Button variant="default" size="sm" onClick={clearCart}>
+              Clear cart
+            </Button>
+            <Button
+              variant="filled"
+              color="primary"
+              size="sm"
+              style={{ flex: 1 }}
+              onClick={startOrderFromCart}
+            >
+              Create order
+            </Button>
+          </div>
         </div>
       )}
     </div>

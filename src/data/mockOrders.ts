@@ -2,15 +2,9 @@
  * Mock order history — powers the agent-facing Orders tab in
  * TicketDetailsPanel (src/components/OrdersPanel).
  */
-export type OrderStatus = 'placed' | 'processing' | 'shipped' | 'delivered' | 'returned' | 'cancelled' | 'refunded';
+import { orderTotals } from './orderDraft';
 
-/** An order stops being editable once it has shipped, delivered, or reached a terminal state. */
-export const EDITABLE_STATUSES: OrderStatus[] = ['placed', 'processing'];
-/** Order can be cancelled any time before it ships. */
-export const CANCELLABLE_STATUSES: OrderStatus[] = ['placed', 'processing'];
-/** A delivered order can be marked returned; a returned order can then be refunded. */
-export const RETURNABLE_STATUSES: OrderStatus[] = ['delivered'];
-export const REFUNDABLE_STATUSES: OrderStatus[] = ['delivered', 'returned'];
+export type OrderStatus = 'placed' | 'processing' | 'shipped' | 'delivered' | 'returned' | 'cancelled' | 'refunded';
 
 export interface OrderLineItem {
   productId?: string;
@@ -98,27 +92,10 @@ const PUN_ADDRESS: Address = {
   phone: '+91 99870 22110',
 };
 
-function computeTotals(
-  items: OrderLineItem[],
-  discountAmount: number,
-  taxRate: number,
-  shippingCost: number,
-): { subtotal: number; taxAmount: number; total: number } {
-  const subtotal = items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
-  const taxAmount = Math.round(((subtotal - discountAmount) * taxRate) / 100);
-  const total = subtotal - discountAmount + taxAmount + shippingCost;
-  return { subtotal, taxAmount, total };
-}
-
 function buildOrder(
   base: Omit<Order, 'subtotal' | 'taxAmount' | 'total'>,
 ): Order {
-  const { subtotal, taxAmount, total } = computeTotals(
-    base.items,
-    base.discountAmount,
-    base.taxRate,
-    base.shippingCost,
-  );
+  const { subtotal, taxAmount, total } = orderTotals(base.items, base);
   return { ...base, subtotal, taxAmount, total };
 }
 
@@ -229,4 +206,43 @@ export const MOCK_ORDERS: Order[] = [
     billingSameAsShipping: true,
     notes: 'Size issue — refund processed after return pickup.',
   }),
+];
+
+/** An address kept in the Commerce session for reuse in the Create order form. */
+export interface SavedAddress {
+  id: string;
+  label: string;
+  address: Address;
+}
+
+
+/** Demo data: the addresses a ticket's customer starts with. */
+export const DEFAULT_SAVED_ADDRESSES: SavedAddress[] = [
+  {
+    id: 'home',
+    label: 'Home',
+    address: {
+      name: 'Ananya Rao',
+      line1: '221 Indiranagar 12th Main',
+      line2: 'Near Chinnaswamy Stadium',
+      city: 'Bengaluru',
+      state: 'Karnataka',
+      postalCode: '560038',
+      country: 'India',
+      phone: '+91 98450 11223',
+    },
+  },
+  {
+    id: 'office',
+    label: 'Office',
+    address: {
+      name: 'Ananya Rao',
+      line1: 'WeWork Vaswani Chambers, Sarjapur Road',
+      city: 'Bengaluru',
+      state: 'Karnataka',
+      postalCode: '560102',
+      country: 'India',
+      phone: '+91 98450 11223',
+    },
+  },
 ];

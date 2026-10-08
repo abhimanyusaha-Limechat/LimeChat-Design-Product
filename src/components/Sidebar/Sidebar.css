@@ -212,11 +212,11 @@
 }
 
 .lc-sidebar__profile-menu-item--danger {
-  color: #e0393e;
+  color: #E5484D;
 }
 
 .lc-sidebar__profile-menu-item--danger:hover {
-  background: color-mix(in srgb, #e0393e 8%, transparent);
+  background: color-mix(in srgb, #E5484D 8%, transparent);
 }
 
 .lc-sidebar__profile-menu-icon {

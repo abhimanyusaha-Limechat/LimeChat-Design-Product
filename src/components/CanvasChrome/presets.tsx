@@ -109,6 +109,12 @@ export interface MarketingCanvasOptions {
   omitActions?: string[];
   /** Audience + schedule summary pill shown in the canvas nav (Broadcast only). */
   broadcastMeta?: CanvasBroadcastMeta;
+  /** "Report" button without the dropdown chevron (triggered broadcast, active/inactive flows). */
+  simpleReport?: boolean;
+  /** Date-range chip left of the actions (active/inactive campaign flows). */
+  dateRange?: string;
+  /** Label for the save button; defaults to "Save". */
+  saveLabel?: string;
   /* kebab dropdown (Figma node 173:13717) */
   onCloneFlow?: () => void;
   onDeleteFlow?: () => void;
@@ -126,6 +132,9 @@ export function marketingCanvas(options: MarketingCanvasOptions = {}): Partial<C
     omitTools = [],
     omitActions = [],
     broadcastMeta,
+    simpleReport,
+    dateRange,
+    saveLabel = 'Save',
     ...menuHandlers
   } = options;
   const showAction = (id: string) => !omitActions.includes(id);
@@ -150,6 +159,13 @@ export function marketingCanvas(options: MarketingCanvasOptions = {}): Partial<C
     broadcastMeta,
     actions: (
       <>
+        {dateRange && (
+          <button type="button" className="lc-canvas__date-range" aria-label="Date range">
+            <CanvasIcon name="calendar" className="lc-canvas__icon" />
+            <span className="lc-canvas__date-range-text">{dateRange}</span>
+            <CanvasIcon name="chevron-down" className="lc-canvas__icon" />
+          </button>
+        )}
         {showAction('reports') && (
           <Button
             variant="default"
@@ -157,10 +173,10 @@ export function marketingCanvas(options: MarketingCanvasOptions = {}): Partial<C
             size="sm"
             textTransform="none"
             leftSection={<CanvasIcon name="download" />}
-            rightSection={<CanvasIcon name="chevron-down" />}
+            rightSection={simpleReport ? undefined : <CanvasIcon name="chevron-down" />}
             onClick={onDownloadReports}
           >
-            Reports
+            {simpleReport ? 'Report' : 'Reports'}
           </Button>
         )}
         {showAction('save') && (
@@ -169,10 +185,10 @@ export function marketingCanvas(options: MarketingCanvasOptions = {}): Partial<C
             color="primary"
             size="sm"
             textTransform="none"
-            leftSection={<CanvasIcon name="floppy" />}
+            leftSection={<CanvasIcon name="save" />}
             onClick={onSaveDraft}
           >
-            Save
+            {saveLabel}
           </Button>
         )}
         {onTest && (
@@ -210,7 +226,6 @@ export interface AutomationCanvasOptions {
   saving?: boolean;
   collaborators?: CanvasCollaborator[];
   onCollaborators?: () => void;
-  onRevert?: () => void;
   onPublish?: () => void;
   /* kebab dropdown (Figma nodes 173:13717 / 173:13660) */
   onCloneFlow?: () => void;
@@ -231,7 +246,6 @@ export function automationCanvas(options: AutomationCanvasOptions = {}): Partial
     saving = true,
     collaborators = DEFAULT_COLLABORATORS,
     onCollaborators,
-    onRevert,
     onPublish,
     lastEditedBy,
     ...menuHandlers
@@ -253,16 +267,6 @@ export function automationCanvas(options: AutomationCanvasOptions = {}): Partial
     ],
     actions: (
       <>
-        <Button
-          variant="default"
-          color="gray"
-          size="sm"
-          textTransform="none"
-          leftSection={<CanvasIcon name="undo" />}
-          onClick={onRevert}
-        >
-          Revert to original
-        </Button>
         <Button
           variant="filled"
           color="primary"

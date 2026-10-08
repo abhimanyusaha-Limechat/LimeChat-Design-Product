@@ -9,12 +9,22 @@
  *     onCreateTemplate={() => setOpen(true)}
  *   />
  */
-import { useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import { Tooltip } from '../Tooltip';
 import { ActionMenu } from '../Menu';
 import { TemplateIcon } from './icons';
+import {
+  DataTable,
+  DataTableEmpty,
+  DataTableHead,
+  DataTableRow,
+  DataTableSkeleton,
+  DataTableSortHeader,
+  Skeleton,
+  useTableSort,
+} from '../DataTable';
 import './TemplatesHomePage.css';
 
 export type TemplateStatus = 'in-review' | 'active' | 'rejected' | 'paused';
@@ -126,6 +136,8 @@ function RowActions({
 }
 
 export interface TemplatesHomePageProps {
+  /** Shows skeleton rows in place of the list while its data loads. */
+  loading?: boolean;
   templates: TemplateRowData[];
   activeChannel?: TemplateChannel;
   onChannelChange?: (channel: TemplateChannel) => void;
@@ -169,23 +181,17 @@ export function TemplatesHomePage({
   page = 1,
   totalPages = 1,
   onPageChange,
+  loading = false,
 }: TemplatesHomePageProps) {
-  const [sortDir, setSortDir] = useState<'asc' | 'desc' | null>(null);
-  const toggleSort = () => setSortDir((d) => (d === null ? 'asc' : d === 'asc' ? 'desc' : null));
-
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeout = useRef<number>();
-  const handleTableScroll = () => {
-    setIsScrolling(true);
-    window.clearTimeout(scrollTimeout.current);
-    scrollTimeout.current = window.setTimeout(() => setIsScrolling(false), 600);
-  };
-
-  const sortedTemplates = (() => {
-    if (!sortDir) return templates;
-    const sorted = [...templates].sort((a, b) => a.name.localeCompare(b.name));
-    return sortDir === 'asc' ? sorted : sorted.reverse();
-  })();
+  const { sorted: sortedTemplates, sort, toggle: toggleSort } = useTableSort(
+    templates,
+    (row, key: 'name' | 'status' | 'category' | 'fallbackTemplate') =>
+    key === 'status'
+      ? STATUS_LABEL[row.status]
+      : key === 'category' && activeChannel === 'sms'
+        ? smsCategory(row.category)
+        : row[key],
+  );
 
   const pageNumbers = new Set<number>(
     [1, 2, 3, 4, 5, totalPages].filter((n) => n <= totalPages),
@@ -193,7 +199,7 @@ export function TemplatesHomePage({
 
   return (
     <div className="lc-th">
-      <div className="lc-th__toolbar">
+      <div className="lc-th__toolbar" data-anchor="template-toolbar">
         <div className="lc-th__search">
           <TemplateIcon name="search" className="lc-th__search-icon" />
           <input
@@ -272,7 +278,7 @@ export function TemplatesHomePage({
         </div>
       </div>
 
-      <div className="lc-th__nav-row">
+      <div className="lc-th__nav-row" data-anchor="template-tab-bar">
         <div className="lc-th__tabs" role="tablist">
           {CHANNELS.map((channel) => (
             <button
@@ -290,79 +296,89 @@ export function TemplatesHomePage({
         </div>
       </div>
 
-      <div className="lc-th__table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
-        <div className="lc-th__row lc-th__row--head">
-          <div className="lc-th__cell--name lc-th__cell">
-            <button
-              type="button"
-              className="lc-th__sort-btn"
-              data-sort={sortDir ?? undefined}
-              onClick={toggleSort}
-            >
-              <span className="lc-th__head-label">Name</span>
-              <TemplateIcon name="chevron-down" className="lc-th__sort-icon" />
-            </button>
-          </div>
+      <DataTable aria-busy={loading || undefined} aria-label="Templates" data-anchor="template-table">
+        <DataTableHead className="lc-th__row">
+          <DataTableSortHeader className="lc-th__cell--name lc-th__cell" label="Name" sortKey="name" sort={sort} onSort={toggleSort} />
           {activeChannel !== 'email' && (
-            <div className="lc-th__cell--status lc-th__cell">
-              <span className="lc-th__head-label">Status</span>
-            </div>
+            <DataTableSortHeader className="lc-th__cell--status lc-th__cell" label="Status" sortKey="status" sort={sort} onSort={toggleSort} />
           )}
-          <div className="lc-th__cell--category lc-th__cell">
-            <span className="lc-th__head-label">Category</span>
-          </div>
+          <DataTableSortHeader className="lc-th__cell--category lc-th__cell" label="Category" sortKey="category" sort={sort} onSort={toggleSort} />
           {activeChannel === 'whatsapp' && (
-            <div className="lc-th__cell--fallback lc-th__cell">
-              <span className="lc-th__head-label">Fallback Template</span>
-            </div>
+            <DataTableSortHeader className="lc-th__cell--fallback lc-th__cell" label="Fallback Template" sortKey="fallbackTemplate" sort={sort} onSort={toggleSort} />
           )}
-          <div className="lc-th__cell--actions lc-th__cell" aria-hidden="true" />
-        </div>
+          <div role="columnheader" className="lc-th__cell--actions lc-th__cell" aria-label="Actions" />
+        </DataTableHead>
 
-        {sortedTemplates.map((row) => (
-          <div
-            key={row.id}
-            className="lc-th__row lc-th__row--body"
-            data-status={activeChannel === 'email' ? undefined : row.status}
-          >
+        {loading ? (
+          <DataTableSkeleton>
             <div className="lc-th__cell--name lc-th__cell">
-              {activeChannel === 'whatsapp' && <TypeBadge type={row.type} />}
-              <div className="lc-th__name-block">
-                <span className="lc-th__name-line">
-                  <IdChip id={row.displayId} />
-                  <span className="lc-th__name">{row.name}</span>
-                </span>
-                <span className="lc-th__preview">{row.preview}</span>
-              </div>
+              <Skeleton lines={2} />
             </div>
             {activeChannel !== 'email' && (
               <div className="lc-th__cell--status lc-th__cell">
-                <span className="lc-th__status" data-status={row.status}>
-                  {STATUS_LABEL[row.status]}
-                </span>
-                <span className="lc-th__meta-line">{row.language}</span>
+                <Skeleton lines={2} />
               </div>
             )}
             <div className="lc-th__cell--category lc-th__cell">
-              <span className="lc-th__category">
-                {activeChannel === 'sms' ? smsCategory(row.category) : row.category}
-              </span>
-              {row.businessTag && <span className="lc-th__business-tag">{row.businessTag}</span>}
+              <Skeleton />
             </div>
             {activeChannel === 'whatsapp' && (
               <div className="lc-th__cell--fallback lc-th__cell">
-                <span className="lc-th__fallback">{row.fallbackTemplate ?? 'N/A'}</span>
+                <Skeleton />
               </div>
             )}
-            <div className="lc-th__cell--actions lc-th__cell">
-              <RowActions row={row} onEdit={onRowEdit} onClone={onRowClone} onDelete={onRowDelete} />
-            </div>
-          </div>
-        ))}
-      </div>
+            <div className="lc-th__cell--actions lc-th__cell" />
+          </DataTableSkeleton>
+        ) : sortedTemplates.length === 0 ? (
+          <DataTableEmpty>No templates found</DataTableEmpty>
+        ) : (
+          sortedTemplates.map((row) => (
+            <DataTableRow
+              key={row.id}
+              className="lc-th__row lc-th__row--body"
+              data-anchor="template-row"
+              data-anchor-key={row.id}
+              data-status={activeChannel === 'email' ? undefined : row.status}
+            >
+              <div role="cell" className="lc-th__cell--name lc-th__cell">
+                {activeChannel === 'whatsapp' && <TypeBadge type={row.type} />}
+                <div className="lc-th__name-block">
+                  <span className="lc-th__name-line">
+                    <IdChip id={row.displayId} />
+                    <span className="lc-th__name">{row.name}</span>
+                  </span>
+                  <span className="lc-th__preview">{row.preview}</span>
+                </div>
+              </div>
+              {activeChannel !== 'email' && (
+                <div role="cell" className="lc-th__cell--status lc-th__cell">
+                  <span className="lc-th__status" data-status={row.status}>
+                    {STATUS_LABEL[row.status]}
+                  </span>
+                  <span className="lc-th__meta-line">{row.language}</span>
+                </div>
+              )}
+              <div role="cell" className="lc-th__cell--category lc-th__cell">
+                <span className="lc-th__category">
+                  {activeChannel === 'sms' ? smsCategory(row.category) : row.category}
+                </span>
+                {row.businessTag && <span className="lc-th__business-tag">{row.businessTag}</span>}
+              </div>
+              {activeChannel === 'whatsapp' && (
+                <div role="cell" className="lc-th__cell--fallback lc-th__cell">
+                  <span className="lc-th__fallback">{row.fallbackTemplate ?? 'N/A'}</span>
+                </div>
+              )}
+              <div role="cell" className="lc-th__cell--actions lc-th__cell">
+                <RowActions row={row} onEdit={onRowEdit} onClone={onRowClone} onDelete={onRowDelete} />
+              </div>
+            </DataTableRow>
+          ))
+        )}
+      </DataTable>
 
       {totalPages > 1 && (
-        <div className="lc-th__pagination">
+        <div className="lc-th__pagination" data-anchor="template-pagination">
           {Array.from(pageNumbers)
             .sort((a, b) => a - b)
             .flatMap((n, i, arr) => {

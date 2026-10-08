@@ -13,12 +13,25 @@
  *     onNewFlow={() => setOpen(true)}
  *   />
  */
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button } from '../Button';
+import { CheckboxPill } from '../CheckboxPill';
 import { NativeSelect } from '../Select';
 import { Tooltip } from '../Tooltip';
-import { Menu } from '../Menu';
+import { ActionMenu, Menu } from '../Menu';
 import { FlowIcon } from './icons';
+import {
+  DataTable,
+  DataTableEmpty,
+  DataTableHead,
+  DataTableRow,
+  DataTableSkeleton,
+  DataTableSortHeader,
+  Skeleton,
+  type SortValue,
+  toNumber,
+  useTableSort,
+} from '../DataTable';
 import './FlowsHomePage.css';
 
 export type FlowTab = 'active' | 'inactive' | 'draft';
@@ -60,49 +73,16 @@ const COLUMNS: { label: string; key: SortKey }[] = [
 ];
 
 /** Pulls a comparable number out of formatted strings like "$38,940" or "97.1%". */
-function sortValue(row: FlowRowData, key: SortKey): number | string {
-  const raw =
-    key === 'name'
-      ? row.name
-      : key === 'sent'
-        ? row.sent
-        : key === 'delivery'
-          ? row.delivery.primary
-          : key === 'engagement'
-            ? row.engagement
-            : key === 'dropoff'
-              ? row.dropoff
-              : row.revenue.primary;
-  if (key === 'name') return raw.toLowerCase();
-  const num = Number(raw.replace(/[^0-9.-]/g, ''));
-  return Number.isNaN(num) ? raw : num;
-}
-
-function Switch({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  label: ReactNode;
-}) {
-  return (
-    <label className="lc-fh__switch" data-checked={checked || undefined}>
-      <input
-        type="checkbox"
-        className="lc-fh__switch-input"
-        checked={checked}
-        onChange={(e) => onChange(e.currentTarget.checked)}
-      />
-      <span className="lc-fh__switch-box" aria-hidden="true">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 8.5l3 3l7-7" />
-        </svg>
-      </span>
-      <span className="lc-fh__switch-label">{label}</span>
-    </label>
-  );
+function sortValue(row: FlowRowData, key: SortKey): SortValue {
+  const raw = {
+    name: row.name,
+    sent: row.sent,
+    delivery: row.delivery.primary,
+    engagement: row.engagement,
+    dropoff: row.dropoff,
+    revenue: row.revenue.primary,
+  }[key];
+  return key === 'name' ? raw : toNumber(raw);
 }
 
 function IdChip({ id }: { id: string }) {
@@ -129,6 +109,8 @@ function IdChip({ id }: { id: string }) {
 }
 
 export interface FlowsHomePageProps {
+  /** Shows skeleton rows in place of the list while its data loads. */
+  loading?: boolean;
   flows: FlowRowData[];
   activeTab?: FlowTab;
   onTabChange?: (tab: FlowTab) => void;
@@ -158,34 +140,13 @@ export function FlowsHomePage({
   page = 1,
   totalPages = 10,
   onPageChange,
+  loading = false,
 }: FlowsHomePageProps) {
   const [percentage, setPercentage] = useState('percentage');
   const [timeframe, setTimeframe] = useState('this-week');
   const [showRetry, setShowRetry] = useState(true);
 
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeout = useRef<number>();
-  const handleTableScroll = () => {
-    setIsScrolling(true);
-    window.clearTimeout(scrollTimeout.current);
-    scrollTimeout.current = window.setTimeout(() => setIsScrolling(false), 600);
-  };
-
-  const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' } | null>(null);
-  const toggleSort = (key: SortKey) =>
-    setSort((s) =>
-      s?.key === key ? (s.dir === 'asc' ? { key, dir: 'desc' } : null) : { key, dir: 'asc' },
-    );
-  const sortedFlows = useMemo(() => {
-    if (!sort) return flows;
-    const { key, dir } = sort;
-    return [...flows].sort((a, b) => {
-      const av = sortValue(a, key);
-      const bv = sortValue(b, key);
-      const cmp = typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av).localeCompare(String(bv));
-      return dir === 'asc' ? cmp : -cmp;
-    });
-  }, [flows, sort]);
+  const { sorted: sortedFlows, sort, toggle: toggleSort } = useTableSort(flows, sortValue);
 
   const pageNumbers = new Set<number>(
     [1, 2, 3, 4, 5, totalPages].filter((n) => n <= totalPages),
@@ -193,7 +154,7 @@ export function FlowsHomePage({
 
   return (
     <div className="lc-fh">
-      <div className="lc-fh__toolbar">
+      <div className="lc-fh__toolbar" data-anchor="flow-toolbar">
         <div className="lc-fh__search">
           <FlowIcon name="search" className="lc-fh__search-icon" />
           <input
@@ -237,7 +198,7 @@ export function FlowsHomePage({
         </div>
       </div>
 
-      <div className="lc-fh__nav-row">
+      <div className="lc-fh__nav-row" data-anchor="flow-tab-bar">
         <div className="lc-fh__tabs" role="tablist">
           {TABS.map((tab) => (
             <button
@@ -277,106 +238,108 @@ export function FlowsHomePage({
               ]}
             />
           </div>
-          <Switch checked={showRetry} onChange={setShowRetry} label="Show retry results" />
+          <CheckboxPill checked={showRetry} onChange={setShowRetry} label="Show retry results" />
         </div>
       </div>
 
-      <div className="lc-fh__table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
-        <div className="lc-fh__row lc-fh__row--head">
-          <div className="lc-fh__cell--name lc-fh__cell">
-            <button
-              type="button"
-              className="lc-fh__sort-btn"
-              data-sort={sort?.key === 'name' ? sort.dir : undefined}
-              onClick={() => toggleSort('name')}
-            >
-              <span className="lc-fh__head-label">Flow name</span>
-              <FlowIcon name="chevron-down" className="lc-fh__sort-icon" />
-            </button>
-          </div>
+      <DataTable aria-busy={loading || undefined} aria-label="Flows" data-anchor="flow-table">
+        <DataTableHead>
+          <DataTableSortHeader
+            className="lc-fh__cell--name lc-fh__cell"
+            label="Flow name"
+            sortKey="name"
+            sort={sort}
+            onSort={toggleSort}
+          />
           <div className="lc-fh__stats">
             {COLUMNS.map((col) => (
-              <div className="lc-fh__cell--stat" key={col.key}>
-                <button
-                  type="button"
-                  className="lc-fh__sort-btn"
-                  data-sort={sort?.key === col.key ? sort.dir : undefined}
-                  onClick={() => toggleSort(col.key)}
-                >
-                  <span className="lc-fh__head-label">{col.label}</span>
-                  <FlowIcon name="chevron-down" className="lc-fh__sort-icon" />
-                </button>
-              </div>
+              <DataTableSortHeader
+                key={col.key}
+                className="lc-fh__cell--stat"
+                label={col.label}
+                sortKey={col.key}
+                sort={sort}
+                onSort={toggleSort}
+              />
             ))}
           </div>
-          <div className="lc-fh__cell--actions" aria-hidden="true" />
-        </div>
+          <div role="columnheader" className="lc-fh__cell--actions" aria-label="Actions" />
+        </DataTableHead>
 
-        {sortedFlows.map((row) => (
-          <div key={row.id} className="lc-fh__row lc-fh__row--body">
+        {loading ? (
+          <DataTableSkeleton>
             <div className="lc-fh__cell--name lc-fh__cell">
-              <div className="lc-fh__name-block">
-                <div className="lc-fh__name-line">
-                  {row.displayId && <IdChip id={row.displayId} />}
-                  <span className="lc-fh__name">{row.name}</span>
-                </div>
-                <span className="lc-fh__sent-on">Updated on : {row.updatedOn}</span>
-              </div>
+              <Skeleton lines={2} />
             </div>
             <div className="lc-fh__stats">
-              <div className="lc-fh__cell--stat">
-                <span className="lc-fh__stat-primary">{row.sent}</span>
-              </div>
-              <div className="lc-fh__cell--stat">
-                <span className="lc-fh__stat-primary">{row.delivery.primary}</span>
-                {showRetry && row.delivery.secondary && (
-                  <div className="lc-fh__stat-secondary">{row.delivery.secondary}</div>
-                )}
-              </div>
-              <div className="lc-fh__cell--stat">
-                <span className="lc-fh__stat-primary">{row.engagement}</span>
-              </div>
-              <div className="lc-fh__cell--stat">
-                <span className="lc-fh__stat-primary">{row.dropoff}</span>
-              </div>
-              <div className="lc-fh__cell--stat">
-                <span className="lc-fh__stat-primary">{row.revenue.primary}</span>
-                {showRetry && row.revenue.secondary && (
-                  <div className="lc-fh__stat-secondary">{row.revenue.secondary}</div>
-                )}
-              </div>
+              {COLUMNS.map((col) => (
+                <div key={col.key} className="lc-fh__cell--stat">
+                  <Skeleton />
+                </div>
+              ))}
             </div>
-            <div className="lc-fh__cell--actions">
-              <button
-                type="button"
-                className="lc-fh__action-btn"
-                aria-label="Download report"
-                onClick={() => onRowDownload?.(row)}
-              >
-                <FlowIcon name="download" />
-              </button>
-              <button
-                type="button"
-                className="lc-fh__action-btn"
-                aria-label="Copy flow"
-                onClick={() => onRowCopy?.(row)}
-              >
-                <FlowIcon name="copy" />
-              </button>
-              <button
-                type="button"
-                className="lc-fh__action-btn"
-                aria-label="Edit flow"
-                onClick={() => onRowClick?.(row)}
-              >
-                <FlowIcon name="edit" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+            <div className="lc-fh__cell--actions" />
+          </DataTableSkeleton>
+        ) : sortedFlows.length === 0 ? (
+          <DataTableEmpty>No flows found</DataTableEmpty>
+        ) : (
+          sortedFlows.map((row) => (
+            <DataTableRow
+              key={row.id}
+              data-anchor="flow-row"
+              data-anchor-key={row.id}
+              onClick={onRowClick && (() => onRowClick(row))}
+            >
+              <div role="cell" className="lc-fh__cell--name lc-fh__cell">
+                <div className="lc-fh__name-block">
+                  <div className="lc-fh__name-line">
+                    {row.displayId && <IdChip id={row.displayId} />}
+                    <span className="lc-fh__name">{row.name}</span>
+                  </div>
+                  <span className="lc-fh__sent-on">Updated on : {row.updatedOn}</span>
+                </div>
+              </div>
+              <div className="lc-fh__stats">
+                <div role="cell" className="lc-fh__cell--stat">
+                  <span className="lc-fh__stat-primary">{row.sent}</span>
+                </div>
+                <div role="cell" className="lc-fh__cell--stat">
+                  <span className="lc-fh__stat-primary">{row.delivery.primary}</span>
+                  {showRetry && row.delivery.secondary && (
+                    <div className="lc-fh__stat-secondary">{row.delivery.secondary}</div>
+                  )}
+                </div>
+                <div role="cell" className="lc-fh__cell--stat">
+                  <span className="lc-fh__stat-primary">{row.engagement}</span>
+                </div>
+                <div role="cell" className="lc-fh__cell--stat">
+                  <span className="lc-fh__stat-primary">{row.dropoff}</span>
+                </div>
+                <div role="cell" className="lc-fh__cell--stat">
+                  <span className="lc-fh__stat-primary">{row.revenue.primary}</span>
+                  {showRetry && row.revenue.secondary && (
+                    <div className="lc-fh__stat-secondary">{row.revenue.secondary}</div>
+                  )}
+                </div>
+              </div>
+              {/* Menu clicks (portaled, but React-bubbled) must not also open the row. */}
+              <div role="cell" className="lc-fh__cell--actions" onClick={(e) => e.stopPropagation()}>
+                <ActionMenu
+                  ariaLabel={`Actions for ${row.name}`}
+                  icon={<FlowIcon name="dots-vertical" />}
+                  items={[
+                    { label: 'Edit', icon: <FlowIcon name="edit" />, onClick: () => onRowClick?.(row) },
+                    { label: 'Copy flow', icon: <FlowIcon name="copy" />, onClick: () => onRowCopy?.(row) },
+                    { label: 'Download report', icon: <FlowIcon name="download" />, onClick: () => onRowDownload?.(row) },
+                  ]}
+                />
+              </div>
+            </DataTableRow>
+          ))
+        )}
+      </DataTable>
 
-      <div className="lc-fh__pagination">
+      <div className="lc-fh__pagination" data-anchor="flow-pagination">
         {Array.from(pageNumbers)
           .sort((a, b) => a - b)
           .flatMap((n, i, arr) => {

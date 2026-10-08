@@ -12,11 +12,25 @@
  *     onNewBroadcast={() => setOpen(true)}
  *   />
  */
-import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button } from '../Button';
+import { CheckboxPill } from '../CheckboxPill';
 import { NativeSelect } from '../Select';
 import { Tooltip } from '../Tooltip';
+import { ActionMenu } from '../Menu';
 import { BroadcastIcon, type BroadcastIconName } from './icons';
+import {
+  DataTable,
+  DataTableEmpty,
+  DataTableHead,
+  DataTableRow,
+  DataTableSkeleton,
+  DataTableSortHeader,
+  Skeleton,
+  type SortValue,
+  toNumber,
+  useTableSort,
+} from '../DataTable';
 import './BroadcastHomePage.css';
 
 export type BroadcastTab = 'triggered' | 'scheduled' | 'draft';
@@ -60,22 +74,16 @@ const COLUMNS: { label: string; key: SortKey }[] = [
 ];
 
 /** Pulls a comparable number out of formatted strings like "$38,940" or "97.1%". */
-function sortValue(row: BroadcastRowData, key: SortKey): number | string {
-  const raw =
-    key === 'name'
-      ? row.name
-      : key === 'sent'
-        ? row.sent
-        : key === 'delivery'
-          ? row.delivery.primary
-          : key === 'engagement'
-            ? row.engagement
-            : key === 'dropoff'
-              ? row.dropoff
-              : row.revenue.primary;
-  if (key === 'name') return raw.toLowerCase();
-  const num = Number(raw.replace(/[^0-9.-]/g, ''));
-  return Number.isNaN(num) ? raw : num;
+function sortValue(row: BroadcastRowData, key: SortKey): SortValue {
+  const raw = {
+    name: row.name,
+    sent: row.sent,
+    delivery: row.delivery.primary,
+    engagement: row.engagement,
+    dropoff: row.dropoff,
+    revenue: row.revenue.primary,
+  }[key];
+  return key === 'name' ? raw : toNumber(raw);
 }
 
 const STATUS_ICON: Record<BroadcastStatus, BroadcastIconName> = {
@@ -84,33 +92,6 @@ const STATUS_ICON: Record<BroadcastStatus, BroadcastIconName> = {
   scheduled: 'clock',
   draft: 'save',
 };
-
-function Switch({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  label: ReactNode;
-}) {
-  return (
-    <label className="lc-bh__switch" data-checked={checked || undefined}>
-      <input
-        type="checkbox"
-        className="lc-bh__switch-input"
-        checked={checked}
-        onChange={(e) => onChange(e.currentTarget.checked)}
-      />
-      <span className="lc-bh__switch-box" aria-hidden="true">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 8.5l3 3l7-7" />
-        </svg>
-      </span>
-      <span className="lc-bh__switch-label">{label}</span>
-    </label>
-  );
-}
 
 function IdChip({ id }: { id: string }) {
   const [copied, setCopied] = useState(false);
@@ -136,6 +117,8 @@ function IdChip({ id }: { id: string }) {
 }
 
 export interface BroadcastHomePageProps {
+  /** Shows skeleton rows in place of the list while its data loads. */
+  loading?: boolean;
   broadcasts: BroadcastRowData[];
   activeTab?: BroadcastTab;
   onTabChange?: (tab: BroadcastTab) => void;
@@ -165,34 +148,13 @@ export function BroadcastHomePage({
   page = 1,
   totalPages = 10,
   onPageChange,
+  loading = false,
 }: BroadcastHomePageProps) {
   const [percentage, setPercentage] = useState('percentage');
   const [timeframe, setTimeframe] = useState('this-week');
   const [showRetry, setShowRetry] = useState(true);
 
-  const [isScrolling, setIsScrolling] = useState(false);
-  const scrollTimeout = useRef<number>();
-  const handleTableScroll = () => {
-    setIsScrolling(true);
-    window.clearTimeout(scrollTimeout.current);
-    scrollTimeout.current = window.setTimeout(() => setIsScrolling(false), 600);
-  };
-
-  const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' } | null>(null);
-  const toggleSort = (key: SortKey) =>
-    setSort((s) =>
-      s?.key === key ? (s.dir === 'asc' ? { key, dir: 'desc' } : null) : { key, dir: 'asc' },
-    );
-  const sortedBroadcasts = useMemo(() => {
-    if (!sort) return broadcasts;
-    const { key, dir } = sort;
-    return [...broadcasts].sort((a, b) => {
-      const av = sortValue(a, key);
-      const bv = sortValue(b, key);
-      const cmp = typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av).localeCompare(String(bv));
-      return dir === 'asc' ? cmp : -cmp;
-    });
-  }, [broadcasts, sort]);
+  const { sorted: sortedBroadcasts, sort, toggle: toggleSort } = useTableSort(broadcasts, sortValue);
 
   const pageNumbers = new Set<number>(
     [1, 2, 3, 4, 5, totalPages].filter((n) => n <= totalPages),
@@ -200,7 +162,7 @@ export function BroadcastHomePage({
 
   return (
     <div className="lc-bh">
-      <div className="lc-bh__toolbar">
+      <div className="lc-bh__toolbar" data-anchor="broadcast-toolbar">
         <div className="lc-bh__search">
           <BroadcastIcon name="search" className="lc-bh__search-icon" />
           <input
@@ -233,7 +195,7 @@ export function BroadcastHomePage({
         </div>
       </div>
 
-      <div className="lc-bh__nav-row">
+      <div className="lc-bh__nav-row" data-anchor="broadcast-tab-bar">
         <div className="lc-bh__tabs" role="tablist">
           {TABS.map((tab) => (
             <button
@@ -273,125 +235,121 @@ export function BroadcastHomePage({
               ]}
             />
           </div>
-          <Switch checked={showRetry} onChange={setShowRetry} label="Show retry results" />
+          <CheckboxPill checked={showRetry} onChange={setShowRetry} label="Show retry results" />
         </div>
       </div>
 
-      <div className="lc-bh__table" data-scrolling={isScrolling || undefined} onScroll={handleTableScroll}>
-        <div className="lc-bh__row lc-bh__row--head">
-          <div className="lc-bh__cell--name lc-bh__cell">
-            <button
-              type="button"
-              className="lc-bh__sort-btn"
-              data-sort={sort?.key === 'name' ? sort.dir : undefined}
-              onClick={() => toggleSort('name')}
-            >
-              <span className="lc-bh__head-label">Broadcast name</span>
-              <BroadcastIcon name="chevron-down" className="lc-bh__sort-icon" />
-            </button>
-          </div>
+      <DataTable aria-busy={loading || undefined} aria-label="Broadcasts" data-anchor="broadcast-table">
+        <DataTableHead>
+          <DataTableSortHeader
+            className="lc-bh__cell--name lc-bh__cell"
+            label="Broadcast name"
+            sortKey="name"
+            sort={sort}
+            onSort={toggleSort}
+          />
           <div className="lc-bh__stats">
             {COLUMNS.map((col) => (
-              <div className="lc-bh__cell--stat" key={col.key}>
-                <button
-                  type="button"
-                  className="lc-bh__sort-btn"
-                  data-sort={sort?.key === col.key ? sort.dir : undefined}
-                  onClick={() => toggleSort(col.key)}
-                >
-                  <span className="lc-bh__head-label">{col.label}</span>
-                  <BroadcastIcon name="chevron-down" className="lc-bh__sort-icon" />
-                </button>
-              </div>
+              <DataTableSortHeader
+                key={col.key}
+                className="lc-bh__cell--stat"
+                label={col.label}
+                sortKey={col.key}
+                sort={sort}
+                onSort={toggleSort}
+              />
             ))}
           </div>
-          <div className="lc-bh__cell--actions" aria-hidden="true" />
-        </div>
+          <div role="columnheader" className="lc-bh__cell--actions" aria-label="Actions" />
+        </DataTableHead>
 
-        {sortedBroadcasts.map((row) => (
-          <div key={row.id} className="lc-bh__row lc-bh__row--body">
+        {loading ? (
+          <DataTableSkeleton>
             <div className="lc-bh__cell--name lc-bh__cell">
-              <BroadcastIcon
-                name={STATUS_ICON[row.status]}
-                className="lc-bh__status-icon"
-                data-status={row.status}
-              />
-              <div className="lc-bh__name-block">
-                <div className="lc-bh__name-line">
-                  {row.displayId && <IdChip id={row.displayId} />}
-                  <span className="lc-bh__name">{row.name}</span>
-                  {row.retry && (
-                    <span className="lc-bh__retry-badge">
-                      {row.retry.attempt}/{row.retry.total} retry
-                    </span>
-                  )}
-                </div>
-                <span className="lc-bh__sent-on">
-                  {row.status === 'scheduled' || row.status === 'draft' ? 'Scheduled on' : 'Triggered on'} :{' '}
-                  {row.sentOn}
-                </span>
-              </div>
+              <Skeleton lines={2} />
             </div>
             <div className="lc-bh__stats">
-              <div className="lc-bh__cell--stat">
-                <span className="lc-bh__stat-primary">{row.sent}</span>
-              </div>
-              <div className="lc-bh__cell--stat">
-                <span className="lc-bh__stat-primary">{row.delivery.primary}</span>
-                {showRetry && row.delivery.secondary && (
-                  <div className="lc-bh__stat-secondary">{row.delivery.secondary}</div>
-                )}
-              </div>
-              <div className="lc-bh__cell--stat">
-                <span className="lc-bh__stat-primary">{row.engagement}</span>
-              </div>
-              <div className="lc-bh__cell--stat">
-                <span className="lc-bh__stat-primary">{row.dropoff}</span>
-              </div>
-              <div className="lc-bh__cell--stat">
-                <span className="lc-bh__stat-primary">{row.revenue.primary}</span>
-                {showRetry && row.revenue.secondary && (
-                  <div className="lc-bh__stat-secondary">{row.revenue.secondary}</div>
-                )}
-              </div>
+              {COLUMNS.map((col) => (
+                <div key={col.key} className="lc-bh__cell--stat">
+                  <Skeleton />
+                </div>
+              ))}
             </div>
-            <div className="lc-bh__cell--actions">
-              <Tooltip label="Download report">
-                <button
-                  type="button"
-                  className="lc-bh__action-btn"
-                  aria-label="Download report"
-                  onClick={() => onRowDownload?.(row)}
-                >
-                  <BroadcastIcon name="download" />
-                </button>
-              </Tooltip>
-              <Tooltip label="Copy broadcast">
-                <button
-                  type="button"
-                  className="lc-bh__action-btn"
-                  aria-label="Copy broadcast"
-                  onClick={() => onRowCopy?.(row)}
-                >
-                  <BroadcastIcon name="copy" />
-                </button>
-              </Tooltip>
-              <Tooltip label="Edit broadcast">
-                <button
-                  type="button"
-                  className="lc-bh__action-btn"
-                  aria-label="Edit broadcast"
-                  onClick={() => onRowClick?.(row)}
-                >
-                  <BroadcastIcon name="edit" />
-                </button>
-              </Tooltip>
-            </div>
-          </div>
-        ))}
-      </div>
+            <div className="lc-bh__cell--actions" />
+          </DataTableSkeleton>
+        ) : sortedBroadcasts.length === 0 ? (
+          <DataTableEmpty>No broadcasts found</DataTableEmpty>
+        ) : (
+          sortedBroadcasts.map((row) => (
+            <DataTableRow
+              key={row.id}
+              data-anchor="broadcast-row"
+              data-anchor-key={row.id}
+              onClick={onRowClick && (() => onRowClick(row))}
+            >
+              <div role="cell" className="lc-bh__cell--name lc-bh__cell">
+                <BroadcastIcon
+                  name={STATUS_ICON[row.status]}
+                  className="lc-bh__status-icon"
+                  data-status={row.status}
+                />
+                <div className="lc-bh__name-block">
+                  <div className="lc-bh__name-line">
+                    {row.displayId && <IdChip id={row.displayId} />}
+                    <span className="lc-bh__name">{row.name}</span>
+                    {row.retry && (
+                      <span className="lc-bh__retry-badge">
+                        {row.retry.attempt}/{row.retry.total} retry
+                      </span>
+                    )}
+                  </div>
+                  <span className="lc-bh__sent-on">
+                    {row.status === 'scheduled' || row.status === 'draft' ? 'Scheduled on' : 'Triggered on'} :{' '}
+                    {row.sentOn}
+                  </span>
+                </div>
+              </div>
+              <div className="lc-bh__stats">
+                <div role="cell" className="lc-bh__cell--stat">
+                  <span className="lc-bh__stat-primary">{row.sent}</span>
+                </div>
+                <div role="cell" className="lc-bh__cell--stat">
+                  <span className="lc-bh__stat-primary">{row.delivery.primary}</span>
+                  {showRetry && row.delivery.secondary && (
+                    <div className="lc-bh__stat-secondary">{row.delivery.secondary}</div>
+                  )}
+                </div>
+                <div role="cell" className="lc-bh__cell--stat">
+                  <span className="lc-bh__stat-primary">{row.engagement}</span>
+                </div>
+                <div role="cell" className="lc-bh__cell--stat">
+                  <span className="lc-bh__stat-primary">{row.dropoff}</span>
+                </div>
+                <div role="cell" className="lc-bh__cell--stat">
+                  <span className="lc-bh__stat-primary">{row.revenue.primary}</span>
+                  {showRetry && row.revenue.secondary && (
+                    <div className="lc-bh__stat-secondary">{row.revenue.secondary}</div>
+                  )}
+                </div>
+              </div>
+              {/* Menu clicks (portaled, but React-bubbled) must not also open the row. */}
+              <div role="cell" className="lc-bh__cell--actions" onClick={(e) => e.stopPropagation()}>
+                <ActionMenu
+                  ariaLabel={`Actions for ${row.name}`}
+                  icon={<BroadcastIcon name="dots-vertical" />}
+                  items={[
+                    { label: 'Edit', icon: <BroadcastIcon name="edit" />, onClick: () => onRowClick?.(row) },
+                    { label: 'Copy broadcast', icon: <BroadcastIcon name="copy" />, onClick: () => onRowCopy?.(row) },
+                    { label: 'Download report', icon: <BroadcastIcon name="download" />, onClick: () => onRowDownload?.(row) },
+                  ]}
+                />
+              </div>
+            </DataTableRow>
+          ))
+        )}
+      </DataTable>
 
-      <div className="lc-bh__pagination">
+      <div className="lc-bh__pagination" data-anchor="broadcast-pagination">
         {Array.from(pageNumbers)
           .sort((a, b) => a - b)
           .flatMap((n, i, arr) => {

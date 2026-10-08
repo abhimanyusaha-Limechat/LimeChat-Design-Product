@@ -33,7 +33,7 @@
   --lc-canvas-accent-soft: var(--lc-color-green-75);
   --lc-canvas-hover-bg: var(--lc-color-stone-100);
   /* idle (unselected) icon-button glyph — a lighter grey than text/dimmed */
-  --lc-canvas-icon-idle: #a9b0a0;
+  --lc-canvas-icon-idle: var(--lc-color-gray-500); /* #8c8c8c */
   --lc-canvas-divider: var(--lc-color-gray-150);
   --lc-canvas-disabled: var(--lc-color-gray-400);
   --lc-canvas-pill-radius: 8px;
@@ -107,8 +107,8 @@
 
 .lc-canvas__flow {
   /* 45° gradient stroke — dark at the ends, light in the middle */
-  --lc-canvas-flow-edge: #4d7c14;
-  --lc-canvas-flow-mid: #a9d878;
+  --lc-canvas-flow-edge: #508014;
+  --lc-canvas-flow-mid: #B6EA76;
 
   position: relative;
   display: flex;
@@ -131,17 +131,17 @@
 }
 /* inactive state — pale gradient stroke, grey badge (Figma 10653:17584) */
 .lc-canvas__flow[data-active='false'] {
-  --lc-canvas-flow-edge: #c9e7a0;
-  --lc-canvas-flow-mid: #eef8dd;
+  --lc-canvas-flow-edge: #CDF0A2;
+  --lc-canvas-flow-mid: #E5F7CF;
 }
 /* warm yellow tone — stroke follows the "Scheduled" badge (Broadcast) */
 .lc-canvas__flow[data-tone='warning'] {
   --lc-canvas-flow-edge: var(--lc-color-amber-600);
-  --lc-canvas-flow-mid: #f5d799;
+  --lc-canvas-flow-mid: #F2CF8C;
 }
 .lc-canvas__flow[data-tone='warning'][data-active='false'] {
-  --lc-canvas-flow-edge: #f1d9ac;
-  --lc-canvas-flow-mid: #fbf1e2;
+  --lc-canvas-flow-edge: #F6E0B6;
+  --lc-canvas-flow-mid: #FAEFDB;
 }
 .lc-canvas__flow-text {
   display: flex;
@@ -177,41 +177,26 @@
   padding: 2px 8px;
   border: 1px solid var(--lc-canvas-accent);
   border-radius: 4px;
-  background: var(--lc-canvas-accent-soft);
+  background: var(--lc-canvas-accent);
   font-size: 10px;
   font-weight: 600;
   line-height: 12px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--lc-canvas-accent);
+  color: var(--lc-color-white);
   /* soften the active ↔ inactive swap driven by the Flow-details switch */
   transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
-}
-/* live indicator */
-.lc-canvas__flow-badge::before {
-  content: '';
-  flex-shrink: 0;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--lc-canvas-accent);
 }
 .lc-canvas__flow[data-active='false'] .lc-canvas__flow-badge {
   border-color: transparent;
   background: var(--lc-canvas-divider);
   color: var(--lc-canvas-dimmed);
 }
-.lc-canvas__flow[data-active='false'] .lc-canvas__flow-badge::before {
-  display: none;
-}
 /* warm yellow tone (e.g. Broadcast "Scheduled") — design-system yellow/warning family */
 .lc-canvas__flow-badge[data-tone='warning'] {
   border-color: var(--lc-color-amber-500);
-  background: #fcf2e7;
+  background: #FAEFDB;
   color: var(--lc-color-amber-600);
-}
-.lc-canvas__flow-badge[data-tone='warning']::before {
-  background: var(--lc-color-amber-500);
 }
 
 /* --- Broadcast audience + schedule summary (Figma node 10863:6513) ---- */
@@ -244,7 +229,7 @@
 }
 .lc-canvas__meta-card:last-child {
   /* background/secondary/light-hover */
-  background: #e1eff4;
+  background: #EDF7FF;
 }
 /* only clickable cards (e.g. schedule) dim on hover — cards with a popover (e.g.
    audience) stay put so the popover it opens reads on a clean white background */
@@ -439,7 +424,7 @@
   margin: 4px -10px 0;
   padding: 8px 10px;
   border-radius: 4px;
-  background: var(--lc-canvas-accent-soft);
+  background: var(--lc-color-green-50);
   font-size: 14px;
   font-weight: 700;
   line-height: 22px;
@@ -504,9 +489,9 @@
   align-items: flex-start;
   gap: 10px;
   padding: 8px 10px;
-  border: 1px solid #f5f5f5;
+  border: 1px solid #F5F5F5;
   border-radius: 4px;
-  background: #f3fafd;
+  background: #F3FAFD;
 }
 .lc-canvas__segments-notice svg {
   flex-shrink: 0;
@@ -553,6 +538,39 @@
   border-radius: var(--lc-canvas-pill-radius);
   background: var(--lc-color-white);
   box-shadow: var(--lc-canvas-pill-shadow);
+}
+.lc-canvas__date-range {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 200px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  color: #6b6b6b;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+}
+.lc-canvas__date-range:hover {
+  border-color: #b8b8b8;
+}
+.lc-canvas__date-range .lc-canvas__icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+.lc-canvas__date-range-text {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .lc-canvas__collaborators {
   display: inline-flex;
@@ -794,17 +812,19 @@
 }
 .lc-canvas__minimap[data-expanded] {
   width: 250px;
-  padding-bottom: 4px;
+  height: 180px;
+  gap: 8px;
+  padding: 8px 4px 4px;
 }
 .lc-canvas__minimap[data-expanded] .lc-canvas__minimap-bar {
   justify-content: space-between;
   height: auto;
-  padding: 8px 8px 0;
+  padding: 0 4px;
 }
 .lc-canvas__minimap-panel {
   position: relative;
-  height: 128px;
-  margin: 8px 4px 0;
+  flex: 1 1 0;
+  min-height: 0;
   border-radius: 4px;
   background: var(--lc-canvas-divider);
   overflow: hidden;
@@ -975,7 +995,7 @@
 }
 .lc-canvas__palette-body:hover,
 .lc-canvas__palette-body:focus-within {
-  scrollbar-color: #e3e5e1 transparent;
+  scrollbar-color: #E3E5E1 transparent;
 }
 .lc-canvas__palette-body::-webkit-scrollbar {
   width: 6px;
@@ -986,7 +1006,7 @@
 }
 .lc-canvas__palette-body:hover::-webkit-scrollbar-thumb,
 .lc-canvas__palette-body:focus-within::-webkit-scrollbar-thumb {
-  background: #e3e5e1;
+  background: #E3E5E1;
 }
 .lc-canvas__palette-group {
   display: flex;
@@ -1161,11 +1181,11 @@
   --lc-cb-icon: 18px;
 }
 .lc-canvas__icon-btn[data-size='lg'] {
-  --lc-cb-size: 34px;
+  --lc-cb-size: 36px;
   --lc-cb-icon: 20px;
 }
 .lc-canvas__icon-btn[data-size='xl'] {
-  --lc-cb-size: 44px;
+  --lc-cb-size: 36px;
   --lc-cb-icon: 20px;
   border-radius: 8px;
 }
@@ -1183,6 +1203,10 @@
   color: var(--lc-canvas-accent);
 }
 .lc-canvas__icon-btn[data-variant='light']:hover {
+  background: var(--lc-canvas-accent-light-hover);
+}
+/* Add-node button (xl/light) — resting state uses the hover shade. */
+.lc-canvas__icon-btn[data-variant='light'][data-size='xl'] {
   background: var(--lc-canvas-accent-light-hover);
 }
 .lc-canvas__icon-btn[data-variant='filled'] {

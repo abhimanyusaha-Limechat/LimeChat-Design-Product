@@ -1,0 +1,48 @@
+.lc-qty-stepper {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 6px;
+  padding: 2px 6px;
+  border: 1px solid var(--lc-color-gray-200);
+  border-radius: 6px;
+  background: var(--lc-color-white);
+}
+.lc-qty-stepper button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--lc-color-green-900);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 120ms ease-out, background-color 120ms ease, color 120ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .lc-qty-stepper button:hover {
+    background: var(--lc-color-green-50);
+    color: var(--lc-color-green-500);
+  }
+}
+.lc-qty-stepper button:active {
+  transform: scale(0.96);
+}
+.lc-qty-stepper__value {
+  min-width: 14px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lc-color-green-900);
+}
+.lc-qty-stepper--field {
+  height: 32px;
+  gap: 10px;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
