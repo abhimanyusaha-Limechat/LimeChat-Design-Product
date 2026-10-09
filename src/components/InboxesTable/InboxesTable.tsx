@@ -1,8 +1,8 @@
 /**
  * InboxesTable — Settings → Inboxes list: search + Sync Inboxes action and a
- * table of connected inboxes (Name, Type, Meta ID) with a copyable ID chip
- * inline before each name — same anatomy as BroadcastHomePage/BotFlowsHomePage
- * (id chip + name-block, sortable name column, row rhythm), scoped to "lc-ib"
+ * table of connected inboxes (Name, Type) — same anatomy as
+ * BroadcastHomePage/BotFlowsHomePage (name-block, sortable name column, row
+ * rhythm), scoped to "lc-ib"
  * and simplified to a list with a ⋯ row-actions menu (no tabs).
  *
  *   <InboxesTable
@@ -12,10 +12,8 @@
  *     onSync={() => refetchInboxes()}
  *   />
  */
-import { useState } from 'react';
 import { Button } from '../Button';
 import { ActionMenu } from '../Menu';
-import { Tooltip } from '../Tooltip';
 import { InboxIcon, type InboxIconName } from './icons';
 import {
   DataTable,
@@ -35,10 +33,8 @@ export interface InboxRowData {
   id: string;
   name: string;
   type: InboxType;
-  /** Shown as-is, e.g. "N/A" or an actual meta/WABA id. */
-  metaId: string;
-  /** Pre-formatted, e.g. "05:18 AM, 06 April 2026". */
-  createdOn: string;
+  /** Channel-specific identifier, e.g. a phone number, email address or handle. */
+  detail: string;
 }
 
 const TYPE_ICON: Record<InboxType, InboxIconName> = {
@@ -56,30 +52,6 @@ const TYPE_LABEL: Record<InboxType, string> = {
   sms: 'Sms',
   facebook: 'Facebook',
 };
-
-/** Copy-to-clipboard ID chip — same interaction as BroadcastHomePage's IdChip. */
-function IdChip({ id }: { id: string }) {
-  const [copied, setCopied] = useState(false);
-
-  return (
-    <Tooltip label={copied ? 'Copied!' : `Copy ID ${id}`}>
-      <button
-        type="button"
-        className="lc-ib__id-chip"
-        data-copied={copied || undefined}
-        aria-label={`Copy ID ${id}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          navigator.clipboard?.writeText(id);
-          setCopied(true);
-          window.setTimeout(() => setCopied(false), 1500);
-        }}
-      >
-        {id}
-      </button>
-    </Tooltip>
-  );
-}
 
 export interface InboxesTableProps {
   /** Shows skeleton rows in place of the list while its data loads. */
@@ -107,7 +79,7 @@ export function InboxesTable({
 
   const { sorted: sortedInboxes, sort, toggle: toggleSort } = useTableSort(
     inboxes,
-    (row, key: 'name' | 'type' | 'metaId') => (key === 'type' ? TYPE_LABEL[row.type] : row[key]),
+    (row, key: 'name' | 'type') => (key === 'type' ? TYPE_LABEL[row.type] : row[key]),
   );
 
   return (
@@ -141,7 +113,6 @@ export function InboxesTable({
         <DataTableHead>
           <DataTableSortHeader className="lc-ib__cell--name lc-ib__cell" label="Name" sortKey="name" sort={sort} onSort={toggleSort} />
           <DataTableSortHeader className="lc-ib__cell--type lc-ib__cell" label="Type" sortKey="type" sort={sort} onSort={toggleSort} />
-          <DataTableSortHeader className="lc-ib__cell--meta lc-ib__cell" label="Meta ID" sortKey="metaId" sort={sort} onSort={toggleSort} />
           <div role="columnheader" className="lc-ib__cell--actions lc-ib__cell" aria-label="Actions" />
         </DataTableHead>
 
@@ -152,9 +123,6 @@ export function InboxesTable({
             </div>
             <div className="lc-ib__cell--type lc-ib__cell">
               <Skeleton lines={2} />
-            </div>
-            <div className="lc-ib__cell--meta lc-ib__cell">
-              <Skeleton />
             </div>
             <div className="lc-ib__cell--actions lc-ib__cell" />
           </DataTableSkeleton>
@@ -171,10 +139,9 @@ export function InboxesTable({
                 />
                 <div className="lc-ib__name-block">
                   <div className="lc-ib__name-line">
-                    <IdChip id={row.id} />
                     <span className="lc-ib__name">{row.name}</span>
                   </div>
-                  <span className="lc-ib__meta-line">Created: {row.createdOn}</span>
+                  <span className="lc-ib__meta-line">{row.detail}</span>
                 </div>
               </div>
               <div role="cell" className="lc-ib__cell--type lc-ib__cell">
@@ -183,7 +150,6 @@ export function InboxesTable({
                   <span className="lc-ib__type-caption">Channel name</span>
                 </div>
               </div>
-              <div role="cell" className="lc-ib__cell--meta lc-ib__cell">{row.metaId}</div>
               <div role="cell" className="lc-ib__cell--actions lc-ib__cell">
                 <ActionMenu
                   ariaLabel={`Actions for ${row.name}`}
