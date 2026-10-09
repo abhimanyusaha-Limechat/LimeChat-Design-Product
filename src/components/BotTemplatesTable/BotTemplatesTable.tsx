@@ -18,6 +18,7 @@ import {
   DataTableRow,
   DataTableSkeleton,
   DataTableSortHeader,
+  selectRow,
   digitsOf,
   Skeleton,
   type SortValue,
@@ -362,6 +363,9 @@ export interface BotTemplatesTableProps {
   onRowEdit?: (row: BotTemplateRow) => void;
   onRowClone?: (row: BotTemplateRow) => void;
   onRowDelete?: (row: BotTemplateRow) => void;
+  /** Makes rows clickable (opens a details panel). Clicks on buttons inside a row are ignored. */
+  onRowSelect?: (row: BotTemplateRow) => void;
+  selectedId?: string;
   /**
    * Reorder mode: rows show a drag handle and keep the given order (no sorting),
    * and the toolbar shows `hint` instead of tabs / search / filters.
@@ -416,6 +420,8 @@ export function BotTemplatesTable({
   onRowEdit,
   onRowClone,
   onRowDelete,
+  onRowSelect,
+  selectedId,
   reorder,
   tree,
   loading = false,
@@ -635,6 +641,8 @@ export function BotTemplatesTable({
               data-level={tree ? depth + 1 : undefined}
               data-drop={treeDrag.dropTarget?.id === row.id ? treeDrag.dropTarget.position : undefined}
               data-dragging={row.id === draggingId || row.id === treeDrag.draggingId || undefined}
+              data-selected={row.id === selectedId || undefined}
+              onClick={onRowSelect && !reorder ? (e) => selectRow(e, () => onRowSelect(row)) : undefined}
               style={
                 row.id === draggingId
                   ? { translate: `0 ${dragOffset}px` }

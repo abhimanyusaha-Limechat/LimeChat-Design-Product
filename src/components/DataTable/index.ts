@@ -5,6 +5,7 @@ export {
   DataTableRow,
   DataTableSkeleton,
   DataTableSortHeader,
+  selectRow,
   Skeleton,
   useTableSort,
   type TableSort,

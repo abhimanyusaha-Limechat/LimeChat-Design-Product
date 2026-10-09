@@ -4,10 +4,11 @@
  * Generic settings layout: a vertical tab list on the left, a titled content
  * card on the right. `children` renders inside the card.
  */
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useScrollFade } from '../../hooks/useScrollFade';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
+import { Icon } from '../icons';
 import './SettingsPage.css';
 
 export interface SettingsTab {
@@ -30,6 +31,8 @@ export interface SettingsPageProps {
   headerActions?: ReactNode;
   /** Overrides the content card's padding in px (default 16). */
   contentPadding?: number;
+  /** Closable 320px details panel at the right edge. Omit to hide. */
+  detailPanel?: { title: string; onClose: () => void; children: ReactNode };
   children?: ReactNode;
 }
 
@@ -60,10 +63,21 @@ export function SettingsPage({
   onViewDocs,
   headerActions,
   contentPadding,
+  detailPanel,
   children,
 }: SettingsPageProps) {
   const navScroll = useScrollFade();
   const contentScroll = useScrollFade();
+  // Keep the last panel mounted so it can animate out; `open` flips a frame after mount so it animates in.
+  const [heldPanel, setHeldPanel] = useState(detailPanel);
+  if (detailPanel && detailPanel !== heldPanel) setHeldPanel(detailPanel);
+  const [open, setOpen] = useState(false);
+  const wantsOpen = !!detailPanel;
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setOpen(wantsOpen));
+    return () => cancelAnimationFrame(id);
+  }, [wantsOpen]);
+  const panel = detailPanel ?? heldPanel;
   const helpCtas = [
     onWatchVideo && { label: 'Video', tip: 'a video explainer', icon: <PlayCircleIcon />, onClick: onWatchVideo },
     onViewDocs && { label: 'Docs', tip: 'Documentation', icon: <DocsIcon />, onClick: onViewDocs },
@@ -113,13 +127,33 @@ export function SettingsPage({
               </div>
             )}
           </div>
-          <div
-            className="lc-sp__content"
-            data-anchor="settings-content"
-            style={{ padding: contentPadding }}
-            {...contentScroll}
-          >
-            {children}
+          <div className="lc-sp__body">
+            <div
+              className="lc-sp__content"
+              data-anchor="settings-content"
+              style={{ padding: contentPadding }}
+              {...contentScroll}
+            >
+              {children}
+            </div>
+            {panel && (
+              <div className="lc-sp__detail-wrap" data-open={open && wantsOpen}>
+                <aside
+                  className="lc-sp__detail"
+                  aria-label={panel.title}
+                  aria-hidden={!wantsOpen || undefined}
+                  onKeyDown={(e) => e.key === 'Escape' && panel.onClose()}
+                >
+                  <div className="lc-sp__detail-header">
+                    <h2 className="lc-sp__detail-title">{panel.title}</h2>
+                    <button type="button" className="lc-sp__detail-close" aria-label="Close details" onClick={panel.onClose}>
+                      <Icon name="close" width={16} height={16} />
+                    </button>
+                  </div>
+                  <div className="lc-sp__detail-body">{panel.children}</div>
+                </aside>
+              </div>
+            )}
           </div>
         </div>
       </div>

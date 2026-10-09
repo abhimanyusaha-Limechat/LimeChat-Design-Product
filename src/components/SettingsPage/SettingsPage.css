@@ -213,6 +213,7 @@
   align-items: flex-start;
   flex: 1 1 0;
   min-height: 0;
+  min-width: 0;
   width: 100%;
   padding: 16px;
   overflow-y: auto;
@@ -242,3 +243,127 @@
   background: var(--lc-color-gray-250);
 }
 
+
+/* --- Details panel ---------------------------------------------------------- */
+
+.lc-sp__body {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+}
+
+/* The wrapper animates width (pushes the table over); the 320px aside inside slides and fades.
+   Exit is faster than enter, and the closed panel is hidden so it leaves the tab order. */
+.lc-sp__detail-wrap {
+  flex-shrink: 0;
+  width: 0;
+  overflow: hidden;
+  visibility: hidden;
+  transition:
+    width 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    visibility 0s linear 160ms;
+}
+
+.lc-sp__detail-wrap[data-open='true'] {
+  width: 320px;
+  visibility: visible;
+  transition: width 240ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.lc-sp__detail {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  height: 100%;
+  /* Inset shadow, not a border, so the panel's content box is the full 320px. */
+  box-shadow: inset 1px 0 0 var(--lc-sp-border);
+  opacity: 0;
+  transform: translateX(16px);
+  transition:
+    opacity 120ms ease-out,
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.lc-sp__detail-wrap[data-open='true'] .lc-sp__detail {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 200ms ease-out 40ms,
+    transform 240ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-sp__detail-wrap,
+  .lc-sp__detail-wrap[data-open='true'] {
+    transition-duration: 0s;
+  }
+  .lc-sp__detail {
+    transform: none;
+  }
+}
+
+.lc-sp__detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 16px 16px 16px 20px;
+}
+
+.lc-sp__detail-title {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 24px;
+}
+
+.lc-sp__detail-body {
+  flex: 1 1 0;
+  min-height: 0;
+  padding: 16px 20px;
+  overflow-y: auto;
+}
+
+.lc-sp__detail-list {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+}
+
+.lc-sp__detail-list dt {
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--lc-sp-text-dimmed);
+}
+
+.lc-sp__detail-list dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.lc-sp__detail-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--lc-sp-radius-2xs);
+  background: transparent;
+  color: var(--lc-sp-text-dimmed);
+  cursor: pointer;
+}
+
+.lc-sp__detail-close:hover {
+  background: var(--lc-color-stone-100);
+  color: var(--lc-sp-text-title);
+}

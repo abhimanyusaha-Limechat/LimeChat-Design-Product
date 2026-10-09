@@ -46,6 +46,12 @@ export function DataTableHead({ className, ...rest }: DivProps) {
   return <div role="row" {...rest} className={cx('lc-dt__row lc-dt__row--head', className)} />;
 }
 
+/** Runs `select` unless the click landed on a control inside the row (switch, menu, drag handle…). */
+export function selectRow(e: { target: EventTarget }, select: () => void) {
+  if ((e.target as HTMLElement).closest('button, a, input, [role="switch"], [role^="menuitem"]')) return;
+  select();
+}
+
 /** Passing `onClick` makes the whole row clickable (pointer cursor). */
 export function DataTableRow({ className, ...rest }: DivProps) {
   return (
