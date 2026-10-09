@@ -306,3 +306,7 @@
     opacity: calc(1 - var(--lc-dt-skeleton-i) * 0.14);
   }
 }
+
+.lc-dt__row--body[data-selected] {
+  background: var(--lc-color-green-100);
+}

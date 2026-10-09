@@ -22,6 +22,7 @@ import {
   DataTableRow,
   DataTableSkeleton,
   DataTableSortHeader,
+  selectRow,
   Skeleton,
   useTableSort,
 } from '../DataTable';
@@ -64,6 +65,9 @@ export interface InboxesTableProps {
   syncing?: boolean;
   onRowEdit?: (row: InboxRowData) => void;
   onRowDelete?: (row: InboxRowData) => void;
+  /** Makes rows clickable (opens a details panel). */
+  onRowSelect?: (row: InboxRowData) => void;
+  selectedId?: string;
 }
 
 export function InboxesTable({
@@ -74,6 +78,8 @@ export function InboxesTable({
   syncing = false,
   onRowEdit,
   onRowDelete,
+  onRowSelect,
+  selectedId,
   loading = false,
 }: InboxesTableProps) {
 
@@ -130,7 +136,13 @@ export function InboxesTable({
           <DataTableEmpty>No inboxes found</DataTableEmpty>
         ) : (
           sortedInboxes.map((row) => (
-            <DataTableRow key={row.id} data-anchor="inbox-row" data-anchor-key={row.id}>
+            <DataTableRow
+              key={row.id}
+              data-anchor="inbox-row"
+              data-anchor-key={row.id}
+              data-selected={row.id === selectedId || undefined}
+              onClick={onRowSelect ? (e) => selectRow(e, () => onRowSelect(row)) : undefined}
+            >
               <div role="cell" className="lc-ib__cell--name lc-ib__cell">
                 <InboxIcon
                   name={TYPE_ICON[row.type]}

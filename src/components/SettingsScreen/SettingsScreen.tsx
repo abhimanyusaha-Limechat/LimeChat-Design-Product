@@ -10,6 +10,7 @@ import { useDemoLoading } from '../../hooks/useDemoLoading';
 import { canMove, flattenTree, keyboardTarget, moveTag, type DropTarget } from './tagTree';
 import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsPage } from '../SettingsPage';
+import { SettingsDetails, inboxFields, rowFields } from './SettingsDetails';
 import { InboxesTable } from '../InboxesTable';
 import { EventsTable } from '../EventsTable';
 import { OptOutUsersTable } from '../OptOutUsersTable';
@@ -110,6 +111,11 @@ export function SettingsScreen({
   const search = searchState.tab === settingsTab ? searchState.value : '';
   const setSearch = (value: string) => setSearchState({ tab: settingsTab, value });
   const query = search.trim().toLowerCase();
+
+  // Helpdesk details panel: the selected row, remembered with its tab so switching tabs closes it.
+  const [selection, setSelection] = useState<{ tab: string; id: string } | null>(null);
+  const selectedId = selection?.tab === settingsTab ? selection.id : undefined;
+  const selectRowId = (id: string) => setSelection({ tab: settingsTab, id });
 
   const [inboxSyncing, setInboxSyncing] = useState(false);
   const visibleInboxes = DEMO_INBOXES.filter(
@@ -255,6 +261,23 @@ export function SettingsScreen({
   const [csatDelay, setCsatDelay] = useState<CsatTimeDelay>({ hours: 0, minutes: 0, seconds: 15 });
   const [csatReminderDelay, setCsatReminderDelay] = useState<CsatTimeDelay>({ hours: 0, minutes: 0, seconds: 20 });
 
+  const selectedInbox = selectedId ? visibleInboxes.find((r) => r.id === selectedId) : undefined;
+  const selectedRow = selectedId ? visibleCollaborators.find((r) => r.id === selectedId) : undefined;
+  const detailFields = selectedInbox
+    ? inboxFields(selectedInbox)
+    : selectedRow
+      ? rowFields(settingsTab, selectedRow)
+      : undefined;
+  const detailPanel =
+    product === 'helpdesk' && detailFields && !reorderingSla
+      ? {
+          title: (selectedInbox ?? selectedRow)!.name,
+          onClose: () => setSelection(null),
+          children: <SettingsDetails fields={detailFields} />,
+        }
+      : undefined;
+  const rowSelectable = product === 'helpdesk' && !reorderingSla;
+
   return (
     <SettingsPage
       tabs={SETTINGS_TABS_BY_PRODUCT[product]}
@@ -263,6 +286,7 @@ export function SettingsScreen({
       title={manageIndustries ? 'Manage industries' : copy.title}
       description={manageIndustries ? SETTINGS_COPY.variable.description : copy.description}
       contentPadding={settingsTab === 'custom-fields' ? 20 : undefined}
+      detailPanel={detailPanel}
       onWatchVideo={() => alert(`Play tutorial video: ${copy.title}`)}
       onViewDocs={() => alert(`Open docs: ${copy.title}`)}
       headerActions={
@@ -490,6 +514,8 @@ export function SettingsScreen({
           syncing={inboxSyncing}
           onRowEdit={(row) => alert(`Edit inbox: ${row.name}`)}
           onRowDelete={(row) => alert(`Delete inbox: ${row.name}`)}
+          onRowSelect={rowSelectable ? (row) => selectRowId(row.id) : undefined}
+          selectedId={selectedId}
           onSync={
             product === 'helpdesk'
               ? undefined
@@ -613,6 +639,8 @@ export function SettingsScreen({
           onRowEdit={(row) => alert(`Edit template: ${row.name}`)}
           onRowClone={(row) => alert(`Clone template: ${row.name}`)}
           onRowDelete={(row) => alert(`Delete template: ${row.name}`)}
+          onRowSelect={rowSelectable && isPeopleTab && settingsTab !== 'collaborators' ? (row) => selectRowId(row.id) : undefined}
+          selectedId={selectedId}
         />
       ) : settingsTab === 'bot-inbox-mapping' ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
