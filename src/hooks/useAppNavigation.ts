@@ -41,7 +41,7 @@ const FLOW_PAGE: Record<FlowKind, { list: Page; canvas: Page }> = {
  */
 export function useAppNavigation() {
   const [screen, setScreen] = useState(() => parseHash(window.location.hash));
-  const { product, selected, view, settingsTab, manageIndustries, userSettings } = screen;
+  const { product, selected, view, settingsTab, inbox, inboxSettings, manageIndustries, userSettings } = screen;
   const flowKind = flowKindOf(product, selected);
 
   let page: Page = 'home';
@@ -82,6 +82,8 @@ export function useAppNavigation() {
     selected,
     page,
     settingsTab,
+    inbox,
+    inboxSettings,
     manageIndustries,
     userSettingsTab: userSettings ?? 'account',
     select: (id: string) => navigate(toScreen({ product, selected: id })),
@@ -91,8 +93,15 @@ export function useAppNavigation() {
     leaveCanvas: () => update({ view: 'list' }),
     openUserSettings: (tab: UserSettingsTab) => update({ userSettings: tab }),
     setUserSettingsTab: (tab: UserSettingsTab) => update({ userSettings: tab }),
-    /** Picking a tab, even the current one, also closes Manage industries. */
-    setSettingsTab: (id: string) => update({ settingsTab: id, manageIndustries: false }),
+    /** Picking a tab, even the current one, also closes Manage industries and any open inbox panel. */
+    setSettingsTab: (id: string) => update({ settingsTab: id, manageIndustries: false, inbox: null, inboxSettings: false }),
+    /** Opens the inbox's side panel on the list. */
+    openInbox: (id: string) => update({ inbox: id, inboxSettings: false }),
+    closeInbox: () => update({ inbox: null, inboxSettings: false }),
+    /** Opens the inbox's settings page (a placeholder until phase 2). */
+    openInboxSettings: (id: string) => update({ inbox: id, inboxSettings: true }),
+    /** Back from the settings page to the list, with the panel still open. */
+    closeInboxSettings: () => update({ inboxSettings: false }),
     setManageIndustries: (open: boolean) => update({ manageIndustries: open }),
   };
 }

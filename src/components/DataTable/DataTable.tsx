@@ -17,8 +17,9 @@
  *
  * It exposes ARIA table semantics (table / row); the product's cells carry
  * role="columnheader" / role="cell" so screen readers can navigate by column.
- * Every part forwards extra div props (className, data-*), so a product can
- * keep its own class for cell-level styling and status variants.
+ * `variant="cards"` (opt-in) swaps the filled header and row dividers for a quiet label row over
+ * soft card rows; see the comment on `TableProps`. Every part forwards extra div props
+ * (className, data-*), so a product can keep its own class for cell-level styling and status variants.
  *
  * Sorting: `useTableSort` holds the sort state and returns sorted rows;
  * `DataTableSortHeader` is the clickable column header that drives it.
@@ -26,8 +27,16 @@
  *   const { sorted, sort, toggle } = useTableSort(rows, (row, key) => row[key]);
  *   <DataTableSortHeader label="Name" sortKey="name" sort={sort} onSort={toggle} className="…" />
  */
-import { useState, type ComponentPropsWithoutRef, type CSSProperties, type ReactNode } from 'react';
+import {
+  useState,
+  type ComponentPropsWithoutRef,
+  type CSSProperties,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+} from 'react';
 import { useScrollFade } from '../../hooks/useScrollFade';
+import { Button } from '../Button';
 import { Icon } from '../icons';
 import { nextSort, sortRows, type SortDir, type SortValue } from './sort';
 import './DataTable.css';
@@ -36,34 +45,115 @@ type DivProps = ComponentPropsWithoutRef<'div'>;
 
 const cx = (base: string, extra?: string) => (extra ? `${base} ${extra}` : base);
 
+type TableProps = Omit<DivProps, 'onScroll'> & {
+  /**
+   * `cards` (opt-in; the default is the classic look): the settings-list style.
+   *  - header: plain muted labels on the page surface, no fill, no lines; still sticky, and aligned
+   *    with the cards because it shares their row padding. Use DataTableSortHeader for sortable labels.
+   *  - rows: 64px soft rounded cards with a gap between them instead of dividers; hover and
+   *    `data-selected` darken the surface (selected adds a hairline ring); keyboard focus gets the ring.
+   *  - skeleton rows take the same card shape, so loading does not shift the layout.
+   *  - `lc-dt__actions` on the last cell makes a right-aligned 32px kebab cell that rests quiet and
+   *    comes up with the row. Cells expose the card colour as `--lc-dt-surface` (for rings around
+   *    avatars or dots that must blend into the card).
+   *  - the table is a size container: consumers hide secondary columns with `@container (max-width: …)`.
+   *  Columns (widths, alignment) stay with the consumer, the same classes on header and row cells.
+   */
+  variant?: 'cards';
+};
+
 /** `onScroll` is owned by the scrollbar fade, so it isn't accepted here. */
-export function DataTable({ className, ...rest }: Omit<DivProps, 'onScroll'>) {
+export function DataTable({ className, variant, ...rest }: TableProps) {
   const scrollFade = useScrollFade();
-  return <div role="table" {...rest} {...scrollFade} className={cx('lc-dt', className)} />;
+  return <div role="table" data-variant={variant} {...rest} {...scrollFade} className={cx('lc-dt', className)} />;
 }
 
 export function DataTableHead({ className, ...rest }: DivProps) {
   return <div role="row" {...rest} className={cx('lc-dt__row lc-dt__row--head', className)} />;
 }
 
-/** Passing `onClick` makes the whole row clickable (pointer cursor). */
-export function DataTableRow({ className, ...rest }: DivProps) {
+type RowProps = DivProps & {
+  /**
+   * Makes the whole row an action: focusable, opens on click or Enter/Space, with a focus ring.
+   * Clicks that land on a button, link or field inside the row (a kebab, a copy chip) are ignored,
+   * and so are clicks from menus the row opens in a portal.
+   */
+  onRowClick?: () => void;
+};
+
+/** Click came from something interactive inside the row, or from outside the row's DOM (a portal). */
+const isNestedClick = (e: MouseEvent<HTMLElement>) =>
+  !e.currentTarget.contains(e.target as Node) || (e.target as Element).closest('button, a, input, select, textarea') !== null;
+
+/** Passing `onClick` makes the whole row clickable (pointer cursor). For keyboard access use `onRowClick`. */
+export function DataTableRow({ className, onRowClick, ...rest }: RowProps) {
+  const rowAction = onRowClick && {
+    tabIndex: 0,
+    onClick: (e: MouseEvent<HTMLDivElement>) => {
+      rest.onClick?.(e);
+      if (!isNestedClick(e)) onRowClick();
+    },
+    onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
+      rest.onKeyDown?.(e);
+      if (e.target !== e.currentTarget || (e.key !== 'Enter' && e.key !== ' ')) return;
+      e.preventDefault(); // Space would otherwise scroll the table.
+      onRowClick();
+    },
+  };
   return (
     <div
       role="row"
-      data-clickable={rest.onClick ? true : undefined}
+      data-clickable={rest.onClick || onRowClick ? true : undefined}
       {...rest}
+      {...rowAction}
       className={cx('lc-dt__row lc-dt__row--body', className)}
     />
   );
 }
 
-/** Single full-width row shown in place of body rows when there's nothing to list. */
-export function DataTableEmpty({ children }: { children: ReactNode }) {
+/**
+ * Single full-width row shown in place of body rows when there's nothing to list. `title` and
+ * `action` are optional: a first-run empty state passes a create button, a "no results for these
+ * filters" one passes a clear-filters button.
+ */
+export function DataTableEmpty({ children, title, action }: { children: ReactNode; title?: ReactNode; action?: ReactNode }) {
   return (
     <div role="row" className="lc-dt__empty">
-      <div role="cell">{children}</div>
+      <div role="cell">
+        {title && <p className="lc-dt__empty-title">{title}</p>}
+        <p className="lc-dt__empty-text">{children}</p>
+        {action && <div className="lc-dt__empty-action">{action}</div>}
+      </div>
     </div>
+  );
+}
+
+/** Full-width row shown when the list failed to load; the retry button is hidden when `onRetry` is omitted. */
+export function DataTableError({ children = 'Something went wrong while loading.', onRetry }: { children?: ReactNode; onRetry?: () => void }) {
+  return (
+    <div role="row" className="lc-dt__empty">
+      <div role="cell">
+        <p className="lc-dt__empty-title" role="alert">
+          {children}
+        </p>
+        {onRetry && (
+          <div className="lc-dt__empty-action">
+            <Button variant="default" size="sm" leftSection={<Icon name="refresh" />} onClick={onRetry}>
+              Try again
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Screen-reader-only live message, e.g. "12 of 25 inboxes, sorted by Name". Render it next to the table, not inside. */
+export function DataTableStatus({ children }: { children: ReactNode }) {
+  return (
+    <p role="status" className="lc-dt__sr-only">
+      {children}
+    </p>
   );
 }
 

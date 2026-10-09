@@ -171,8 +171,8 @@ const INITIAL_ASSIGNMENTS: Record<string, { agent: string; team: string }> = Obj
 
 export function App() {
   const nav = useAppNavigation();
-  const { product, selected, page, settingsTab, manageIndustries, userSettingsTab } = nav;
-  const { switchProduct, leaveCanvas, openCanvas, setSettingsTab, setManageIndustries, setUserSettingsTab } = nav;
+  const { product, selected, page, settingsTab, inbox, inboxSettings, manageIndustries, userSettingsTab } = nav;
+  const { switchProduct, leaveCanvas, openCanvas, setSettingsTab, setManageIndustries, setUserSettingsTab, openInbox, closeInbox, openInboxSettings, closeInboxSettings } = nav;
   const preset = sidebarPresets[product];
   // Account/Profile settings reached from the avatar popover — a dedicated
   // page with just those two tabs, separate from the product's own (much
@@ -574,8 +574,9 @@ export function App() {
                         },
                         {
                           label: SETTINGS_COPY[settingsTab].title,
-                          onClick: () => setManageIndustries(false),
+                          onClick: () => (inboxSettings ? closeInboxSettings() : setManageIndustries(false)),
                         },
+                        ...(inboxSettings ? [{ label: 'Inbox settings' }] : []),
                         ...(manageIndustries ? [{ label: 'Manage industries' }] : []),
                       ]
                     : page === 'knowledge-base'
@@ -969,6 +970,12 @@ export function App() {
               product={product}
               settingsTab={settingsTab}
               manageIndustries={manageIndustries}
+              inboxId={inbox}
+              inboxSettings={inboxSettings}
+              onInboxOpen={openInbox}
+              onInboxClose={closeInbox}
+              onInboxSettingsOpen={openInboxSettings}
+              onInboxSettingsClose={closeInboxSettings}
               onTabChange={setSettingsTab}
               onManageIndustriesChange={setManageIndustries}
             />

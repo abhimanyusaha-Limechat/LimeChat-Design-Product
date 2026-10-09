@@ -182,7 +182,7 @@ export function ActionMenu({
             ref={ref}
             type="button"
             className={`lc-menu__trigger${triggerClassName ? ` ${triggerClassName}` : ''}`}
-            aria-label={tooltip}
+            aria-label={ariaLabel}
             onClick={onClick}
           >
             {icon}

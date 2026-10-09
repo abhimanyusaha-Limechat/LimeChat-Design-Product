@@ -173,11 +173,36 @@
 .lc-dt__row--body:nth-of-type(5) { animation-delay: 75ms; }
 .lc-dt__row--body:nth-of-type(n + 6) { animation-delay: 100ms; }
 
+.lc-dt__row--body[data-clickable]:focus-visible {
+  outline: 2px solid var(--lc-color-green-500);
+  outline-offset: -2px;
+}
+
 .lc-dt__empty {
   padding: 32px 16px;
   text-align: center;
   font-size: 13px;
   color: var(--lc-color-gray-500);
+}
+
+.lc-dt__empty p {
+  margin: 0;
+}
+
+.lc-dt__empty-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--lc-color-green-900);
+}
+
+.lc-dt__empty-title + .lc-dt__empty-text {
+  margin-top: 4px;
+}
+
+.lc-dt__empty-action {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
 }
 
 /* --- Loading skeleton -------------------------------------------------------
@@ -306,5 +331,83 @@
   }
   to {
     opacity: calc(1 - var(--lc-dt-skeleton-i) * 0.14);
+  }
+}
+
+/* --- Cards variant (opt-in via <DataTable variant="cards">) -----------------
+   See TableProps in DataTable.tsx. Tokens only; --lc-dt-surface is the card colour right now. */
+
+.lc-dt[data-variant='cards'] {
+  container-type: inline-size;
+  padding-bottom: 8px;
+}
+
+.lc-dt[data-variant='cards'] .lc-dt__row--head {
+  height: 32px;
+  margin-bottom: 4px;
+  background: white;
+  box-shadow: 0 4px 0 0 white;
+}
+
+.lc-dt[data-variant='cards'] .lc-dt__sort-label {
+  font-size: var(--lc-label-size);
+  line-height: var(--lc-label-line);
+  font-weight: var(--lc-label-weight);
+  color: var(--lc-label-color);
+}
+
+.lc-dt[data-variant='cards'] .lc-dt__sort-btn[data-sort] .lc-dt__sort-label {
+  color: var(--lc-color-green-900);
+}
+
+.lc-dt[data-variant='cards'] .lc-dt__row {
+  gap: 12px;
+}
+
+.lc-dt[data-variant='cards'] .lc-dt__row--body,
+.lc-dt[data-variant='cards'] .lc-dt__row--skeleton {
+  --lc-dt-surface: var(--lc-color-gray-50);
+  height: 64px;
+  margin-bottom: 6px;
+  border-bottom: none;
+  border-radius: 10px;
+  background: var(--lc-dt-surface);
+}
+
+.lc-dt[data-variant='cards'] .lc-dt__row--body:hover,
+.lc-dt[data-variant='cards'] .lc-dt__row--body[data-selected] {
+  --lc-dt-surface: var(--lc-color-gray-100);
+}
+
+.lc-dt[data-variant='cards'] .lc-dt__row--body[data-selected] {
+  box-shadow: inset 0 0 0 1px var(--lc-color-gray-250);
+}
+
+.lc-dt[data-variant='cards'] .lc-dt__sort-btn:hover {
+  background: var(--lc-color-gray-100);
+}
+
+/* Kebab cell: sits at the right edge, rests quiet, full strength with the row (always on touch). */
+.lc-dt[data-variant='cards'] .lc-dt__actions {
+  display: flex;
+  flex: 0 0 32px;
+  justify-content: flex-end;
+}
+
+.lc-dt[data-variant='cards'] .lc-dt__actions .lc-menu__trigger {
+  opacity: 0.5;
+  transition: opacity 120ms ease, background-color 120ms ease, color 120ms ease;
+}
+
+.lc-dt[data-variant='cards'] .lc-dt__row--body:hover .lc-menu__trigger,
+.lc-dt[data-variant='cards'] .lc-dt__row--body:focus-within .lc-menu__trigger,
+.lc-dt[data-variant='cards'] .lc-dt__row--body[data-selected] .lc-menu__trigger,
+.lc-dt[data-variant='cards'] .lc-dt__actions .lc-menu__trigger:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .lc-dt[data-variant='cards'] .lc-dt__actions .lc-menu__trigger {
+    opacity: 1;
   }
 }

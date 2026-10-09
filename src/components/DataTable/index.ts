@@ -1,9 +1,11 @@
 export {
   DataTable,
   DataTableEmpty,
+  DataTableError,
   DataTableHead,
   DataTableRow,
   DataTableSkeleton,
+  DataTableStatus,
   DataTableSortHeader,
   Skeleton,
   useTableSort,

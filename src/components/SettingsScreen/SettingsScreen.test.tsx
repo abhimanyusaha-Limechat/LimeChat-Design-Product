@@ -17,11 +17,28 @@ function Harness({
   onManageIndustriesChange?: (next: boolean) => void;
 }) {
   const [tab, setTab] = useState(initialTab);
+  const [inboxId, setInboxId] = useState<string | null>(null);
+  const [inboxSettings, setInboxSettings] = useState(false);
   return (
     <SettingsScreen
       product={product}
       settingsTab={tab}
       manageIndustries={false}
+      inboxId={inboxId}
+      inboxSettings={inboxSettings}
+      onInboxOpen={(id) => {
+        setInboxId(id);
+        setInboxSettings(false);
+      }}
+      onInboxClose={() => {
+        setInboxId(null);
+        setInboxSettings(false);
+      }}
+      onInboxSettingsOpen={(id) => {
+        setInboxId(id);
+        setInboxSettings(true);
+      }}
+      onInboxSettingsClose={() => setInboxSettings(false)}
       onTabChange={setTab}
       onManageIndustriesChange={onManageIndustriesChange}
     />
@@ -51,6 +68,61 @@ describe('SettingsScreen tabs', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Automation rules');
     expect(screen.getByText('Auto-assign by inbox')).toBeInTheDocument();
     expect(screen.queryByText('Customer Support')).not.toBeInTheDocument();
+  });
+});
+
+describe('SettingsScreen inboxes', () => {
+  it('opens the panel from a row, then the settings page from the panel, and goes back', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="inboxes" />);
+
+    await user.click(screen.getByText('Lantern Books'));
+    const panel = screen.getByRole('complementary', { name: 'Lantern Books' });
+    await user.click(within(panel).getByRole('button', { name: 'Open settings' }));
+    expect(screen.getByText('Inbox detail coming in phase 2.')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Back to inboxes' }));
+    expect(screen.getByRole('table', { name: 'Inboxes' })).toBeInTheDocument();
+    expect(screen.getByRole('complementary', { name: 'Lantern Books' })).toBeInTheDocument();
+  });
+
+  it('adds and removes a collaborator from the panel', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="inboxes" />);
+
+    await user.click(screen.getByText('Lantern Books'));
+    const panel = screen.getByRole('complementary', { name: 'Lantern Books' });
+    await user.click(within(panel).getByRole('button', { name: 'Add collaborators' }));
+    await user.click(within(panel).getAllByRole('button', { name: /^Add [A-Z]/ })[0]);
+    await user.click(within(panel).getByRole('button', { name: 'Back' }));
+    const list = within(panel).getByRole('list', { name: 'Collaborators on this inbox' });
+    const before = within(list).getAllByRole('listitem').length;
+
+    await user.click(within(list).getAllByRole('button', { name: /^Remove / })[0]);
+    expect(within(panel).getByRole('status')).toHaveTextContent(/^Removed /);
+    expect(within(panel).getAllByRole('listitem')).toHaveLength(before - 1);
+  });
+
+  it('closes the panel when its inbox is deleted from the panel', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="inboxes" />);
+
+    await user.click(screen.getByText('Lantern Books'));
+    await user.click(within(screen.getByRole('complementary')).getByRole('button', { name: 'Delete inbox' }));
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete inbox' }));
+    expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
+    expect(screen.queryByText('Lantern Books', { selector: '.lc-ib__name' })).not.toBeInTheDocument();
+  });
+
+  it('removes an inbox only after the delete is confirmed', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="inboxes" />);
+
+    await user.click(screen.getByRole('button', { name: 'Actions for Lantern Books' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Delete' }));
+    expect(screen.getByText('Lantern Books', { selector: '.lc-ib__name' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Delete inbox' }));
+    expect(screen.queryByText('Lantern Books', { selector: '.lc-ib__name' })).not.toBeInTheDocument();
   });
 });
 

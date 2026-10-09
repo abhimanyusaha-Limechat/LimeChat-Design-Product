@@ -238,4 +238,34 @@ describe('useAppNavigation', () => {
       expect(history.length).toBe(before);
     });
   });
+
+  it('opens an inbox, and picking a tab or another item closes it', () => {
+    const { result } = setup();
+    act(() => result.current.select('settings'));
+    act(() => result.current.openInbox('36421'));
+    expect(result.current.inbox).toBe('36421');
+    act(() => result.current.closeInbox());
+    expect(result.current.inbox).toBeNull();
+    act(() => result.current.openInbox('36421'));
+    act(() => result.current.setSettingsTab('inboxes'));
+    expect(result.current.inbox).toBeNull();
+    act(() => result.current.openInbox('36421'));
+    act(() => result.current.select('tickets'));
+    expect(result.current.inbox).toBeNull();
+  });
+
+  it('opens an inbox\'s settings page and goes back to the list with the panel open', () => {
+    const { result } = setup();
+    act(() => result.current.select('settings'));
+    act(() => result.current.openInboxSettings('36421'));
+    expect(result.current.inbox).toBe('36421');
+    expect(result.current.inboxSettings).toBe(true);
+    act(() => result.current.closeInboxSettings());
+    expect(result.current.inbox).toBe('36421');
+    expect(result.current.inboxSettings).toBe(false);
+    act(() => result.current.openInboxSettings('36421'));
+    act(() => result.current.closeInbox());
+    expect(result.current.inbox).toBeNull();
+    expect(result.current.inboxSettings).toBe(false);
+  });
 });

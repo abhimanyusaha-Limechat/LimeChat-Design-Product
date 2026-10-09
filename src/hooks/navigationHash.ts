@@ -4,20 +4,26 @@ import { SETTINGS_TABS_BY_PRODUCT } from '../components/SettingsScreen/settingsT
 export type FlowKind = 'broadcast' | 'flows' | 'bot-flows';
 export type UserSettingsTab = 'account' | 'profile';
 
-/** Everything the URL hash owns: `#/<product>/<item>?view=…&tab=…&industries=1&user=…`. */
+/** Everything the URL hash owns: `#/<product>/<item>?view=…&tab=…&inbox=…&inboxView=settings&industries=1&user=…`. */
 export type Screen = {
   product: SidebarProduct;
   selected: string;
   view: 'list' | 'canvas';
   settingsTab: string;
+  /** The inbox whose side panel is open on the Inboxes tab, or null. */
+  inbox: string | null;
+  /** True when that inbox's own settings page is shown instead of the list. Needs `inbox`. */
+  inboxSettings: boolean;
   manageIndustries: boolean;
   userSettings: UserSettingsTab | null;
 };
 
-const DEFAULTS = { view: 'list', settingsTab: 'inboxes', manageIndustries: false, userSettings: null } as const;
+const DEFAULTS = { view: 'list', settingsTab: 'inboxes', inbox: null, inboxSettings: false, manageIndustries: false, userSettings: null } as const;
 
 const isProduct = (value: string): value is SidebarProduct =>
   Object.prototype.hasOwnProperty.call(sidebarPresets, value);
+
+const isInboxId = (value: unknown): value is string => typeof value === 'string' && /^[\w-]{1,64}$/.test(value);
 
 /** Which flow list/editor a rail item opens, if any. */
 export const flowKindOf = (product: SidebarProduct, selected: string): FlowKind | null =>
@@ -47,11 +53,14 @@ export function toScreen(fields: { product: string; selected: string } & Partial
     onSettings && SETTINGS_TABS_BY_PRODUCT[product].some((tab) => tab.id === fields.settingsTab)
       ? String(fields.settingsTab)
       : DEFAULTS.settingsTab;
+  const inbox = onSettings && settingsTab === 'inboxes' && isInboxId(fields.inbox) ? fields.inbox : null;
   return {
     product,
     selected,
     view: fields.view === 'canvas' && flowKindOf(product, selected) ? 'canvas' : 'list',
     settingsTab,
+    inbox,
+    inboxSettings: inbox !== null && fields.inboxSettings === true,
     manageIndustries: onSettings && settingsTab === 'bot-templates' && fields.manageIndustries === true,
     userSettings: fields.userSettings === 'account' || fields.userSettings === 'profile' ? fields.userSettings : null,
   };
@@ -67,6 +76,8 @@ export function parseHash(hash: string): Screen {
     selected,
     view: params.get('view'),
     settingsTab: params.get('tab'),
+    inbox: params.get('inbox'),
+    inboxSettings: params.get('inboxView') === 'settings',
     manageIndustries: params.get('industries') === '1',
     userSettings: params.get('user'),
   });
@@ -77,13 +88,15 @@ export function toHash(screen: Screen) {
   const params = new URLSearchParams();
   if (screen.view !== DEFAULTS.view) params.set('view', screen.view);
   if (screen.settingsTab !== DEFAULTS.settingsTab) params.set('tab', screen.settingsTab);
+  if (screen.inbox) params.set('inbox', screen.inbox);
+  if (screen.inbox && screen.inboxSettings) params.set('inboxView', 'settings');
   if (screen.manageIndustries) params.set('industries', '1');
   if (screen.userSettings) params.set('user', screen.userSettings);
   const query = params.toString();
   return `#/${screen.product}/${screen.selected}${query ? `?${query}` : ''}`;
 }
 
-const KNOWN_PARAMS = ['view', 'tab', 'industries', 'user'];
+const KNOWN_PARAMS = ['view', 'tab', 'inbox', 'inboxView', 'industries', 'user'];
 
 /** The hash with unknown query parameters removed, to compare against `toHash`. */
 export function withoutUnknownParams(hash: string) {

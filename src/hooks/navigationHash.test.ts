@@ -36,3 +36,24 @@ describe('toHash', () => {
     expect(parseHash(toHash(screen))).toMatchObject(screen);
   });
 });
+
+describe('open inbox', () => {
+  it('round-trips on the Inboxes tab', () => {
+    const screen = parseHash('#/helpdesk/settings?inbox=36421');
+    expect(screen.inbox).toBe('36421');
+    expect(toHash(screen)).toBe('#/helpdesk/settings?inbox=36421');
+  });
+
+  it('round-trips the inbox settings page, which needs an inbox', () => {
+    const screen = parseHash('#/helpdesk/settings?inbox=36421&inboxView=settings');
+    expect(screen.inboxSettings).toBe(true);
+    expect(toHash(screen)).toBe('#/helpdesk/settings?inbox=36421&inboxView=settings');
+    expect(parseHash('#/helpdesk/settings?inboxView=settings').inboxSettings).toBe(false);
+  });
+
+  it('is dropped outside the Inboxes tab or for an unusable id', () => {
+    expect(parseHash('#/helpdesk/settings?tab=agents&inbox=36421').inbox).toBeNull();
+    expect(parseHash('#/helpdesk/tickets?inbox=36421').inbox).toBeNull();
+    expect(parseHash('#/helpdesk/settings?inbox=%3Cscript%3E').inbox).toBeNull();
+  });
+});

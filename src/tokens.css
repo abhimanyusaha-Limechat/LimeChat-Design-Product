@@ -80,6 +80,12 @@
   --lc-text-primary: var(--lc-color-gray-800);
   --lc-text-secondary: var(--lc-color-sage-600); /* 5.0:1 on white (sage-500 was 3.7:1) */
 
+  /* Quiet label: table column headers (cards variant) and panel section headings share it. */
+  --lc-label-size: 12px;
+  --lc-label-line: 16px;
+  --lc-label-weight: 700;
+  --lc-label-color: var(--lc-color-sage-600);
+
   --lc-surface-hover: var(--lc-color-gray-50);
   --lc-surface-selected: var(--lc-color-stone-150); /* neutral */
   --lc-border-subtle: var(--lc-color-gray-200);

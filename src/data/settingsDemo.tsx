@@ -1,6 +1,6 @@
 import { type SettingsTab } from '../components/SettingsPage';
 import { BigCommerceIcon, BlueDartIcon, CashfreeIcon, ClickPostIcon, DelhiveryIcon, EasyEcomIcon, EzyslipsIcon, FreshdeskIcon, GoogleSheetsIcon, HubSpotIcon, InitialsIcon, KaptureIcon, MagentoIcon, OdooIcon, OnedirectIcon, PayUIcon, PickrrIcon, RazorpayIcon, SalesforceIcon, ShipDelightIcon, ShiprocketIcon, ShopifyIcon, SlackIcon, StripeIcon, UnicommerceIcon, WebhookIcon, WhatsAppBusinessIcon, WooCommerceIcon, ZendeskIcon, ZohoCrmIcon, ZohoDeskIcon, type IntegrationCategory } from '../components/IntegrationsHomePage';
-import { type InboxRowData } from '../components/InboxesTable';
+import { type InboxAgent, type InboxRowData } from '../components/InboxesTable';
 import { type EventRowData } from '../components/EventsTable';
 import { type OptOutUserRowData } from '../components/OptOutUsersTable';
 import { type BotTemplateRow } from '../components/BotTemplatesTable';
@@ -139,13 +139,12 @@ export const inboxCreatedOn = (i: number) => {
 // Weighted so WhatsApp (the primary channel) still dominates the list.
 export const INBOX_TYPES: InboxRowData['type'][] = ['whatsapp', 'whatsapp', 'facebook', 'email', 'instagram', 'sms'];
 
-export const DEMO_INBOXES: InboxRowData[] = INBOX_NAMES.map((name, i) => ({
-  id: inboxId(i),
-  name,
-  type: INBOX_TYPES[i % INBOX_TYPES.length],
-  metaId: 'N/A',
-  createdOn: inboxCreatedOn(i),
-}));
+/** Demo only: a few inboxes need reauthorization or are unfinished; the rest are connected. Email and SMS can't lapse, so they only ever finish setup. */
+const inboxStatus = (type: InboxRowData['type'], i: number): InboxRowData['status'] => {
+  if (i % 9 === 5) return 'incomplete';
+  const lapses = type === 'whatsapp' || type === 'facebook' || type === 'instagram';
+  return lapses && i % 7 === 3 ? 'needs-reauth' : 'connected';
+};
 
 const EVENT_NAMES = ['test_var', 'order_placed', 'cart_abandoned', 'checkout_started', 'order_delivered', 'test_var'];
 const EVENT_PHONES = ['+91-6205127441', '+91-9876543210', '+91-8123456789', '+91-7012345678'];
@@ -245,6 +244,43 @@ export const DEMO_COLLABORATORS: BotTemplateRow[] = [
   { id: 'c14', name: 'Pooja Reddy', description: 'pooja@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
   { id: 'c15', name: 'Sameer Khan', description: 'sameer@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
 ];
+
+/** The agents an inbox can have as collaborators (demo: the same people as Settings → Agents). */
+export const DEMO_INBOX_AGENTS: InboxAgent[] = DEMO_COLLABORATORS.map((c) => ({ id: c.id, name: c.name, email: c.description, role: c.role ?? '' }));
+
+const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '');
+
+/** Demo only: the identifier an admin would recognise for each channel. */
+const inboxIdentifier = (type: InboxRowData['type'], name: string, i: number): string => {
+  switch (type) {
+    case 'whatsapp':
+    case 'sms':
+      return `+91 9${String((8000 + i * 731) % 10000).padStart(4, '0')} ${String((10000 + i * 389) % 100000).padStart(5, '0')}`;
+    case 'email':
+      return `support@${slug(name)}.com`;
+    case 'instagram':
+      return `@${slug(name)}`;
+    case 'facebook':
+      return `facebook.com/${slug(name)}`;
+  }
+};
+
+export const DEMO_INBOXES: InboxRowData[] = INBOX_NAMES.map((name, i) => {
+  const type = INBOX_TYPES[i % INBOX_TYPES.length];
+  // i % 8 === 7 has no collaborators (empty state); the first inbox has many (scrolling).
+  const count = i === 0 ? 12 : i % 8 === 7 ? 0 : 1 + (i % 5);
+  return {
+    id: inboxId(i),
+    name,
+    type,
+    identifier: inboxIdentifier(type, name, i),
+    // WhatsApp inboxes have a Meta (WABA) id once connected; the others don't.
+    metaId: type === 'whatsapp' && i % 3 === 0 ? String(104500000000000 + i * 7919) : 'N/A',
+    createdOn: inboxCreatedOn(i),
+    status: inboxStatus(type, i),
+    members: Array.from({ length: count }, (_, k) => DEMO_INBOX_AGENTS[(i + k) % DEMO_INBOX_AGENTS.length]),
+  };
+});
 
 export const DEMO_TEAMS: BotTemplateRow[] = [
   { id: 't1', name: 'Customer Support', description: 'Handles first-line customer queries across all inboxes', type: 'task', usecases: [], industries: [], scope: 'account' },

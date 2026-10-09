@@ -10,7 +10,7 @@ import { useDemoLoading } from '../../hooks/useDemoLoading';
 import { canMove, flattenTree, keyboardTarget, moveTag, type DropTarget } from './tagTree';
 import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsPage } from '../SettingsPage';
-import { InboxesTable } from '../InboxesTable';
+import { InboxDetailPlaceholder, InboxesTable, type InboxAgent } from '../InboxesTable';
 import { EventsTable } from '../EventsTable';
 import { OptOutUsersTable } from '../OptOutUsersTable';
 import { BotTemplatesTable, type BotTemplateRow } from '../BotTemplatesTable';
@@ -42,6 +42,7 @@ import {
   DEMO_CONVERSATION_FIELDS,
   DEMO_EVENTS,
   DEMO_INBOXES,
+  DEMO_INBOX_AGENTS,
   DEMO_INDUSTRIES,
   DEMO_OPT_OUT_USERS,
   DEMO_RULES,
@@ -74,6 +75,14 @@ export interface SettingsScreenProps {
   settingsTab: string;
   /** The "Manage industries" sub-view of the Bot templates tab. */
   manageIndustries: boolean;
+  /** Id of the inbox whose panel is open on the Inboxes tab, or null. */
+  inboxId: string | null;
+  /** True when that inbox's settings page is shown instead of the list. */
+  inboxSettings: boolean;
+  onInboxOpen: (id: string) => void;
+  onInboxClose: () => void;
+  onInboxSettingsOpen: (id: string) => void;
+  onInboxSettingsClose: () => void;
   onTabChange: (id: string) => void;
   onManageIndustriesChange: (next: boolean) => void;
 }
@@ -100,6 +109,12 @@ export function SettingsScreen({
   product,
   settingsTab,
   manageIndustries,
+  inboxId,
+  inboxSettings,
+  onInboxOpen,
+  onInboxClose,
+  onInboxSettingsOpen,
+  onInboxSettingsClose,
   onTabChange,
   onManageIndustriesChange,
 }: SettingsScreenProps) {
@@ -112,9 +127,10 @@ export function SettingsScreen({
   const query = search.trim().toLowerCase();
 
   const [inboxSyncing, setInboxSyncing] = useState(false);
-  const visibleInboxes = DEMO_INBOXES.filter(
-    (row) => row.id.includes(search.trim()) || row.name.toLowerCase().includes(query),
-  );
+  // Local copy so Delete visibly removes a row; there is no backend and it resets on leaving Settings.
+  const [inboxes, setInboxes] = useState(DEMO_INBOXES);
+  const setInboxMembers = (id: string, update: (members: InboxAgent[]) => InboxAgent[]) =>
+    setInboxes((prev) => prev.map((row) => (row.id === id ? { ...row, members: update(row.members) } : row)));
 
   const [variableScope, setVariableScope] = useState('system');
   // Sub-page of Bot templates; mirrors the Variable page until it gets its own content.
@@ -266,7 +282,7 @@ export function SettingsScreen({
       onWatchVideo={() => alert(`Play tutorial video: ${copy.title}`)}
       onViewDocs={() => alert(`Open docs: ${copy.title}`)}
       headerActions={
-        manageIndustries ? (
+        settingsTab === 'inboxes' && inboxId && inboxSettings ? undefined : manageIndustries ? (
           <>
             <Button variant="default" size="sm" onClick={() => onManageIndustriesChange(false)}>
               Back to Bot templates
@@ -481,15 +497,30 @@ export function SettingsScreen({
         <EventsTable loading={tableLoading} events={DEMO_EVENTS} onCustomEvents={() => alert('Manage custom events')} />
       ) : settingsTab === 'opt-out-users' ? (
         <OptOutUsersTable loading={tableLoading} users={DEMO_OPT_OUT_USERS} />
+      ) : settingsTab === 'inboxes' && inboxId && inboxSettings ? (
+        <InboxDetailPlaceholder inbox={inboxes.find((row) => row.id === inboxId)} onBack={onInboxSettingsClose} />
       ) : settingsTab === 'inboxes' ? (
         <InboxesTable
           loading={tableLoading}
-          inboxes={visibleInboxes}
+          inboxes={inboxes}
+          agents={DEMO_INBOX_AGENTS}
+          openId={inboxId}
           searchValue={search}
           onSearchChange={setSearch}
           syncing={inboxSyncing}
-          onRowEdit={(row) => alert(`Edit inbox: ${row.name}`)}
-          onRowDelete={(row) => alert(`Delete inbox: ${row.name}`)}
+          onOpen={(row) => onInboxOpen(row.id)}
+          onClose={onInboxClose}
+          onOpenSettings={(row) => onInboxSettingsOpen(row.id)}
+          onAddMember={(row, agent) => setInboxMembers(row.id, (members) => [...members, agent])}
+          onRemoveMember={(row, agent) => setInboxMembers(row.id, (members) => members.filter((m) => m.id !== agent.id))}
+          // Helpdesk is the only product with a "+ Inbox" header button, so it's the only one with a create action.
+          onCreate={product === 'helpdesk' ? () => alert('New inbox') : undefined}
+          // TODO: start the channel's reauthorization flow.
+          onReauthorize={(row) => alert(`Reauthorize inbox: ${row.name}`)}
+          onDelete={(row) => {
+            setInboxes((prev) => prev.filter((r) => r.id !== row.id));
+            if (row.id === inboxId) onInboxClose();
+          }}
           onSync={
             product === 'helpdesk'
               ? undefined
