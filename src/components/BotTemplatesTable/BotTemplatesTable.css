@@ -179,7 +179,7 @@
 .lc-bt__row--head .lc-bt__cell {
   font-size: 12px;
   line-height: 15px;
-  font-weight: 400;
+  font-weight: 700;
   color: var(--lc-color-stone-600);
   white-space: nowrap;
 }

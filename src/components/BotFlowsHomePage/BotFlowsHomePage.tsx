@@ -54,11 +54,13 @@ const TABS: { id: BotFlowTab; label: string }[] = [
 
 function RowActions({
   row,
+  onEdit,
   onClone,
   onDownload,
   onDelete,
 }: {
   row: BotFlowRowData;
+  onEdit?: (row: BotFlowRowData) => void;
   onClone?: (row: BotFlowRowData) => void;
   onDownload?: (row: BotFlowRowData) => void;
   onDelete?: (row: BotFlowRowData) => void;
@@ -68,6 +70,7 @@ function RowActions({
       ariaLabel="Flow actions"
       icon={<BotFlowIcon name="dots-vertical" />}
       items={[
+        { label: 'Edit', icon: <BotFlowIcon name="edit" />, onClick: () => onEdit?.(row) },
         { label: 'Clone', icon: <BotFlowIcon name="copy" />, onClick: () => onClone?.(row) },
         { label: 'Download', icon: <BotFlowIcon name="download" />, onClick: () => onDownload?.(row) },
         { label: 'Delete', icon: <BotFlowIcon name="trash" />, danger: true, onClick: () => onDelete?.(row) },
@@ -218,17 +221,7 @@ export function BotFlowsHomePage({
                     <span className="lc-bf__toggle-thumb" aria-hidden="true" />
                   </button>
                 </Tooltip>
-                <Tooltip label="Edit flow">
-                  <button
-                    type="button"
-                    className="lc-bf__action-btn"
-                    aria-label="Edit flow"
-                    onClick={() => onRowClick?.(row)}
-                  >
-                    <BotFlowIcon name="edit" />
-                  </button>
-                </Tooltip>
-                <RowActions row={row} onClone={onRowClone} onDownload={onRowDownload} onDelete={onRowDelete} />
+                <RowActions row={row} onEdit={onRowClick} onClone={onRowClone} onDownload={onRowDownload} onDelete={onRowDelete} />
               </div>
             </DataTableRow>
           ))

@@ -139,16 +139,25 @@ export const inboxCreatedOn = (i: number) => {
 // Weighted so WhatsApp (the primary channel) still dominates the list.
 export const INBOX_TYPES: InboxRowData['type'][] = ['whatsapp', 'whatsapp', 'facebook', 'email', 'instagram', 'sms'];
 
-export const DEMO_INBOXES: InboxRowData[] = INBOX_NAMES.map((name, i) => ({
-  id: inboxId(i),
-  name,
-  type: INBOX_TYPES[i % INBOX_TYPES.length],
-  metaId: 'N/A',
-  createdOn: inboxCreatedOn(i),
-}));
+const EVENT_PHONES = ['+91-6205127441', '+91-9876543210', '+91-8123456789', '+91-7012345678'];
+
+/** Channel-specific line under the name: phone number, email address, or handle. */
+const inboxDetail = (type: InboxRowData['type'], name: string, i: number) => {
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '');
+  switch (type) {
+    case 'email': return `support@${slug}.com`;
+    case 'instagram': return `@${slug}`;
+    case 'facebook': return `facebook.com/${slug}`;
+    default: return EVENT_PHONES[i % EVENT_PHONES.length];
+  }
+};
+
+export const DEMO_INBOXES: InboxRowData[] = INBOX_NAMES.map((name, i) => {
+  const type = INBOX_TYPES[i % INBOX_TYPES.length];
+  return { id: inboxId(i), name, type, detail: inboxDetail(type, name, i) };
+});
 
 const EVENT_NAMES = ['test_var', 'order_placed', 'cart_abandoned', 'checkout_started', 'order_delivered', 'test_var'];
-const EVENT_PHONES = ['+91-6205127441', '+91-9876543210', '+91-8123456789', '+91-7012345678'];
 
 export const DEMO_EVENTS: EventRowData[] = Array.from({ length: 24 }, (_, i) => {
   const name = EVENT_NAMES[i % EVENT_NAMES.length];

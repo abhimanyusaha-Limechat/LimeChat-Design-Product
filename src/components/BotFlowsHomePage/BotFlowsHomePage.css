@@ -165,7 +165,7 @@
   width: 116px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
   gap: 8px;
 }
 
@@ -259,35 +259,6 @@
 }
 
 /* --- Row actions menu ------------------------------------------------------ */
-
-.lc-bf__action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  border-radius: var(--lc-bf-radius);
-  color: var(--lc-bf-text-dimmed);
-  cursor: pointer;
-  transition: background-color 120ms ease, color 120ms ease, transform 140ms var(--lc-bf-ease-out);
-}
-
-.lc-bf__action-btn:active {
-  transform: scale(0.92);
-}
-
-.lc-bf__action-btn:hover {
-  background: var(--lc-color-stone-150);
-  color: var(--lc-bf-text-title);
-}
-
-.lc-bf__action-btn .lc-bf__icon {
-  width: 16px;
-  height: 16px;
-}
 
 /* --- Pagination -------------------------------------------------------------- */
 

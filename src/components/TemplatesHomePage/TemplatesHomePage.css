@@ -170,8 +170,6 @@
 }
 
 .lc-th__row--body[data-status='in-review'] {
-  border-left: 4px solid var(--lc-th-warning);
-  padding-left: 12px;
   background: var(--lc-color-gray-50);
 }
 
@@ -184,8 +182,6 @@
 }
 
 .lc-th__row--body[data-status='rejected'] {
-  border-left: 4px solid var(--lc-th-danger);
-  padding-left: 12px;
   background: var(--lc-color-gray-50);
 }
 

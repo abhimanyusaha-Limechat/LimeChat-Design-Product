@@ -1,7 +1,7 @@
 /**
  * InboxesTable — Settings → Inboxes list.
  *
- * Same design tokens, layout, row rhythm, and id-chip-before-name anatomy as
+ * Same design tokens, layout, and row rhythm as
  * BroadcastHomePage/BotFlowsHomePage's tables, scoped to "lc-ib" and reduced
  * to a static list (no row actions, no tabs).
  */
@@ -131,11 +131,6 @@
   justify-content: flex-end;
 }
 
-.lc-ib__cell--meta {
-  flex: 0 0 120px;
-  color: var(--lc-ib-text-dimmed);
-}
-
 .lc-ib__name-block {
   display: flex;
   flex-direction: column;
@@ -147,34 +142,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.lc-ib__id-chip {
-  appearance: none;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 6px;
-  border: none;
-  border-radius: 4px;
-  background: var(--lc-ib-chip-bg);
-  color: var(--lc-ib-chip-text);
-  font-family: inherit;
-  font-size: 11px;
-  line-height: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 120ms ease, color 120ms ease;
-}
-
-.lc-ib__id-chip:hover {
-  background: var(--lc-ib-border);
-}
-
-.lc-ib__id-chip[data-copied='true'] {
-  color: var(--lc-ib-primary);
-  background: var(--lc-ib-row-hover);
 }
 
 .lc-ib__name {
@@ -194,8 +161,8 @@
 }
 
 .lc-ib__row-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   color: var(--lc-ib-text-dimmed);
 }
@@ -234,4 +201,3 @@
   color: var(--lc-ib-text-light);
   white-space: nowrap;
 }
-
