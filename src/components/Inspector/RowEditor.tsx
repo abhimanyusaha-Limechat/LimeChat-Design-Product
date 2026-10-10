@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { isOnSpacingGrid } from './designScale';
 import { fmt, type RowEdit } from './report';
 
 interface NumberInputProps {
@@ -9,14 +10,16 @@ interface NumberInputProps {
   value: number;
   step: number;
   min?: number;
+  /** The value is off the spacing grid: marked on the field. */
+  offGrid: boolean;
   onChange: (value: number) => void;
 }
 
 /** Applies every valid keystroke, but keeps what you typed until you leave the field. */
-function NumberInput({ label, rowLabel, value, step, min, onChange }: NumberInputProps) {
+function NumberInput({ label, rowLabel, value, step, min, offGrid, onChange }: NumberInputProps) {
   const [draft, setDraft] = useState<string | null>(null);
   return (
-    <label className="lc-inspector__field">
+    <label className="lc-inspector__field" data-off-grid={offGrid || undefined}>
       {label && <span aria-hidden="true">{label}</span>}
       <input
         type="number"
@@ -41,10 +44,11 @@ interface RowEditorProps {
   label: string;
   edit: RowEdit;
   onEdit: (prop: string, value: string) => void;
+  flagOffGrid?: boolean;
 }
 
 /** The inputs that change one row's value on the live page. */
-export function RowEditor({ label, edit, onEdit }: RowEditorProps) {
+export function RowEditor({ label, edit, onEdit, flagOffGrid }: RowEditorProps) {
   if (edit.kind === 'choice') {
     return (
       <select
@@ -71,6 +75,7 @@ export function RowEditor({ label, edit, onEdit }: RowEditorProps) {
           value={f.value}
           step={edit.step}
           min={edit.min}
+          offGrid={Boolean(flagOffGrid) && !isOnSpacingGrid(f.value)}
           onChange={(n) => onEdit(f.prop, `${n}px`)}
         />
       ))}

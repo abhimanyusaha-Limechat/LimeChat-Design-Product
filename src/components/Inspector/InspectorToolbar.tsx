@@ -1,7 +1,6 @@
 import { memo, type CSSProperties, type ReactElement, type RefObject } from 'react';
 import { Icon } from '../icons';
 import { Tooltip } from '../Tooltip';
-import { TOOL_IDS, TOOLS, type Tool, type ToolSet } from './report';
 
 /** Long enough that tooltips stay out of the way while you work the bar. */
 const TOOLTIP_DELAY = 1000;
@@ -19,11 +18,13 @@ interface InspectorToolbarProps {
   opensLeft: boolean;
   /** Which side of the bar tooltips open on; see `tooltipPlacement`. */
   tooltipPosition: 'top' | 'bottom';
-  tools: ToolSet;
+  /** The pointer is on: hovering and clicking picks elements. */
+  picking: boolean;
   /** The main (ruler) button — always mounted, so focus can return to it. */
   mainRef: RefObject<HTMLButtonElement>;
   onToggleExpanded: () => void;
-  onToggleTool: (tool: Tool) => void;
+  onTogglePicking: () => void;
+  onScreenshot: () => void;
   onClose: () => void;
   /** The bar's own open/close animation finished. */
   onMotionEnd: () => void;
@@ -44,10 +45,11 @@ export const InspectorToolbar = memo(function InspectorToolbar({
   dragging,
   opensLeft,
   tooltipPosition,
-  tools,
+  picking,
   mainRef,
   onToggleExpanded,
-  onToggleTool,
+  onTogglePicking,
+  onScreenshot,
   onClose,
   onMotionEnd,
 }: InspectorToolbarProps) {
@@ -83,31 +85,39 @@ export const InspectorToolbar = memo(function InspectorToolbar({
       {expanded && (
         <div className="lc-inspector__extras" data-inspector-extras="">
           <div className="lc-inspector__tools" role="group" aria-label="Inspect tools">
-            {TOOL_IDS.map((tool, i) => {
-              const { label, icon } = TOOLS[tool];
-              return tip(
-                label,
-                <button
-                  type="button"
-                  className="lc-inspector__tool"
-                  style={step(i)}
-                  aria-label={label}
-                  aria-pressed={tools[tool]}
-                  onClick={() => onToggleTool(tool)}
-                >
-                  <Icon name={icon} size={18} />
-                </button>,
-                tool,
-              );
-            })}
+            {tip(
+              'Select element',
+              <button
+                type="button"
+                className="lc-inspector__tool"
+                style={step(0)}
+                aria-label="Select element"
+                aria-pressed={picking}
+                onClick={onTogglePicking}
+              >
+                <Icon name="cursor" size={18} />
+              </button>,
+            )}
           </div>
-          <span className="lc-inspector__divider" style={step(TOOL_IDS.length)} aria-hidden="true" />
+          <span className="lc-inspector__divider" style={step(1)} aria-hidden="true" />
+          {tip(
+            'Download screenshot',
+            <button
+              type="button"
+              className="lc-inspector__tool"
+              style={step(2)}
+              aria-label="Download screenshot"
+              onClick={onScreenshot}
+            >
+              <Icon name="camera" size={18} />
+            </button>,
+          )}
           {tip(
             'Close (Esc)',
             <button
               type="button"
               className="lc-inspector__tool"
-              style={step(TOOL_IDS.length + 1)}
+              style={step(3)}
               aria-label="Close inspect mode"
               aria-keyshortcuts="Escape"
               onClick={onClose}

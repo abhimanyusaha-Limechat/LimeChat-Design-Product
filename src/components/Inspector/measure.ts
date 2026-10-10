@@ -53,6 +53,9 @@ export interface Spec {
   drawBands: boolean;
   /** Rendered px per CSS px — not 1 while a `transform: scale()` is applied. */
   scale: number;
+  margin: Sides;
+  /** Corner radii, CSS px, as top-left / top-right / bottom-right / bottom-left in `top` / `right` / `bottom` / `left`. */
+  radius: Sides;
   padding: Sides;
   border: Sides;
   /** Space taken by classic scrollbars, CSS px: `width` by a vertical one, `height` by a horizontal one. */
@@ -154,6 +157,38 @@ export function readPadding(style: StyleLike): Sides {
     right: parsePx(style.paddingRight),
     bottom: parsePx(style.paddingBottom),
     left: parsePx(style.paddingLeft),
+  };
+}
+
+export function readMargin(style: Pick<CSSStyleDeclaration, SideKeys<'margin'>>): Sides {
+  return {
+    top: parsePx(style.marginTop),
+    right: parsePx(style.marginRight),
+    bottom: parsePx(style.marginBottom),
+    left: parsePx(style.marginLeft),
+  };
+}
+
+/**
+ * Corner radii in CSS px. Percentages resolve against the box, and like the
+ * browser the result never exceeds half the shorter side (so `9999px` reads as a pill).
+ */
+export function readRadius(
+  style: Pick<CSSStyleDeclaration, 'borderTopLeftRadius' | 'borderTopRightRadius' | 'borderBottomRightRadius' | 'borderBottomLeftRadius'>,
+  width: number,
+  height: number,
+): Sides {
+  const max = Math.min(width, height) / 2;
+  const corner = (value: string) => {
+    const first = value.split(' ')[0] ?? '';
+    const n = first.endsWith('%') ? (parseFloat(first) / 100) * width : parsePx(first);
+    return Math.round(Math.min(Math.max(n, 0), max) * 100) / 100;
+  };
+  return {
+    top: corner(style.borderTopLeftRadius),
+    right: corner(style.borderTopRightRadius),
+    bottom: corner(style.borderBottomRightRadius),
+    left: corner(style.borderBottomLeftRadius),
   };
 }
 
@@ -503,6 +538,8 @@ export function measureElement(el: Element): Spec {
     rect,
     drawBands: el instanceof HTMLElement && !(style.display === 'inline' && el.getClientRects().length > 1),
     scale,
+    margin: readMargin(style),
+    radius: readRadius(style, rect.width / scale, rect.height / scale),
     padding,
     border,
     scrollbar,

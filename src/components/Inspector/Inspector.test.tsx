@@ -41,33 +41,25 @@ function setup(app: React.ReactNode = null) {
 }
 
 describe('Inspector toolbar', () => {
-  it('expands into independent tool toggles, with only Type on', async () => {
+  it('expands into a pointer toggle that is on by default', async () => {
     const user = setup();
     expect(fab()).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByRole('group', { name: 'Inspect tools' })).not.toBeInTheDocument();
 
     await user.click(fab());
     expect(fab()).toHaveAttribute('aria-expanded', 'true');
-    const tools = within(screen.getByRole('group', { name: 'Inspect tools' }));
-    expect(tools.getByRole('button', { name: 'Type' })).toHaveAttribute('aria-pressed', 'true');
-    for (const name of ['Color', 'Padding', 'Gap']) {
-      expect(tools.getByRole('button', { name })).toHaveAttribute('aria-pressed', 'false');
-    }
+    const pointer = within(screen.getByRole('group', { name: 'Inspect tools' })).getByRole('button', { name: 'Select element' });
+    expect(pointer).toHaveAttribute('aria-pressed', 'true');
 
-    await user.click(tools.getByRole('button', { name: 'Color' }));
-    expect(tools.getByRole('button', { name: 'Color' })).toHaveAttribute('aria-pressed', 'true');
-    expect(tools.getByRole('button', { name: 'Type' })).toHaveAttribute('aria-pressed', 'true');
+    await user.click(pointer);
+    expect(pointer).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('closes from ×, remembering the tools', async () => {
+  it('closes from ×', async () => {
     const user = setup();
     await user.click(fab());
-    await user.click(screen.getByRole('button', { name: 'Gap' }));
     await user.click(screen.getByRole('button', { name: 'Close inspect mode' }));
     expect(fab()).toHaveAttribute('aria-expanded', 'false');
-
-    await user.click(fab());
-    expect(screen.getByRole('button', { name: 'Gap' })).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('returns keyboard focus to the FAB when the focused × unmounts', async () => {
@@ -127,27 +119,6 @@ describe('pinning', () => {
     expect(onMouseDown).not.toHaveBeenCalled();
   });
 
-  it('keeps inspecting with every tool off: the pin stays and the app still sees no presses', async () => {
-    const onClick = vi.fn();
-    const user = setup(
-      <button type="button" className="app-btn" onClick={onClick}>
-        Save
-      </button>,
-    );
-    await user.click(fab());
-    await user.click(screen.getByRole('button', { name: 'Save' }));
-    await waitFor(() => expect(panel()).toBeInTheDocument());
-
-    const tools = within(screen.getByRole('group', { name: 'Inspect tools' }));
-    await user.click(tools.getByRole('button', { name: 'Type' }));
-
-    expect(within(panel()!).getByText('button.app-btn')).toBeInTheDocument();
-    expect(within(panel()!).getByText('Turn on a tool to see values.')).toBeInTheDocument();
-    expect(within(panel()!).getByRole('button', { name: /Copy CSS/ })).toBeDisabled();
-    await user.click(screen.getByRole('button', { name: 'Save' }));
-    expect(onClick).not.toHaveBeenCalled();
-  });
-
   it('previews edits on the pinned element, resets them, and undoes them on close', async () => {
     const user = setup(
       <p className="edit-me" style={{ padding: '8px' }}>
@@ -156,7 +127,6 @@ describe('pinning', () => {
     );
     const target = screen.getByText('Edit');
     await user.click(fab());
-    await user.click(screen.getByRole('button', { name: 'Padding' }));
     await user.click(target);
     await waitFor(() => expect(panel()).toBeInTheDocument());
 
@@ -220,7 +190,7 @@ describe('pinning', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('selects the parent from the button and Alt+↑', async () => {
+  it('selects the parent from the button and ↑', async () => {
     const user = setup(
       <section className="card">
         <div className="row">
@@ -237,6 +207,31 @@ describe('pinning', () => {
 
     await user.keyboard('{Alt>}{ArrowUp}{/Alt}');
     await waitFor(() => expect(within(panel()!).getByText('section.card')).toBeInTheDocument());
+  });
+
+  it('walks the tree with ↓ (child) and ←/→ (siblings), stopping at the ends', async () => {
+    const user = setup(
+      <ul className="list">
+        <li className="a">A</li>
+        <li className="b">B</li>
+      </ul>,
+    );
+    await user.click(fab());
+    await user.click(screen.getByText('A'));
+    const shown = (name: string) => waitFor(() => expect(within(panel()!).getByText(name)).toBeInTheDocument());
+    await shown('li.a');
+
+    await user.keyboard('{ArrowRight}');
+    await shown('li.b');
+    await user.keyboard('{ArrowRight}');
+    await shown('li.b');
+    await user.keyboard('{ArrowLeft}');
+    await shown('li.a');
+
+    await user.keyboard('{ArrowUp}');
+    await shown('ul.list');
+    await user.keyboard('{ArrowDown}');
+    await shown('li.a');
   });
 
   it('pins an icon as its <svg>, not the shape inside it', async () => {
