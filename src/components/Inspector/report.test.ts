@@ -12,7 +12,7 @@ import {
   type ToolSet,
 } from './report';
 
-const ALL: ToolSet = { type: true, color: true, padding: true, gap: true };
+const ALL: ToolSet = { type: true, color: true, radius: true, padding: true, gap: true };
 const sides = (top: number, right = top, bottom = top, left = right) => ({ top, right, bottom, left });
 
 const TYPE: TypeSpec = {
@@ -32,6 +32,8 @@ function spec(overrides: Partial<Spec> = {}): Spec {
     rect: { left: 0, top: 0, width: 80, height: 32 },
     drawBands: true,
     scale: 1,
+    margin: sides(0),
+    radius: sides(0),
     padding: sides(8, 12),
     border: sides(0),
     scrollbar: { width: 0, height: 0 },
@@ -64,8 +66,15 @@ describe('buildReport', () => {
     expect(hasIssues(buildReport(spec(), ALL))).toBe(false);
   });
 
+  it('reports corner radii as CSS shorthand, or square corners', () => {
+    const round = buildReport(spec({ radius: sides(8, 8, 0, 0) }), ALL).find((x) => x.tool === 'radius')!;
+    expect(round.rows[0].value).toBe('8 8 0 0');
+    expect(specToCss(spec({ radius: sides(8) }), ALL)).toContain('border-radius: 8px;');
+    expect(buildReport(spec(), ALL).find((x) => x.tool === 'radius')!.empty).toBe('Square corners');
+  });
+
   it('only includes enabled tools, in a fixed order', () => {
-    expect(buildReport(spec(), { type: false, color: false, padding: true, gap: true }).map((s) => s.tool)).toEqual([
+    expect(buildReport(spec(), { type: false, color: false, radius: false, padding: true, gap: true }).map((s) => s.tool)).toEqual([
       'padding',
       'gap',
     ]);
@@ -123,10 +132,10 @@ describe('buildReport', () => {
 
   it('reports text, background and border colors, and says when there are none', () => {
     const colors = { background: '#ffffff', border: '#818a76' };
-    const report = buildReport(spec({ colors }), { type: false, color: true, padding: false, gap: false });
+    const report = buildReport(spec({ colors }), { type: false, color: true, radius: false, padding: false, gap: false });
     expect(report[0].rows.map((r) => r.label)).toEqual(['Text', 'Background', 'Border']);
     expect(report[0].rows[2].issue).toMatch(/Not a color token/);
-    expect(buildReport(spec({ type: null }), { type: false, color: true, padding: false, gap: false })[0].empty).toMatch(
+    expect(buildReport(spec({ type: null }), { type: false, color: true, radius: false, padding: false, gap: false })[0].empty).toMatch(
       /No text, fill or border color/,
     );
   });
@@ -141,7 +150,7 @@ describe('buildReport', () => {
 });
 
 describe('describePin', () => {
-  const NONE: ToolSet = { type: false, color: false, padding: false, gap: false };
+  const NONE: ToolSet = { type: false, color: false, radius: false, padding: false, gap: false };
 
   it('names the element and its size, and says whether values are on scale', () => {
     expect(describePin(spec({ type: null, gap: null }), ALL)).toBe('Pinned button.lc-btn, 80 by 32. All values on scale.');
@@ -166,18 +175,18 @@ describe('buildLabel', () => {
   it('summarises the enabled tools', () => {
     expect(buildLabel(spec(), { ...ALL, color: false })).toBe('14/20 Lato 700 · p 8 12 · gap 8');
     expect(buildLabel(spec(), { ...ALL, type: false, padding: false, gap: false })).toBe('text green-900');
-    expect(buildLabel(spec({ type: { ...TYPE, lineHeight: null } }), { type: true, color: false, padding: false, gap: false })).toBe(
+    expect(buildLabel(spec({ type: { ...TYPE, lineHeight: null } }), { type: true, color: false, radius: false, padding: false, gap: false })).toBe(
       '14/normal Lato 700',
     );
   });
 
   it('falls back to the size when no tool has anything to say', () => {
-    expect(buildLabel(spec({ type: null, gap: null }), { type: true, color: false, padding: false, gap: true })).toBe('80 × 32');
+    expect(buildLabel(spec({ type: null, gap: null }), { type: true, color: false, radius: false, padding: false, gap: true })).toBe('80 × 32');
   });
 
   it('reports the size in CSS px under a scale transform, like the panel', () => {
     const scaled = spec({ type: null, gap: null, scale: 0.5, rect: { left: 0, top: 0, width: 40, height: 16 } });
-    expect(buildLabel(scaled, { type: false, color: false, padding: false, gap: false })).toBe('80 × 32');
+    expect(buildLabel(scaled, { type: false, color: false, radius: false, padding: false, gap: false })).toBe('80 × 32');
   });
 });
 
@@ -194,18 +203,18 @@ describe('specToCss', () => {
         'gap: 8px;',
       ].join('\n'),
     );
-    expect(specToCss(spec(), { type: false, color: false, padding: false, gap: true })).toBe('gap: 8px;');
+    expect(specToCss(spec(), { type: false, color: false, radius: false, padding: false, gap: true })).toBe('gap: 8px;');
   });
 
   it('writes background and border colors, only the ones that exist', () => {
     const colors = { background: '#ffffff', border: null };
-    expect(specToCss(spec({ type: null, colors }), { type: false, color: true, padding: false, gap: false })).toBe(
+    expect(specToCss(spec({ type: null, colors }), { type: false, color: true, radius: false, padding: false, gap: false })).toBe(
       'background-color: var(--lc-color-white);',
     );
   });
 
   it('keeps the hex for a color that is not a token', () => {
-    const css = specToCss(spec({ type: { ...TYPE, color: '#818a76' } }), { type: false, color: true, padding: false, gap: false });
+    const css = specToCss(spec({ type: { ...TYPE, color: '#818a76' } }), { type: false, color: true, radius: false, padding: false, gap: false });
     expect(css).toContain('color: #818a76;');
   });
 });
@@ -217,7 +226,7 @@ describe('toMarkdown', () => {
       usedAt: { file: 'D:/app/src/components/TopNavBar/presets.tsx', line: 65, column: 5 },
       renderedAt: { file: 'D:/app/src/components/Button/Button.tsx', line: 124, column: 5 },
     };
-    const md = toMarkdown(spec({ source, padding: sides(7, 12) }), { type: false, color: false, padding: true, gap: false });
+    const md = toMarkdown(spec({ source, padding: sides(7, 12) }), { type: false, color: false, radius: false, padding: true, gap: false });
     expect(md).toBe(
       [
         '### button.lc-btn',
@@ -232,7 +241,7 @@ describe('toMarkdown', () => {
   });
 
   it('still works with no source (production)', () => {
-    expect(toMarkdown(spec(), { ...ALL, type: false, color: false, padding: false, gap: false })).toBe(
+    expect(toMarkdown(spec(), { ...ALL, type: false, color: false, radius: false, padding: false, gap: false })).toBe(
       '### button.lc-btn\n`button.lc-btn` · 80 × 32',
     );
   });
@@ -274,6 +283,7 @@ describe('row editors', () => {
     const md = toMarkdown(spec({ edits: [{ prop: 'padding-top', from: '8px', to: '12px' }] }), {
       type: false,
       color: false,
+      radius: false,
       padding: false,
       gap: false,
     });

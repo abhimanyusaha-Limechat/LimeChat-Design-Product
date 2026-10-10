@@ -15,7 +15,7 @@ import type { IconName } from '../iconPaths';
 import type { Sides, Spec } from './measure';
 import { formatLoc } from './reactSource';
 
-export type Tool = 'type' | 'color' | 'padding' | 'gap';
+export type Tool = 'type' | 'color' | 'radius' | 'padding' | 'gap';
 export type ToolSet = Record<Tool, boolean>;
 
 export interface ReportRow {
@@ -23,6 +23,8 @@ export interface ReportRow {
   value: string;
   /** Why the value is off-scale or misleading; absent when it's fine. */
   issue?: string;
+  /** A spacing value: the panel highlights off-grid numbers instead of writing out `issue`. */
+  grid?: boolean;
   /** Secondary text under the value. */
   detail?: string;
   /** A color to show as a swatch before the value. */
@@ -100,11 +102,29 @@ function paddingSection(spec: Spec): ReportSection {
       { prop: 'padding-left', label: 'L', value: padding.left },
     ],
   };
-  const rows: ReportRow[] = [{ label: 'Padding', value: shorthand(padding), issue: firstGridIssue(sides), edit }];
+  const rows: ReportRow[] = [{ label: 'Padding', value: shorthand(padding), issue: firstGridIssue(sides), grid: true, edit }];
   if (border.top || border.right || border.bottom || border.left) {
     rows.push({ label: 'Border', value: shorthand(border) });
   }
   return { tool: 'padding', title: 'Padding', rows };
+}
+
+function radiusSection(spec: Spec): ReportSection {
+  const { radius } = spec;
+  const corners = [radius.top, radius.right, radius.bottom, radius.left];
+  if (corners.every((r) => r === 0)) return { tool: 'radius', title: 'Radius', rows: [], empty: 'Square corners' };
+  const edit: RowEdit = {
+    kind: 'numbers',
+    step: 2,
+    min: 0,
+    fields: [
+      { prop: 'border-top-left-radius', label: 'TL', value: radius.top },
+      { prop: 'border-top-right-radius', label: 'TR', value: radius.right },
+      { prop: 'border-bottom-right-radius', label: 'BR', value: radius.bottom },
+      { prop: 'border-bottom-left-radius', label: 'BL', value: radius.left },
+    ],
+  };
+  return { tool: 'radius', title: 'Radius', rows: [{ label: 'Radius', value: shorthand(radius), issue: firstGridIssue(corners), grid: true, edit }] };
 }
 
 function gapSection(spec: Spec): ReportSection {
@@ -115,6 +135,7 @@ function gapSection(spec: Spec): ReportSection {
       label,
       value: fmt(value),
       issue: firstGridIssue([value]),
+      grid: true,
       edit: { kind: 'numbers', step: SPACING_STEP, min: 0, fields: [{ prop, label: '', value }] },
     });
     if (gap.row === gap.column) {
@@ -128,6 +149,7 @@ function gapSection(spec: Spec): ReportSection {
       label: 'Child margins',
       value: childMargins.map(fmt).join(', '),
       issue: firstGridIssue(childMargins),
+      grid: true,
     });
   }
   return {
@@ -268,6 +290,14 @@ export const TOOLS: Record<Tool, ToolDef> = {
     css: (spec) =>
       colorSlots(spec).map(([, hex, prop]) => `${prop}: ${colorValue(hex)};`),
   },
+  radius: {
+    label: 'Radius',
+    icon: 'box-padding',
+    section: radiusSection,
+    summary: ({ radius }) => (shorthand(radius) === '0' ? null : `r ${shorthand(radius)}`),
+    css: ({ radius }) =>
+      shorthand(radius) === '0' ? [] : [`border-radius: ${shorthand(radius).split(' ').map(Number).map(px).join(' ')};`],
+  },
   padding: {
     label: 'Padding',
     icon: 'box-padding',
@@ -285,8 +315,8 @@ export const TOOLS: Record<Tool, ToolDef> = {
 };
 
 export const TOOL_IDS = Object.keys(TOOLS) as Tool[];
-/** What Inspect mode starts with: typography only; the rest are opt-in. */
-export const DEFAULT_TOOLS = Object.fromEntries(TOOL_IDS.map((t) => [t, t === 'type'])) as ToolSet;
+/** Every tool's values are always shown. */
+export const ALL_TOOLS = Object.fromEntries(TOOL_IDS.map((t) => [t, true])) as ToolSet;
 
 const enabled = (tools: ToolSet) => TOOL_IDS.filter((t) => tools[t]);
 

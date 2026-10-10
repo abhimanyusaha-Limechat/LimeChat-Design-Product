@@ -1,11 +1,12 @@
 /**
- * Inspect mode — a draggable FAB that expands into Type / Color / Padding / Gap tools.
+ * Inspect mode — a draggable FAB that expands into a pointer (pick elements), screenshot and close buttons.
  * Hover an element to see its spacing and type, click to pin it and read the
  * values; anything off the design scale is flagged. Read-only: it never
  * changes the page, and while inspecting the app receives no presses.
  *
- * Shortcuts: Shift+I toggles · Esc unpins, then closes · Alt+↑ selects the
- * pinned element's parent · Alt+Enter pins the focused element.
+ * Shortcuts: Shift+I toggles · Esc unpins, then closes · ↑ / ↓ select the pinned
+ * element's parent / first child · ← / → its previous / next sibling ·
+ * Alt+Enter pins the focused element.
  */
 import {
   useCallback,
@@ -20,15 +21,17 @@ import { createPortal } from 'react-dom';
 import { resetAll } from './edits';
 import { InspectorOverlay } from './InspectorOverlay';
 import { InspectorToolbar } from './InspectorToolbar';
-import { DEFAULT_TOOLS, describePin, type Tool, type ToolSet } from './report';
+import { ALL_TOOLS, describePin } from './report';
+import { downloadScreenshot } from './screenshot';
 import { SpecPanel } from './SpecPanel';
+import { usePanelDrag } from './usePanelDrag';
 import { useDraggable, type Size } from './useDraggable';
 import { useInspectTarget } from './useInspectTarget';
 import './Inspector.css';
 
 /** Height of the bar, and size of the FAB and the ruler button, px. Shared with the CSS. */
 const BAR_SIZE = 44;
-const PANEL_WIDTH = 320;
+const PANEL_WIDTH = 360;
 const PANEL_GAP = 8;
 const SCREEN_MARGIN = 16;
 /** Room a one-line tooltip needs above the bar: 32px bubble + 12px gap and arrow. */
@@ -97,16 +100,16 @@ export function Inspector() {
   // Decided when the bar opens and kept until it opens again, so closing
   // retraces the same edge and the ruler button never moves.
   const [opensLeft, setOpensLeft] = useState(false);
-  // Stays as the reviewer left it for the rest of the session.
-  const [tools, setTools] = useState<ToolSet>(DEFAULT_TOOLS);
-  // Inspecting doesn't depend on the tools: with all of them off you still
-  // hover and pin, and see the element's outline and size.
+  // Off lets you use the app (open a menu, say) without picking; back on resumes.
+  const [picking, setPicking] = useState(true);
   const inspecting = expanded && !closing;
-  const { hovered, pinned, canSelectParent, pinId, hoveredByFocus, unpin, selectParent, pinFocused, editPinned, resetPinned } =
-    useInspectTarget(inspecting);
+  const { hovered, pinned, canSelectParent, pinId, hoveredByFocus, unpin, selectParent, selectChild, selectSibling, pinFocused, editPinned, resetPinned } =
+    useInspectTarget(inspecting && picking);
 
   const dockRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLButtonElement>(null);
+  const slotRef = useRef<HTMLDivElement>(null);
+  const panelDrag = usePanelDrag(slotRef);
   const { position, dragging, handleProps, onClickCapture } = useDraggable(dockRef, defaultPosition, {
     anchorRight: opensLeft,
     layoutKey: expanded,
@@ -157,13 +160,16 @@ export function Inspector() {
   // Live-preview edits are undone when Inspect closes.
   useEffect(() => (inspecting ? resetAll : undefined), [inspecting]);
 
-  const toggleTool = useCallback((tool: Tool) => setTools((t) => ({ ...t, [tool]: !t[tool] })), []);
+  const togglePicking = useCallback(() => setPicking((p) => !p), []);
   // Stable, so the memoized toolbar skips the renders that hovering causes.
   const toggleExpanded = useCallback(
     () => (inspecting ? collapse(true) : expand(true)),
     [inspecting, collapse, expand],
   );
   const close = useCallback(() => collapse(true), [collapse]);
+  const screenshot = useCallback(() => {
+    downloadScreenshot().catch((err) => console.error('Screenshot failed', err));
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -179,8 +185,19 @@ export function Inspector() {
       } else if (inspecting && e.key === 'Escape') {
         if (!unpinKeepingFocus()) collapse(false);
         handled = true;
-      } else if (inspecting && e.altKey && noCtrl && e.key === 'ArrowUp') {
+      } else if (inspecting && noCtrl && !e.shiftKey && e.key === 'ArrowUp' && !isEditable(e.target)) {
         handled = selectParent();
+      } else if (inspecting && noCtrl && !e.shiftKey && !e.altKey && e.key === 'ArrowDown' && !isEditable(e.target)) {
+        handled = selectChild();
+      } else if (
+        inspecting &&
+        noCtrl &&
+        !e.shiftKey &&
+        !e.altKey &&
+        (e.key === 'ArrowLeft' || e.key === 'ArrowRight') &&
+        !isEditable(e.target)
+      ) {
+        handled = selectSibling(e.key === 'ArrowLeft' ? 'previous' : 'next');
       } else if (inspecting && e.altKey && noCtrl && e.key === 'Enter') {
         handled = pinFocused();
       }
@@ -193,14 +210,14 @@ export function Inspector() {
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
-  }, [inspecting, expand, collapse, unpinKeepingFocus, selectParent, pinFocused]);
+  }, [inspecting, expand, collapse, unpinKeepingFocus, selectParent, selectChild, selectSibling, pinFocused]);
 
   return createPortal(
     <>
       {/* Hidden mid-drag: you're moving the tool, and hover can't update while the
           bar slides under a still pointer, so a stale label would linger. */}
-      {inspecting && !dragging && (
-        <InspectorOverlay hovered={hovered} pinned={pinned} tools={tools} hoveredByFocus={hoveredByFocus} />
+      {inspecting && picking && !dragging && (
+        <InspectorOverlay hovered={hovered} pinned={pinned} tools={ALL_TOOLS} hoveredByFocus={hoveredByFocus} />
       )}
       <div
         ref={dockRef}
@@ -226,10 +243,11 @@ export function Inspector() {
             dragging={dragging}
             opensLeft={opensLeft}
             tooltipPosition={tooltipPlacement(position.y, Boolean(inspecting && pinned))}
-            tools={tools}
+            picking={picking}
             mainRef={mainRef}
             onToggleExpanded={toggleExpanded}
-            onToggleTool={toggleTool}
+            onTogglePicking={togglePicking}
+            onScreenshot={screenshot}
             onClose={close}
             onMotionEnd={onMotionEnd}
           />
@@ -237,18 +255,27 @@ export function Inspector() {
         {/* Always mounted, so screen readers are listening before it changes. Keyed
             by the pin, so re-pinning an element that reads the same is announced. */}
         <div className="lc-inspector__announce" role="status">
-          <span key={pinId}>{inspecting ? (pinned ? describePin(pinned, tools) : OPEN_ANNOUNCEMENT) : ''}</span>
+          <span key={pinId}>{inspecting ? (pinned ? describePin(pinned, ALL_TOOLS) : OPEN_ANNOUNCEMENT) : ''}</span>
         </div>
         {inspecting && pinned && (
-          <div className="lc-inspector__panel-slot" style={panelPlacement(position.x, position.y)}>
+          <div
+            ref={slotRef}
+            className="lc-inspector__panel-slot"
+            style={{
+              ...panelPlacement(position.x, position.y),
+              transform: `translate(${panelDrag.offset.x}px, ${panelDrag.offset.y}px)`,
+            }}
+          >
             <SpecPanel
               spec={pinned}
-              tools={tools}
+              tools={ALL_TOOLS}
               canSelectParent={canSelectParent}
               onSelectParent={selectParent}
               onUnpin={unpinKeepingFocus}
               onEdit={editPinned}
               onResetEdits={resetPinned}
+              dragProps={panelDrag.handleProps}
+              dragging={panelDrag.dragging}
             />
           </div>
         )}

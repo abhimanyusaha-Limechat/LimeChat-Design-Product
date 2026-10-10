@@ -187,7 +187,7 @@ interface InspectorOverlayProps {
  */
 export function InspectorOverlay({ hovered, pinned, tools, hoveredByFocus }: InspectorOverlayProps) {
   return (
-    <div className="lc-inspector__overlay" aria-hidden="true">
+    <div className="lc-inspector__overlay" data-inspector-ui="" aria-hidden="true">
       {pinned && <Layers spec={pinned} tools={tools} withLabel={false} />}
       {hovered &&
         (pinned ? (

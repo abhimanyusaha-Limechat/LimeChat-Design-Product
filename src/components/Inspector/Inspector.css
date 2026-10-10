@@ -3,7 +3,7 @@
  * overlay 2147483600, bar + panel 2147483647.
  */
 .lc-inspector {
-  --lc-inspector-surface: var(--lc-color-green-900);
+  --lc-inspector-surface: #0f1419;
   --lc-inspector-on-surface: var(--lc-color-white);
   --lc-inspector-hover: rgb(255 255 255 / 10%);
   --lc-inspector-on-fill: rgb(255 255 255 / 14%);
@@ -258,40 +258,53 @@
 }
 
 .lc-inspector__panel {
+  --ip-bg: #0f1419;
+  --ip-text: #e6e9ec;
+  --ip-muted: #8b95a1;
+  --ip-line: rgb(255 255 255 / 9%);
+  --ip-hover: rgb(255 255 255 / 8%);
+  --ip-field: rgb(255 255 255 / 5%);
+  --ip-accent: #f08a4b;
+  --ip-edit: #6cb4ff;
+  color-scheme: dark;
   display: flex;
   flex-direction: column;
   min-height: 0;
   overflow-y: auto;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--ip-line);
   border-radius: 8px;
-  background: var(--lc-color-white);
-  color: var(--lc-color-green-900);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 16%);
+  background: var(--ip-bg);
+  color: var(--ip-text);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 32%);
 }
 
 .lc-inspector__panel-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--ip-bg);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
   padding: 12px 12px 8px;
-  border-bottom: 1px solid var(--lc-color-gray-200);
+  border-bottom: 1px solid var(--ip-line);
 }
 
 .lc-inspector__panel-head .lc-inspector__tool {
   width: 24px;
   height: 24px;
-  color: var(--lc-color-stone-600);
+  color: var(--ip-muted);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .lc-inspector__panel-head .lc-inspector__tool:hover {
-    background: var(--lc-color-gray-100);
+    background: var(--ip-hover);
   }
 }
 
 .lc-inspector__panel-head .lc-inspector__tool:focus-visible {
-  outline-color: var(--lc-color-green-700);
+  outline-color: var(--ip-accent);
 }
 
 .lc-inspector__panel-title {
@@ -309,13 +322,13 @@
 }
 
 .lc-inspector__panel-size {
-  color: var(--lc-color-stone-600);
+  color: var(--ip-muted);
   overflow-wrap: anywhere;
 }
 
 .lc-inspector__section {
   padding: 8px 12px;
-  border-bottom: 1px solid var(--lc-color-gray-200);
+  border-bottom: 1px solid var(--ip-line);
 }
 
 .lc-inspector__section-title {
@@ -325,7 +338,7 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--lc-color-stone-600);
+  color: var(--ip-muted);
 }
 
 .lc-inspector__rows {
@@ -334,13 +347,14 @@
 
 .lc-inspector__row {
   display: grid;
+  align-items: start;
   grid-template-columns: 96px 1fr;
   gap: 8px;
   padding: 4px 0;
 }
 
 .lc-inspector__row dt {
-  color: var(--lc-color-stone-600);
+  color: var(--ip-muted);
 }
 
 .lc-inspector__row dd {
@@ -352,6 +366,10 @@
 }
 
 .lc-inspector__value {
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--ip-field);
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
   user-select: text;
@@ -369,7 +387,7 @@
 }
 
 .lc-inspector__detail {
-  color: var(--lc-color-stone-600);
+  color: var(--ip-muted);
   font-variant-numeric: tabular-nums;
   user-select: text;
 }
@@ -393,7 +411,7 @@
 
 .lc-inspector__empty {
   margin: 0;
-  color: var(--lc-color-stone-600);
+  color: var(--ip-muted);
 }
 
 .lc-inspector__panel-foot {
@@ -416,7 +434,7 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  color: var(--lc-color-stone-600);
+  color: var(--ip-muted);
   font-size: 10px;
 }
 
@@ -425,9 +443,9 @@
   box-sizing: border-box;
   height: 24px;
   padding: 0 4px;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--ip-line);
   border-radius: 4px;
-  background: var(--lc-color-white);
+  background: var(--ip-field);
   color: inherit;
   font: inherit;
   font-size: 12px;
@@ -444,7 +462,7 @@
 
 .lc-inspector__field input:focus-visible,
 .lc-inspector__select:focus-visible {
-  outline: 2px solid var(--lc-color-green-700);
+  outline: 2px solid var(--ip-accent);
   outline-offset: 1px;
 }
 
@@ -456,7 +474,7 @@
   height: 6px;
   margin-right: 4px;
   border-radius: 50%;
-  background: var(--lc-color-blue-600);
+  background: var(--ip-edit);
 }
 
 .lc-inspector__edits {
@@ -465,8 +483,8 @@
   justify-content: space-between;
   gap: 8px;
   padding: 8px 12px;
-  border-top: 1px solid var(--lc-color-gray-200);
-  color: var(--lc-color-blue-600);
+  border-top: 1px solid var(--ip-line);
+  color: var(--ip-edit);
 }
 
 .lc-inspector__link-button {
@@ -488,12 +506,73 @@
 }
 
 .lc-inspector__source-link:focus-visible {
-  outline: 2px solid var(--lc-color-green-700);
+  outline: 2px solid var(--ip-accent);
   outline-offset: 1px;
 }
 
 .lc-inspector__copy-state {
-  color: var(--lc-color-stone-600);
+  color: var(--ip-muted);
+}
+
+/* Footer buttons are light-themed; on the dark panel give them a quiet outline. */
+.lc-inspector__panel-foot .lc-btn {
+  border-color: var(--ip-line);
+  background: var(--ip-field);
+  color: var(--ip-text);
+}
+
+/* ---- Box model ---- */
+
+.lc-inspector__boxmodel {
+  --box-margin: #7a5330;
+  --box-border: #6e6a3a;
+  --box-padding: #3c6b4a;
+  --box-content: #2f5a78;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 11px;
+  color: #e6e9ec;
+}
+
+.lc-inspector__box {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  grid-template-rows: 20px auto 20px;
+  border-radius: 4px;
+}
+
+.lc-inspector__box > :not(.lc-inspector__box-name, .lc-inspector__box-side) {
+  grid-area: 2 / 2;
+}
+
+.lc-inspector__box--margin { background: var(--box-margin); }
+.lc-inspector__box--border { background: var(--box-border); }
+.lc-inspector__box--padding { background: var(--box-padding); }
+
+.lc-inspector__box-name {
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  font-size: 10px;
+  opacity: 0.75;
+}
+
+.lc-inspector__box-side {
+  align-self: center;
+  justify-self: center;
+}
+
+.lc-inspector__box-side--top { grid-area: 1 / 2; }
+.lc-inspector__box-side--bottom { grid-area: 3 / 2; }
+.lc-inspector__box-side--left { grid-area: 2 / 1; }
+.lc-inspector__box-side--right { grid-area: 2 / 3; }
+
+.lc-inspector__box-content {
+  padding: 8px 4px;
+  border-radius: 2px;
+  background: var(--box-content);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---- Overlay ---- */
@@ -677,4 +756,244 @@
   .lc-inspector__overlay {
     display: none;
   }
+}
+
+/* ---- Hierarchy ---- */
+
+/* Sections are quiet; the box model and the values carry the weight. */
+.lc-inspector__section-title {
+  margin-bottom: 8px;
+  letter-spacing: 0.08em;
+}
+
+/* "No direct text" and the like: one muted line beside the title, not a block. */
+.lc-inspector__section[data-empty] {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding-block: 10px;
+}
+
+.lc-inspector__section[data-empty] .lc-inspector__section-title {
+  flex: none;
+  min-width: 96px;
+  margin: 0;
+}
+
+/* Editors are already fields; don't box them a second time. */
+.lc-inspector__value:has(.lc-inspector__fields, .lc-inspector__select) {
+  padding: 0;
+  background: none;
+}
+
+/* Padding's four sides sit in one row, gap's two share one. */
+.lc-inspector__fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+}
+
+.lc-inspector__field input {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Where it's written: reference, not content. Muted, small, one line. */
+.lc-inspector__section--source {
+  border-bottom: 0;
+}
+
+.lc-inspector__section--source .lc-inspector__row {
+  grid-template-columns: 80px 1fr;
+}
+
+.lc-inspector__section--source .lc-inspector__value {
+  padding: 0;
+  background: none;
+  font-size: 11px;
+  color: var(--ip-muted);
+}
+
+/* Actions stay in reach however far the panel scrolls. */
+.lc-inspector__panel-foot {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  border-top: 1px solid var(--ip-line);
+  background: var(--ip-bg);
+}
+
+/* ---- Polish: hierarchy, states, footer ---- */
+
+.lc-inspector__panel {
+  --ip-warn: #ff9b8f;
+  --ip-warn-bg: rgb(255 155 143 / 10%);
+  --lc-inspector-off: var(--ip-warn);
+}
+
+/* Three clear levels: title (bright caps) > label (quiet) > value (bright mono). */
+.lc-inspector__section-title {
+  color: #aab4bf;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.lc-inspector__row dt {
+  padding-top: 5px;
+  color: #7d8793;
+  font-size: 12px;
+}
+
+.lc-inspector__panel-size {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+
+/* Off-scale: the value stays readable; the problem is a quiet note beneath it. */
+.lc-inspector__row[data-off-scale] .lc-inspector__value {
+  color: var(--ip-text);
+  font-weight: 400;
+  box-shadow: inset 2px 0 0 var(--ip-warn);
+}
+
+.lc-inspector__issue {
+  align-items: center;
+  align-self: flex-start;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--ip-warn-bg);
+  color: var(--ip-warn);
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.lc-inspector__issue svg {
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.lc-inspector__issue-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--ip-warn-bg);
+  color: var(--ip-warn);
+  font-size: 11px;
+}
+
+/* A black or white swatch still needs an edge on the dark surface. */
+.lc-inspector__swatch {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 28%);
+}
+
+/* One tidy row of three; the copy status takes a line only when it has text. */
+.lc-inspector__panel-foot {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 10px 12px;
+}
+
+.lc-inspector__panel-foot .lc-btn {
+  width: 100%;
+  min-width: 0;
+  padding-inline: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.lc-inspector__copy-state {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+.lc-inspector__copy-state:empty {
+  display: none;
+}
+
+/* The header moves the panel; its close button stays a button. */
+.lc-inspector__panel-head {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.lc-inspector__panel-head[data-dragging],
+.lc-inspector__panel-head[data-dragging] * {
+  cursor: grabbing;
+}
+
+.lc-inspector__panel-head button {
+  cursor: pointer;
+}
+
+/* A spacing number off the 4px grid: the field itself is flagged, no sentence needed. */
+.lc-inspector__field[data-off-grid] {
+  color: var(--ip-warn);
+}
+
+.lc-inspector__field[data-off-grid] input {
+  border-color: var(--ip-warn);
+  background: var(--ip-warn-bg);
+  color: var(--ip-warn);
+}
+
+/* ---- Typography: system sans for chrome, mono for values ---- */
+
+.lc-inspector__panel {
+  --ip-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ip-mono: ui-monospace, 'Cascadia Mono', 'SF Mono', Consolas, monospace;
+  font-family: var(--ip-sans);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* Section headings: sentence case, semibold, quiet gray. */
+.lc-inspector__section-title {
+  margin: 0 0 12px;
+  color: #a2abb5;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.lc-inspector__row {
+  align-items: center;
+  grid-template-columns: 104px 1fr;
+  padding: 4px 0;
+}
+
+.lc-inspector__row dt {
+  padding-top: 0;
+  color: #8b95a1;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.lc-inspector__value {
+  padding: 6px 10px;
+  border-radius: 4px;
+  color: #f2f4f6;
+  font-family: var(--ip-mono);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.lc-inspector__panel-name {
+  font-family: var(--ip-sans);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.lc-inspector__field input,
+.lc-inspector__select {
+  font-family: var(--ip-mono);
+  font-size: 13px;
 }

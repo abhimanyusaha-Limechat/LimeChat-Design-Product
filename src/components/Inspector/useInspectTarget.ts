@@ -33,6 +33,15 @@ const EMPTY: InspectView = { hovered: null, pinned: null, canSelectParent: false
 /** The element's parent, stopping at `body`. */
 const parentOf = (el: Element) => (el === document.body ? null : el.parentElement);
 
+/** An element with a box of its own that isn't the inspector's: somewhere the pin can land. */
+const isPinnable = (el: Element) => !isIgnoredUi(el) && resolveTarget(el) === el;
+
+/** The nearest pinnable element from `el` along `next` (child list, or sibling chain). */
+function firstPinnable(el: Element | null, next: (el: Element) => Element | null): Element | null {
+  for (let cur = el; cur; cur = next(cur)) if (isPinnable(cur)) return cur;
+  return null;
+}
+
 /** Specs are plain data, so equal JSON means nothing on screen would change. */
 function sameSpec(a: Spec | null, b: Spec | null): boolean {
   return a === b || (a !== null && b !== null && JSON.stringify(a) === JSON.stringify(b));
@@ -109,6 +118,25 @@ export function useInspectTarget(active: boolean) {
     pin(parent);
     return true;
   }, [pin]);
+
+  /** Moves the pin to its first child, or to the next/previous sibling; returns whether it moved. */
+  const selectChild = useCallback(() => {
+    const child = pinned.current && firstPinnable(pinned.current.firstElementChild, (e) => e.nextElementSibling);
+    if (!child) return false;
+    pin(child);
+    return true;
+  }, [pin]);
+
+  const selectSibling = useCallback(
+    (direction: 'previous' | 'next') => {
+      const step = (e: Element) => (direction === 'next' ? e.nextElementSibling : e.previousElementSibling);
+      const sibling = pinned.current && firstPinnable(step(pinned.current), step);
+      if (!sibling) return false;
+      pin(sibling);
+      return true;
+    },
+    [pin],
+  );
 
   /** Pins the keyboard-focused element; returns whether there was one to pin. */
   const pinFocused = useCallback(() => {
@@ -191,5 +219,5 @@ export function useInspectTarget(active: boolean) {
     schedule();
   }, [schedule]);
 
-  return { ...view, unpin, selectParent, pinFocused, editPinned, resetPinned };
+  return { ...view, unpin, selectParent, selectChild, selectSibling, pinFocused, editPinned, resetPinned };
 }
