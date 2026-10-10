@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ClerkProvider, Show } from '@clerk/react';
 import { SignInPage } from './components/SignInPage';
+import { AccountPicker } from './components/AccountPicker';
 
 const localization = {
   signIn: { start: { title: 'Welcome back', subtitle: 'Sign in to continue to LimeChat' } },
@@ -24,7 +25,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
       afterSignOutUrl={appUrl}
     >
       <Show when="signed-out"><SignInPage /></Show>
-      <Show when="signed-in">{children}</Show>
+      <Show when="signed-in"><AccountPicker>{children}</AccountPicker></Show>
     </ClerkProvider>
   );
 }

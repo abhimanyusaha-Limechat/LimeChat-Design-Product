@@ -68,6 +68,7 @@ import { DEMO_BROADCASTS, DEMO_DRAFT_BROADCASTS, DEMO_SCHEDULED_BROADCASTS } fro
 import { DEMO_BOT_FLOWS_ACTIVE, DEMO_BOT_FLOWS_INACTIVE, DEMO_FLOWS_ACTIVE, DEMO_FLOWS_DRAFT, DEMO_FLOWS_INACTIVE } from './data/flowsDemo';
 import { DEMO_SEGMENTS, DEMO_USER_SEGMENTS } from './data/segmentsDemo';
 import { DEMO_TEMPLATES } from './data/templatesDemo';
+import { getPickedAccount } from './components/AccountPicker';
 import { CONVERSATIONS, ConversationEntry, EMAIL_THREADS, SHOWCASE_MESSAGES, TICKETS, TICKET_DETAIL_SECTIONS } from './data/ticketsDemo';
 
 const PRODUCTS: { id: SidebarProduct; label: string }[] = [
@@ -444,15 +445,11 @@ export function App() {
   };
 
   // 'a0' is the header account — no list row matches, so none is pre-highlighted.
+  const [pickedAccount] = useState(getPickedAccount);
   const [activeAccount, setActiveAccount] = useState('a0');
   const [accountQuery, setAccountQuery] = useState('');
   const accountMenu = {
-    current: {
-      id: 'a0',
-      name: 'Nonucare12',
-      number: '12345561',
-      avatarSrc: 'https://i.pravatar.cc/96?img=32',
-    },
+    current: { id: 'a0', name: pickedAccount?.name ?? 'Nonucare12', number: pickedAccount?.id ?? '12345561' },
     accounts: [
       { id: 'c1', name: 'Aurora Botanicals', number: 'ACC-104829', avatarSrc: 'https://i.pravatar.cc/64?img=12' },
       { id: 'c2', name: 'Nimbus Coffee Roasters', number: 'ACC-238104', avatarSrc: 'https://i.pravatar.cc/64?img=32' },
