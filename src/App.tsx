@@ -1,5 +1,6 @@
 /** Demo harness for the reusable components. Not part of the published components. */
 import { Fragment, memo, useCallback, useMemo, useState } from 'react';
+import { useClerk } from '@clerk/react';
 import { Sidebar } from './components/Sidebar';
 import { sidebarPresets, type SidebarProduct } from './components/Sidebar/presets';
 import { isCanvasPage, useAppNavigation, type Page } from './hooks/useAppNavigation';
@@ -162,6 +163,7 @@ const TOP_NAV_BY_PRODUCT = {
 } as const;
 
 export function App() {
+  const { signOut } = useClerk();
   const nav = useAppNavigation();
   const { product, selected, page, settingsTab, manageIndustries, userSettingsTab } = nav;
   const { switchProduct, leaveCanvas, openCanvas, setSettingsTab, setManageIndustries, setUserSettingsTab } = nav;
@@ -499,7 +501,7 @@ export function App() {
               label: 'Logout',
               icon: 'logout',
               danger: true,
-              onClick: () => alert('Logout'),
+              onClick: () => void signOut(),
             },
           ],
         }}

@@ -1,0 +1,91 @@
+.sign-in-page {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  min-height: 100vh;
+  background: var(--lc-color-white);
+  font-family: Lato, sans-serif;
+}
+
+/* Brand panel */
+.sign-in-page__hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+  padding: 64px;
+  background: var(--lc-color-green-900);
+  color: var(--lc-color-white);
+}
+.sign-in-page__logo { width: 48px; height: 48px; color: var(--lc-color-green-200); }
+.sign-in-page__headline {
+  margin: 0;
+  max-width: 14ch;
+  font-size: 44px;
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.sign-in-page__bubbles { display: flex; flex-direction: column; gap: 8px; margin-top: 24px; }
+.sign-in-page__bubble {
+  margin: 0;
+  max-width: 280px;
+  padding: 10px 14px;
+  border-radius: 12px 12px 12px 4px;
+  background: rgb(255 255 255 / 0.1);
+  font-size: 14px;
+}
+.sign-in-page__bubble--reply {
+  align-self: flex-end;
+  border-radius: 12px 12px 4px 12px;
+  background: var(--lc-color-green-200);
+  color: var(--lc-color-green-900);
+}
+
+/* Form panel */
+.sign-in-page__panel { display: flex; align-items: center; justify-content: center; padding: 24px; }
+.sign-in-page__form { width: 100%; max-width: 380px; }
+.sign-in-page__switch { margin: 24px 0 0; font-size: 15px; color: var(--lc-color-sage-600); }
+.sign-in-page__switch button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--lc-color-green-700);
+  cursor: pointer;
+}
+.sign-in-page__switch button:hover { text-decoration: underline; }
+.sign-in-page__switch button:focus-visible { outline: 2px solid var(--lc-color-green-500); outline-offset: 2px; border-radius: 4px; }
+
+/* One-time entrance: brand panel cascades in, form fades up. Transform + opacity only. */
+@media (prefers-reduced-motion: no-preference) {
+  .sign-in-page__logo,
+  .sign-in-page__headline,
+  .sign-in-page__bubble,
+  .sign-in-page__form {
+    animation: sign-in-rise 400ms var(--ease-out) backwards;
+  }
+  .sign-in-page__headline { animation-delay: 60ms; }
+  .sign-in-page__bubble { animation-delay: 140ms; }
+  .sign-in-page__bubble--reply { animation-delay: 220ms; }
+  .sign-in-page__form { animation-delay: 100ms; }
+}
+@keyframes sign-in-rise {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@media (max-width: 800px) {
+  .sign-in-page { grid-template-columns: 1fr; }
+  .sign-in-page__hero { padding: 32px 24px; }
+  .sign-in-page__headline { font-size: 28px; }
+  .sign-in-page__bubbles { display: none; }
+}
+
+/* Clerk's own focus ring is more specific than its `appearance` overrides, so set ours here. */
+.sign-in-page .cl-formFieldInput:focus,
+.sign-in-page .cl-formFieldInput:focus-visible {
+  border-color: var(--lc-color-green-700) !important;
+  box-shadow: 0 0 0 3px var(--lc-color-green-200) !important;
+  outline: none;
+}
