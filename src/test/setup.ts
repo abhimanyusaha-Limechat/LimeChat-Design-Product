@@ -11,5 +11,6 @@ vi.stubEnv('VITE_SUPABASE_PUBLISHABLE_KEY', '');
 afterEach(() => {
   cleanup();
   // The URL hash owns navigation (ADR 0001); jsdom keeps it between tests.
-  history.replaceState(null, '', '/');
+  // Absent in the few files that run in plain Node (`@vitest-environment node`).
+  if (typeof history !== 'undefined') history.replaceState(null, '', '/');
 });
