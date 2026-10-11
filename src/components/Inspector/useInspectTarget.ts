@@ -15,7 +15,7 @@ export function isIgnoredUi(target: EventTarget | null): boolean {
 }
 
 /** Every event the app would use to react to a press. Swallowed while inspecting. */
-const PRESS_EVENTS = ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click', 'dblclick'] as const;
+export const PRESS_EVENTS = ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click', 'dblclick'] as const;
 
 export interface InspectView {
   hovered: Spec | null;

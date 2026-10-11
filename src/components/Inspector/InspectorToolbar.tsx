@@ -20,10 +20,14 @@ interface InspectorToolbarProps {
   tooltipPosition: 'top' | 'bottom';
   /** The pointer is on: hovering and clicking picks elements. */
   picking: boolean;
+  /** The Comment tool is on: clicks place Comments. */
+  commenting: boolean;
   /** The main (ruler) button — always mounted, so focus can return to it. */
   mainRef: RefObject<HTMLButtonElement>;
   onToggleExpanded: () => void;
   onTogglePicking: () => void;
+  /** Absent when no comments backend is configured: the button isn't shown. */
+  onToggleCommenting?: () => void;
   onScreenshot: () => void;
   onClose: () => void;
   /** The bar's own open/close animation finished. */
@@ -46,9 +50,11 @@ export const InspectorToolbar = memo(function InspectorToolbar({
   opensLeft,
   tooltipPosition,
   picking,
+  commenting,
   mainRef,
   onToggleExpanded,
   onTogglePicking,
+  onToggleCommenting,
   onScreenshot,
   onClose,
   onMotionEnd,
@@ -98,14 +104,29 @@ export const InspectorToolbar = memo(function InspectorToolbar({
                 <Icon name="cursor" size={18} />
               </button>,
             )}
+            {onToggleCommenting &&
+              tip(
+                'Comment (C)',
+                <button
+                  type="button"
+                  className="lc-inspector__tool"
+                  style={step(1)}
+                  aria-label="Comment"
+                  aria-keyshortcuts="C"
+                  aria-pressed={commenting}
+                  onClick={onToggleCommenting}
+                >
+                  <Icon name="message-circle" size={18} />
+                </button>,
+              )}
           </div>
-          <span className="lc-inspector__divider" style={step(1)} aria-hidden="true" />
+          <span className="lc-inspector__divider" style={step(2)} aria-hidden="true" />
           {tip(
             'Download screenshot',
             <button
               type="button"
               className="lc-inspector__tool"
-              style={step(2)}
+              style={step(3)}
               aria-label="Download screenshot"
               onClick={onScreenshot}
             >
@@ -117,7 +138,7 @@ export const InspectorToolbar = memo(function InspectorToolbar({
             <button
               type="button"
               className="lc-inspector__tool"
-              style={step(3)}
+              style={step(4)}
               aria-label="Close inspect mode"
               aria-keyshortcuts="Escape"
               onClick={onClose}
