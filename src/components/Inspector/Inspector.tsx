@@ -4,9 +4,15 @@
  * values; anything off the design scale is flagged. Read-only: it never
  * changes the page, and while inspecting the app receives no presses.
  *
- * Shortcuts: Shift+I toggles · Esc unpins, then closes · ↑ / ↓ select the pinned
- * element's parent / first child · ← / → its previous / next sibling ·
- * Alt+Enter pins the focused element.
+ * The bar also hosts the Comment tool (when a backend is configured): click
+ * anywhere to leave a Comment, see the Screen's Pins and threads.
+ *
+ * The bar opens with the Comment tool on.
+ *
+ * Shortcuts: Shift+I toggles · Esc closes the comment draft or thread, unpins,
+ * then closes · C toggles the Comment tool ·
+ * ↑ / ↓ select the pinned element's parent / first child · ← / → its previous /
+ * next sibling · Alt+Enter pins (or comments on) the focused element.
  */
 import {
   useCallback,
@@ -18,6 +24,8 @@ import {
   type SyntheticEvent,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { COMMENTS_ENABLED } from '../../comments/api';
+import { CommentLayer, type CommentKeys } from '../../comments/CommentLayer';
 import { resetAll } from './edits';
 import { InspectorOverlay } from './InspectorOverlay';
 import { InspectorToolbar } from './InspectorToolbar';
@@ -39,6 +47,10 @@ const TOOLTIP_CLEARANCE = 44;
 
 /** Announced on opening and after unpinning: how to pin without a pointer. */
 const OPEN_ANNOUNCEMENT = 'Inspect mode on. Press Alt+Enter to pin the focused element.';
+const COMMENT_ANNOUNCEMENT = 'Comment tool on. Click anywhere, or press Alt+Enter on the focused element, to comment.';
+
+/** Select picks elements to inspect; Comment places Comments; null lets you use the app. */
+type Tool = 'select' | 'comment' | null;
 
 /**
  * Bottom-right, left of Agentation's dev toolbar (dev only), and clear of the
@@ -101,8 +113,12 @@ export function Inspector() {
   // retraces the same edge and the ruler button never moves.
   const [opensLeft, setOpensLeft] = useState(false);
   // Off lets you use the app (open a menu, say) without picking; back on resumes.
-  const [picking, setPicking] = useState(true);
+  const [tool, setTool] = useState<Tool>('select');
+  const picking = tool === 'select';
+  const commenting = tool === 'comment';
   const inspecting = expanded && !closing;
+  /** Filled by the Comment layer, so Esc and Alt+Enter reach its draft and thread first. */
+  const commentKeys = useRef<CommentKeys | null>(null);
   const { hovered, pinned, canSelectParent, pinId, hoveredByFocus, unpin, selectParent, selectChild, selectSibling, pinFocused, editPinned, resetPinned } =
     useInspectTarget(inspecting && picking);
 
@@ -125,7 +141,10 @@ export function Inspector() {
   const expand = useCallback(
     (animate: boolean) => {
       // Re-opened mid-close: keep the side it was opening to.
-      if (!closing) setOpensLeft(position.x + BAR_SIZE / 2 > window.innerWidth / 2);
+      if (!closing) {
+        setOpensLeft(position.x + BAR_SIZE / 2 > window.innerWidth / 2);
+        if (COMMENTS_ENABLED) setTool('comment');
+      }
       setExpanded(true);
       setMotion(animate ? 'open' : null);
     },
@@ -160,7 +179,15 @@ export function Inspector() {
   // Live-preview edits are undone when Inspect closes.
   useEffect(() => (inspecting ? resetAll : undefined), [inspecting]);
 
-  const togglePicking = useCallback(() => setPicking((p) => !p), []);
+  const togglePicking = useCallback(() => setTool((t) => (t === 'select' ? null : 'select')), []);
+  const toggleCommenting = useCallback(() => {
+    rescueFocus();
+    setTool((t) => (t === 'comment' ? null : 'comment'));
+  }, [rescueFocus]);
+  const leaveCommenting = useCallback(() => {
+    rescueFocus();
+    setTool('select');
+  }, [rescueFocus]);
   // Stable, so the memoized toolbar skips the renders that hovering causes.
   const toggleExpanded = useCallback(
     () => (inspecting ? collapse(true) : expand(true)),
@@ -183,7 +210,20 @@ export function Inspector() {
         else expand(false);
         handled = true;
       } else if (inspecting && e.key === 'Escape') {
-        if (!unpinKeepingFocus()) collapse(false);
+        if (commentKeys.current?.escape()) {
+          // the Comment layer closed its draft or thread
+        } else if (commenting || !unpinKeepingFocus()) collapse(false);
+        handled = true;
+      } else if (
+        inspecting &&
+        COMMENTS_ENABLED &&
+        noCtrl &&
+        !e.shiftKey &&
+        !e.altKey &&
+        e.key.toLowerCase() === 'c' &&
+        !isEditable(e.target)
+      ) {
+        toggleCommenting();
         handled = true;
       } else if (inspecting && noCtrl && !e.shiftKey && e.key === 'ArrowUp' && !isEditable(e.target)) {
         handled = selectParent();
@@ -199,7 +239,7 @@ export function Inspector() {
       ) {
         handled = selectSibling(e.key === 'ArrowLeft' ? 'previous' : 'next');
       } else if (inspecting && e.altKey && noCtrl && e.key === 'Enter') {
-        handled = pinFocused();
+        handled = commenting ? (commentKeys.current?.commentOnFocused() ?? false) : pinFocused();
       }
 
       // Only when Inspect mode acted, so e.g. Esc doesn't also close an open Modal.
@@ -210,7 +250,20 @@ export function Inspector() {
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
-  }, [inspecting, expand, collapse, unpinKeepingFocus, selectParent, selectChild, selectSibling, pinFocused]);
+  }, [
+    inspecting,
+    commenting,
+    expand,
+    collapse,
+    unpinKeepingFocus,
+    toggleCommenting,
+    selectParent,
+    selectChild,
+    selectSibling,
+    pinFocused,
+  ]);
+
+  const panelOpen = inspecting && ((picking && pinned !== null) || commenting);
 
   return createPortal(
     <>
@@ -242,8 +295,10 @@ export function Inspector() {
             motion={motion}
             dragging={dragging}
             opensLeft={opensLeft}
-            tooltipPosition={tooltipPlacement(position.y, Boolean(inspecting && pinned))}
+            tooltipPosition={tooltipPlacement(position.y, panelOpen)}
             picking={picking}
+            commenting={commenting}
+            onToggleCommenting={COMMENTS_ENABLED ? toggleCommenting : undefined}
             mainRef={mainRef}
             onToggleExpanded={toggleExpanded}
             onTogglePicking={togglePicking}
@@ -255,9 +310,11 @@ export function Inspector() {
         {/* Always mounted, so screen readers are listening before it changes. Keyed
             by the pin, so re-pinning an element that reads the same is announced. */}
         <div className="lc-inspector__announce" role="status">
-          <span key={pinId}>{inspecting ? (pinned ? describePin(pinned, ALL_TOOLS) : OPEN_ANNOUNCEMENT) : ''}</span>
+          <span key={pinId}>
+            {!inspecting ? '' : commenting ? COMMENT_ANNOUNCEMENT : pinned ? describePin(pinned, ALL_TOOLS) : OPEN_ANNOUNCEMENT}
+          </span>
         </div>
-        {inspecting && pinned && (
+        {panelOpen && (
           <div
             ref={slotRef}
             className="lc-inspector__panel-slot"
@@ -266,17 +323,28 @@ export function Inspector() {
               transform: `translate(${panelDrag.offset.x}px, ${panelDrag.offset.y}px)`,
             }}
           >
-            <SpecPanel
-              spec={pinned}
-              tools={ALL_TOOLS}
-              canSelectParent={canSelectParent}
-              onSelectParent={selectParent}
-              onUnpin={unpinKeepingFocus}
-              onEdit={editPinned}
-              onResetEdits={resetPinned}
-              dragProps={panelDrag.handleProps}
-              dragging={panelDrag.dragging}
-            />
+            {commenting ? (
+              <CommentLayer
+                keysRef={commentKeys}
+                onExit={leaveCommenting}
+                dragProps={panelDrag.handleProps}
+                dragging={panelDrag.dragging}
+              />
+            ) : (
+              pinned && (
+                <SpecPanel
+                  spec={pinned}
+                  tools={ALL_TOOLS}
+                  canSelectParent={canSelectParent}
+                  onSelectParent={selectParent}
+                  onUnpin={unpinKeepingFocus}
+                  onEdit={editPinned}
+                  onResetEdits={resetPinned}
+                  dragProps={panelDrag.handleProps}
+                  dragging={panelDrag.dragging}
+                />
+              )
+            )}
           </div>
         )}
       </div>

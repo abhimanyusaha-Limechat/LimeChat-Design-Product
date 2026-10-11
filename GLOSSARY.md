@@ -31,7 +31,7 @@ The marker drawn on a Screen at a Comment's position.
 _Avoid_: Marker, dot
 
 **Loose comment**:
-A Comment with no Anchor, positioned relative to the viewport.
+A Comment with no Anchor, positioned as a fraction of the viewport (so it drifts when the window size changes).
 _Avoid_: Free comment, unanchored comment
 
 **Detached comment**:
@@ -39,7 +39,7 @@ A Comment whose Anchor name no longer exists in the current build. A Comment who
 _Avoid_: Orphaned, broken, lost comment
 
 **Designer**:
-A person allowed to triage: change any Status, assign, and delete any Comment.
+A person allowed to triage: change any Status, assign, and delete any Comment. Today that is one account, defined only by `is_designer()` in the database, and triage means Resolve.
 _Avoid_: Admin, owner, triager
 
 **Reply**:
@@ -47,13 +47,13 @@ A message inside a Comment's thread. It has no pin and no Status of its own.
 _Avoid_: Sub-comment, child comment
 
 **Status**:
-Where a Comment stands in triage: Open, Accepted, Won't fix or Resolved.
+Where a Comment stands in triage: Open, Accepted, Won't fix or Resolved. Only Open and Resolved exist so far.
 _Avoid_: State
 
 ## Inspecting
 
 **Inspect mode**:
-A read-only reviewer tool, opened from a draggable button or Shift+I, that shows an element's padding, gap and typography and flags values outside the design scale. It is separate from Commenting: the element it holds on to is a *pinned element*, not a Pin, and it needs no Anchor.
+A read-only reviewer tool, opened from a draggable button or Shift+I, that shows an element's padding, gap and typography and flags values outside the design scale. Its bar also hosts the Comment tool, the entry point to Commenting; inspecting itself stays separate: the element it holds on to is a *pinned element*, not a Pin, and it needs no Anchor.
 _Avoid_: Dev mode, inspector pin, redlines
 
 **Design scale**:
