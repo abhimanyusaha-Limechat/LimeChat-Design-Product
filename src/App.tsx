@@ -10,29 +10,11 @@ import {
   helpDeskTopNav,
   automationTopNav,
 } from './components/TopNavBar/presets';
-import {
-  CanvasChrome,
-  type CanvasBroadcastAudience,
-  type CanvasBroadcastSchedule,
-} from './components/CanvasChrome';
-import {
-  marketingCanvas,
-  automationCanvas,
-  flowNodePalette,
-} from './components/CanvasChrome/presets';
-import { PublishFlowModal } from './components/PublishFlowModal';
-import { PublishConfirmModal } from './components/PublishConfirmModal';
-import { FlowDetailsModal } from './components/FlowDetailsModal';
-import { ScheduleBroadcastModal } from './components/ScheduleBroadcastModal';
-import { VisualizeFlowModal } from './components/VisualizeFlowModal';
-import { SelectUserSegmentModal } from './components/SelectUserSegmentModal';
-import { type BroadcastRowData } from './components/BroadcastHomePage';
-import { type FlowRowData } from './components/FlowsHomePage';
-import { type BotFlowRowData } from './components/BotFlowsHomePage';
 import { SettingsPage } from './components/SettingsPage';
 import { SettingsScreen } from './components/SettingsScreen';
 import { ContactsScreen } from './components/ContactsScreen';
 import { TicketsScreen } from './components/TicketsScreen';
+import { FlowEditorScreen, editorSetup, findFlow } from './components/FlowEditorScreen';
 import { BroadcastScreen, BotFlowsScreen, FlowsScreen, KnowledgeBaseScreen, SegmentsScreen, TemplatesScreen } from './components/ListScreens';
 import { SETTINGS_COPY } from './components/SettingsScreen/settingsTabs';
 import { ProfileSettings } from './components/ProfileSettings';
@@ -40,7 +22,6 @@ import { AccountSettings } from './components/AccountSettings';
 import { HelpDeskAccountSettings, type HelpDeskToggleKey } from './components/HelpDeskAccountSettings';
 
 import { KB_COPY, USER_SETTINGS_COPY, USER_SETTINGS_TABS } from './data/settingsDemo';
-import { DEMO_USER_SEGMENTS } from './data/segmentsDemo';
 import { getPickedAccount } from './components/AccountPicker';
 import { TICKETS } from './data/ticketsDemo';
 
@@ -64,8 +45,8 @@ const TOP_NAV_BY_PRODUCT = {
 export function App() {
   const { signOut } = useClerk();
   const nav = useAppNavigation();
-  const { product, selected, page, tab, manageIndustries, userSettingsTab, ticketId } = nav;
-  const { switchProduct, leaveCanvas, openCanvas, setTab, setManageIndustries, setUserSettingsTab } = nav;
+  const { product, selected, page, tab, manageIndustries, userSettingsTab, ticketId, flowKind, flowId } = nav;
+  const { switchProduct, leaveCanvas, setTab, setManageIndustries, setUserSettingsTab } = nav;
   const preset = sidebarPresets[product];
   // Account/Profile settings reached from the avatar popover — a dedicated
   // page with just those two tabs, separate from the product's own (much
@@ -77,6 +58,7 @@ export function App() {
   const selectedLabel = preset.items.find((i) => i.id === selected)?.label ?? selected;
 
   const showCanvas = isCanvasPage(page);
+  const openFlow = showCanvas && flowKind ? findFlow(flowKind, flowId) : null;
 
   const [profileName, setProfileName] = useState('LimeChat');
   const [updatingProfile, setUpdatingProfile] = useState(false);
@@ -105,127 +87,6 @@ export function App() {
     enableActionCableMonitoring: false,
   });
   const [hdSelectedFileTypes, setHdSelectedFileTypes] = useState<string[]>(['pdfDocuments']);
-
-  const [publishOpen, setPublishOpen] = useState(false);
-  const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  const [scheduleOpen, setScheduleOpen] = useState(false);
-  const [visualizeOpen, setVisualizeOpen] = useState(false);
-  const [segmentModalOpen, setSegmentModalOpen] = useState(false);
-
-  // Broadcast audience + schedule — shown in the canvas meta bar and reused as
-  // the review summary in the pre-publish confirmation modal.
-  const broadcastAudience: CanvasBroadcastAudience = {
-    count: 370131,
-    description: '3 included 1 excluded',
-    onRefresh: () => alert('Refresh audience'),
-    onEdit: () => setSegmentModalOpen(true),
-    includedSegments: [
-      { name: 'Engaged App Users Who Opened The App In Last 30 Days', count: 182391 },
-      { name: 'Recent Purchasers Who Bought Something Last Week', count: 123208 },
-      { name: 'Cart Abandoners Who Left Items Unpurchased Twice', count: 98745 },
-    ],
-    excludedSegments: [
-      { name: 'Visited Pricing Page And Compared Premium Plans Closely', count: 34213 },
-    ],
-    totalUsers: 370131,
-    optOutNotice: 'Phone numbers which are in Opt Out list will not be included in the broadcast.',
-  };
-  const broadcastSchedule: CanvasBroadcastSchedule = {
-    label: 'Sep 14 · 10:30 AM',
-    description: 'Retry after 1 day 8 hours',
-    onEdit: () => setScheduleOpen(true),
-    details: [
-      { label: 'Timezone', value: 'Asia/Kolkata (GMT+5:30)' },
-      { label: 'Retry policy', value: 'Retry after 1 day 8 hours' },
-      { label: 'Max retries', value: '2' },
-    ],
-  };
-  const [zoom, setZoom] = useState(100);
-  const setZoomClamped = (z: number) => setZoom(Math.min(400, Math.max(25, Math.round(z))));
-  const [activeTool, setActiveTool] = useState('select');
-  const [grabbing, setGrabbing] = useState(false);
-  const canvasCursor =
-    showCanvas && activeTool === 'pan' ? (grabbing ? 'grabbing' : 'grab') : undefined;
-
-  // Per-canvas flow meta, editable from the Flow details modal.
-  type FlowKey = 'marketing' | 'automation' | 'broadcast';
-  const [flows, setFlows] = useState<Record<FlowKey, { name: string; id: string; active: boolean }>>({
-    marketing: { name: 'Welcome series', id: '1024839', active: true },
-    automation: { name: 'Bot flows', id: '5820147', active: true },
-    broadcast: { name: 'Diwali Mega Sale Blast', id: '4471063', active: true },
-  });
-  const flowKey: FlowKey =
-    product === 'automation' ? 'automation' : selected === 'broadcast' ? 'broadcast' : 'marketing';
-  const curFlow = flows[flowKey];
-
-  // Which section (tab) the currently-open broadcast/flow was opened from —
-  // drives the editor's status badge so it matches where the row actually lives.
-  const [broadcastStatus, setBroadcastStatus] = useState<BroadcastRowData['status']>('completed');
-  const broadcastTriggered =
-    selected === 'broadcast' && (broadcastStatus === 'sending' || broadcastStatus === 'completed');
-  const [flowStatus, setFlowStatus] = useState<FlowRowData['status']>('active');
-  const flowIsCampaign = selected === 'automation-flows' && flowStatus !== 'draft';
-  const [botFlowStatus, setBotFlowStatus] = useState<BotFlowRowData['status']>('active');
-
-  const BROADCAST_BADGE: Record<BroadcastRowData['status'], { label: string; tone?: 'accent' | 'warning' }> = {
-    sending: { label: 'Sending' },
-    completed: { label: 'Completed' },
-    scheduled: { label: 'Scheduled', tone: 'warning' },
-    draft: { label: 'Draft' },
-  };
-  const FLOW_BADGE: Record<FlowRowData['status'], { label: string; tone?: 'accent' | 'warning' }> = {
-    active: { label: 'Active' },
-    inactive: { label: 'Inactive' },
-    draft: { label: 'Draft' },
-  };
-  const BOT_FLOW_BADGE: Record<BotFlowRowData['status'], { label: string; tone?: 'accent' | 'warning' }> = {
-    active: { label: 'Active' },
-    inactive: { label: 'Inactive' },
-  };
-
-  // Opens a broadcast row in the flow-builder canvas, carrying its name/ID/status
-  // over so the editor (breadcrumb, flow header, status badge) reflects that row.
-  const openBroadcastInEditor = (row: BroadcastRowData) => {
-    setFlows((f) => ({
-      ...f,
-      broadcast: {
-        ...f.broadcast,
-        name: row.name,
-        id: row.displayId ?? f.broadcast.id,
-        active: row.status !== 'draft',
-      },
-    }));
-    setBroadcastStatus(row.status);
-    openCanvas('broadcast');
-  };
-
-  // Opens an automation-flow row in the flow-builder canvas, carrying its
-  // name/ID/status over so the editor reflects that row.
-  const openFlowInEditor = (row: FlowRowData) => {
-    setFlows((f) => ({
-      ...f,
-      marketing: {
-        ...f.marketing,
-        name: row.name,
-        id: row.displayId ?? f.marketing.id,
-        active: row.status === 'active',
-      },
-    }));
-    setFlowStatus(row.status);
-    openCanvas('flows');
-  };
-
-  // Opens a bot-flow row in the flow-builder canvas, carrying its name/status
-  // over so the editor reflects that row.
-  const openBotFlowInEditor = (row: BotFlowRowData) => {
-    setFlows((f) => ({
-      ...f,
-      automation: { ...f.automation, name: row.name, active: row.status === 'active' },
-    }));
-    setBotFlowStatus(row.status);
-    openCanvas('bot-flows');
-  };
 
   // 'a0' is the header account — no list row matches, so none is pre-highlighted.
   const [pickedAccount] = useState(getPickedAccount);
@@ -294,10 +155,10 @@ export function App() {
           breadcrumbs={
             userSettingsOpen
               ? [{ label: USER_SETTINGS_COPY[userSettingsTab].title }]
-              : showCanvas
+              : showCanvas && openFlow
                 ? [
-                    { label: selected === 'broadcast' ? 'Broadcast' : 'Flows', onClick: leaveCanvas },
-                    { label: curFlow.id, copyable: true },
+                    { label: editorSetup(openFlow).listLabel, onClick: leaveCanvas },
+                    openFlow.displayId ? { label: openFlow.displayId, copyable: true } : { label: openFlow.name },
                   ]
                 : page === 'tickets'
                   ? [{ label: 'Tickets' }, { label: openTicketNumber, copyable: true }]
@@ -328,9 +189,6 @@ export function App() {
         />
 
         <main
-          onPointerDown={() => canvasCursor && setGrabbing(true)}
-          onPointerUp={() => setGrabbing(false)}
-          onPointerLeave={() => setGrabbing(false)}
           style={{
             flex: 1,
             position: 'relative',
@@ -340,7 +198,6 @@ export function App() {
               ? 'radial-gradient(circle, #D9D9D9 1px, transparent 1px) 0 0 / 20px 20px, #FAF9F5'
               : '#F5F5F5',
             overflow: 'visible',
-            cursor: canvasCursor,
           }}
         >
           {userSettingsOpen && (
@@ -424,124 +281,11 @@ export function App() {
 
           {!userSettingsOpen && (
           <>
-          {/* 12px inset so the canvas chrome doesn't sit flush against the shell.
-              pointerEvents stays off unless the canvas is showing — otherwise this
-              full-bleed absolutely-positioned div sits over later siblings (e.g. the
-              broadcast home page) and swallows their scroll/click events. */}
-          <div style={{ position: 'absolute', inset: 12, pointerEvents: showCanvas ? undefined : 'none' }}>
-          {showCanvas && product === 'marketing' && (
-              <CanvasChrome
-                {...marketingCanvas({
-                  omitTools:
-                    selected === 'broadcast' ? ['preview', 'experiment', 'settings'] : undefined,
-                  simpleReport: broadcastTriggered || flowIsCampaign,
-                  dateRange: flowIsCampaign ? 'January 14, 2023 - January 14, 2023' : undefined,
-                  saveLabel: flowIsCampaign ? 'Draft' : undefined,
-                  omitActions:
-                    selected === 'broadcast'
-                      ? broadcastTriggered
-                        ? ['save', 'publish']
-                        : ['reports', 'save']
-                      : selected === 'automation-flows' && flowStatus === 'draft'
-                        ? ['reports']
-                        : undefined,
-                  onTest:
-                    selected === 'broadcast' && !broadcastTriggered
-                      ? () => setVisualizeOpen(true)
-                      : undefined,
-                  broadcastMeta:
-                    selected === 'broadcast'
-                      ? {
-                          audience: broadcastAudience,
-                          schedule: broadcastSchedule,
-                          readOnly: broadcastStatus === 'sending' || broadcastStatus === 'completed',
-                        }
-                      : undefined,
-                  onDownloadReports: () => alert('Download reports'),
-                  onSaveDraft: () => alert('Saved'),
-                  onPublish: () =>
-                    selected === 'broadcast' ? setPublishConfirmOpen(true) : setPublishOpen(true),
-                  onCloneFlow: () => alert('Clone flow'),
-                  onDeleteFlow: () => alert('Delete flow'),
-                  onExportFlow: () => alert('Export flow'),
-                  onPublishHistory: () => alert('Publish history'),
-                })}
-                flow={{
-                  title: curFlow.name,
-                  subtitle: curFlow.id,
-                  active: curFlow.active,
-                  badge:
-                    selected === 'broadcast'
-                      ? BROADCAST_BADGE[broadcastStatus].label
-                      : selected === 'automation-flows'
-                        ? FLOW_BADGE[flowStatus].label
-                        : undefined,
-                  badgeTone:
-                    selected === 'broadcast'
-                      ? BROADCAST_BADGE[broadcastStatus].tone
-                      : selected === 'automation-flows'
-                        ? FLOW_BADGE[flowStatus].tone
-                        : undefined,
-                  onBack: leaveCanvas,
-                  onEdit: () => setDetailsOpen(true),
-                }}
-                nodePalette={flowNodePalette}
-                onAddNode={(id) => alert(`Add node: ${id}`)}
-                onCanvasSearch={(q) => console.log('search', q)}
-                onCanvasSearchOptions={() => alert('Search options')}
-                activeToolId={activeTool}
-                onToolSelect={setActiveTool}
-                zoom={zoom}
-                onZoomChange={setZoomClamped}
-                showHistory={selected !== 'automation-flows' && selected !== 'broadcast'}
-                onUndo={() => console.log('undo')}
-                onRedo={() => console.log('redo')}
-              />
-            )}
+          {showCanvas && <FlowEditorScreen />}
 
-            {showCanvas && product === 'automation' && (
-              <CanvasChrome
-                {...automationCanvas({
-                  onPublish: () => alert('Published'),
-                  onCollaborators: () => alert('Collaborators'),
-                  onCloneFlow: () => alert('Clone flow'),
-                  onDeleteFlow: () => alert('Delete flow'),
-                  onExportFlow: () => alert('Export flow'),
-                  onPublishHistory: () => alert('Publish history'),
-                  lastEditedBy: {
-                    name: 'Rajeev Sanyal',
-                    at: '3:00 PM, Nov 24, 2025',
-                    avatarSrc: 'https://i.pravatar.cc/64?img=13',
-                  },
-                })}
-                flow={{
-                  title: curFlow.name,
-                  subtitle: curFlow.id,
-                  active: curFlow.active,
-                  badge: BOT_FLOW_BADGE[botFlowStatus].label,
-                  badgeTone: BOT_FLOW_BADGE[botFlowStatus].tone,
-                  onBack: leaveCanvas,
-                  onEdit: () => setDetailsOpen(true),
-                }}
-                nodePalette={flowNodePalette}
-                onAddNode={(id) => alert(`Add node: ${id}`)}
-                onCanvasSearch={(q) => console.log('search', q)}
-                onCanvasSearchOptions={() => alert('Search options')}
-                activeToolId={activeTool}
-                onToolSelect={setActiveTool}
-                zoom={zoom}
-                onZoomChange={setZoomClamped}
-              />
-            )}
-          </div>
-
-          {page === 'broadcast-list' && (
-            <BroadcastScreen onRowClick={openBroadcastInEditor} onNewBroadcast={() => openCanvas('broadcast')} />
-          )}
-          {page === 'flows-list' && <FlowsScreen onRowClick={openFlowInEditor} onNewFlow={() => openCanvas('flows')} />}
-          {page === 'bot-flows-list' && (
-            <BotFlowsScreen onRowClick={openBotFlowInEditor} onNewFlow={() => openCanvas('bot-flows')} />
-          )}
+          {page === 'broadcast-list' && <BroadcastScreen />}
+          {page === 'flows-list' && <FlowsScreen />}
+          {page === 'bot-flows-list' && <BotFlowsScreen />}
           {page === 'segments' && <SegmentsScreen />}
           {page === 'templates' && <TemplatesScreen />}
           {page === 'knowledge-base' && <KnowledgeBaseScreen />}
@@ -576,90 +320,6 @@ export function App() {
         </main>
       </div>
 
-      <PublishFlowModal
-        open={publishOpen}
-        onClose={() => setPublishOpen(false)}
-        title={selected === 'broadcast' ? 'Publish broadcast' : undefined}
-        description={
-          selected === 'broadcast'
-            ? 'Verify all details of the flow before publishing this broadcast'
-            : undefined
-        }
-        submitLabel={selected === 'broadcast' ? 'Publish Broadcast' : undefined}
-        retryOptions={['Immediately', 'After 30 minutes', 'After 1 hour', 'After 3 hours']}
-        onPublish={(v) => {
-          console.log('publish', v);
-          setPublishOpen(false);
-        }}
-      />
-
-      <PublishConfirmModal
-        open={publishConfirmOpen}
-        onClose={() => setPublishConfirmOpen(false)}
-        audience={broadcastAudience}
-        schedule={broadcastSchedule}
-        onEditAudience={() => {
-          setPublishConfirmOpen(false);
-          setSegmentModalOpen(true);
-        }}
-        onEditSchedule={() => {
-          setPublishConfirmOpen(false);
-          setScheduleOpen(true);
-        }}
-        onConfirm={() => {
-          console.log('publish broadcast', curFlow);
-          setPublishConfirmOpen(false);
-          alert('Broadcast published');
-        }}
-      />
-
-      <FlowDetailsModal
-        open={detailsOpen}
-        onClose={() => setDetailsOpen(false)}
-        title={flowKey === 'broadcast' ? 'Broadcast details' : 'Flow details'}
-        defaults={{ name: curFlow.name, flowId: curFlow.id, active: curFlow.active }}
-        onCopyFlowId={(id) => navigator.clipboard?.writeText(id)}
-        onActiveChange={(active) =>
-          setFlows((f) => ({ ...f, [flowKey]: { ...f[flowKey], active } }))
-        }
-        onSave={(v) => {
-          setFlows((f) => ({
-            ...f,
-            [flowKey]: { ...f[flowKey], name: v.name, active: v.active },
-          }));
-          setDetailsOpen(false);
-        }}
-      />
-
-      <ScheduleBroadcastModal
-        open={scheduleOpen}
-        onClose={() => setScheduleOpen(false)}
-        defaults={{ mode: 'later', date: '2026-09-14', time: '10:30' }}
-        onEditQuietHours={() => alert('Edit quiet hours')}
-        onSetSchedule={(v) => {
-          console.log('schedule broadcast', v);
-          setScheduleOpen(false);
-        }}
-      />
-
-      <VisualizeFlowModal
-        open={visualizeOpen}
-        onClose={() => setVisualizeOpen(false)}
-        onSend={(v) => {
-          console.log('visualize flow send', v);
-          setVisualizeOpen(false);
-        }}
-      />
-
-      <SelectUserSegmentModal
-        open={segmentModalOpen}
-        onClose={() => setSegmentModalOpen(false)}
-        segments={DEMO_USER_SEGMENTS}
-        onSave={(selections) => {
-          console.log('segment selections', selections);
-          setSegmentModalOpen(false);
-        }}
-      />
     </div>
   );
 }

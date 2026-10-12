@@ -43,7 +43,7 @@ const FLOW_PAGE: Record<FlowKind, { list: Page; canvas: Page }> = {
  */
 export function useAppNavigation() {
   const [screen, setScreen] = useState(() => parseHash(window.location.hash));
-  const { product, selected, view, tab, manageIndustries, ticket, userSettings } = screen;
+  const { product, selected, view, tab, manageIndustries, ticket, flow, userSettings } = screen;
   const flowKind = flowKindOf(product, selected);
 
   let page: Page = 'home';
@@ -87,10 +87,15 @@ export function useAppNavigation() {
     tab,
     manageIndustries,
     ticketId: ticket,
+    /** Which Broadcast, Flow or Bot flow list/editor this item opens, if any. */
+    flowKind,
+    /** The Flow editor's flow: a row id or 'new'; '' outside the editor. */
+    flowId: flow,
     userSettingsTab: userSettings ?? 'account',
     select: (id: string) => navigate(toScreen({ product, selected: id })),
     switchProduct: (next: SidebarProduct) => navigate(toScreen({ product: next, selected: sidebarPresets[next].items[0].id })),
-    openCanvas: (_kind: FlowKind) => update({ view: 'canvas' }),
+    /** Opens a row, or 'new' for "+ New", in the Flow editor. */
+    openFlow: (id: string) => update({ view: 'canvas', flow: id }),
     /** Back from the editor to the list of whichever flow kind is open. */
     leaveCanvas: () => update({ view: 'list' }),
     openUserSettings: (tab: UserSettingsTab) => update({ userSettings: tab }),

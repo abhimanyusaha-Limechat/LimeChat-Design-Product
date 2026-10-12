@@ -1,21 +1,11 @@
-import { BroadcastHomePage, type BroadcastRowData, type BroadcastTab } from '../BroadcastHomePage';
+import { BroadcastHomePage, type BroadcastTab } from '../BroadcastHomePage';
+import { useAppNavigation } from '../../hooks/useAppNavigation';
 import { matchesSearch, useListScreen } from '../../hooks/useListScreen';
-import { DEMO_BROADCASTS, DEMO_DRAFT_BROADCASTS, DEMO_SCHEDULED_BROADCASTS } from '../../data/broadcastDemo';
+import { BROADCASTS_BY_TAB } from '../../data/broadcastDemo';
 
-const BROADCASTS_BY_TAB: Record<BroadcastTab, BroadcastRowData[]> = {
-  triggered: DEMO_BROADCASTS,
-  scheduled: DEMO_SCHEDULED_BROADCASTS,
-  draft: DEMO_DRAFT_BROADCASTS,
-};
-
-/** Marketing → Broadcast list. Opening a row or "+ Broadcast" belongs to the flow editor, so App handles it. */
-export function BroadcastScreen({
-  onRowClick,
-  onNewBroadcast,
-}: {
-  onRowClick: (row: BroadcastRowData) => void;
-  onNewBroadcast: () => void;
-}) {
+/** Marketing → Broadcast list. A row or "+ Broadcast" opens in the Flow editor. */
+export function BroadcastScreen() {
+  const { openFlow } = useAppNavigation();
   const list = useListScreen({});
   const tab = list.tab as BroadcastTab; // navigation only lets this list's tabs through
   return (
@@ -27,8 +17,8 @@ export function BroadcastScreen({
       searchValue={list.search}
       onSearchChange={list.setSearch}
       onReport={() => alert('Download broadcast report')}
-      onNewBroadcast={onNewBroadcast}
-      onRowClick={onRowClick}
+      onNewBroadcast={() => openFlow('new')}
+      onRowClick={(row) => openFlow(row.id)}
       onRowDownload={(row) => alert(`Download report: ${row.name}`)}
       onRowCopy={(row) => alert(`Copy broadcast: ${row.name}`)}
       page={list.page}

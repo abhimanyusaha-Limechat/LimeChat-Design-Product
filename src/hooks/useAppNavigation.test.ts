@@ -33,7 +33,7 @@ describe('useAppNavigation', () => {
     act(() => result.current.switchProduct(product));
     act(() => result.current.select(item));
     expect(result.current.page).toBe(`${kind}-list`);
-    act(() => result.current.openCanvas(kind));
+    act(() => result.current.openFlow('new'));
     expect(result.current.page).toBe(`${kind}-canvas`);
     expect(isCanvasPage(result.current.page)).toBe(true);
     act(() => result.current.leaveCanvas());
@@ -44,7 +44,7 @@ describe('useAppNavigation', () => {
     const { result } = setup();
     act(() => result.current.switchProduct('automation'));
     act(() => result.current.select('flows'));
-    act(() => result.current.openCanvas('bot-flows'));
+    act(() => result.current.openFlow('new'));
     act(() => result.current.setTab('inactive'));
     act(() => result.current.setManageIndustries(true));
     act(() => result.current.select('flows'));
@@ -52,7 +52,7 @@ describe('useAppNavigation', () => {
     expect(result.current.tab).toBe('active');
     expect(result.current.manageIndustries).toBe(false);
 
-    act(() => result.current.openCanvas('bot-flows'));
+    act(() => result.current.openFlow('new'));
     act(() => result.current.switchProduct('marketing'));
     act(() => result.current.switchProduct('automation'));
     act(() => result.current.select('flows'));
@@ -171,8 +171,8 @@ describe('useAppNavigation', () => {
       history.replaceState(null, '', '#/marketing/broadcast');
       const { result } = setup();
       const before = history.length;
-      act(() => result.current.openCanvas('broadcast'));
-      expect(location.hash).toBe('#/marketing/broadcast?view=canvas');
+      act(() => result.current.openFlow('new'));
+      expect(location.hash).toBe('#/marketing/broadcast?view=canvas&flow=new');
       act(() => result.current.leaveCanvas());
       expect(location.hash).toBe('#/marketing/broadcast');
       act(() => result.current.openUserSettings('account'));
@@ -212,11 +212,38 @@ describe('useAppNavigation', () => {
       const { result } = setup();
       act(() => result.current.setTab('draft'));
       expect(location.hash).toBe('#/marketing/broadcast?tab=draft');
-      act(() => result.current.openCanvas('broadcast'));
+      act(() => result.current.openFlow('new'));
       act(() => result.current.leaveCanvas());
       expect(result.current.tab).toBe('draft');
       act(() => result.current.setTab('triggered'));
       expect(location.hash).toBe('#/marketing/broadcast');
+    });
+
+    it("opens a flow in the editor, leaving the List tab's first row out of the URL", () => {
+      history.replaceState(null, '', '#/marketing/broadcast');
+      const { result } = setup();
+      act(() => result.current.openFlow('b-3'));
+      expect(location.hash).toBe('#/marketing/broadcast?view=canvas&flow=b-3');
+      expect(result.current).toMatchObject({ page: 'broadcast-canvas', flowKind: 'broadcast', flowId: 'b-3' });
+      act(() => result.current.openFlow('b-1'));
+      expect(location.hash).toBe('#/marketing/broadcast?view=canvas');
+      act(() => result.current.leaveCanvas());
+      expect(location.hash).toBe('#/marketing/broadcast');
+      expect(result.current.flowId).toBe('');
+    });
+
+    it.each([
+      ['#/marketing/broadcast?view=canvas', '#/marketing/broadcast?view=canvas', 'b-1'],
+      ['#/marketing/broadcast?view=canvas&tab=draft', '#/marketing/broadcast?view=canvas&tab=draft', 'd-1'],
+      ['#/marketing/broadcast?view=canvas&flow=nope', '#/marketing/broadcast?view=canvas', 'b-1'],
+      ['#/marketing/broadcast?view=canvas&flow=f-1', '#/marketing/broadcast?view=canvas', 'b-1'],
+      ['#/marketing/automation-flows?view=canvas&flow=new', '#/marketing/automation-flows?view=canvas&flow=new', 'new'],
+      ['#/marketing/broadcast?flow=b-3', '#/marketing/broadcast', ''],
+    ])('reads %s as flow %s', (hash, corrected, flowId) => {
+      history.replaceState(null, '', hash);
+      const { result } = setup();
+      expect(result.current.flowId).toBe(flowId);
+      expect(location.hash).toBe(corrected);
     });
 
     it('writes settings tab and manage industries to the hash', () => {
@@ -272,8 +299,8 @@ describe('useAppNavigation', () => {
     it('drops unknown parameters when navigating', () => {
       history.replaceState(null, '', '#/marketing/broadcast?comment=12');
       const { result } = setup();
-      act(() => result.current.openCanvas('broadcast'));
-      expect(location.hash).toBe('#/marketing/broadcast?view=canvas');
+      act(() => result.current.openFlow('new'));
+      expect(location.hash).toBe('#/marketing/broadcast?view=canvas&flow=new');
     });
 
     it.each([

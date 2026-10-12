@@ -1,21 +1,11 @@
-import { FlowsHomePage, type FlowRowData, type FlowTab } from '../FlowsHomePage';
+import { FlowsHomePage, type FlowTab } from '../FlowsHomePage';
+import { useAppNavigation } from '../../hooks/useAppNavigation';
 import { matchesSearch, useListScreen } from '../../hooks/useListScreen';
-import { DEMO_FLOWS_ACTIVE, DEMO_FLOWS_DRAFT, DEMO_FLOWS_INACTIVE } from '../../data/flowsDemo';
+import { FLOWS_BY_TAB } from '../../data/flowsDemo';
 
-const FLOWS_BY_TAB: Record<FlowTab, FlowRowData[]> = {
-  active: DEMO_FLOWS_ACTIVE,
-  inactive: DEMO_FLOWS_INACTIVE,
-  draft: DEMO_FLOWS_DRAFT,
-};
-
-/** Marketing → Flows list. Opening a row or "+ Flow" belongs to the flow editor, so App handles it. */
-export function FlowsScreen({
-  onRowClick,
-  onNewFlow,
-}: {
-  onRowClick: (row: FlowRowData) => void;
-  onNewFlow: () => void;
-}) {
+/** Marketing → Flows list. A row or "+ Flow" opens in the Flow editor. */
+export function FlowsScreen() {
+  const { openFlow } = useAppNavigation();
   const list = useListScreen({});
   const tab = list.tab as FlowTab; // navigation only lets this list's tabs through
   return (
@@ -27,8 +17,8 @@ export function FlowsScreen({
       searchValue={list.search}
       onSearchChange={list.setSearch}
       onReport={(type) => alert(type === 'flow-report' ? 'Download flow report' : 'Download error log')}
-      onNewFlow={onNewFlow}
-      onRowClick={onRowClick}
+      onNewFlow={() => openFlow('new')}
+      onRowClick={(row) => openFlow(row.id)}
       onRowDownload={(row) => alert(`Download report: ${row.name}`)}
       onRowCopy={(row) => alert(`Copy flow: ${row.name}`)}
       page={list.page}
