@@ -3,10 +3,9 @@
  * the default Do Not Disturb window for broadcasts. Renders inside
  * `<SettingsPage>`'s content slot.
  *
- * Same design language as `ProfileSettings` (two-column rows, no boxed
- * sections, divider strokes) — built from a rough reference (bordered
- * boxes, disabled-looking grey fields, a separate DnD card) translated into
- * that established pattern instead of copied pixel-for-pixel.
+ * Same design language as `ProfileSettings`: bordered settings tables of
+ * label + description | control rows, split by dividers, with the DnD
+ * table's "Save changes" in its footer.
  *
  *   <AccountSettings
  *     id="1"
@@ -64,29 +63,20 @@ function StatusNote({ state, children }: { state: 'idle' | 'visible' | 'leaving'
   );
 }
 
-/** One label(+description) | control settings row. */
+/** One label(+description) | control row of a settings table. */
 function Row({
   label,
   description,
   htmlFor,
-  first,
-  last,
   children,
 }: {
   label: string;
   description?: string;
   htmlFor?: string;
-  /** No top divider/padding — this is the first row in its section. */
-  first?: boolean;
-  /** Bottom divider closing out the section, mirroring the top one. */
-  last?: boolean;
   children: ReactNode;
 }) {
-  const cls = ['lc-as__row', first && 'lc-as__row--first', last && 'lc-as__row--last']
-    .filter(Boolean)
-    .join(' ');
   return (
-    <div className={cls}>
+    <div className="lc-as__row">
       <div className="lc-as__row-label">
         {htmlFor ? (
           <label className="lc-as__label" htmlFor={htmlFor}>
@@ -146,16 +136,12 @@ export function AccountSettings({
 
   return (
     <div className="lc-as">
-      <section className="lc-as__section">
-        <Row label="ID" htmlFor={idId} description="Internal identifier — can't be changed." first>
+      <section className="lc-as__table">
+        <Row label="ID" htmlFor={idId} description="Internal identifier — can't be changed.">
           <input id={idId} className="lc-as__input" value={id} disabled readOnly />
         </Row>
 
-        <Row
-          label="CRM Account ID"
-          htmlFor={crmId}
-          description="Links this workspace to its CRM account."
-        >
+        <Row label="CRM Account ID" htmlFor={crmId} description="Links this workspace to its CRM account.">
           <input id={crmId} className="lc-as__input" value={crmAccountId} disabled readOnly />
         </Row>
 
@@ -175,7 +161,6 @@ export function AccountSettings({
           label="UI Mode Preference"
           htmlFor={uiModeId}
           description="The default channel shown when previewing conversations."
-          last
         >
           <div className="lc-as__select-wrap">
             <select
@@ -203,56 +188,42 @@ export function AccountSettings({
         </p>
       </div>
 
-      <section className="lc-as__section">
-        <Row
-          label="Hours"
-          description="Broadcasts won't be sent to users during this window."
-          first
-          last
-        >
-          <div className="lc-as__time-row">
-            <div className="lc-as__time-field">
-              <label className="lc-as__time-label" htmlFor={startId}>
-                Start Time (24 H)
-              </label>
-              <input
-                id={startId}
-                type="time"
-                className="lc-as__input"
-                value={dndStartTime}
-                onChange={(e) => onDndStartTimeChange(e.currentTarget.value)}
-              />
-            </div>
-            <div className="lc-as__time-field">
-              <label className="lc-as__time-label" htmlFor={endId}>
-                End Time (24 H)
-              </label>
-              <input
-                id={endId}
-                type="time"
-                className="lc-as__input"
-                value={dndEndTime}
-                onChange={(e) => onDndEndTimeChange(e.currentTarget.value)}
-              />
-            </div>
-
-            <div className="lc-as__time-field lc-as__time-field--action">
-              <Button
-                variant="filled"
-                color="primary"
-                size="sm"
-                loading={savingDnd}
-                onClick={() => {
-                  onSaveDnd?.();
-                  dndStatus.trigger();
-                }}
-              >
-                Save
-              </Button>
-              <StatusNote state={dndStatus.state}>Saved</StatusNote>
-            </div>
-          </div>
+      <section className="lc-as__table">
+        <Row label="Start time" htmlFor={startId} description="24-hour format.">
+          <input
+            id={startId}
+            type="time"
+            className="lc-as__input"
+            value={dndStartTime}
+            onChange={(e) => onDndStartTimeChange(e.currentTarget.value)}
+          />
         </Row>
+
+        <Row label="End time" htmlFor={endId} description="24-hour format.">
+          <input
+            id={endId}
+            type="time"
+            className="lc-as__input"
+            value={dndEndTime}
+            onChange={(e) => onDndEndTimeChange(e.currentTarget.value)}
+          />
+        </Row>
+
+        <div className="lc-as__footer">
+          <StatusNote state={dndStatus.state}>Saved</StatusNote>
+          <Button
+            variant="filled"
+            color="primary"
+            size="sm"
+            loading={savingDnd}
+            onClick={() => {
+              onSaveDnd?.();
+              dndStatus.trigger();
+            }}
+          >
+            Save changes
+          </Button>
+        </div>
       </section>
     </div>
   );

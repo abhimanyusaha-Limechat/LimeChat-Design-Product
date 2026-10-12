@@ -1,10 +1,9 @@
 /**
  * HelpDeskAccountSettings — Settings → Account, HelpDesk product.
  *
- * Same design language as `AccountSettings`/`ProfileSettings` (two-column
- * rows, no boxed sections, divider strokes) — built from a rough reference
- * (bordered grey fields, pill toggles, a multi-select chip control)
- * translated into that established pattern instead of copied pixel-for-pixel.
+ * Same design language as `AccountSettings`/`ProfileSettings`: bordered
+ * settings tables of label + description | control rows split by dividers —
+ * company info in one table, the toggles and attachment file types in another.
  *
  *   <HelpDeskAccountSettings
  *     companyName={companyName}
@@ -26,35 +25,23 @@ import { useId, useState, type ReactNode } from 'react';
 import { ChevronDownIcon as ChevronIcon } from '../icons';
 import './HelpDeskAccountSettings.css';
 
-/** One label(+description) | control settings row. */
+/** One label(+description) | control row of a settings table. */
 function Row({
   label,
   description,
-  descriptionPosition = 'label',
   htmlFor,
   required,
-  first,
-  last,
   children,
 }: {
   label: string;
   description?: string;
-  /** Where the description renders — under the label (default) or under the control, as a caption. */
-  descriptionPosition?: 'label' | 'control';
   htmlFor?: string;
   /** Red dot after the label — matches the reference's required-field marker. */
   required?: boolean;
-  /** No top divider/padding — this is the first row in its section. */
-  first?: boolean;
-  /** Bottom divider closing out the section, mirroring the top one. */
-  last?: boolean;
   children: ReactNode;
 }) {
-  const cls = ['lc-hda__row', first && 'lc-hda__row--first', last && 'lc-hda__row--last']
-    .filter(Boolean)
-    .join(' ');
   return (
-    <div className={cls}>
+    <div className="lc-hda__row">
       <div className="lc-hda__row-label">
         {htmlFor ? (
           <label className="lc-hda__label" htmlFor={htmlFor}>
@@ -67,36 +54,26 @@ function Row({
             {label}
           </span>
         )}
-        {description && descriptionPosition === 'label' && <p className="lc-hda__row-desc">{description}</p>}
+        {description && <p className="lc-hda__row-desc">{description}</p>}
       </div>
-      <div className="lc-hda__row-control">
-        {children}
-        {description && descriptionPosition === 'control' && <p className="lc-hda__row-desc">{description}</p>}
-      </div>
+      <div className="lc-hda__row-control">{children}</div>
     </div>
   );
 }
 
-/** Full-width label-left / switch-right row, matching the reference's toggle list. */
+/** Table row with the label on the left and a switch at the far right. */
 function ToggleRow({
   label,
   checked,
   onChange,
-  first,
-  last,
 }: {
   label: string;
   checked: boolean;
   onChange: (next: boolean) => void;
-  first?: boolean;
-  last?: boolean;
 }) {
   const id = useId();
-  const cls = ['lc-hda__toggle-row', first && 'lc-hda__row--first', last && 'lc-hda__row--last']
-    .filter(Boolean)
-    .join(' ');
   return (
-    <div className={cls}>
+    <div className="lc-hda__toggle-row">
       <label className="lc-hda__toggle-label" htmlFor={id}>
         {label}
       </label>
@@ -249,13 +226,12 @@ export function HelpDeskAccountSettings({
   return (
     <div className="lc-hda">
       {showCompanyInfo && (
-      <section className="lc-hda__section">
+      <section className="lc-hda__table">
         <Row
           label="Company name"
           htmlFor={companyId}
           required
           description="Shown to customers across the helpdesk."
-          first
         >
           <input
             id={companyId}
@@ -297,7 +273,6 @@ export function HelpDeskAccountSettings({
           label="Site language (Beta)"
           htmlFor={languageId}
           description="Sets the default language for agent replies."
-          last
         >
           <div className="lc-hda__select-wrap">
             <select
@@ -318,15 +293,13 @@ export function HelpDeskAccountSettings({
       </section>
       )}
 
-      <section className="lc-hda__section">
-        {TOGGLE_ORDER.map((key, i) => (
+      <section className="lc-hda__table">
+        {TOGGLE_ORDER.map((key) => (
           <ToggleRow
             key={key}
             label={TOGGLE_COPY[key]}
             checked={toggles[key]}
             onChange={(next) => onToggleChange(key, next)}
-            first={i === 0}
-            last={!showFileTypes && i === TOGGLE_ORDER.length - 1}
           />
         ))}
 
@@ -334,7 +307,6 @@ export function HelpDeskAccountSettings({
         <Row
           label="Supported file types for attachments"
           description="Only selected file types will be allowed for conversation attachments. Unsupported files will show as ‘Attachment not supported’. Leave empty to allow all file types."
-          last
         >
           <div className="lc-hda__file-types-list" role="group" aria-label="Supported file types for attachments">
             {fileTypeOptions.map((opt) => {

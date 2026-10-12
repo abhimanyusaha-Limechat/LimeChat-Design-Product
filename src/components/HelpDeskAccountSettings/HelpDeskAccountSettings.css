@@ -1,9 +1,9 @@
 /**
  * HelpDeskAccountSettings — Settings → Account, HelpDesk product.
  *
- * Same tokens/row anatomy as ProfileSettings/AccountSettings (`--lc-ps-*` /
- * `--lc-as-*` mirrored here as `--lc-hda-*`) — two-column rows, no boxed
- * sections, divider strokes.
+ * Same tokens/table anatomy as ProfileSettings/AccountSettings (`--lc-ps-*` /
+ * `--lc-as-*` mirrored here as `--lc-hda-*`) — bordered tables of
+ * label | control rows split by dividers.
  */
 
 .lc-hda {
@@ -14,16 +14,15 @@
   --lc-hda-primary: var(--lc-color-green-700);
   --lc-hda-required: #E5484D;
   --lc-hda-bg-subtle: var(--lc-color-stone-50);
-  --lc-hda-radius: 8px;
-  --lc-hda-radius-sm: 4px;
+  --lc-hda-radius: 12px;
+  --lc-hda-radius-sm: 6px;
   --lc-hda-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --lc-hda-label-col: minmax(180px, 300px);
 
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 24px;
   width: 100%;
-  max-width: 920px;
+  max-width: 60%;
   color: var(--lc-hda-text-title);
   container-type: inline-size;
 }
@@ -34,9 +33,13 @@
   box-sizing: border-box;
 }
 
-.lc-hda__section {
+.lc-hda__table {
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--lc-hda-divider);
+  border-radius: var(--lc-hda-radius);
+  background: var(--lc-color-white);
+  overflow: hidden;
   transition: opacity 220ms var(--lc-hda-ease-out), transform 220ms var(--lc-hda-ease-out);
 
   @starting-style {
@@ -46,10 +49,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lc-hda__section {
+  .lc-hda__table {
     transition: opacity 180ms ease;
     transform: none;
   }
+}
+
+/* rows and toggle rows share the table's divider */
+.lc-hda__table > * + * {
+  border-top: 1px solid var(--lc-hda-divider);
 }
 
 .lc-hda__required {
@@ -64,21 +72,15 @@
 
 .lc-hda__row {
   display: grid;
-  grid-template-columns: var(--lc-hda-label-col) minmax(0, 420px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
   gap: 24px;
+  align-items: center;
+  padding: 16px 20px;
+}
+
+/* tall controls (the file-type list) keep the label at the top */
+.lc-hda__row:has(.lc-hda__file-types-list) {
   align-items: start;
-  align-self: flex-start;
-  padding: 16px 0;
-  border-top: 1px solid var(--lc-hda-divider);
-}
-
-.lc-hda__row--first {
-  border-top: none;
-  padding-top: 0;
-}
-
-.lc-hda__row--last {
-  border-bottom: 1px solid var(--lc-hda-divider);
 }
 
 .lc-hda__row-label {
@@ -89,7 +91,7 @@
 
 .lc-hda__label {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 18px;
   color: var(--lc-hda-text-title);
 }
@@ -106,20 +108,17 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
-  max-width: 420px;
-  width: 100%;
+  min-width: 0;
 }
 
 /* --- Toggle rows: label left, switch pinned to the far right ----------- */
 
 .lc-hda__toggle-row {
-  display: grid;
-  grid-template-columns: var(--lc-hda-label-col) minmax(0, 420px);
+  display: flex;
   align-items: center;
-  align-self: flex-start;
+  justify-content: space-between;
   gap: 24px;
-  padding: 16px 0;
-  border-top: 1px solid var(--lc-hda-divider);
+  padding: 16px 20px;
 }
 
 .lc-hda__toggle-label {
@@ -172,7 +171,7 @@
 
 .lc-hda__input {
   width: 100%;
-  height: 32px;
+  height: 36px;
   padding: 0 12px;
   border: 1px solid var(--lc-hda-border);
   border-radius: var(--lc-hda-radius-sm);
@@ -202,7 +201,7 @@
 .lc-hda__select {
   appearance: none;
   width: 100%;
-  height: 32px;
+  height: 36px;
   padding: 0 32px 0 12px;
   border: 1px solid var(--lc-hda-border);
   border-radius: var(--lc-hda-radius-sm);
@@ -355,18 +354,11 @@
   transform: rotate(-90deg);
 }
 
-/* --- Narrow containers: stack fields/rows ------------------------------- */
+/* --- Narrow containers: stack label above control --------------------- */
 
-@container (max-width: 480px) {
-  .lc-hda__row,
-  .lc-hda__toggle-row {
+@container (max-width: 560px) {
+  .lc-hda__row {
     grid-template-columns: 1fr;
     gap: 8px;
-  }
-  .lc-hda__row-control {
-    max-width: none;
-  }
-  .lc-hda__toggle-row {
-    align-items: flex-start;
   }
 }

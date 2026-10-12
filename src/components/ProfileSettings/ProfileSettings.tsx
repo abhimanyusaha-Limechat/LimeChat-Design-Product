@@ -2,12 +2,10 @@
  * ProfileSettings — Settings → Profile: account details, password reset, and
  * API key management. Renders inside `<SettingsPage>`'s content slot.
  *
- * Redesigned from a rough reference (plain bordered boxes, all-green buttons,
- * a form stacked in a narrow column that leaves the rest of the page empty)
- * into a standard two-column settings row — label + description on the
- * left, the control on the right — the pattern GitHub/Stripe/Linear settings
- * pages use, which both fills the available width sensibly and reads as a
- * settings page rather than a plain form.
+ * Laid out as one bordered settings table: each row is label + description
+ * on the left, the control on the right, rows split by dividers, and a
+ * footer holding "Save changes" (the Supabase/Vercel project-settings
+ * pattern).
  *
  *   <ProfileSettings
  *     email="team@limechat.ai"
@@ -22,30 +20,27 @@
  */
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
-import { Tooltip } from '../Tooltip';
 import { Icon, CheckIcon } from '../icons';
 import './ProfileSettings.css';
 
-const CopyIcon = () => <Icon name="copy" />;
-
-/** Secondary icon-only action next to a field — copies `value` to the clipboard. */
+/** "Copy" action sitting inside a read-only field — copies `value` to the clipboard. */
 function CopyButton({ value, label }: { value: string; label: string }) {
   const [copied, setCopied] = useState(false);
   return (
-    <Tooltip label={copied ? 'Copied!' : label}>
-      <button
-        type="button"
-        className="lc-ps__icon-btn"
-        aria-label={label}
-        onClick={() => {
-          navigator.clipboard?.writeText(value);
-          setCopied(true);
-          window.setTimeout(() => setCopied(false), 1500);
-        }}
-      >
-        <CopyIcon />
-      </button>
-    </Tooltip>
+    <Button
+      variant="default"
+      color="gray"
+      size="xs"
+      leftSection={copied ? <CheckIcon /> : <Icon name="copy" />}
+      aria-label={label}
+      onClick={() => {
+        navigator.clipboard?.writeText(value);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1500);
+      }}
+    >
+      {copied ? 'Copied' : 'Copy'}
+    </Button>
   );
 }
 
@@ -85,32 +80,20 @@ function StatusNote({ state, children }: { state: 'idle' | 'visible' | 'leaving'
   );
 }
 
-/** One label(+description) | control settings row. */
+/** One label(+description) | control row of the settings table. */
 function Row({
   label,
   description,
-  descriptionPosition = 'label',
   htmlFor,
-  first,
-  last,
   children,
 }: {
   label: string;
   description?: string;
-  /** Where the description renders — under the label (default) or under the control, as a caption. */
-  descriptionPosition?: 'label' | 'control';
   htmlFor?: string;
-  /** No top divider/padding — this is the first row in its section. */
-  first?: boolean;
-  /** Bottom divider closing out the section, mirroring the top one. */
-  last?: boolean;
   children: ReactNode;
 }) {
-  const cls = ['lc-ps__row', first && 'lc-ps__row--first', last && 'lc-ps__row--last']
-    .filter(Boolean)
-    .join(' ');
   return (
-    <div className={cls}>
+    <div className="lc-ps__row">
       <div className="lc-ps__row-label">
         {htmlFor ? (
           <label className="lc-ps__label" htmlFor={htmlFor}>
@@ -119,12 +102,9 @@ function Row({
         ) : (
           <span className="lc-ps__label">{label}</span>
         )}
-        {description && descriptionPosition === 'label' && <p className="lc-ps__row-desc">{description}</p>}
+        {description && <p className="lc-ps__row-desc">{description}</p>}
       </div>
-      <div className="lc-ps__row-control">
-        {children}
-        {description && descriptionPosition === 'control' && <p className="lc-ps__row-desc">{description}</p>}
-      </div>
+      <div className="lc-ps__row-control">{children}</div>
     </div>
   );
 }
@@ -167,92 +147,81 @@ export function ProfileSettings({
   const passwordStatus = useTransientStatus();
   const keyStatus = useTransientStatus();
 
+  // Last saved name — "Save changes" stays disabled until the name differs from it.
+  const [savedName, setSavedName] = useState(name);
+  const dirty = name.trim() !== '' && name !== savedName;
+
   return (
     <div className="lc-ps">
-      <section className="lc-ps__section">
-        <Row label="Email" htmlFor={emailId} description="Used to sign in — can't be changed." first>
-          <input id={emailId} className="lc-ps__input" value={email} disabled readOnly />
-        </Row>
+      <Row label="Email" htmlFor={emailId} description="Used to sign in — can't be changed.">
+        <input id={emailId} className="lc-ps__input" value={email} disabled readOnly />
+      </Row>
 
-        <Row label="Name" htmlFor={nameId} description="Shown across LimeChat." last>
-          <div className="lc-ps__inline-control">
-            <input
-              id={nameId}
-              className="lc-ps__input"
-              value={name}
-              onChange={(e) => onNameChange(e.currentTarget.value)}
-            />
-            <Button
-              variant="filled"
-              color="primary"
-              size="sm"
-              loading={updatingProfile}
-              onClick={() => {
-                onUpdateProfile?.();
-                profileStatus.trigger();
-              }}
-            >
-              Update
-            </Button>
-          </div>
-          <StatusNote state={profileStatus.state}>Profile updated</StatusNote>
-        </Row>
-      </section>
+      <Row label="Name" htmlFor={nameId} description="Shown across LimeChat.">
+        <input
+          id={nameId}
+          className="lc-ps__input"
+          value={name}
+          onChange={(e) => onNameChange(e.currentTarget.value)}
+        />
+      </Row>
 
-      <section className="lc-ps__section">
-        <Row label="Password" description="We'll email you a secure link to set a new one." last>
+      <Row label="Password" description="We'll email you a secure link to set a new one.">
+        <Button
+          variant="outline"
+          color="primary"
+          size="sm"
+          loading={requestingPasswordChange}
+          onClick={() => {
+            onRequestPasswordChange?.();
+            passwordStatus.trigger();
+          }}
+        >
+          Request password change
+        </Button>
+        <StatusNote state={passwordStatus.state}>Reset link sent</StatusNote>
+      </Row>
+
+      <Row label="API key" htmlFor={apiKeyId} description="Store it securely — generate a new one if you've lost it.">
+        <div className="lc-ps__field">
+          <input id={apiKeyId} className="lc-ps__field-value" value={apiKeyMasked} readOnly />
+          <CopyButton value={apiKeyMasked} label="Copy API key" />
+        </div>
+        <div className="lc-ps__control-meta">
+          <span className="lc-ps__row-desc">Expires: {apiKeyExpiry}</span>
           <Button
-            variant="outline"
+            variant="subtle"
             color="primary"
-            size="sm"
-            loading={requestingPasswordChange}
+            size="xs"
+            loading={generatingKey}
             onClick={() => {
-              onRequestPasswordChange?.();
-              passwordStatus.trigger();
+              onGenerateKey?.();
+              keyStatus.trigger();
             }}
           >
-            Request password change
+            Generate new key
           </Button>
-        </Row>
-
-        <div className="lc-ps__section-footer">
-          <StatusNote state={passwordStatus.state}>Reset link sent</StatusNote>
         </div>
-      </section>
+        <StatusNote state={keyStatus.state}>New key generated</StatusNote>
+      </Row>
 
-      <section className="lc-ps__section">
-        <Row
-          label="Last API key"
-          htmlFor={apiKeyId}
-          description="Store it securely — generate a new one if you've lost it."
-          last
+      <div className="lc-ps__footer">
+        <StatusNote state={profileStatus.state}>Profile updated</StatusNote>
+        <Button
+          variant="filled"
+          color="primary"
+          size="sm"
+          loading={updatingProfile}
+          disabled={!dirty}
+          onClick={() => {
+            onUpdateProfile?.();
+            setSavedName(name);
+            profileStatus.trigger();
+          }}
         >
-          <div className="lc-ps__inline-control">
-            <input
-              id={apiKeyId}
-              className="lc-ps__input lc-ps__input--mono"
-              value={apiKeyMasked}
-              disabled
-              readOnly
-            />
-            <CopyButton value={apiKeyMasked} label="Copy API key" />
-            <Button
-              variant="light"
-              color="primary"
-              size="sm"
-              loading={generatingKey}
-              onClick={() => {
-                onGenerateKey?.();
-                keyStatus.trigger();
-              }}
-            >
-              Generate new key
-            </Button>
-          </div>
-          <p className="lc-ps__row-desc">Expiry : {apiKeyExpiry}</p>
-          <StatusNote state={keyStatus.state}>New key generated</StatusNote>
-        </Row>
-      </section>
+          Save changes
+        </Button>
+      </div>
     </div>
   );
 }
