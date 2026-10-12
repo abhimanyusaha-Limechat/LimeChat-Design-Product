@@ -26,7 +26,7 @@ import {
   type OrderStatus,
   type SavedAddress,
 } from '../../data/mockOrders';
-import { MOCK_PRODUCTS } from '../../data/mockProducts';
+import { PRODUCT_IMAGE_BY_SKU } from '../../data/mockProducts';
 import { useCommerce } from '../../context/CommerceContext';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
@@ -188,10 +188,6 @@ interface ExtraChargeEditable {
   onAmountChange: (amount: string) => void;
 }
 
-
-const PRODUCT_IMAGE_BY_SKU: Record<string, string> = Object.fromEntries(
-  MOCK_PRODUCTS.filter((p) => p.imageUrl).map((p) => [p.sku, p.imageUrl!]),
-);
 
 function ProductsCostCard({
   data,
