@@ -37,11 +37,13 @@ const FLOW_PAGE: Record<FlowKind, { list: Page; canvas: Page }> = {
  *
  * The URL hash is the only copy of this state (ADR 0001). Every change writes a complete hash
  * and pushes a history entry; Back/Forward, manual edits and pasted links arrive as `hashchange`.
+ * `pushState` fires no event, so navigating announces its own `hashchange`: every caller of this
+ * hook, and anything else following the Screen (Comments), sees the same hash.
  * Navigating writes a hash without sub-views, which is what resets them.
  */
 export function useAppNavigation() {
   const [screen, setScreen] = useState(() => parseHash(window.location.hash));
-  const { product, selected, view, settingsTab, manageIndustries, userSettings } = screen;
+  const { product, selected, view, settingsTab, manageIndustries, ticket, userSettings } = screen;
   const flowKind = flowKindOf(product, selected);
 
   let page: Page = 'home';
@@ -71,7 +73,7 @@ export function useAppNavigation() {
   const navigate = (to: Screen) => {
     if (toHash(to) === window.location.hash) return;
     window.history.pushState(null, '', toHash(to));
-    followHash();
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
   };
 
   /** Changes part of the current Screen. Reads the hash, not render state, so calls in one handler compose. */
@@ -83,6 +85,7 @@ export function useAppNavigation() {
     page,
     settingsTab,
     manageIndustries,
+    ticketId: ticket,
     userSettingsTab: userSettings ?? 'account',
     select: (id: string) => navigate(toScreen({ product, selected: id })),
     switchProduct: (next: SidebarProduct) => navigate(toScreen({ product: next, selected: sidebarPresets[next].items[0].id })),
@@ -94,5 +97,6 @@ export function useAppNavigation() {
     /** Picking a tab, even the current one, also closes Manage industries. */
     setSettingsTab: (id: string) => update({ settingsTab: id, manageIndustries: false }),
     setManageIndustries: (open: boolean) => update({ manageIndustries: open }),
+    openTicket: (id: string) => update({ ticket: id }),
   };
 }

@@ -60,10 +60,16 @@ _Avoid_: Dev mode, inspector pin, redlines
 The spacing grid and font sizes that Inspect mode checks values against, kept in `src/components/Inspector/designScale.ts`.
 _Avoid_: Tokens (none exist yet for spacing or type)
 
+## Tickets
+
+**Ticket session**:
+What an agent works with while one ticket is open: the reply draft, email recipients, Resolve status, assigned agent and team, message reactions, and the Commerce session. It starts fresh when the ticket changes; the details panel tab is not part of it.
+_Avoid_: Ticket state, conversation state
+
 ## Commerce
 
 **Commerce session**:
-The cart and orders an agent works with while one ticket is open. It starts fresh when the ticket changes.
+The cart and orders an agent works with while one ticket is open; part of the Ticket session. It starts fresh when the ticket changes.
 _Avoid_: Basket, checkout
 
 **Cart**:

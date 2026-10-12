@@ -78,6 +78,25 @@ describe('useAppNavigation', () => {
     expect(location.hash).toBe('#/automation/knowledge-base?foo=1');
   });
 
+  it('opens a ticket, and reopens the first one when Tickets is picked again', () => {
+    const { result } = setup();
+    expect(result.current.ticketId).toBe('t-1');
+    act(() => result.current.openTicket('t-6'));
+    expect(result.current.ticketId).toBe('t-6');
+    expect(location.hash).toBe('#/helpdesk/tickets?ticket=t-6');
+    act(() => result.current.select('tickets'));
+    expect(result.current.ticketId).toBe('t-1');
+  });
+
+  it('keeps every caller on the same Screen when one of them navigates', () => {
+    const app = setup();
+    const screen = setup();
+    act(() => screen.result.current.openTicket('t-6'));
+    expect(app.result.current.ticketId).toBe('t-6');
+    act(() => app.result.current.switchProduct('marketing'));
+    expect(screen.result.current.product).toBe('marketing');
+  });
+
   it('follows hashchange (back, forward, manual edits)', () => {
     const { result } = setup();
     act(() => result.current.openUserSettings('profile'));
