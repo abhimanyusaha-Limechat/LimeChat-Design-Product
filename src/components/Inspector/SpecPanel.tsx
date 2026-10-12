@@ -6,7 +6,7 @@ import { BoxModel } from './BoxModel';
 import type { Spec } from './measure';
 import { editorHref, formatLoc, type Loc } from './reactSource';
 import { RowEditor } from './RowEditor';
-import { buildReport, editProps, fmt, specToCss, toMarkdown, type ToolSet } from './report';
+import { buildReport, editProps, fmt, specToCss, toMarkdown } from './report';
 
 type CopyState = 'idle' | 'copied' | 'failed';
 
@@ -49,7 +49,6 @@ function SourceRow({ label, value, loc }: { label: string; value?: string; loc?:
 
 interface SpecPanelProps {
   spec: Spec;
-  tools: ToolSet;
   canSelectParent: boolean;
   onSelectParent: () => void;
   onUnpin: () => void;
@@ -65,8 +64,8 @@ interface SpecPanelProps {
  * The pinned element's values, grouped by tool, with off-scale ones called out.
  * Memoized: hovering other elements re-renders the Inspector, not this.
  */
-export const SpecPanel = memo(function SpecPanel({ spec, tools, canSelectParent, onSelectParent, onUnpin, onEdit, onResetEdits, dragProps, dragging }: SpecPanelProps) {
-  const sections = buildReport(spec, tools);
+export const SpecPanel = memo(function SpecPanel({ spec, canSelectParent, onSelectParent, onUnpin, onEdit, onResetEdits, dragProps, dragging }: SpecPanelProps) {
+  const sections = buildReport(spec);
   const [copy, setCopy] = useState<CopyState>('idle');
   const timer = useRef<number | undefined>(undefined);
 
@@ -125,7 +124,6 @@ export const SpecPanel = memo(function SpecPanel({ spec, tools, canSelectParent,
         <BoxModel spec={spec} />
       </div>
 
-      {sections.length === 0 && <p className="lc-inspector__empty">Turn on a tool to see values.</p>}
       {sections.map((section) => (
         <div key={section.tool} className="lc-inspector__section" data-empty={section.empty ? true : undefined}>
           <h3 className="lc-inspector__section-title">{section.title}</h3>
@@ -195,10 +193,10 @@ export const SpecPanel = memo(function SpecPanel({ spec, tools, canSelectParent,
         >
           Select parent
         </FootButton>
-        <FootButton icon="copy" disabled={sections.length === 0} onClick={() => copyText(specToCss(spec, tools))}>
+        <FootButton icon="copy" onClick={() => copyText(specToCss(spec))}>
           Copy CSS
         </FootButton>
-        <FootButton icon="copy" onClick={() => copyText(toMarkdown(spec, tools))}>
+        <FootButton icon="copy" onClick={() => copyText(toMarkdown(spec))}>
           Copy report
         </FootButton>
         <span className="lc-inspector__copy-state" role="status">

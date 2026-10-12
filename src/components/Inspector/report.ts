@@ -16,7 +16,6 @@ import type { Sides, Spec } from './measure';
 import { formatLoc } from './reactSource';
 
 export type Tool = 'type' | 'color' | 'radius' | 'padding' | 'gap';
-export type ToolSet = Record<Tool, boolean>;
 
 export interface ReportRow {
   label: string;
@@ -315,14 +314,10 @@ export const TOOLS: Record<Tool, ToolDef> = {
 };
 
 export const TOOL_IDS = Object.keys(TOOLS) as Tool[];
-/** Every tool's values are always shown. */
-export const ALL_TOOLS = Object.fromEntries(TOOL_IDS.map((t) => [t, true])) as ToolSet;
 
-const enabled = (tools: ToolSet) => TOOL_IDS.filter((t) => tools[t]);
-
-/** Sections for the enabled tools, in a fixed order. */
-export function buildReport(spec: Spec, tools: ToolSet): ReportSection[] {
-  return enabled(tools).map((t) => {
+/** One section per tool, in a fixed order. */
+export function buildReport(spec: Spec): ReportSection[] {
+  return TOOL_IDS.map((t) => {
     const section = TOOLS[t].section(spec);
     // Bands can't be drawn on wrapped inline text; say so rather than draw nothing silently.
     if (t === 'padding' && !spec.drawBands) {
@@ -337,32 +332,28 @@ export function hasIssues(sections: ReportSection[]): boolean {
 }
 
 /** What a screen reader hears on pinning, e.g. `Pinned button.lc-btn, 80 by 32. 1 value off scale.` */
-export function describePin(spec: Spec, tools: ToolSet): string {
+export function describePin(spec: Spec): string {
   const size = `${fmt(spec.rect.width / spec.scale)} by ${fmt(spec.rect.height / spec.scale)}`;
   const pinned = `Pinned ${spec.anchor ?? spec.name}, ${size}.`;
-  const sections = buildReport(spec, tools);
-  if (sections.length === 0) return pinned;
+  const sections = buildReport(spec);
   const issues = sections.reduce((n, s) => n + s.rows.filter((r) => r.issue).length, 0);
   if (issues === 0) return `${pinned} All values on scale.`;
   return `${pinned} ${issues} ${issues === 1 ? 'value' : 'values'} off scale.`;
 }
 
 /** One-line hover summary, e.g. `14/20 Lato 700 · p 8 12 · gap 8`. */
-export function buildLabel(spec: Spec, tools: ToolSet): string {
-  const parts = enabled(tools).flatMap((t) => TOOLS[t].summary(spec) ?? []);
-  // CSS px, like the panel — rect is rendered px, which differs under transform: scale().
-  return parts.length > 0
-    ? parts.join(' · ')
-    : `${fmt(spec.rect.width / spec.scale)} × ${fmt(spec.rect.height / spec.scale)}`;
+export function buildLabel(spec: Spec): string {
+  // Never empty: padding always has a summary, even `p 0`.
+  return TOOL_IDS.flatMap((t) => TOOLS[t].summary(spec) ?? []).join(' · ');
 }
 
-/** The enabled tools' values as CSS declarations, for "Copy CSS". */
-export function specToCss(spec: Spec, tools: ToolSet): string {
-  return enabled(tools).flatMap((t) => TOOLS[t].css(spec)).join('\n');
+/** The tools' values as CSS declarations, for "Copy CSS". */
+export function specToCss(spec: Spec): string {
+  return TOOL_IDS.flatMap((t) => TOOLS[t].css(spec)).join('\n');
 }
 
-/** A pasteable report of the element for an issue or chat: identity, source, then the enabled tools' values. */
-export function toMarkdown(spec: Spec, tools: ToolSet): string {
+/** A pasteable report of the element for an issue or chat: identity, source, then the tools' values. */
+export function toMarkdown(spec: Spec): string {
   const { source } = spec;
   const lines = [
     `### ${spec.anchor ?? spec.name}`,
@@ -370,7 +361,7 @@ export function toMarkdown(spec: Spec, tools: ToolSet): string {
   ];
   if (source?.usedAt) lines.push(`- Used at \`${formatLoc(source.usedAt)}\`${source.component ? ` (${source.component})` : ''}`);
   if (source?.renderedAt) lines.push(`- Rendered at \`${formatLoc(source.renderedAt)}\``);
-  for (const { title, rows, empty } of buildReport(spec, tools)) {
+  for (const { title, rows, empty } of buildReport(spec)) {
     lines.push('', `**${title}**`);
     if (rows.length === 0 && empty) lines.push(`- ${empty}`);
     for (const { label, value, issue } of rows) lines.push(`- ${label}: ${value}${issue ? ` ⚠ ${issue}` : ''}`);
