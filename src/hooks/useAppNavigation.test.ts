@@ -45,11 +45,11 @@ describe('useAppNavigation', () => {
     act(() => result.current.switchProduct('automation'));
     act(() => result.current.select('flows'));
     act(() => result.current.openCanvas('bot-flows'));
-    act(() => result.current.setSettingsTab('agents'));
+    act(() => result.current.setTab('inactive'));
     act(() => result.current.setManageIndustries(true));
     act(() => result.current.select('flows'));
     expect(result.current.page).toBe('bot-flows-list');
-    expect(result.current.settingsTab).toBe('inboxes');
+    expect(result.current.tab).toBe('active');
     expect(result.current.manageIndustries).toBe(false);
 
     act(() => result.current.openCanvas('bot-flows'));
@@ -154,7 +154,7 @@ describe('useAppNavigation', () => {
       ['#/marketing/broadcast?view=canvas', { page: 'broadcast-canvas' }],
       ['#/marketing/automation-flows?view=canvas', { page: 'flows-canvas' }],
       ['#/automation/flows?view=canvas', { page: 'bot-flows-canvas' }],
-      ['#/helpdesk/settings?tab=agents', { page: 'settings', settingsTab: 'agents' }],
+      ['#/helpdesk/settings?tab=agents', { page: 'settings', tab: 'agents' }],
       ['#/automation/settings?tab=bot-templates&industries=1', { page: 'settings', manageIndustries: true }],
       ['#/marketing/segments?user=profile', { page: 'user-settings', userSettingsTab: 'profile' }],
       ['#/helpdesk/tickets?user=account', { page: 'user-settings', userSettingsTab: 'account' }],
@@ -182,16 +182,53 @@ describe('useAppNavigation', () => {
       expect(history.length).toBe(before + 4);
     });
 
+    it.each([
+      ['#/marketing/broadcast?tab=draft', 'draft'],
+      ['#/marketing/automation-flows?tab=inactive', 'inactive'],
+      ['#/automation/flows?tab=inactive', 'inactive'],
+      ['#/marketing/segments?tab=imported', 'imported'],
+      ['#/helpdesk/templates?tab=sms', 'sms'],
+      ['#/automation/knowledge-base?tab=manage', 'manage'],
+    ])('restores the List tab in %s', (hash, tab) => {
+      history.replaceState(null, '', hash);
+      const { result } = setup();
+      expect(result.current.tab).toBe(tab);
+      expect(location.hash).toBe(hash);
+    });
+
+    it.each([
+      ['#/marketing/broadcast?tab=nope', '#/marketing/broadcast', 'triggered'],
+      ['#/marketing/broadcast?tab=inactive', '#/marketing/broadcast', 'triggered'],
+      ['#/marketing/home?tab=draft', '#/marketing/home', ''],
+    ])('falls back from %s to the default List tab', (hash, corrected, tab) => {
+      history.replaceState(null, '', hash);
+      const { result } = setup();
+      expect(result.current.tab).toBe(tab);
+      expect(location.hash).toBe(corrected);
+    });
+
+    it('writes the List tab to the hash, leaving the default out, and keeps it across the editor', () => {
+      history.replaceState(null, '', '#/marketing/broadcast');
+      const { result } = setup();
+      act(() => result.current.setTab('draft'));
+      expect(location.hash).toBe('#/marketing/broadcast?tab=draft');
+      act(() => result.current.openCanvas('broadcast'));
+      act(() => result.current.leaveCanvas());
+      expect(result.current.tab).toBe('draft');
+      act(() => result.current.setTab('triggered'));
+      expect(location.hash).toBe('#/marketing/broadcast');
+    });
+
     it('writes settings tab and manage industries to the hash', () => {
       history.replaceState(null, '', '#/automation/settings');
       const { result } = setup();
       const before = history.length;
-      act(() => result.current.setSettingsTab('bot-templates'));
+      act(() => result.current.setTab('bot-templates'));
       expect(location.hash).toBe('#/automation/settings?tab=bot-templates');
       act(() => result.current.setManageIndustries(true));
       expect(location.hash).toBe('#/automation/settings?tab=bot-templates&industries=1');
       act(() => result.current.setManageIndustries(false));
-      act(() => result.current.setSettingsTab('inboxes'));
+      act(() => result.current.setTab('inboxes'));
       expect(location.hash).toBe('#/automation/settings');
       expect(history.length).toBe(before + 4);
     });
@@ -200,10 +237,10 @@ describe('useAppNavigation', () => {
       history.replaceState(null, '', '#/automation/settings?tab=bot-templates&industries=1');
       const { result } = setup();
       const before = history.length;
-      act(() => result.current.setSettingsTab(tab));
+      act(() => result.current.setTab(tab));
       expect(location.hash).toBe(tab === 'inboxes' ? '#/automation/settings' : '#/automation/settings?tab=bot-templates');
       expect(result.current.manageIndustries).toBe(false);
-      expect(result.current.settingsTab).toBe(tab);
+      expect(result.current.tab).toBe(tab);
       expect(history.length).toBe(before + 1);
     });
 
@@ -212,20 +249,20 @@ describe('useAppNavigation', () => {
       const { result } = setup();
       act(() => {
         result.current.setManageIndustries(false);
-        result.current.setSettingsTab('inboxes');
+        result.current.setTab('inboxes');
       });
       expect(location.hash).toBe('#/automation/settings');
       expect(result.current.manageIndustries).toBe(false);
-      expect(result.current.settingsTab).toBe('inboxes');
+      expect(result.current.tab).toBe('inboxes');
     });
 
     it('follows Back and Forward across sub-view changes', () => {
       history.replaceState(null, '', '#/helpdesk/settings');
       const { result } = setup();
       go('#/helpdesk/settings?tab=teams');
-      expect(result.current.settingsTab).toBe('teams');
+      expect(result.current.tab).toBe('teams');
       go('#/helpdesk/settings');
-      expect(result.current.settingsTab).toBe('inboxes');
+      expect(result.current.tab).toBe('inboxes');
       go('#/automation/flows?view=canvas');
       expect(result.current.page).toBe('bot-flows-canvas');
       go('#/automation/flows');
@@ -242,8 +279,8 @@ describe('useAppNavigation', () => {
     it.each([
       ['#/marketing/segments?view=canvas', '#/marketing/segments', { page: 'segments' }],
       ['#/marketing/broadcast?view=nope', '#/marketing/broadcast', { page: 'broadcast-list' }],
-      ['#/helpdesk/settings?tab=nope', '#/helpdesk/settings', { settingsTab: 'inboxes' }],
-      ['#/marketing/settings?tab=agents', '#/marketing/settings', { settingsTab: 'inboxes' }],
+      ['#/helpdesk/settings?tab=nope', '#/helpdesk/settings', { tab: 'inboxes' }],
+      ['#/marketing/settings?tab=agents', '#/marketing/settings', { tab: 'inboxes' }],
       ['#/helpdesk/tickets?tab=agents', '#/helpdesk/tickets', { page: 'tickets' }],
       ['#/automation/settings?industries=1', '#/automation/settings', { manageIndustries: false }],
       ['#/automation/settings?tab=bot-templates&industries=yes', '#/automation/settings?tab=bot-templates', { manageIndustries: false }],

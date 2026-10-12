@@ -12,7 +12,7 @@
  *     onNewBroadcast={() => setOpen(true)}
  *   />
  */
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { Button } from '../Button';
 import { CheckboxPill } from '../CheckboxPill';
 import { NativeSelect } from '../Select';
@@ -22,6 +22,7 @@ import { BroadcastIcon, type BroadcastIconName } from './icons';
 import {
   DataTable,
   DataTableEmpty,
+  DataTablePagination,
   DataTableHead,
   DataTableRow,
   DataTableSkeleton,
@@ -155,10 +156,6 @@ export function BroadcastHomePage({
   const [showRetry, setShowRetry] = useState(true);
 
   const { sorted: sortedBroadcasts, sort, toggle: toggleSort } = useTableSort(broadcasts, sortValue);
-
-  const pageNumbers = new Set<number>(
-    [1, 2, 3, 4, 5, totalPages].filter((n) => n <= totalPages),
-  );
 
   return (
     <div className="lc-bh">
@@ -349,33 +346,7 @@ export function BroadcastHomePage({
         )}
       </DataTable>
 
-      <div className="lc-bh__pagination" data-anchor="broadcast-pagination">
-        {Array.from(pageNumbers)
-          .sort((a, b) => a - b)
-          .flatMap((n, i, arr) => {
-            const nodes: ReactNode[] = [];
-            const prev = arr[i - 1];
-            if (prev != null && n - prev > 1) {
-              nodes.push(
-                <span key={`ellipsis-${n}`} className="lc-bh__page-item" data-ellipsis="true">
-                  <BroadcastIcon name="dots" style={{ width: 14, height: 14 }} />
-                </span>,
-              );
-            }
-            nodes.push(
-              <button
-                key={n}
-                type="button"
-                className="lc-bh__page-item"
-                data-active={n === page || undefined}
-                onClick={() => onPageChange?.(n)}
-              >
-                {n}
-              </button>,
-            );
-            return nodes;
-          })}
-      </div>
+      <DataTablePagination data-anchor="broadcast-pagination" page={page} totalPages={totalPages} onPageChange={onPageChange} />
     </div>
   );
 }

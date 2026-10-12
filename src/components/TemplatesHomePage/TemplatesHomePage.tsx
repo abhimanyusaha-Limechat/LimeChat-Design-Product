@@ -9,7 +9,7 @@
  *     onCreateTemplate={() => setOpen(true)}
  *   />
  */
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import { Tooltip } from '../Tooltip';
@@ -18,6 +18,7 @@ import { TemplateIcon } from './icons';
 import {
   DataTable,
   DataTableEmpty,
+  DataTablePagination,
   DataTableHead,
   DataTableRow,
   DataTableSkeleton,
@@ -191,10 +192,6 @@ export function TemplatesHomePage({
       : key === 'category' && activeChannel === 'sms'
         ? smsCategory(row.category)
         : row[key],
-  );
-
-  const pageNumbers = new Set<number>(
-    [1, 2, 3, 4, 5, totalPages].filter((n) => n <= totalPages),
   );
 
   return (
@@ -377,35 +374,7 @@ export function TemplatesHomePage({
         )}
       </DataTable>
 
-      {totalPages > 1 && (
-        <div className="lc-th__pagination" data-anchor="template-pagination">
-          {Array.from(pageNumbers)
-            .sort((a, b) => a - b)
-            .flatMap((n, i, arr) => {
-              const nodes: ReactNode[] = [];
-              const prev = arr[i - 1];
-              if (prev != null && n - prev > 1) {
-                nodes.push(
-                  <span key={`ellipsis-${n}`} className="lc-th__page-item" data-ellipsis="true">
-                    <TemplateIcon name="dots" style={{ width: 14, height: 14 }} />
-                  </span>,
-                );
-              }
-              nodes.push(
-                <button
-                  key={n}
-                  type="button"
-                  className="lc-th__page-item"
-                  data-active={n === page || undefined}
-                  onClick={() => onPageChange?.(n)}
-                >
-                  {n}
-                </button>,
-              );
-              return nodes;
-            })}
-        </div>
-      )}
+      <DataTablePagination data-anchor="template-pagination" page={page} totalPages={totalPages} onPageChange={onPageChange} />
     </div>
   );
 }
