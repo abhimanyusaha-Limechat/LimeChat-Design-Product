@@ -2,6 +2,7 @@ import { sidebarPresets, type SidebarProduct } from '../components/Sidebar/prese
 import { SETTINGS_TABS_BY_PRODUCT } from '../components/SettingsScreen/settingsTabs';
 import { TICKETS } from '../data/ticketsDemo';
 import { KB_TABS } from '../data/settingsDemo';
+import { FLOW_ROWS } from '../data/flowsDemo';
 import type { BroadcastTab } from '../components/BroadcastHomePage';
 import type { FlowTab } from '../components/FlowsHomePage';
 import type { BotFlowTab } from '../components/BotFlowsHomePage';
@@ -11,7 +12,7 @@ import type { TemplateChannel } from '../components/TemplatesHomePage';
 export type FlowKind = 'broadcast' | 'flows' | 'bot-flows';
 export type UserSettingsTab = 'account' | 'profile';
 
-/** Everything the URL hash owns: `#/<product>/<item>?view=…&tab=…&industries=1&ticket=…&user=…`. */
+/** Everything the URL hash owns: `#/<product>/<item>?view=…&tab=…&flow=…&industries=1&ticket=…&user=…`. */
 export type Screen = {
   product: SidebarProduct;
   selected: string;
@@ -21,6 +22,8 @@ export type Screen = {
   manageIndustries: boolean;
   /** The open ticket's id. Only Helpdesk Tickets has one; elsewhere it stays at the default. */
   ticket: string;
+  /** The Flow editor's flow: a row id, or 'new' for "+ New". '' outside the editor. */
+  flow: string;
   userSettings: UserSettingsTab | null;
 };
 
@@ -42,6 +45,13 @@ const LIST_TABS: Record<string, readonly string[]> = {
  * The tabs a rail item offers and the one it opens on. Settings opens on Inboxes, which isn't
  * every Product's first tab, so `#/<product>/settings` keeps meaning what it always has.
  */
+/** The flow the editor opens when the URL names none: the List tab's first row. */
+const defaultFlow = (kind: FlowKind, tab: string) =>
+  (FLOW_ROWS[kind] as Record<string, { id: string }[]>)[tab]?.[0]?.id ?? 'new';
+
+const isFlowOf = (kind: FlowKind, id: unknown) =>
+  id === 'new' || Object.values(FLOW_ROWS[kind]).some((rows: { id: string }[]) => rows.some((row) => row.id === id));
+
 function tabsOf(product: SidebarProduct, selected: string): { ids: readonly string[]; fallback: string } {
   if (selected === 'settings') return { ids: SETTINGS_TABS_BY_PRODUCT[product].map((t) => t.id), fallback: 'inboxes' };
   const ids = LIST_TABS[`${product}/${selected}`] ?? [];
@@ -77,11 +87,14 @@ export function toScreen(fields: { product: string; selected: string } & Partial
   const onSettings = selected === 'settings';
   const tabs = tabsOf(product, selected);
   const tab = tabs.ids.some((id) => id === fields.tab) ? String(fields.tab) : tabs.fallback;
+  const kind = flowKindOf(product, selected);
+  const view = fields.view === 'canvas' && kind ? 'canvas' : 'list';
   return {
     product,
     selected,
-    view: fields.view === 'canvas' && flowKindOf(product, selected) ? 'canvas' : 'list',
+    view,
     tab,
+    flow: kind && view === 'canvas' ? (isFlowOf(kind, fields.flow) ? String(fields.flow) : defaultFlow(kind, tab)) : '',
     manageIndustries: onSettings && tab === 'bot-templates' && fields.manageIndustries === true,
     ticket:
       product === 'helpdesk' && selected === 'tickets' && TICKETS.some((t) => t.id === fields.ticket)
@@ -103,6 +116,7 @@ export function parseHash(hash: string): Screen {
     tab: params.get('tab'),
     manageIndustries: params.get('industries') === '1',
     ticket: params.get('ticket'),
+    flow: params.get('flow'),
     userSettings: params.get('user'),
   });
 }
@@ -114,12 +128,14 @@ export function toHash(screen: Screen) {
   if (screen.tab !== tabsOf(screen.product, screen.selected).fallback) params.set('tab', screen.tab);
   if (screen.manageIndustries) params.set('industries', '1');
   if (screen.ticket !== DEFAULTS.ticket) params.set('ticket', screen.ticket);
+  const kind = flowKindOf(screen.product, screen.selected);
+  if (kind && screen.view === 'canvas' && screen.flow !== defaultFlow(kind, screen.tab)) params.set('flow', screen.flow);
   if (screen.userSettings) params.set('user', screen.userSettings);
   const query = params.toString();
   return `#/${screen.product}/${screen.selected}${query ? `?${query}` : ''}`;
 }
 
-const KNOWN_PARAMS = ['view', 'tab', 'industries', 'ticket', 'user'];
+const KNOWN_PARAMS = ['view', 'tab', 'flow', 'industries', 'ticket', 'user'];
 
 /** The hash with unknown query parameters removed, to compare against `toHash`. */
 export function withoutUnknownParams(hash: string) {

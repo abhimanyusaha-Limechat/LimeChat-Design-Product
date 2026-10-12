@@ -1,4 +1,4 @@
-import { type BroadcastRowData } from '../components/BroadcastHomePage';
+import { type BroadcastRowData, type BroadcastTab } from '../components/BroadcastHomePage';
 import { FUTURE_DATES, PAST_DATES, channelMetrics } from './demoHelpers';
 
 export const BROADCAST_NAMES = [
@@ -59,3 +59,9 @@ export const DEMO_DRAFT_BROADCASTS: BroadcastRowData[] = DRAFT_BROADCAST_NAMES.m
   status: 'draft',
   ...NO_METRICS,
 }));
+
+export const BROADCASTS_BY_TAB: Record<BroadcastTab, BroadcastRowData[]> = {
+  triggered: DEMO_BROADCASTS,
+  scheduled: DEMO_SCHEDULED_BROADCASTS,
+  draft: DEMO_DRAFT_BROADCASTS,
+};

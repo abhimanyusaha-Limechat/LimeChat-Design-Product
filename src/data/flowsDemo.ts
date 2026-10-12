@@ -1,7 +1,8 @@
-import { type FlowRowData } from '../components/FlowsHomePage';
-import { type BotFlowRowData } from '../components/BotFlowsHomePage';
+import { type FlowRowData, type FlowTab } from '../components/FlowsHomePage';
+import { type BotFlowRowData, type BotFlowTab } from '../components/BotFlowsHomePage';
+import type { FlowKind } from '../hooks/navigationHash';
 import { PAST_DATES, channelMetrics } from './demoHelpers';
-import { NO_METRICS } from './broadcastDemo';
+import { BROADCASTS_BY_TAB, NO_METRICS } from './broadcastDemo';
 
 export const FLOW_ACTIVE_NAMES = [
   'Welcome Series', 'Abandoned Cart Recovery', 'Post-Purchase Follow-up', 'Browse Abandonment Reminder', 'Win-Back Sequence',
@@ -94,3 +95,21 @@ export const DEMO_BOT_FLOWS_INACTIVE: BotFlowRowData[] = BOT_FLOW_INACTIVE_NAMES
   status: 'inactive',
   nodeCount: 4 + ((i * 3) % 16),
 }));
+
+export const FLOWS_BY_TAB: Record<FlowTab, FlowRowData[]> = {
+  active: DEMO_FLOWS_ACTIVE,
+  inactive: DEMO_FLOWS_INACTIVE,
+  draft: DEMO_FLOWS_DRAFT,
+};
+
+export const BOT_FLOWS_BY_TAB: Record<BotFlowTab, BotFlowRowData[]> = {
+  active: DEMO_BOT_FLOWS_ACTIVE,
+  inactive: DEMO_BOT_FLOWS_INACTIVE,
+};
+
+/** Every Broadcast, Flow and Bot flow row, by kind and List tab. */
+export const FLOW_ROWS = {
+  broadcast: BROADCASTS_BY_TAB,
+  flows: FLOWS_BY_TAB,
+  'bot-flows': BOT_FLOWS_BY_TAB,
+} satisfies Record<FlowKind, Record<string, { id: string }[]>>;

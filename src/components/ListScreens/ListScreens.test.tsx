@@ -16,13 +16,12 @@ beforeAll(() => {
 const rows = (anchor: string) => [...document.querySelectorAll(`[data-anchor="${anchor}"]`)];
 const pagination = () => screen.queryByRole('navigation', { name: 'Pagination' });
 const open = (hash: string) => history.replaceState(null, '', hash);
-const noop = () => {};
 
 describe('BroadcastScreen', () => {
   it('narrows rows by name or ID and hides pagination while searching', async () => {
     const user = userEvent.setup();
     open('#/marketing/broadcast');
-    render(<BroadcastScreen onRowClick={noop} onNewBroadcast={noop} />);
+    render(<BroadcastScreen />);
     expect(pagination()).toBeInTheDocument();
 
     await user.type(screen.getByPlaceholderText('Search for broadcast'), 'sale');
@@ -37,7 +36,7 @@ describe('BroadcastScreen', () => {
   it('writes the List tab to the URL and starts the search over', async () => {
     const user = userEvent.setup();
     open('#/marketing/broadcast');
-    render(<BroadcastScreen onRowClick={noop} onNewBroadcast={noop} />);
+    render(<BroadcastScreen />);
     await user.type(screen.getByPlaceholderText('Search for broadcast'), 'sale');
     await user.click(screen.getByRole('tab', { name: 'Draft' }));
     expect(location.hash).toBe('#/marketing/broadcast?tab=draft');
@@ -48,7 +47,7 @@ describe('BroadcastScreen', () => {
   it('reaches any page through the pagination', async () => {
     const user = userEvent.setup();
     open('#/marketing/broadcast');
-    render(<BroadcastScreen onRowClick={noop} onNewBroadcast={noop} />);
+    render(<BroadcastScreen />);
     await user.click(screen.getByRole('button', { name: '10' }));
     await user.click(screen.getByRole('button', { name: '9' }));
     await user.click(screen.getByRole('button', { name: '8' }));

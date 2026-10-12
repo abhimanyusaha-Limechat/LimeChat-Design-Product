@@ -20,6 +20,24 @@ _Avoid_: Page, section
 One named sub-view of a list Screen, such as Draft broadcasts or the SMS templates channel, and part of the Screen's URL. Search, filters and the page number are not.
 _Avoid_: Section, filter, view
 
+## Flows
+
+**Broadcast**:
+A one-off Marketing message sent to an audience at a scheduled time.
+_Avoid_: Campaign, blast
+
+**Flow**:
+An automated Marketing message journey.
+_Avoid_: Automation flow, campaign flow
+
+**Bot flow**:
+An Automation chatbot conversation.
+_Avoid_: Automation, flow (on its own)
+
+**Flow editor**:
+The canvas where one Broadcast, Flow or Bot flow is built, opened from its list or with "+ New"; which one is open is part of the Screen's URL.
+_Avoid_: Canvas, builder
+
 ## Commenting
 
 **Comment**:
