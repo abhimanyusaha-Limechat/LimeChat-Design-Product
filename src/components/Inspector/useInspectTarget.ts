@@ -1,21 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { isStyled, resetElement, setStyle } from './edits';
 import { measureElement, resolveTarget, type Spec } from './measure';
-
-/**
- * Elements Inspect mode never targets or blocks: its own UI, and in dev
- * Agentation's, which uses the same capture-phase interception.
- */
-const IGNORED_UI = import.meta.env.DEV
-  ? '[data-inspector-ui], [data-agentation-root], [data-feedback-toolbar], [data-annotation-marker]'
-  : '[data-inspector-ui]';
-
-export function isIgnoredUi(target: EventTarget | null): boolean {
-  return target instanceof Element && target.closest(IGNORED_UI) !== null;
-}
-
-/** Every event the app would use to react to a press. Swallowed while inspecting. */
-export const PRESS_EVENTS = ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click', 'dblclick'] as const;
+import { isIgnoredUi, usePageCapture } from '../../hooks/usePageCapture';
 
 export interface InspectView {
   hovered: Spec | null;
@@ -50,7 +36,7 @@ function sameSpec(a: Spec | null, b: Spec | null): boolean {
 /**
  * Tracks the hovered and pinned elements while `active`, and measures them on
  * every animation frame something moved. All listeners live only while
- * active; while active, the app sees no presses outside the inspector's UI.
+ * active; while active, the page is captured (see `usePageCapture`): a press pins.
  */
 export function useInspectTarget(active: boolean) {
   const [view, setView] = useState<InspectView>(EMPTY);
@@ -146,13 +132,17 @@ export function useInspectTarget(active: boolean) {
     return true;
   }, [pin]);
 
+  usePageCapture(active, {
+    onPress: (target) => pin(target),
+    onHover: (target) => {
+      rawHover.current = target && { el: target, byFocus: false };
+      schedule();
+    },
+  });
+
   useEffect(() => {
     if (!active) return;
 
-    const onPointerMove = (e: PointerEvent) => {
-      rawHover.current = isIgnoredUi(e.target) || !(e.target instanceof Element) ? null : { el: e.target, byFocus: false };
-      schedule();
-    };
     const onLeave = (e: MouseEvent) => {
       if (e.relatedTarget === null) {
         rawHover.current = null;
@@ -164,35 +154,20 @@ export function useInspectTarget(active: boolean) {
       rawHover.current = { el: e.target, byFocus: true };
       schedule();
     };
-    const onPress = (e: Event) => {
-      if (isIgnoredUi(e.target)) return;
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.type === 'pointerdown' && (e as PointerEvent).button === 0 && e.target instanceof Element) {
-        pin(e.target);
-      }
-    };
 
-    // Window + capture phase: ahead of React's root listeners and any app
-    // handler, so pinning inside an open Menu or Modal doesn't close it.
-    const opts = { capture: true } as const;
     const passive = { capture: true, passive: true } as const;
-    window.addEventListener('pointermove', onPointerMove, passive);
     window.addEventListener('mouseout', onLeave, passive);
     window.addEventListener('focusin', onFocusIn, passive);
     window.addEventListener('scroll', schedule, passive);
     window.addEventListener('resize', schedule, passive);
-    for (const type of PRESS_EVENTS) window.addEventListener(type, onPress, opts);
     observer.current = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(schedule) : null;
     if (pinned.current) observer.current?.observe(pinned.current);
 
     return () => {
-      window.removeEventListener('pointermove', onPointerMove, passive);
       window.removeEventListener('mouseout', onLeave, passive);
       window.removeEventListener('focusin', onFocusIn, passive);
       window.removeEventListener('scroll', schedule, passive);
       window.removeEventListener('resize', schedule, passive);
-      for (const type of PRESS_EVENTS) window.removeEventListener(type, onPress, opts);
       observer.current?.disconnect();
       observer.current = null;
       window.cancelAnimationFrame(frame.current);
@@ -201,7 +176,7 @@ export function useInspectTarget(active: boolean) {
       pinned.current = null;
       setView(EMPTY);
     };
-  }, [active, pin, schedule]);
+  }, [active, schedule]);
 
   /** Live-preview a style on the pinned element (see `edits.ts`). */
   const editPinned = useCallback(

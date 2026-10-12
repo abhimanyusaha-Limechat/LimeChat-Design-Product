@@ -29,7 +29,7 @@ import { CommentLayer, type CommentKeys } from '../../comments/CommentLayer';
 import { resetAll } from './edits';
 import { InspectorOverlay } from './InspectorOverlay';
 import { InspectorToolbar } from './InspectorToolbar';
-import { ALL_TOOLS, describePin } from './report';
+import { describePin } from './report';
 import { downloadScreenshot } from './screenshot';
 import { SpecPanel } from './SpecPanel';
 import { usePanelDrag } from './usePanelDrag';
@@ -270,7 +270,7 @@ export function Inspector() {
       {/* Hidden mid-drag: you're moving the tool, and hover can't update while the
           bar slides under a still pointer, so a stale label would linger. */}
       {inspecting && picking && !dragging && (
-        <InspectorOverlay hovered={hovered} pinned={pinned} tools={ALL_TOOLS} hoveredByFocus={hoveredByFocus} />
+        <InspectorOverlay hovered={hovered} pinned={pinned} hoveredByFocus={hoveredByFocus} />
       )}
       <div
         ref={dockRef}
@@ -311,7 +311,7 @@ export function Inspector() {
             by the pin, so re-pinning an element that reads the same is announced. */}
         <div className="lc-inspector__announce" role="status">
           <span key={pinId}>
-            {!inspecting ? '' : commenting ? COMMENT_ANNOUNCEMENT : pinned ? describePin(pinned, ALL_TOOLS) : OPEN_ANNOUNCEMENT}
+            {!inspecting ? '' : commenting ? COMMENT_ANNOUNCEMENT : pinned ? describePin(pinned) : OPEN_ANNOUNCEMENT}
           </span>
         </div>
         {panelOpen && (
@@ -334,7 +334,7 @@ export function Inspector() {
               pinned && (
                 <SpecPanel
                   spec={pinned}
-                  tools={ALL_TOOLS}
+                 
                   canSelectParent={canSelectParent}
                   onSelectParent={selectParent}
                   onUnpin={unpinKeepingFocus}

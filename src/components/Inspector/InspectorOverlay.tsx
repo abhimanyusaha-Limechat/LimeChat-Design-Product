@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { isAllowedFontSize, isOnSpacingGrid } from './designScale';
 import { intersect, stripValue, type Rect, type Spec } from './measure';
-import { buildLabel, buildReport, fmt, hasIssues, type ToolSet } from './report';
+import { buildLabel, buildReport, fmt, hasIssues } from './report';
 
 /** Chips need this much run along a band or strip (rendered px), or they'd collide at corners. */
 const MIN_CHIP_RUN = 20;
@@ -46,15 +46,15 @@ function paddingMarks({ rect, padding: p, border: b, scrollbar: sb, scale: s }: 
   ];
 }
 
-function marksFor(spec: Spec, tools: ToolSet): Mark[] {
+function marksFor(spec: Spec): Mark[] {
   const marks: Mark[] = [];
-  if (tools.type && spec.type) {
+  if (spec.type) {
     const offScale = !isAllowedFontSize(spec.type.size);
     marks.push(...spec.textLines.map((rect) => ({ kind: 'text' as const, rect, offScale })));
   }
-  if (tools.padding && spec.drawBands) marks.push(...paddingMarks(spec));
+  if (spec.drawBands) marks.push(...paddingMarks(spec));
   const { gap } = spec;
-  if (tools.gap && gap) {
+  if (gap) {
     marks.push(
       ...spec.gapStrips.map(({ rect, axis, size }) =>
         spacingMark('gap', rect, stripValue(size, axis === 'column' ? gap.column : gap.row, spec.scale)),
@@ -117,7 +117,7 @@ function Chip({ kind, offScale, text, rect }: ChipProps) {
 /** Shown on a keyboard-focused element, where clicking isn't how you'd pin it. */
 const FOCUS_HINT = 'Alt+Enter to pin';
 
-function Label({ spec, tools, focusHint }: { spec: Spec; tools: ToolSet; focusHint: boolean }) {
+function Label({ spec, focusHint }: { spec: Spec; focusHint: boolean }) {
   const { rect } = spec;
   const above = rect.top >= 28;
   const style: CSSProperties = {
@@ -129,30 +129,28 @@ function Label({ spec, tools, focusHint }: { spec: Spec; tools: ToolSet; focusHi
   return (
     <div
       className="lc-inspector__label"
-      data-off-scale={hasIssues(buildReport(spec, tools)) || undefined}
+      data-off-scale={hasIssues(buildReport(spec)) || undefined}
       data-hint={focusHint || undefined}
       style={style}
     >
       <span className="lc-inspector__label-name">{spec.anchor ?? spec.name}</span>
-      <span className="lc-inspector__label-meta">{buildLabel(spec, tools)}</span>
+      <span className="lc-inspector__label-meta">{buildLabel(spec)}</span>
       {focusHint && <span className="lc-inspector__label-hint">{FOCUS_HINT}</span>}
     </div>
   );
 }
 
-/** Full enabled layers for one element: fills, then the outline, then value chips so nothing covers them. */
+/** Full layers for one element: fills, then the outline, then value chips so nothing covers them. */
 function Layers({
   spec,
-  tools,
   withLabel,
   focusHint = false,
 }: {
   spec: Spec;
-  tools: ToolSet;
   withLabel: boolean;
   focusHint?: boolean;
 }) {
-  const marks = marksFor(spec, tools);
+  const marks = marksFor(spec);
   return (
     <>
       {marks.map((mark, i) => (
@@ -167,7 +165,7 @@ function Layers({
       {placeChips(marks).map((chip, i) => (
         <Chip key={i} {...chip} />
       ))}
-      {withLabel && <Label spec={spec} tools={tools} focusHint={focusHint} />}
+      {withLabel && <Label spec={spec} focusHint={focusHint} />}
     </>
   );
 }
@@ -175,28 +173,27 @@ function Layers({
 interface InspectorOverlayProps {
   hovered: Spec | null;
   pinned: Spec | null;
-  tools: ToolSet;
   /** The hovered element has keyboard focus: its label says how to pin it. */
   hoveredByFocus: boolean;
 }
 
 /**
  * Draws over the page without catching the pointer. With nothing pinned the
- * hovered element gets every enabled layer; once something is pinned it keeps
+ * hovered element gets every layer; once something is pinned it keeps
  * the layers and the hovered element only gets an outline and label.
  */
-export function InspectorOverlay({ hovered, pinned, tools, hoveredByFocus }: InspectorOverlayProps) {
+export function InspectorOverlay({ hovered, pinned, hoveredByFocus }: InspectorOverlayProps) {
   return (
     <div className="lc-inspector__overlay" data-inspector-ui="" aria-hidden="true">
-      {pinned && <Layers spec={pinned} tools={tools} withLabel={false} />}
+      {pinned && <Layers spec={pinned} withLabel={false} />}
       {hovered &&
         (pinned ? (
           <>
             <div className="lc-inspector__outline" style={box(hovered.rect)} />
-            <Label spec={hovered} tools={tools} focusHint={hoveredByFocus} />
+            <Label spec={hovered} focusHint={hoveredByFocus} />
           </>
         ) : (
-          <Layers spec={hovered} tools={tools} withLabel focusHint={hoveredByFocus} />
+          <Layers spec={hovered} withLabel focusHint={hoveredByFocus} />
         ))}
     </div>
   );

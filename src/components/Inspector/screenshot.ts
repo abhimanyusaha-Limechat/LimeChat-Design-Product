@@ -1,5 +1,5 @@
 import { toPng } from 'html-to-image';
-import { isIgnoredUi } from './useInspectTarget';
+import { isIgnoredUi } from '../../hooks/usePageCapture';
 
 /**
  * Downloads a PNG of the page as the app draws it, leaving out Inspect mode's

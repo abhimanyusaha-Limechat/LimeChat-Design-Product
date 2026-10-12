@@ -5,7 +5,6 @@
  * Inspector's panel slot.
  */
 import {
-  useCallback,
   useEffect,
   useRef,
   useState,
@@ -14,7 +13,7 @@ import {
   type SyntheticEvent,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { isIgnoredUi, PRESS_EVENTS } from '../components/Inspector/useInspectTarget';
+import { isIgnoredUi, usePageCapture } from '../hooks/usePageCapture';
 import { SignedOutError, type Comment } from './api';
 import { CommentComposer } from './CommentComposer';
 import { CommentsPanel } from './CommentsPanel';
@@ -108,43 +107,23 @@ export function CommentLayer({ keysRef, onExit, dragProps, dragging }: CommentLa
   };
 
   /** A click or Alt+Enter: start a draft there — unless one has text, which a stray click mustn't lose. */
-  const startDraft = useCallback(
-    (target: Element, x: number, y: number) => {
-      if (hasText) {
-        composerRef.current?.focus();
-        return;
-      }
-      if (!spot) returnFocus.current = document.activeElement;
-      setSpot({ placement: placeAt(target, x, y), at: { left: x, top: y } });
-      setConfirmDiscard(false);
-      setPostError(null);
-    },
-    [hasText, spot],
-  );
+  const startDraft = (target: Element, x: number, y: number) => {
+    if (hasText) {
+      composerRef.current?.focus();
+      return;
+    }
+    if (!spot) returnFocus.current = document.activeElement;
+    setSpot({ placement: placeAt(target, x, y), at: { left: x, top: y } });
+    setConfirmDiscard(false);
+    setPostError(null);
+  };
 
-  // Window + capture phase, like Inspect mode: ahead of React and app listeners.
-  useEffect(() => {
-    const onPress = (e: Event) => {
-      if (isIgnoredUi(e.target)) return;
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.type === 'pointerdown' && (e as PointerEvent).button === 0 && e.target instanceof Element) {
-        const { clientX, clientY } = e as PointerEvent;
-        startDraft(e.target, clientX, clientY);
-      }
-    };
-    const onMove = (e: PointerEvent) => {
-      hovered.current = e.target instanceof Element && !isIgnoredUi(e.target) ? e.target : null;
-    };
-    const opts = { capture: true } as const;
-    const passive = { capture: true, passive: true } as const;
-    for (const type of PRESS_EVENTS) window.addEventListener(type, onPress, opts);
-    window.addEventListener('pointermove', onMove, passive);
-    return () => {
-      for (const type of PRESS_EVENTS) window.removeEventListener(type, onPress, opts);
-      window.removeEventListener('pointermove', onMove, passive);
-    };
-  }, [startDraft]);
+  usePageCapture(true, {
+    onPress: startDraft,
+    onHover: (target) => {
+      hovered.current = target;
+    },
+  });
 
   // Crosshair everywhere but our own UI, while the tool is on.
   useEffect(() => {

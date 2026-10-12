@@ -3,7 +3,7 @@
  * Anchors are matched by comparing attributes, never by building a selector,
  * so a hostile anchor string from the database can't throw or match the wrong thing.
  */
-import { isIgnoredUi } from '../components/Inspector/useInspectTarget';
+import { isIgnoredUi } from '../hooks/usePageCapture';
 import type { Comment } from './api';
 
 export interface Placement {
