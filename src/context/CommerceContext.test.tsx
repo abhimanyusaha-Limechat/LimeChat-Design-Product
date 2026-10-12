@@ -63,38 +63,38 @@ describe('CommerceProvider isolation', () => {
   });
 });
 
-function setup(showTab = vi.fn()) {
+function setup(onShow = vi.fn()) {
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <CommerceProvider showTab={showTab}>{children}</CommerceProvider>
+    <CommerceProvider onShow={onShow}>{children}</CommerceProvider>
   );
-  return { showTab, ...renderHook(() => useCommerce(), { wrapper }) };
+  return { onShow, ...renderHook(() => useCommerce(), { wrapper }) };
 }
 
 describe('Commerce session: order from cart', () => {
   it('does nothing on an empty cart', () => {
-    const { result, showTab } = setup();
+    const { result, onShow } = setup();
     act(() => result.current.startOrderFromCart());
     expect(result.current.orderView).toEqual({ kind: 'list' });
-    expect(showTab).not.toHaveBeenCalled();
+    expect(onShow).not.toHaveBeenCalled();
   });
 
   it('opens Create order with the cart items and switches to the Orders tab', () => {
-    const { result, showTab } = setup();
+    const { result, onShow } = setup();
     act(() => result.current.addItem(PRODUCT, 2));
     act(() => result.current.startOrderFromCart());
 
     expect(result.current.orderView).toMatchObject({ kind: 'create', items: [{ productId: 'p1', quantity: 2 }] });
-    expect(showTab).toHaveBeenCalledWith('Orders');
+    expect(onShow).toHaveBeenCalledWith('orders');
   });
 
   it('cancelling returns to the list and the Cart tab, and keeps the cart', () => {
-    const { result, showTab } = setup();
+    const { result, onShow } = setup();
     act(() => result.current.addItem(PRODUCT));
     act(() => result.current.startOrderFromCart());
     act(() => result.current.cancelCreate());
 
     expect(result.current.orderView).toEqual({ kind: 'list' });
-    expect(showTab).toHaveBeenLastCalledWith('Cart');
+    expect(onShow).toHaveBeenLastCalledWith('cart');
     expect(result.current.items).toHaveLength(1);
   });
 
@@ -142,5 +142,50 @@ describe('Commerce session: saved addresses', () => {
     expect(result.current.savedAddresses.find((s) => s.id === 'office')?.address).toEqual(
       DEFAULT_SAVED_ADDRESSES[1].address,
     );
+  });
+});
+
+describe('Commerce session: Cart lines', () => {
+  const shoe = { ...PRODUCT, color: 'Black' };
+
+  it('merges a size change into the line that already has that size, in the edited line’s place', () => {
+    const { result } = setup();
+    act(() => result.current.addItem({ productId: 'p2', name: 'Socks', sku: 'SOCK', unitPrice: 99 }));
+    act(() => result.current.addItem({ ...shoe, size: '8' }));
+    act(() => result.current.addItem({ ...shoe, size: '9' }, 2));
+
+    act(() => result.current.changeVariant({ ...shoe, size: '9' }, { size: '8', color: 'Black' }));
+    expect(result.current.items.map((l) => [l.productId, l.size, l.quantity])).toEqual([
+      ['p2', undefined, 1],
+      ['p1', '8', 3],
+    ]);
+    expect(result.current.quantityOf({ ...shoe, size: '8' })).toBe(3);
+    expect(result.current.quantityOf({ ...shoe, size: '9' })).toBe(0);
+  });
+
+  it('merges a color change the same way', () => {
+    const { result } = setup();
+    act(() => result.current.addItem({ ...shoe, size: '8', color: 'Red' }));
+    act(() => result.current.addItem({ ...shoe, size: '8' }));
+    act(() => result.current.changeVariant({ ...shoe, size: '8', color: 'Red' }, { size: '8', color: 'Black' }));
+    expect(result.current.items).toHaveLength(1);
+    expect(result.current.items[0]).toMatchObject({ color: 'Black', quantity: 2 });
+  });
+
+  it('changes a line in place when the new variant isn’t in the cart', () => {
+    const { result } = setup();
+    act(() => result.current.addItem({ ...shoe, size: '8' }));
+    act(() => result.current.changeVariant({ ...shoe, size: '8' }, { size: '10', color: 'Black' }));
+    expect(result.current.items).toEqual([expect.objectContaining({ size: '10', quantity: 1 })]);
+  });
+
+  it('sets the quantity of and removes one variant’s line', () => {
+    const { result } = setup();
+    act(() => result.current.addItem({ ...shoe, size: '8' }));
+    act(() => result.current.addItem({ ...shoe, size: '9' }));
+    act(() => result.current.setQuantity({ ...shoe, size: '9' }, 4));
+    expect(result.current.quantityOf({ ...shoe, size: '9' })).toBe(4);
+    act(() => result.current.removeItem({ ...shoe, size: '8' }));
+    expect(result.current.items.map((l) => l.size)).toEqual(['9']);
   });
 });

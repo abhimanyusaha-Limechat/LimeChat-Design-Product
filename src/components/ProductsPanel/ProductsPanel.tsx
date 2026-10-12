@@ -8,7 +8,7 @@
  */
 import { useEffect, useId, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
-import { MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockProducts';
+import { COLOR_OPTIONS, MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockProducts';
 import { useCommerce } from '../../context/CommerceContext';
 import { Menu, type MenuItemData } from '../Menu';
 import { Button } from '../Button';
@@ -256,13 +256,13 @@ function EmptyState({ searching }: { searching: boolean }) {
 /** Share + Add to cart CTAs shown in the product detail view. Once the current variant is in the cart, the
  * "Add to cart" button becomes a quantity stepper + remove control instead of staying an inert "Added" state. */
 function DetailCtas({ product, size, color }: { product: Product; size?: string; color?: string }) {
-  const { items, addItem, removeItem, setQuantity } = useCommerce();
+  const { quantityOf, addItem, removeItem, setQuantity } = useCommerce();
   const [shared, setShared] = useState(false);
   const shareTimer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(shareTimer.current), []);
 
-  const cartIndex = items.findIndex((i) => i.productId === product.id && i.size === size && i.color === color);
-  const cartItem = cartIndex !== -1 ? items[cartIndex] : undefined;
+  const variant = { productId: product.id, size, color };
+  const inCart = quantityOf(variant);
 
   const handleShare = async () => {
     try {
@@ -291,14 +291,14 @@ function DetailCtas({ product, size, color }: { product: Product; size?: string;
       >
         {shared ? 'Copied' : 'Share'}
       </Button>
-      {cartItem ? (
+      {inCart > 0 ? (
         <div className="lc-pp__detail-qty" style={{ flex: 1 }}>
-          <QtyStepper variant="field" value={cartItem.quantity} onChange={(q) => setQuantity(cartIndex, q)} />
+          <QtyStepper variant="field" value={inCart} onChange={(q) => setQuantity(variant, q)} />
           <button
             type="button"
             className="lc-pp__detail-qty-remove"
             aria-label={`Remove ${product.name} from cart`}
-            onClick={() => removeItem(cartIndex)}
+            onClick={() => removeItem(variant)}
           >
             <TrashIcon />
           </button>
@@ -331,8 +331,6 @@ function TruncatedDescription({ text }: { text: string }) {
     </>
   );
 }
-
-const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
 
 /** A NativeSelect-styled field whose options open in our Menu popover instead of the native `<select>` list. */
 function PopoverSelect({ label, data, value, onChange }: { label: string; data: string[]; value: string; onChange: (next: string) => void }) {

@@ -16,6 +16,7 @@
  */
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useId,
   useLayoutEffect,
@@ -30,7 +31,7 @@ import { Tooltip } from '../Tooltip';
 import { ProductsPanel } from '../ProductsPanel';
 import { OrdersPanel } from '../OrdersPanel';
 import { CartPanel } from '../CartPanel';
-import { CommerceProvider, useCommerce } from '../../context/CommerceContext';
+import { CommerceProvider, useCommerce, type CommerceView } from '../../context/CommerceContext';
 import { Modal, ModalTextarea, ModalCheckbox } from '../Modal';
 import { Button } from '../Button';
 import './TicketDetailsPanel.css';
@@ -753,6 +754,11 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
     }
     return () => observer.disconnect();
   }, []);
+  // The Commerce session asks for its views; this panel owns the tab names they live under.
+  const showCommerceView = useCallback(
+    (view: CommerceView) => onTabChange?.(view === 'orders' ? 'Orders' : 'Cart'),
+    [onTabChange],
+  );
   const panelProps = (tab: string) => ({
     className: 'lc-tdp__body',
     id: panelId(tab),
@@ -764,7 +770,7 @@ export const TicketDetailsPanel = forwardRef<HTMLDivElement, TicketDetailsPanelP
   return (
     // Keyed by ticketId so switching tickets starts a fresh Commerce session instead of
     // carrying over cart items and orders from a different customer.
-    <CommerceProvider key={ticketId} showTab={onTabChange}>
+    <CommerceProvider key={ticketId} onShow={showCommerceView}>
     <div {...rest} ref={ref} className={`lc-tdp${className ? ` ${className}` : ''}`}>
       <div className="lc-tdp__tabs" role="tablist" ref={tabsRef}>
         {indicator && (

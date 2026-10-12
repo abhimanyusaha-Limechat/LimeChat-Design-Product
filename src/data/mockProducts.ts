@@ -368,3 +368,10 @@ export const MOCK_PRODUCTS: Product[] = [
     imageUrl: newBalance990v6,
   },
 ];
+
+/** The catalog has no per-product color list, so every product with sizes offers these colors. */
+export const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
+
+export const PRODUCT_IMAGE_BY_SKU: Record<string, string> = Object.fromEntries(
+  MOCK_PRODUCTS.filter((p) => p.imageUrl).map((p) => [p.sku, p.imageUrl!]),
+);

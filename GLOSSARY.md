@@ -80,6 +80,10 @@ _Avoid_: Basket, checkout
 The products an agent has collected during a Commerce session, before turning them into an order.
 _Avoid_: Basket
 
+**Cart line**:
+One product variant in the Cart (product, size and color) with its quantity. A variant is on at most one line: adding it again, or changing another line into it, merges the two.
+_Avoid_: Cart item, row
+
 **Order**:
 A customer's purchase of one or more products, with its prices, addresses and Order status.
 _Avoid_: Purchase, invoice

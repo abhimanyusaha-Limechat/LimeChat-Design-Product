@@ -7,8 +7,8 @@
  *   <CartPanel />
  */
 import { useMemo } from 'react';
-import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
-import { useCommerce } from '../../context/CommerceContext';
+import { COLOR_OPTIONS, MOCK_PRODUCTS, PRODUCT_IMAGE_BY_SKU, type Product } from '../../data/mockProducts';
+import { useCommerce, variantKey } from '../../context/CommerceContext';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import './CartPanel.css';
@@ -27,19 +27,10 @@ const EmptyCartIcon = () => (
   </svg>
 );
 
-const PRODUCT_IMAGE_BY_SKU: Record<string, string> = Object.fromEntries(
-  MOCK_PRODUCTS.filter((p) => p.imageUrl).map((p) => [p.sku, p.imageUrl!]),
-);
 const PRODUCT_BY_ID: Record<string, Product> = Object.fromEntries(MOCK_PRODUCTS.map((p) => [p.id, p]));
 
-/** Mirrors ProductsPanel's color picker — the catalog has no per-product color variant list. */
-const COLOR_OPTIONS = ['Black', 'White', 'Grey', 'Navy', 'Red', 'Blue', 'Green', 'Chalk'];
-
 export function CartPanel() {
-  const { items, clearCart, startOrderFromCart, setQuantity, setSize: setItemSize, setColor: setItemColor } = useCommerce();
-  const setQty = setQuantity;
-  const setSize = setItemSize;
-  const setColor = setItemColor;
+  const { items, clearCart, startOrderFromCart, setQuantity, changeVariant } = useCommerce();
 
   const { subtotal, taxAmount, total } = useMemo(() => orderTotals(items, { taxRate: DEFAULT_TAX_RATE }), [items]);
 
@@ -58,10 +49,9 @@ export function CartPanel() {
               {items.length} {items.length === 1 ? 'product' : 'products'} in cart
             </p>
             <div className="lc-cp__items">
-              {items.map((item, i) => {
-              const key = `${item.sku}-${i}`;
+              {items.map((item) => {
               return (
-                <div key={key} className="lc-cp__item-wrap">
+                <div key={variantKey(item)} className="lc-cp__item-wrap">
                   <div className="lc-cp__item-row">
                     <ProductThumb colorKey={item.sku} imageUrl={PRODUCT_IMAGE_BY_SKU[item.sku]} name={item.name} size={36} />
                     <div className="lc-cp__item-main">
@@ -80,7 +70,7 @@ export function CartPanel() {
                                 aria-label={`Size for ${item.name}`}
                                 data={variants && variants.length > 0 ? variants : [item.size]}
                                 value={item.size}
-                                onChange={(e) => setSize(i, e.currentTarget.value)}
+                                onChange={(e) => changeVariant(item, { size: e.currentTarget.value, color: item.color })}
                               />
                             )}
                             {item.color && (
@@ -90,10 +80,10 @@ export function CartPanel() {
                                 aria-label={`Color for ${item.name}`}
                                 data={COLOR_OPTIONS}
                                 value={item.color}
-                                onChange={(e) => setColor(i, e.currentTarget.value)}
+                                onChange={(e) => changeVariant(item, { size: item.size, color: e.currentTarget.value })}
                               />
                             )}
-                            <QtyStepper value={item.quantity} onChange={(q) => setQty(i, q)} />
+                            <QtyStepper value={item.quantity} onChange={(q) => setQuantity(item, q)} />
                           </div>
                         );
                       })()}
