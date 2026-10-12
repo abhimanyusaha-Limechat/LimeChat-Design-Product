@@ -1,8 +1,8 @@
 /**
  * AccountSettings — Settings → Account.
  *
- * Same tokens/row anatomy as ProfileSettings (`--lc-ps-*` mirrored here as
- * `--lc-as-*`) — two-column rows, no boxed sections, divider strokes.
+ * Same tokens/table anatomy as ProfileSettings (`--lc-ps-*` mirrored here as
+ * `--lc-as-*`) — bordered tables of label | control rows split by dividers.
  */
 
 .lc-as {
@@ -12,16 +12,15 @@
   --lc-as-text-dimmed: var(--lc-color-sage-500);
   --lc-as-primary: var(--lc-color-green-700);
   --lc-as-bg-subtle: var(--lc-color-stone-50);
-  --lc-as-radius: 8px;
-  --lc-as-radius-sm: 4px;
+  --lc-as-radius: 12px;
+  --lc-as-radius-sm: 6px;
   --lc-as-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --lc-as-label-col: minmax(180px, 300px);
 
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 24px;
   width: 100%;
-  max-width: 920px;
+  max-width: 60%;
   color: var(--lc-as-text-title);
   container-type: inline-size;
 }
@@ -32,9 +31,13 @@
   box-sizing: border-box;
 }
 
-.lc-as__section {
+.lc-as__table {
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--lc-as-divider);
+  border-radius: var(--lc-as-radius);
+  background: var(--lc-color-white);
+  overflow: hidden;
   transition: opacity 220ms var(--lc-as-ease-out), transform 220ms var(--lc-as-ease-out);
 
   @starting-style {
@@ -44,7 +47,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lc-as__section {
+  .lc-as__table {
     transition: opacity 180ms ease;
     transform: none;
   }
@@ -54,7 +57,9 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-top: -24px;
+  margin-top: 16px;
+  /* lines up with the row labels: table border (1px) + row padding (20px) */
+  padding: 0 21px;
 }
 
 .lc-as__section-title {
@@ -67,7 +72,6 @@
 
 .lc-as__section-desc {
   margin: 0;
-  max-width: 640px;
   font-size: 12px;
   line-height: 16px;
   color: var(--lc-as-text-dimmed);
@@ -77,21 +81,14 @@
 
 .lc-as__row {
   display: grid;
-  grid-template-columns: var(--lc-as-label-col) minmax(0, 420px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
   gap: 24px;
-  align-items: start;
-  align-self: flex-start;
-  padding: 16px 0;
+  align-items: center;
+  padding: 16px 20px;
+}
+
+.lc-as__row + .lc-as__row {
   border-top: 1px solid var(--lc-as-divider);
-}
-
-.lc-as__row--first {
-  border-top: none;
-  padding-top: 0;
-}
-
-.lc-as__row--last {
-  border-bottom: 1px solid var(--lc-as-divider);
 }
 
 .lc-as__row-label {
@@ -102,7 +99,7 @@
 
 .lc-as__label {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 18px;
   color: var(--lc-as-text-title);
 }
@@ -118,16 +115,15 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 12px;
-  max-width: 420px;
-  width: 100%;
+  gap: 8px;
+  min-width: 0;
 }
 
 /* --- Inputs / select --------------------------------------------------- */
 
 .lc-as__input {
   width: 100%;
-  height: 32px;
+  height: 36px;
   padding: 0 12px;
   border: 1px solid var(--lc-as-border);
   border-radius: var(--lc-as-radius-sm);
@@ -163,7 +159,7 @@
 .lc-as__select {
   appearance: none;
   width: 100%;
-  height: 32px;
+  height: 36px;
   padding: 0 32px 0 12px;
   border: 1px solid var(--lc-as-border);
   border-radius: var(--lc-as-radius-sm);
@@ -193,37 +189,16 @@
   transform: translateY(-50%);
 }
 
-/* --- Do Not Disturb time fields ----------------------------------------- */
+/* --- Footer: inline status + Save ------------------------------------ */
 
-.lc-as__time-row {
+.lc-as__footer {
   display: flex;
-  gap: 16px;
-  width: 100%;
-}
-
-.lc-as__time-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-.lc-as__time-label {
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 16px;
-  color: var(--lc-as-text-title);
-}
-
-/* Save action sits beside the time fields, bottom-aligned with the inputs
-   (not the labels above them) since the row's other fields are stretched
-   to equal height by .lc-as__time-row's default align-items: stretch. */
-.lc-as__time-field--action {
-  flex: 0 0 auto;
-  flex-direction: row;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: flex-end;
   gap: 12px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--lc-as-divider);
+  background: var(--lc-as-bg-subtle);
 }
 
 .lc-as__status {
@@ -263,15 +238,9 @@
 
 /* --- Narrow containers: stack label above control --------------------- */
 
-@container (max-width: 480px) {
+@container (max-width: 560px) {
   .lc-as__row {
     grid-template-columns: 1fr;
     gap: 8px;
-  }
-  .lc-as__row-control {
-    max-width: none;
-  }
-  .lc-as__time-row {
-    flex-direction: column;
   }
 }
