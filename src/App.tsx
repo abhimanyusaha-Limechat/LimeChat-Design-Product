@@ -1,5 +1,5 @@
 /** Demo harness for the reusable components. Not part of the published components. */
-import { Fragment, memo, useCallback, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useClerk } from '@clerk/react';
 import { Sidebar } from './components/Sidebar';
 import { sidebarPresets, type SidebarProduct } from './components/Sidebar/presets';
@@ -47,110 +47,26 @@ import {
 import { SettingsPage } from './components/SettingsPage';
 import { SettingsScreen } from './components/SettingsScreen';
 import { ContactsScreen } from './components/ContactsScreen';
+import { TicketsScreen } from './components/TicketsScreen';
 import { SETTINGS_COPY } from './components/SettingsScreen/settingsTabs';
 import { BotTemplatesTable } from './components/BotTemplatesTable';
 import { ProfileSettings } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
 import { HelpDeskAccountSettings, type HelpDeskToggleKey } from './components/HelpDeskAccountSettings';
-import { TicketListItem } from './components/TicketListItem';
-import { HelpdeskTicketsPage } from './components/HelpdeskTicketsPage';
-import { TicketsSection } from './components/TicketsSection';
-import { TicketsBulkModifyModal } from './components/TicketsBulkModifyModal';
-import { ConversationTopBar } from './components/ConversationTopBar';
-import { MessageBubble, MessageDateDivider, type ReactionData } from './components/MessageBubble';
-import { type MenuItemData } from './components/Menu';
-import { TicketComposer, type TicketComposerMode } from './components/TicketComposer';
-import { EmailMessage, EmailComposerBar, EmailForwardComposer } from './components/EmailMessage';
-import { TicketDetailsPanel } from './components/TicketDetailsPanel';
 
-import { DEMO_KB_FILES, INBOX_NAMES, KB_COPY, KB_SOURCE_TABS, KB_TABS, USER_SETTINGS_COPY, USER_SETTINGS_TABS } from './data/settingsDemo';
+import { DEMO_KB_FILES, KB_COPY, KB_SOURCE_TABS, KB_TABS, USER_SETTINGS_COPY, USER_SETTINGS_TABS } from './data/settingsDemo';
 import { DEMO_BROADCASTS, DEMO_DRAFT_BROADCASTS, DEMO_SCHEDULED_BROADCASTS } from './data/broadcastDemo';
 import { DEMO_BOT_FLOWS_ACTIVE, DEMO_BOT_FLOWS_INACTIVE, DEMO_FLOWS_ACTIVE, DEMO_FLOWS_DRAFT, DEMO_FLOWS_INACTIVE } from './data/flowsDemo';
 import { DEMO_SEGMENTS, DEMO_USER_SEGMENTS } from './data/segmentsDemo';
 import { DEMO_TEMPLATES } from './data/templatesDemo';
 import { getPickedAccount } from './components/AccountPicker';
-import { CONVERSATIONS, ConversationEntry, EMAIL_THREADS, SHOWCASE_MESSAGES, TICKETS, TICKET_DETAIL_SECTIONS } from './data/ticketsDemo';
+import { TICKETS } from './data/ticketsDemo';
 
 const PRODUCTS: { id: SidebarProduct; label: string }[] = [
   { id: 'helpdesk', label: 'Helpdesk' },
   { id: 'marketing', label: 'Marketing' },
   { id: 'automation', label: 'Automation' },
 ];
-
-const DATE_CHIP_FORMATTER = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-/** e.g. '2026-09-20' -> 'September 20, 2026'. */
-const formatDateChip = (isoDate: string) => DATE_CHIP_FORMATTER.format(new Date(`${isoDate}T00:00:00`));
-
-/**
- * One conversation row (date divider + bubble), memoized so reacting to one message
- * doesn't re-render every other message in the thread — `onReact` takes the reaction key
- * so the callback identity stays stable across renders instead of being re-created per row.
- */
-const ConversationMessageRow = memo(function ConversationMessageRow({
-  entry,
-  isFirst,
-  showDateDivider,
-  groupedWithPrevious,
-  avatarInitial,
-  reactionKey,
-  reaction,
-  onReact,
-  onMenuAction,
-}: {
-  entry: ConversationEntry;
-  isFirst: boolean;
-  showDateDivider: boolean;
-  /** Same side as the previous message, with no date divider between them — sits closer to
-   * it than a sender change would. Computed here rather than left to `MessageBubble`'s own
-   * CSS (which keys off DOM adjacency) because Virtuoso renders each row in its own wrapper,
-   * so consecutive bubbles are no longer literal DOM siblings. */
-  groupedWithPrevious: boolean;
-  avatarInitial: string;
-  reactionKey: string;
-  reaction?: ReactionData;
-  onReact: (reactionKey: string, emoji: string) => void;
-  onMenuAction: (action: 'reply' | 'forward' | 'copy' | 'delete', entry: ConversationEntry) => void;
-}) {
-  const marginTop = isFirst || showDateDivider ? 0 : groupedWithPrevious ? 3 : 14;
-  // Built here (not passed down as a prop) so its array identity only changes when `entry`
-  // or `onMenuAction` actually change — keeping it a parent-supplied prop would hand this
-  // memoized row a fresh array on every render, defeating the memoization.
-  const menuItems: MenuItemData[] = useMemo(
-    () => [
-      { key: 'reply', label: 'Reply', onClick: () => onMenuAction('reply', entry) },
-      { key: 'forward', label: 'Forward', onClick: () => onMenuAction('forward', entry) },
-      { key: 'copy', label: 'Copy text', onClick: () => onMenuAction('copy', entry) },
-      { key: 'delete', label: 'Delete', danger: true, onClick: () => onMenuAction('delete', entry) },
-    ],
-    [entry, onMenuAction],
-  );
-  return (
-    <Fragment>
-      {showDateDivider && (
-        // The divider is always the *first* DOM child of its own Virtuoso item wrapper (even
-        // when it isn't the first divider in the conversation), so `.lc-message-bubble__date-
-        // divider:first-child`'s zero margin-top fires unconditionally — override it explicitly
-        // for every divider after the very first message.
-        <MessageDateDivider label={formatDateChip(entry.date)} style={{ marginTop: isFirst ? 0 : 18 }} />
-      )}
-      <MessageBubble
-        side={entry.side}
-        time={entry.time}
-        status="read"
-        variant={entry.quote ? 'quote' : 'text'}
-        quote={entry.quote}
-        avatar={entry.side === 'agent'}
-        avatarInitial={avatarInitial}
-        reaction={reaction}
-        onReact={(emoji) => onReact(reactionKey, emoji)}
-        menuItems={menuItems}
-        style={{ marginTop }}
-      >
-        {entry.text}
-      </MessageBubble>
-    </Fragment>
-  );
-});
 
 const TOP_NAV_BY_PRODUCT = {
   helpdesk: (selected: string) =>
@@ -166,7 +82,7 @@ const TOP_NAV_BY_PRODUCT = {
 export function App() {
   const { signOut } = useClerk();
   const nav = useAppNavigation();
-  const { product, selected, page, settingsTab, manageIndustries, userSettingsTab } = nav;
+  const { product, selected, page, settingsTab, manageIndustries, userSettingsTab, ticketId } = nav;
   const { switchProduct, leaveCanvas, openCanvas, setSettingsTab, setManageIndustries, setUserSettingsTab } = nav;
   const preset = sidebarPresets[product];
   // Account/Profile settings reached from the avatar popover — a dedicated
@@ -175,6 +91,7 @@ export function App() {
   const userSettingsOpen = page === 'user-settings';
 
   const account = { name: 'Nonucare12' };
+  const openTicketNumber = TICKETS.find((t) => t.id === ticketId)?.ticketId ?? '';
   const selectedLabel = preset.items.find((i) => i.id === selected)?.label ?? selected;
 
   const [kbTab, setKbTab] = useState('upload-files');
@@ -193,49 +110,6 @@ export function App() {
             ? r.name.split('.').pop()?.toUpperCase()
             : undefined,
     }));
-
-  const [selectedTicketId, setSelectedTicketId] = useState(TICKETS[0].id);
-  const selectedTicket = TICKETS.find((ticket) => ticket.id === selectedTicketId);
-  const [ticketReactions, setTicketReactions] = useState<Record<string, ReactionData>>({});
-  const handleTicketReact = useCallback((reactionKey: string, emoji: string) => {
-    setTicketReactions((prev) => {
-      const next = { ...prev };
-      if (prev[reactionKey]?.emoji === emoji) delete next[reactionKey];
-      else next[reactionKey] = { emoji };
-      return next;
-    });
-  }, []);
-  const handleMessageMenuAction = useCallback((action: 'reply' | 'forward' | 'copy' | 'delete', entry: ConversationEntry) => {
-    if (action === 'copy') {
-      navigator.clipboard?.writeText(entry.text);
-      return;
-    }
-    alert(`${action[0].toUpperCase()}${action.slice(1)} message: "${entry.text}"`);
-  }, []);
-  const [ticketsTab, setTicketsTab] = useState('queued');
-  const [ticketsSearch, setTicketsSearch] = useState('');
-  const [ticketsSort, setTicketsSort] = useState('Newly created');
-  const [ticketsStatus, setTicketsStatus] = useState('Open');
-  const [ticketsSelectedInboxes, setTicketsSelectedInboxes] = useState<string[]>([]);
-  const [ticketsSelectMode, setTicketsSelectMode] = useState(false);
-  const [checkedTicketIds, setCheckedTicketIds] = useState<Set<string>>(new Set());
-  const setCheckedTicketIdsAndExit = (next: Set<string>) => {
-    setCheckedTicketIds(next);
-    if (next.size === 0) setTicketsSelectMode(false);
-  };
-  const [ticketsBulkModifyOpen, setTicketsBulkModifyOpen] = useState(false);
-  const [composerMode, setComposerMode] = useState<TicketComposerMode>('reply');
-  const [resolveStatus, setResolveStatus] = useState('Resolve');
-  const [composerDraft, setComposerDraft] = useState('');
-  const [emailComposerAction, setEmailComposerAction] = useState<'reply' | 'forward' | null>(null);
-  const [forwardTo, setForwardTo] = useState<string[]>([]);
-  const [forwardCc, setForwardCc] = useState<string[]>(['info@mywebsite.com']);
-  const [forwardBcc, setForwardBcc] = useState<string[]>(['hello@samplemail.com']);
-  const [replyCc, setReplyCc] = useState<string[]>(['support@limechat.io']);
-  const [replyBcc, setReplyBcc] = useState<string[]>([]);
-  const [detailsTab, setDetailsTab] = useState('Overview');
-  const [ticketAgent, setTicketAgent] = useState('John Adams');
-  const [ticketTeam, setTicketTeam] = useState('Marketing');
 
   const [profileName, setProfileName] = useState('LimeChat');
   const [updatingProfile, setUpdatingProfile] = useState(false);
@@ -517,7 +391,7 @@ export function App() {
                     { label: curFlow.id, copyable: true },
                   ]
                 : page === 'tickets'
-                  ? [{ label: 'Tickets' }, { label: selectedTicket?.ticketId ?? '', copyable: true }]
+                  ? [{ label: 'Tickets' }, { label: openTicketNumber, copyable: true }]
                   : page === 'settings'
                     ? [
                         {
@@ -928,244 +802,7 @@ export function App() {
 
           {page === 'contacts' && <ContactsScreen />}
 
-          {page === 'tickets' && (
-            <HelpdeskTicketsPage
-              conversationAlign={selectedTicket?.channel === 'email' ? 'start' : 'end'}
-              ticketsSection={
-                <TicketsSection
-                  status={ticketsStatus}
-                  onStatusChange={setTicketsStatus}
-                  searchValue={ticketsSearch}
-                  onSearchChange={setTicketsSearch}
-                  onFilterClick={() => alert('Filter tickets')}
-                  onTagsClick={() => alert('Filter by tags')}
-                  dateRangeLabel="Last 7 days"
-                  onDateRangeClick={() => alert('Change date range')}
-                  inboxLabel={
-                    ticketsSelectedInboxes.length === 0
-                      ? 'All inboxes'
-                      : ticketsSelectedInboxes.length === 1
-                        ? ticketsSelectedInboxes[0]
-                        : `${ticketsSelectedInboxes.length} inboxes`
-                  }
-                  inboxOptions={INBOX_NAMES}
-                  selectedInboxes={ticketsSelectedInboxes}
-                  onSelectedInboxesChange={setTicketsSelectedInboxes}
-                  tabs={[
-                    { id: 'mine', label: 'Mine' },
-                    { id: 'queued', label: 'Queued' },
-                    { id: 'all', label: 'All' },
-                  ]}
-                  activeTab={ticketsTab}
-                  onTabChange={setTicketsTab}
-                  sortLabel={ticketsSort}
-                  onSortChange={setTicketsSort}
-                  onLoadMore={() => alert('Load more tickets')}
-                  selectedCount={ticketsSelectMode ? checkedTicketIds.size : undefined}
-                  allSelected={checkedTicketIds.size === TICKETS.length}
-                  onSelectAllChange={(checked) =>
-                    setCheckedTicketIdsAndExit(checked ? new Set(TICKETS.map((t) => t.id)) : new Set())
-                  }
-                  onModify={() => setTicketsBulkModifyOpen(true)}
-                >
-                  {TICKETS.map((ticket) => (
-                    <TicketListItem
-                      key={ticket.id}
-                      data-anchor="ticket-row"
-                      data-anchor-key={ticket.id}
-                      channel={ticket.channel}
-                      user={ticket.user}
-                      avatars={ticket.avatarCount ? Array.from({ length: ticket.avatarCount }, () => ({})) : undefined}
-                      isNew={ticket.isNew}
-                      timestamp={ticket.timestamp}
-                      message={ticket.message}
-                      assignee={ticketsTab === 'mine' ? undefined : ticket.assignee}
-                      unreadCount={ticket.unreadCount}
-                      selected={selectedTicketId === ticket.id}
-                      showCheckbox={ticketsSelectMode}
-                      checked={checkedTicketIds.has(ticket.id)}
-                      onCheckedChange={(next) => {
-                        const nextIds = new Set(checkedTicketIds);
-                        if (next) nextIds.add(ticket.id);
-                        else nextIds.delete(ticket.id);
-                        setCheckedTicketIdsAndExit(nextIds);
-                      }}
-                      onSelect={() => setTicketsSelectMode(true)}
-                      onSelectAll={() => {
-                        setTicketsSelectMode(true);
-                        setCheckedTicketIds(new Set(TICKETS.map((t) => t.id)));
-                      }}
-                      onMarkAsStarred={() => alert(`Mark as starred: ${ticket.user}`)}
-                      onClick={() => setSelectedTicketId(ticket.id)}
-                    />
-                  ))}
-                </TicketsSection>
-              }
-              conversationTopBar={
-                <ConversationTopBar
-                  name={selectedTicket?.user ?? ''}
-                  channel={selectedTicket?.channel}
-                  isNew={selectedTicket?.isNew}
-                  phone={selectedTicket?.phone}
-                  inboxName="Inbox name"
-                  callAvailable={selectedTicket?.channel === 'whatsapp'}
-                  onCall={() => alert('Start voice call')}
-                  onResolve={() => alert('Resolve ticket')}
-                  resolveLabel={resolveStatus}
-                  onResolveStatusChange={setResolveStatus}
-                  onStarTicket={() => alert('Star mark ticket')}
-                  onMuteTicket={() => alert('Mute ticket notifications')}
-                />
-              }
-              conversation={
-                selectedTicketId === 't-showcase' ? (
-                  SHOWCASE_MESSAGES.map(({ id, ...msg }) => <MessageBubble key={id} {...msg} />)
-                ) : selectedTicket?.channel === 'email' ? (
-                  (EMAIL_THREADS[selectedTicketId] ?? []).map((email) => (
-                    <EmailMessage
-                      key={email.id}
-                      senderName={email.senderName}
-                      senderEmail={email.senderEmail}
-                      date={email.date}
-                      badgeLabel={email.badgeLabel}
-                      preview={email.preview}
-                      body={email.body}
-                      defaultExpanded={email.defaultExpanded}
-                      onReply={() => alert(`Reply to: ${email.senderName}`)}
-                      onReplyToAll={() => alert(`Reply to all: ${email.senderName}`)}
-                      onForward={() => alert(`Forward: ${email.senderName}`)}
-                    />
-                  ))
-                ) : undefined
-              }
-              // Ticket message threads can grow long, so this branch alone renders through
-              // `conversationItems` (windowed/virtualized) instead of `conversation` — the
-              // showcase and email branches above stay small and fixed, so they don't need it.
-              conversationItems={
-                selectedTicketId !== 't-showcase' && selectedTicket?.channel !== 'email'
-                  ? (CONVERSATIONS[selectedTicketId] ?? []).map((entry, i, entries) => {
-                      const reactionKey = `${selectedTicketId}:${entry.id}`;
-                      const showDateDivider = entry.date !== entries[i - 1]?.date;
-                      return {
-                        id: entry.id,
-                        node: (
-                          <ConversationMessageRow
-                            entry={entry}
-                            isFirst={i === 0}
-                            showDateDivider={showDateDivider}
-                            groupedWithPrevious={!showDateDivider && entry.side === entries[i - 1]?.side}
-                            avatarInitial={selectedTicket?.assignee?.charAt(0) ?? 'A'}
-                            reactionKey={reactionKey}
-                            reaction={ticketReactions[reactionKey]}
-                            onReact={handleTicketReact}
-                            onMenuAction={handleMessageMenuAction}
-                          />
-                        ),
-                      };
-                    })
-                  : undefined
-              }
-              conversationKey={selectedTicketId}
-              composer={
-                selectedTicket?.channel === 'email' ? (
-                  emailComposerAction === 'reply' ? (
-                    <EmailForwardComposer
-                      mode="reply"
-                      to={[selectedTicket.user.toLowerCase().replace(' ', '.') + '@example.com']}
-                      cc={replyCc}
-                      bcc={replyBcc}
-                      onAddRecipient={(field, email) => {
-                        if (field === 'cc') setReplyCc((v) => [...v, email]);
-                        if (field === 'bcc') setReplyBcc((v) => [...v, email]);
-                      }}
-                      onRemoveRecipient={(field, email) => {
-                        if (field === 'cc') setReplyCc((v) => v.filter((e) => e !== email));
-                        if (field === 'bcc') setReplyBcc((v) => v.filter((e) => e !== email));
-                      }}
-                      value={composerDraft}
-                      onChange={setComposerDraft}
-                      onToggleAi={() => alert('Toggle AI assist')}
-                      onDelete={() => {
-                        setComposerDraft('');
-                        setEmailComposerAction(null);
-                      }}
-                      onSend={() => {
-                        setComposerDraft('');
-                        setEmailComposerAction(null);
-                      }}
-                    />
-                  ) : emailComposerAction === 'forward' ? (
-                    <EmailForwardComposer
-                      mode="forward"
-                      to={forwardTo}
-                      cc={forwardCc}
-                      bcc={forwardBcc}
-                      onAddRecipient={(field, email) => {
-                        if (field === 'to') setForwardTo((v) => [...v, email]);
-                        if (field === 'cc') setForwardCc((v) => [...v, email]);
-                        if (field === 'bcc') setForwardBcc((v) => [...v, email]);
-                      }}
-                      onRemoveRecipient={(field, email) => {
-                        if (field === 'to') setForwardTo((v) => v.filter((e) => e !== email));
-                        if (field === 'cc') setForwardCc((v) => v.filter((e) => e !== email));
-                        if (field === 'bcc') setForwardBcc((v) => v.filter((e) => e !== email));
-                      }}
-                      value={composerDraft}
-                      onChange={setComposerDraft}
-                      onToggleAi={() => alert('Toggle AI assist')}
-                      onDelete={() => {
-                        setComposerDraft('');
-                        setEmailComposerAction(null);
-                      }}
-                      onSend={() => {
-                        setComposerDraft('');
-                        setEmailComposerAction(null);
-                      }}
-                    />
-                  ) : (
-                    <EmailComposerBar
-                      onMerge={() => alert('Merge ticket')}
-                      onNotes={() => alert('Open private notes')}
-                      onReply={() => setEmailComposerAction('reply')}
-                      onForward={() => setEmailComposerAction('forward')}
-                    />
-                  )
-                ) : (
-                  <TicketComposer
-                    mode={composerMode}
-                    onModeChange={setComposerMode}
-                    value={composerDraft}
-                    onChange={setComposerDraft}
-                    onSend={() => setComposerDraft('')}
-                    onMic={() => alert('Record voice note')}
-                    onEmoji={() => alert('Insert emoji')}
-                  />
-                )
-              }
-              detailsPanel={
-                <TicketDetailsPanel
-                  tabs={['Overview', 'Orders', 'Products', 'Cart']}
-                  activeTab={detailsTab}
-                  onTabChange={setDetailsTab}
-                  ticketId={selectedTicket?.ticketId ?? ''}
-                  agent={{ value: ticketAgent, options: ['John Adams', 'Jane Doe', 'Marcus Lee'], onChange: setTicketAgent }}
-                  team={{ value: ticketTeam, options: ['Marketing', 'Support', 'Sales'], onChange: setTicketTeam }}
-                  sections={TICKET_DETAIL_SECTIONS}
-                />
-              }
-            />
-          )}
-
-          <TicketsBulkModifyModal
-            open={ticketsBulkModifyOpen}
-            onClose={() => setTicketsBulkModifyOpen(false)}
-            selectedCount={checkedTicketIds.size}
-            onApply={(values) => {
-              alert(`Applied changes to ${checkedTicketIds.size} ticket(s): ${JSON.stringify(values)}`);
-              setTicketsBulkModifyOpen(false);
-              setCheckedTicketIdsAndExit(new Set());
-            }}
-          />
+          {page === 'tickets' && <TicketsScreen />}
 
           {page === 'home' && (
             <div style={{ padding: 24 }} data-anchor="home-intro">

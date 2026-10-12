@@ -36,3 +36,19 @@ describe('toHash', () => {
     expect(parseHash(toHash(screen))).toMatchObject(screen);
   });
 });
+
+describe('ticket', () => {
+  it('reads and writes the open ticket, leaving the first one out', () => {
+    expect(parseHash('#/helpdesk/tickets?ticket=t-6').ticket).toBe('t-6');
+    expect(toHash(parseHash('#/helpdesk/tickets?ticket=t-6'))).toBe('#/helpdesk/tickets?ticket=t-6');
+    expect(toHash(parseHash('#/helpdesk/tickets?ticket=t-1'))).toBe('#/helpdesk/tickets');
+  });
+
+  it.each(['#/helpdesk/tickets?ticket=nope', '#/helpdesk/contacts?ticket=t-6', '#/marketing/home?ticket=t-6'])(
+    'falls back to the first ticket for %j',
+    (hash) => {
+      expect(parseHash(hash).ticket).toBe('t-1');
+      expect(toHash(parseHash(hash))).not.toContain('ticket=');
+    },
+  );
+});

@@ -1,20 +1,23 @@
 import { sidebarPresets, type SidebarProduct } from '../components/Sidebar/presets';
 import { SETTINGS_TABS_BY_PRODUCT } from '../components/SettingsScreen/settingsTabs';
+import { TICKETS } from '../data/ticketsDemo';
 
 export type FlowKind = 'broadcast' | 'flows' | 'bot-flows';
 export type UserSettingsTab = 'account' | 'profile';
 
-/** Everything the URL hash owns: `#/<product>/<item>?view=…&tab=…&industries=1&user=…`. */
+/** Everything the URL hash owns: `#/<product>/<item>?view=…&tab=…&industries=1&ticket=…&user=…`. */
 export type Screen = {
   product: SidebarProduct;
   selected: string;
   view: 'list' | 'canvas';
   settingsTab: string;
   manageIndustries: boolean;
+  /** The open ticket's id. Only Helpdesk Tickets has one; elsewhere it stays at the default. */
+  ticket: string;
   userSettings: UserSettingsTab | null;
 };
 
-const DEFAULTS = { view: 'list', settingsTab: 'inboxes', manageIndustries: false, userSettings: null } as const;
+const DEFAULTS = { view: 'list', settingsTab: 'inboxes', manageIndustries: false, ticket: TICKETS[0].id, userSettings: null } as const;
 
 const isProduct = (value: string): value is SidebarProduct =>
   Object.prototype.hasOwnProperty.call(sidebarPresets, value);
@@ -53,6 +56,10 @@ export function toScreen(fields: { product: string; selected: string } & Partial
     view: fields.view === 'canvas' && flowKindOf(product, selected) ? 'canvas' : 'list',
     settingsTab,
     manageIndustries: onSettings && settingsTab === 'bot-templates' && fields.manageIndustries === true,
+    ticket:
+      product === 'helpdesk' && selected === 'tickets' && TICKETS.some((t) => t.id === fields.ticket)
+        ? String(fields.ticket)
+        : DEFAULTS.ticket,
     userSettings: fields.userSettings === 'account' || fields.userSettings === 'profile' ? fields.userSettings : null,
   };
 }
@@ -68,6 +75,7 @@ export function parseHash(hash: string): Screen {
     view: params.get('view'),
     settingsTab: params.get('tab'),
     manageIndustries: params.get('industries') === '1',
+    ticket: params.get('ticket'),
     userSettings: params.get('user'),
   });
 }
@@ -78,12 +86,13 @@ export function toHash(screen: Screen) {
   if (screen.view !== DEFAULTS.view) params.set('view', screen.view);
   if (screen.settingsTab !== DEFAULTS.settingsTab) params.set('tab', screen.settingsTab);
   if (screen.manageIndustries) params.set('industries', '1');
+  if (screen.ticket !== DEFAULTS.ticket) params.set('ticket', screen.ticket);
   if (screen.userSettings) params.set('user', screen.userSettings);
   const query = params.toString();
   return `#/${screen.product}/${screen.selected}${query ? `?${query}` : ''}`;
 }
 
-const KNOWN_PARAMS = ['view', 'tab', 'industries', 'user'];
+const KNOWN_PARAMS = ['view', 'tab', 'industries', 'ticket', 'user'];
 
 /** The hash with unknown query parameters removed, to compare against `toHash`. */
 export function withoutUnknownParams(hash: string) {
