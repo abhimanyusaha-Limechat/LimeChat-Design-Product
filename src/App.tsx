@@ -3,8 +3,7 @@ import { useState } from 'react';
 import { useClerk } from '@clerk/react';
 import { Sidebar } from './components/Sidebar';
 import { sidebarPresets, type SidebarProduct } from './components/Sidebar/presets';
-import { isCanvasPage, useAppNavigation, type Page } from './hooks/useAppNavigation';
-import { useDemoLoading } from './hooks/useDemoLoading';
+import { isCanvasPage, useAppNavigation } from './hooks/useAppNavigation';
 import { TopNavBar } from './components/TopNavBar';
 import {
   campaignsTopNav,
@@ -27,38 +26,21 @@ import { FlowDetailsModal } from './components/FlowDetailsModal';
 import { ScheduleBroadcastModal } from './components/ScheduleBroadcastModal';
 import { VisualizeFlowModal } from './components/VisualizeFlowModal';
 import { SelectUserSegmentModal } from './components/SelectUserSegmentModal';
-import { BroadcastHomePage, type BroadcastRowData, type BroadcastTab } from './components/BroadcastHomePage';
-import { FlowsHomePage, type FlowRowData, type FlowTab } from './components/FlowsHomePage';
-import {
-  SegmentsHomePage,
-  type SegmentRowData,
-  type SegmentSourceTab,
-} from './components/SegmentsHomePage';
-import {
-  BotFlowsHomePage,
-  type BotFlowRowData,
-  type BotFlowTab,
-} from './components/BotFlowsHomePage';
-import {
-  TemplatesHomePage,
-  type TemplateRowData,
-  type TemplateChannel,
-} from './components/TemplatesHomePage';
+import { type BroadcastRowData } from './components/BroadcastHomePage';
+import { type FlowRowData } from './components/FlowsHomePage';
+import { type BotFlowRowData } from './components/BotFlowsHomePage';
 import { SettingsPage } from './components/SettingsPage';
 import { SettingsScreen } from './components/SettingsScreen';
 import { ContactsScreen } from './components/ContactsScreen';
 import { TicketsScreen } from './components/TicketsScreen';
+import { BroadcastScreen, BotFlowsScreen, FlowsScreen, KnowledgeBaseScreen, SegmentsScreen, TemplatesScreen } from './components/ListScreens';
 import { SETTINGS_COPY } from './components/SettingsScreen/settingsTabs';
-import { BotTemplatesTable } from './components/BotTemplatesTable';
 import { ProfileSettings } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
 import { HelpDeskAccountSettings, type HelpDeskToggleKey } from './components/HelpDeskAccountSettings';
 
-import { DEMO_KB_FILES, KB_COPY, KB_SOURCE_TABS, KB_TABS, USER_SETTINGS_COPY, USER_SETTINGS_TABS } from './data/settingsDemo';
-import { DEMO_BROADCASTS, DEMO_DRAFT_BROADCASTS, DEMO_SCHEDULED_BROADCASTS } from './data/broadcastDemo';
-import { DEMO_BOT_FLOWS_ACTIVE, DEMO_BOT_FLOWS_INACTIVE, DEMO_FLOWS_ACTIVE, DEMO_FLOWS_DRAFT, DEMO_FLOWS_INACTIVE } from './data/flowsDemo';
-import { DEMO_SEGMENTS, DEMO_USER_SEGMENTS } from './data/segmentsDemo';
-import { DEMO_TEMPLATES } from './data/templatesDemo';
+import { KB_COPY, USER_SETTINGS_COPY, USER_SETTINGS_TABS } from './data/settingsDemo';
+import { DEMO_USER_SEGMENTS } from './data/segmentsDemo';
 import { getPickedAccount } from './components/AccountPicker';
 import { TICKETS } from './data/ticketsDemo';
 
@@ -82,8 +64,8 @@ const TOP_NAV_BY_PRODUCT = {
 export function App() {
   const { signOut } = useClerk();
   const nav = useAppNavigation();
-  const { product, selected, page, settingsTab, manageIndustries, userSettingsTab, ticketId } = nav;
-  const { switchProduct, leaveCanvas, openCanvas, setSettingsTab, setManageIndustries, setUserSettingsTab } = nav;
+  const { product, selected, page, tab, manageIndustries, userSettingsTab, ticketId } = nav;
+  const { switchProduct, leaveCanvas, openCanvas, setTab, setManageIndustries, setUserSettingsTab } = nav;
   const preset = sidebarPresets[product];
   // Account/Profile settings reached from the avatar popover — a dedicated
   // page with just those two tabs, separate from the product's own (much
@@ -94,22 +76,7 @@ export function App() {
   const openTicketNumber = TICKETS.find((t) => t.id === ticketId)?.ticketId ?? '';
   const selectedLabel = preset.items.find((i) => i.id === selected)?.label ?? selected;
 
-  const [kbTab, setKbTab] = useState('upload-files');
-  const [kbSource, setKbSource] = useState('doc');
   const showCanvas = isCanvasPage(page);
-
-  const [kbSearch, setKbSearch] = useState('');
-  const visibleKbFiles = (DEMO_KB_FILES[kbSource] ?? [])
-    .filter((r) => r.name.toLowerCase().includes(kbSearch.trim().toLowerCase()))
-    .map((r) => ({
-      ...r,
-      format:
-        kbSource === 'url' || kbSource === 'domain'
-          ? new URL(r.name).hostname.replace(/^www\./, '')
-          : r.name.includes('.')
-            ? r.name.split('.').pop()?.toUpperCase()
-            : undefined,
-    }));
 
   const [profileName, setProfileName] = useState('LimeChat');
   const [updatingProfile, setUpdatingProfile] = useState(false);
@@ -138,64 +105,6 @@ export function App() {
     enableActionCableMonitoring: false,
   });
   const [hdSelectedFileTypes, setHdSelectedFileTypes] = useState<string[]>(['pdfDocuments']);
-
-  const [broadcastTab, setBroadcastTab] = useState<BroadcastTab>('triggered');
-  const [broadcastSearch, setBroadcastSearch] = useState('');
-  const [broadcastPage, setBroadcastPage] = useState(1);
-  const BROADCASTS_BY_TAB: Record<BroadcastTab, BroadcastRowData[]> = {
-    triggered: DEMO_BROADCASTS,
-    scheduled: DEMO_SCHEDULED_BROADCASTS,
-    draft: DEMO_DRAFT_BROADCASTS,
-  };
-
-  const [flowTab, setFlowTab] = useState<FlowTab>('active');
-  const [flowSearch, setFlowSearch] = useState('');
-  const [flowPage, setFlowPage] = useState(1);
-  const FLOWS_BY_TAB: Record<FlowTab, FlowRowData[]> = {
-    active: DEMO_FLOWS_ACTIVE,
-    inactive: DEMO_FLOWS_INACTIVE,
-    draft: DEMO_FLOWS_DRAFT,
-  };
-
-  const [botFlowTab, setBotFlowTab] = useState<BotFlowTab>('active');
-  const [botFlowSearch, setBotFlowSearch] = useState('');
-  const [botFlowPage, setBotFlowPage] = useState(1);
-  const BOT_FLOWS_BY_TAB: Record<BotFlowTab, BotFlowRowData[]> = {
-    active: DEMO_BOT_FLOWS_ACTIVE,
-    inactive: DEMO_BOT_FLOWS_INACTIVE,
-  };
-
-  const [segmentTab, setSegmentTab] = useState<SegmentSourceTab>('lc-segments');
-  const [segmentSearch, setSegmentSearch] = useState('');
-  const [segmentPage, setSegmentPage] = useState(1);
-  const SEGMENTS_BY_TAB: Record<SegmentSourceTab, SegmentRowData[]> = {
-    'lc-segments': DEMO_SEGMENTS,
-    imported: [],
-  };
-
-  const [templateChannel, setTemplateChannel] = useState<TemplateChannel>('whatsapp');
-  const [templateSearch, setTemplateSearch] = useState('');
-  const [templateInboxFilter, setTemplateInboxFilter] = useState('all');
-  const [templateTypeFilter, setTemplateTypeFilter] = useState('all');
-  const [templateCategoryFilter, setTemplateCategoryFilter] = useState('all');
-  const [templatePage, setTemplatePage] = useState(1);
-  const TEMPLATES_BY_CHANNEL: Record<TemplateChannel, TemplateRowData[]> = {
-    whatsapp: DEMO_TEMPLATES,
-    sms: DEMO_TEMPLATES,
-    email: DEMO_TEMPLATES,
-  };
-
-  // Demo: each list "fetches" again whenever what it shows changes (tab, page, server-side filters).
-  const listKeys: Partial<Record<Page, string>> = {
-    'broadcast-list': `${broadcastTab}:${broadcastPage}`,
-    'flows-list': `${flowTab}:${flowPage}`,
-    'bot-flows-list': `${botFlowTab}:${botFlowPage}`,
-    segments: `${segmentTab}:${segmentPage}`,
-    templates: `${templateChannel}:${templateInboxFilter}:${templateTypeFilter}:${templateCategoryFilter}:${templatePage}`,
-    'knowledge-base': `${kbTab}:${kbSource}`,
-  };
-  const listKey = `${page}:${listKeys[page] ?? ''}`;
-  const listLoading = useDemoLoading(listKey);
 
   const [publishOpen, setPublishOpen] = useState(false);
   const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
@@ -396,18 +305,18 @@ export function App() {
                     ? [
                         {
                           label: selectedLabel,
-                          onClick: () => setSettingsTab('inboxes'),
+                          onClick: () => setTab('inboxes'),
                         },
                         {
-                          label: SETTINGS_COPY[settingsTab].title,
+                          label: SETTINGS_COPY[tab].title,
                           onClick: () => setManageIndustries(false),
                         },
                         ...(manageIndustries ? [{ label: 'Manage industries' }] : []),
                       ]
                     : page === 'knowledge-base'
                       ? [
-                          { label: selectedLabel, onClick: () => setKbTab('upload-files') },
-                          { label: KB_COPY[kbTab].title },
+                          { label: selectedLabel, onClick: () => setTab('upload-files') },
+                          { label: KB_COPY[tab].title },
                         ]
                       : [{ label: selectedLabel }]
           }
@@ -627,175 +536,22 @@ export function App() {
           </div>
 
           {page === 'broadcast-list' && (
-            <BroadcastHomePage
-              broadcasts={BROADCASTS_BY_TAB[broadcastTab]}
-              loading={listLoading}
-              activeTab={broadcastTab}
-              onTabChange={(tab) => {
-                setBroadcastTab(tab);
-                setBroadcastPage(1);
-              }}
-              searchValue={broadcastSearch}
-              onSearchChange={setBroadcastSearch}
-              onReport={() => alert('Download broadcast report')}
-              onNewBroadcast={() => openCanvas('broadcast')}
-              onRowClick={openBroadcastInEditor}
-              onRowDownload={(row) => alert(`Download report: ${row.name}`)}
-              onRowCopy={(row) => alert(`Copy broadcast: ${row.name}`)}
-              page={broadcastPage}
-              totalPages={broadcastTab === 'triggered' ? 10 : 1}
-              onPageChange={setBroadcastPage}
-            />
+            <BroadcastScreen onRowClick={openBroadcastInEditor} onNewBroadcast={() => openCanvas('broadcast')} />
           )}
-
-          {page === 'flows-list' && (
-            <FlowsHomePage
-              flows={FLOWS_BY_TAB[flowTab]}
-              loading={listLoading}
-              activeTab={flowTab}
-              onTabChange={(tab) => {
-                setFlowTab(tab);
-                setFlowPage(1);
-              }}
-              searchValue={flowSearch}
-              onSearchChange={setFlowSearch}
-              onReport={(type) =>
-                alert(type === 'flow-report' ? 'Download flow report' : 'Download error log')
-              }
-              onNewFlow={() => openCanvas('flows')}
-              onRowClick={openFlowInEditor}
-              onRowDownload={(row) => alert(`Download report: ${row.name}`)}
-              onRowCopy={(row) => alert(`Copy flow: ${row.name}`)}
-              page={flowPage}
-              totalPages={flowTab === 'active' ? 10 : 1}
-              onPageChange={setFlowPage}
-            />
-          )}
-
+          {page === 'flows-list' && <FlowsScreen onRowClick={openFlowInEditor} onNewFlow={() => openCanvas('flows')} />}
           {page === 'bot-flows-list' && (
-            <BotFlowsHomePage
-              flows={BOT_FLOWS_BY_TAB[botFlowTab]}
-              loading={listLoading}
-              activeTab={botFlowTab}
-              onTabChange={(tab) => {
-                setBotFlowTab(tab);
-                setBotFlowPage(1);
-              }}
-              searchValue={botFlowSearch}
-              onSearchChange={setBotFlowSearch}
-              onNewFlow={() => openCanvas('bot-flows')}
-              onRowToggleActive={(row) =>
-                alert(`${row.status === 'active' ? 'Deactivate' : 'Activate'} flow: ${row.name}`)
-              }
-              onRowClick={openBotFlowInEditor}
-              onRowClone={(row) => alert(`Clone flow: ${row.name}`)}
-              onRowDownload={(row) => alert(`Download flow: ${row.name}`)}
-              onRowDelete={(row) => alert(`Delete flow: ${row.name}`)}
-              page={botFlowPage}
-              totalPages={botFlowTab === 'active' ? 10 : 1}
-              onPageChange={setBotFlowPage}
-            />
+            <BotFlowsScreen onRowClick={openBotFlowInEditor} onNewFlow={() => openCanvas('bot-flows')} />
           )}
-
-          {page === 'segments' && (
-            <SegmentsHomePage
-              segments={SEGMENTS_BY_TAB[segmentTab]}
-              loading={listLoading}
-              activeTab={segmentTab}
-              onTabChange={(tab) => {
-                setSegmentTab(tab);
-                setSegmentPage(1);
-              }}
-              searchValue={segmentSearch}
-              onSearchChange={setSegmentSearch}
-              onCreateSegment={() => alert('Create segment')}
-              onRowEdit={(row) => alert(`Edit segment: ${row.name}`)}
-              onRowClone={(row) => alert(`Clone segment: ${row.name}`)}
-              onRowDownload={(row) => alert(`Download segment: ${row.name}`)}
-              onRowDelete={(row) => alert(`Delete segment: ${row.name}`)}
-              onRowRefresh={(row) => alert(`Refresh size: ${row.name}`)}
-              page={segmentPage}
-              totalPages={1}
-              onPageChange={setSegmentPage}
-            />
-          )}
-
-          {page === 'templates' && (
-            <TemplatesHomePage
-              templates={TEMPLATES_BY_CHANNEL[templateChannel]}
-              loading={listLoading}
-              activeChannel={templateChannel}
-              onChannelChange={(channel) => {
-                setTemplateChannel(channel);
-                setTemplatePage(1);
-              }}
-              searchValue={templateSearch}
-              onSearchChange={setTemplateSearch}
-              inboxFilter={templateInboxFilter}
-              onInboxFilterChange={(v) => {
-                setTemplateInboxFilter(v);
-                setTemplatePage(1);
-              }}
-              typeFilter={templateTypeFilter}
-              onTypeFilterChange={(v) => {
-                setTemplateTypeFilter(v);
-                setTemplatePage(1);
-              }}
-              categoryFilter={templateCategoryFilter}
-              onCategoryFilterChange={(v) => {
-                setTemplateCategoryFilter(v);
-                setTemplatePage(1);
-              }}
-              onRefresh={() => alert('Refresh templates')}
-              onDownloadReport={() => alert('Download template report')}
-              onCreateTemplate={() => alert('Create template')}
-              onRowEdit={(row) => alert(`Edit template: ${row.name}`)}
-              onRowClone={(row) => alert(`Clone template: ${row.name}`)}
-              onRowDelete={(row) => alert(`Delete template: ${row.name}`)}
-              page={templatePage}
-              totalPages={262}
-              onPageChange={setTemplatePage}
-            />
-          )}
-
-          {page === 'knowledge-base' && (
-            <SettingsPage
-              tabs={KB_TABS}
-              activeTab={kbTab}
-              onTabChange={setKbTab}
-              title={KB_COPY[kbTab].title}
-              description={KB_COPY[kbTab].description}
-              onWatchVideo={() => alert(`Play tutorial video: ${KB_COPY[kbTab].title}`)}
-              onViewDocs={() => alert(`Open docs: ${KB_COPY[kbTab].title}`)}
-            >
-              {kbTab === 'manage' && (
-                <BotTemplatesTable
-                  variant="files"
-                  webSource={kbSource === 'url' || kbSource === 'domain' ? kbSource : undefined}
-                  tabs={KB_SOURCE_TABS}
-                  activeTab={kbSource}
-                  onTabChange={setKbSource}
-                  templates={visibleKbFiles}
-                  loading={listLoading}
-                  searchValue={kbSearch}
-                  onSearchChange={setKbSearch}
-                  searchPlaceholder={`Search for ${KB_SOURCE_TABS.find((t) => t.id === kbSource)?.label ?? ''}`}
-                  hideFilters
-                  onViewDetails={(row) => alert(`View details: ${row.name}`)}
-                  onRowEdit={(row) => alert(`Edit template: ${row.name}`)}
-                  onRowClone={(row) => alert(`Clone template: ${row.name}`)}
-                  onRowDelete={(row) => alert(`Delete template: ${row.name}`)}
-                />
-              )}
-            </SettingsPage>
-          )}
+          {page === 'segments' && <SegmentsScreen />}
+          {page === 'templates' && <TemplatesScreen />}
+          {page === 'knowledge-base' && <KnowledgeBaseScreen />}
 
           {page === 'settings' && (
             <SettingsScreen
               product={product}
-              settingsTab={settingsTab}
+              settingsTab={tab}
               manageIndustries={manageIndustries}
-              onTabChange={setSettingsTab}
+              onTabChange={setTab}
               onManageIndustriesChange={setManageIndustries}
             />
           )}

@@ -13,7 +13,7 @@
  *     onNewFlow={() => setOpen(true)}
  *   />
  */
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { Button } from '../Button';
 import { CheckboxPill } from '../CheckboxPill';
 import { NativeSelect } from '../Select';
@@ -23,6 +23,7 @@ import { FlowIcon } from './icons';
 import {
   DataTable,
   DataTableEmpty,
+  DataTablePagination,
   DataTableHead,
   DataTableRow,
   DataTableSkeleton,
@@ -147,10 +148,6 @@ export function FlowsHomePage({
   const [showRetry, setShowRetry] = useState(true);
 
   const { sorted: sortedFlows, sort, toggle: toggleSort } = useTableSort(flows, sortValue);
-
-  const pageNumbers = new Set<number>(
-    [1, 2, 3, 4, 5, totalPages].filter((n) => n <= totalPages),
-  );
 
   return (
     <div className="lc-fh">
@@ -339,33 +336,7 @@ export function FlowsHomePage({
         )}
       </DataTable>
 
-      <div className="lc-fh__pagination" data-anchor="flow-pagination">
-        {Array.from(pageNumbers)
-          .sort((a, b) => a - b)
-          .flatMap((n, i, arr) => {
-            const nodes: ReactNode[] = [];
-            const prev = arr[i - 1];
-            if (prev != null && n - prev > 1) {
-              nodes.push(
-                <span key={`ellipsis-${n}`} className="lc-fh__page-item" data-ellipsis="true">
-                  <FlowIcon name="dots" style={{ width: 14, height: 14 }} />
-                </span>,
-              );
-            }
-            nodes.push(
-              <button
-                key={n}
-                type="button"
-                className="lc-fh__page-item"
-                data-active={n === page || undefined}
-                onClick={() => onPageChange?.(n)}
-              >
-                {n}
-              </button>,
-            );
-            return nodes;
-          })}
-      </div>
+      <DataTablePagination data-anchor="flow-pagination" page={page} totalPages={totalPages} onPageChange={onPageChange} />
     </div>
   );
 }

@@ -10,7 +10,6 @@
  *     onCreateSegment={() => setOpen(true)}
  *   />
  */
-import { type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
 import { ActionMenu } from '../Menu';
@@ -18,6 +17,7 @@ import { SegmentIcon } from './icons';
 import {
   DataTable,
   DataTableEmpty,
+  DataTablePagination,
   DataTableHead,
   DataTableRow,
   DataTableSkeleton,
@@ -116,10 +116,6 @@ export function SegmentsHomePage({
   const { sorted: sortedSegments, sort, toggle: toggleSort } = useTableSort(
     segments,
     (row, key: 'name' | 'description' | 'size') => row[key],
-  );
-
-  const pageNumbers = new Set<number>(
-    [1, 2, 3, 4, 5, totalPages].filter((n) => n <= totalPages),
   );
 
   return (
@@ -231,35 +227,7 @@ export function SegmentsHomePage({
         )}
       </DataTable>
 
-      {totalPages > 1 && (
-        <div className="lc-sg__pagination" data-anchor="segment-pagination">
-          {Array.from(pageNumbers)
-            .sort((a, b) => a - b)
-            .flatMap((n, i, arr) => {
-              const nodes: ReactNode[] = [];
-              const prev = arr[i - 1];
-              if (prev != null && n - prev > 1) {
-                nodes.push(
-                  <span key={`ellipsis-${n}`} className="lc-sg__page-item" data-ellipsis="true">
-                    <SegmentIcon name="dots" style={{ width: 14, height: 14 }} />
-                  </span>,
-                );
-              }
-              nodes.push(
-                <button
-                  key={n}
-                  type="button"
-                  className="lc-sg__page-item"
-                  data-active={n === page || undefined}
-                  onClick={() => onPageChange?.(n)}
-                >
-                  {n}
-                </button>,
-              );
-              return nodes;
-            })}
-        </div>
-      )}
+      <DataTablePagination data-anchor="segment-pagination" page={page} totalPages={totalPages} onPageChange={onPageChange} />
     </div>
   );
 }

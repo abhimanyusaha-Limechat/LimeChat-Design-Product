@@ -1,6 +1,12 @@
 import { sidebarPresets, type SidebarProduct } from '../components/Sidebar/presets';
 import { SETTINGS_TABS_BY_PRODUCT } from '../components/SettingsScreen/settingsTabs';
 import { TICKETS } from '../data/ticketsDemo';
+import { KB_TABS } from '../data/settingsDemo';
+import type { BroadcastTab } from '../components/BroadcastHomePage';
+import type { FlowTab } from '../components/FlowsHomePage';
+import type { BotFlowTab } from '../components/BotFlowsHomePage';
+import type { SegmentSourceTab } from '../components/SegmentsHomePage';
+import type { TemplateChannel } from '../components/TemplatesHomePage';
 
 export type FlowKind = 'broadcast' | 'flows' | 'bot-flows';
 export type UserSettingsTab = 'account' | 'profile';
@@ -10,14 +16,37 @@ export type Screen = {
   product: SidebarProduct;
   selected: string;
   view: 'list' | 'canvas';
-  settingsTab: string;
+  /** The Settings tab or List tab; '' on items that have neither. */
+  tab: string;
   manageIndustries: boolean;
   /** The open ticket's id. Only Helpdesk Tickets has one; elsewhere it stays at the default. */
   ticket: string;
   userSettings: UserSettingsTab | null;
 };
 
-const DEFAULTS = { view: 'list', settingsTab: 'inboxes', manageIndustries: false, ticket: TICKETS[0].id, userSettings: null } as const;
+const DEFAULTS = { view: 'list', manageIndustries: false, ticket: TICKETS[0].id, userSettings: null } as const;
+
+const TEMPLATE_CHANNELS = ['whatsapp', 'sms', 'email'] satisfies TemplateChannel[];
+/** Each list Screen's List tabs, by `<product>/<item>`; the first is the default. */
+const LIST_TABS: Record<string, readonly string[]> = {
+  'marketing/broadcast': ['triggered', 'scheduled', 'draft'] satisfies BroadcastTab[],
+  'marketing/automation-flows': ['active', 'inactive', 'draft'] satisfies FlowTab[],
+  'automation/flows': ['active', 'inactive'] satisfies BotFlowTab[],
+  'marketing/segments': ['lc-segments', 'imported'] satisfies SegmentSourceTab[],
+  'marketing/templates': TEMPLATE_CHANNELS,
+  'helpdesk/templates': TEMPLATE_CHANNELS,
+  'automation/knowledge-base': KB_TABS.map((t) => t.id),
+};
+
+/**
+ * The tabs a rail item offers and the one it opens on. Settings opens on Inboxes, which isn't
+ * every Product's first tab, so `#/<product>/settings` keeps meaning what it always has.
+ */
+function tabsOf(product: SidebarProduct, selected: string): { ids: readonly string[]; fallback: string } {
+  if (selected === 'settings') return { ids: SETTINGS_TABS_BY_PRODUCT[product].map((t) => t.id), fallback: 'inboxes' };
+  const ids = LIST_TABS[`${product}/${selected}`] ?? [];
+  return { ids, fallback: ids[0] ?? '' };
+}
 
 const isProduct = (value: string): value is SidebarProduct =>
   Object.prototype.hasOwnProperty.call(sidebarPresets, value);
@@ -46,16 +75,14 @@ export function toScreen(fields: { product: string; selected: string } & Partial
       ? fields.selected
       : items[0].id;
   const onSettings = selected === 'settings';
-  const settingsTab =
-    onSettings && SETTINGS_TABS_BY_PRODUCT[product].some((tab) => tab.id === fields.settingsTab)
-      ? String(fields.settingsTab)
-      : DEFAULTS.settingsTab;
+  const tabs = tabsOf(product, selected);
+  const tab = tabs.ids.some((id) => id === fields.tab) ? String(fields.tab) : tabs.fallback;
   return {
     product,
     selected,
     view: fields.view === 'canvas' && flowKindOf(product, selected) ? 'canvas' : 'list',
-    settingsTab,
-    manageIndustries: onSettings && settingsTab === 'bot-templates' && fields.manageIndustries === true,
+    tab,
+    manageIndustries: onSettings && tab === 'bot-templates' && fields.manageIndustries === true,
     ticket:
       product === 'helpdesk' && selected === 'tickets' && TICKETS.some((t) => t.id === fields.ticket)
         ? String(fields.ticket)
@@ -73,7 +100,7 @@ export function parseHash(hash: string): Screen {
     product,
     selected,
     view: params.get('view'),
-    settingsTab: params.get('tab'),
+    tab: params.get('tab'),
     manageIndustries: params.get('industries') === '1',
     ticket: params.get('ticket'),
     userSettings: params.get('user'),
@@ -84,7 +111,7 @@ export function parseHash(hash: string): Screen {
 export function toHash(screen: Screen) {
   const params = new URLSearchParams();
   if (screen.view !== DEFAULTS.view) params.set('view', screen.view);
-  if (screen.settingsTab !== DEFAULTS.settingsTab) params.set('tab', screen.settingsTab);
+  if (screen.tab !== tabsOf(screen.product, screen.selected).fallback) params.set('tab', screen.tab);
   if (screen.manageIndustries) params.set('industries', '1');
   if (screen.ticket !== DEFAULTS.ticket) params.set('ticket', screen.ticket);
   if (screen.userSettings) params.set('user', screen.userSettings);

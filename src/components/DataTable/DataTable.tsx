@@ -163,3 +163,51 @@ export function DataTableSortHeader<K extends string>({ label, sortKey, sort, on
     </div>
   );
 }
+
+/**
+ * Which page buttons to show: the first and last page, plus the current page and its
+ * neighbours. `null` marks a gap (drawn as an ellipsis); a gap of exactly one page shows
+ * that page instead, since an ellipsis would take the same space. 7 of 262 → 1 … 6 7 8 … 262.
+ */
+export function pageWindow(page: number, totalPages: number): (number | null)[] {
+  const shown = [...new Set([1, page - 1, page, page + 1, totalPages])]
+    .filter((n) => n >= 1 && n <= totalPages)
+    .sort((a, b) => a - b);
+  return shown.flatMap((n, i) => {
+    const gap = i === 0 ? 0 : n - shown[i - 1] - 1;
+    return gap === 0 ? [n] : gap === 1 ? [n - 1, n] : [null, n];
+  });
+}
+
+/** The page buttons under a table. Renders nothing for a single page. */
+export function DataTablePagination({
+  page,
+  totalPages,
+  onPageChange,
+  className,
+  ...rest
+}: ComponentPropsWithoutRef<'nav'> & { page: number; totalPages: number; onPageChange?: (page: number) => void }) {
+  if (totalPages <= 1) return null;
+  return (
+    <nav aria-label="Pagination" className={cx('lc-dt__pagination', className)} {...rest}>
+      {pageWindow(page, totalPages).map((n, i) =>
+        n === null ? (
+          <span key={`gap-${i}`} className="lc-dt__page-item" data-ellipsis="true">
+            <Icon name="dots" size={14} aria-hidden="true" />
+          </span>
+        ) : (
+          <button
+            key={n}
+            type="button"
+            className="lc-dt__page-item"
+            data-active={n === page || undefined}
+            aria-current={n === page ? 'page' : undefined}
+            onClick={() => onPageChange?.(n)}
+          >
+            {n}
+          </button>
+        ),
+      )}
+    </nav>
+  );
+}

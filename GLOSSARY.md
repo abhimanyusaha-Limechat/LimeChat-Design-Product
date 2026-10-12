@@ -16,6 +16,10 @@ _Avoid_: Page (when meaning a reviewer-visible place), route
 One named sub-view of the Settings Screen, listed per Product and part of the Screen's URL.
 _Avoid_: Page, section
 
+**List tab**:
+One named sub-view of a list Screen, such as Draft broadcasts or the SMS templates channel, and part of the Screen's URL. Search, filters and the page number are not.
+_Avoid_: Section, filter, view
+
 ## Commenting
 
 **Comment**:
