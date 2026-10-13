@@ -9,12 +9,13 @@ import { useState } from 'react';
 import { useDemoLoading } from '../../hooks/useDemoLoading';
 import { canMove, flattenTree, keyboardTarget, moveTag, type DropTarget } from './tagTree';
 import type { SidebarProduct } from '../Sidebar/presets';
-import { SettingsPage } from '../SettingsPage';
-import { SettingsDetails, inboxFields, rowFields } from './SettingsDetails';
+import { SettingsPage, type DetailPanel } from '../SettingsPage';
+import { DetailsAvatar, InboxDetailsIcon, SettingsDetails, inboxFields, rowFields } from './SettingsDetails';
+import { AgentDetails, type AgentPatch } from './AgentDetails';
 import { InboxesTable } from '../InboxesTable';
 import { EventsTable } from '../EventsTable';
 import { OptOutUsersTable } from '../OptOutUsersTable';
-import { BotTemplatesTable, type BotTemplateRow } from '../BotTemplatesTable';
+import { BotTemplatesTable, MediaTypeBadge, type BotTemplateRow } from '../BotTemplatesTable';
 import { DataSecuritySettings, type PiiTypeKey, type ProfanityWord } from '../DataSecuritySettings';
 import { AttributionSettings, type AttributionWindowKey, type AttributionWindowValue } from '../AttributionSettings';
 import {
@@ -138,6 +139,8 @@ export function SettingsScreen({
   const listTab = listTabs[settingsTab] ?? pageTabs?.[0].id;
   const [switchOn, setSwitchOn] = useState<Record<string, boolean>>({});
   const [agentRole, setAgentRole] = useState('all');
+  // Agents: edits made in the details panel, applied over the demo rows.
+  const [agentEdits, setAgentEdits] = useState<Record<string, AgentPatch>>({});
   // The Inbox dropdown is shared by Agents and Custom fields.
   const [agentInbox, setAgentInbox] = useState('all');
   const [fieldType, setFieldType] = useState('all');
@@ -178,7 +181,7 @@ export function SettingsScreen({
   const withSwitches = (rows: BotTemplateRow[]) => rows.map((r) => ({ ...r, enabled: switchOn[r.id] ?? r.enabled }));
   const peopleRows: Record<string, BotTemplateRow[]> = {
     collaborators: DEMO_COLLABORATORS,
-    agents: DEMO_AGENTS,
+    agents: DEMO_AGENTS.map((a) => ({ ...a, ...agentEdits[a.id] })),
     teams: DEMO_TEAMS,
     'automation-rules': withSwitches(listTab === 'library' ? DEMO_RULE_LIBRARY : DEMO_RULES),
     'canned-responses': listTab === 'library' ? DEMO_CANNED_LIBRARY : DEMO_CANNED,
@@ -263,19 +266,47 @@ export function SettingsScreen({
 
   const selectedInbox = selectedId ? visibleInboxes.find((r) => r.id === selectedId) : undefined;
   const selectedRow = selectedId ? visibleCollaborators.find((r) => r.id === selectedId) : undefined;
-  const detailFields = selectedInbox
-    ? inboxFields(selectedInbox)
-    : selectedRow
-      ? rowFields(settingsTab, selectedRow)
-      : undefined;
-  const detailPanel =
-    product === 'helpdesk' && detailFields && !reorderingSla
-      ? {
-          title: (selectedInbox ?? selectedRow)!.name,
-          onClose: () => setSelection(null),
-          children: <SettingsDetails fields={detailFields} />,
-        }
-      : undefined;
+  const selectedAgent = settingsTab === 'agents' ? selectedRow : undefined;
+  const closePanel = () => setSelection(null);
+  const detailPanel: DetailPanel | undefined =
+    product !== 'helpdesk' || reorderingSla
+      ? undefined
+      : selectedInbox
+        ? {
+            title: selectedInbox.name,
+            icon: <InboxDetailsIcon type={selectedInbox.type} />,
+            onClose: closePanel,
+            children: <SettingsDetails fields={inboxFields(selectedInbox)} />,
+          }
+        : selectedAgent
+          ? {
+              title: selectedAgent.name,
+              eyebrow: 'Agent',
+              icon: <DetailsAvatar name={selectedAgent.name} />,
+              // ponytail: design placeholders — no edit/delete behaviour yet; add onClick when one is decided.
+              actions: [
+                { icon: 'pencil', label: 'Edit agent' },
+                { icon: 'trash', label: 'Delete agent' },
+              ],
+              onClose: closePanel,
+              children: (
+                <AgentDetails
+                  key={selectedAgent.id}
+                  agent={selectedAgent}
+                  onChange={(patch) =>
+                    setAgentEdits((prev) => ({ ...prev, [selectedAgent.id]: { ...prev[selectedAgent.id], ...patch } }))
+                  }
+                />
+              ),
+            }
+          : selectedRow
+            ? {
+                title: selectedRow.name,
+                icon: selectedRow.mediaType && <MediaTypeBadge mediaType={selectedRow.mediaType} />,
+                onClose: closePanel,
+                children: <SettingsDetails fields={rowFields(settingsTab, selectedRow)} />,
+              }
+            : undefined;
   const rowSelectable = product === 'helpdesk' && !reorderingSla;
 
   return (

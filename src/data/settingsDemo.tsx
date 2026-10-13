@@ -388,6 +388,10 @@ export const withFieldMeta = (rows: BotTemplateRow[]): BotTemplateRow[] =>
 export const DEMO_AGENTS: BotTemplateRow[] = DEMO_COLLABORATORS.map((c, i) => ({
   ...c,
   pending: i % 5 === 0,
+  phone: `+91-${98201 + i * 37} ${44312 + i * 1093}`,
+  concurrency: 3 + (i % 3),
+  ticketLimit: [20, 30, 50][i % 3],
+  signature: `${c.name.split(' ')[0]}\nLimeChat Support`,
   inboxes: Array.from({ length: 2 + (i % 2) }, (_, k) => AGENT_INBOXES[(i + k) % AGENT_INBOXES.length]),
 }));
 

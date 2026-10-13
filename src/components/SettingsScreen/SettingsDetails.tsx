@@ -1,21 +1,22 @@
 /** Body of the Settings details panel: a label/value list for the selected row. */
-import type { InboxRowData } from '../InboxesTable';
+import type { CSSProperties } from 'react';
+import { InboxIcon, type InboxRowData } from '../InboxesTable';
 import type { BotTemplateRow } from '../BotTemplatesTable';
+import { Avatar } from '../Avatar';
+import { initials } from '../AccountPicker/AccountPicker';
 
 type Field = [label: string, value: string | undefined];
 
-const list = (items?: string[]) => (items?.length ? items.join(', ') : undefined);
 const yesNo = (v?: boolean) => (v === undefined ? undefined : v ? 'Yes' : 'No');
 
 export function inboxFields(row: InboxRowData): Field[] {
   return [['Name', row.name], ['Channel', row.type], ['Identifier', row.detail], ['ID', row.id]];
 }
 
+/** Every tab but Agents, which has its own panel body (AgentDetails). */
 export function rowFields(tab: string, row: BotTemplateRow): Field[] {
   const common: Field[] = [['Name', row.name], ['Description', row.description || undefined]];
   switch (tab) {
-    case 'agents':
-      return [...common, ['Role', row.role], ['Inboxes', list(row.inboxes?.map((i) => i.name))], ['Status', row.pending ? 'Pending' : 'Active']];
     case 'custom-fields':
       return [...common, ['Type', row.kind], ['Mandatory', yesNo(row.mandatory)], ['Enabled', yesNo(row.enabled)]];
     case 'automation-rules':
@@ -28,6 +29,28 @@ export function rowFields(tab: string, row: BotTemplateRow): Field[] {
     default:
       return common;
   }
+}
+
+/** White rounded-square initials on the green header card. */
+const AVATAR_STYLE = {
+  '--lc-avatar-radius': '8px',
+  '--lc-avatar-font': '14px',
+  '--lc-avatar-light-bg': 'var(--lc-color-white)',
+  '--lc-avatar-fg-accent': 'var(--lc-color-green-700)',
+} as CSSProperties;
+
+/** Profile image for the panel header — initials until a photo exists. */
+export function DetailsAvatar({ name }: { name: string }) {
+  return (
+    <Avatar size={32} alt={name} style={AVATAR_STYLE}>
+      {initials(name)}
+    </Avatar>
+  );
+}
+
+/** Channel icon for the panel header — the Inboxes table's icon and brand colour (.lc-ib__row-icon). */
+export function InboxDetailsIcon({ type }: { type: InboxRowData['type'] }) {
+  return <InboxIcon name={type} className="lc-ib__row-icon" data-type={type} />;
 }
 
 export function SettingsDetails({ fields }: { fields: Field[] }) {
