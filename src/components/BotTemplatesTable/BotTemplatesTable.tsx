@@ -63,8 +63,14 @@ export interface BotTemplateRow {
   mandatory?: boolean;
   /** Agents only — invited but not yet verified; shows a "Pending" chip after the name. */
   pending?: boolean;
-  /** Contacts only — pre-formatted, e.g. "+91-98201 44312". */
+  /** Contacts and agents — pre-formatted, e.g. "+91-98201 44312". */
   phone?: string;
+  /** Agents only — max conversations the agent handles at once. */
+  concurrency?: number;
+  /** Agents only — max open tickets assigned to the agent. */
+  ticketLimit?: number;
+  /** Agents only — appended to the agent's replies; may span lines. */
+  signature?: string;
   /** Contacts only — number of tickets the contact has raised. */
   tickets?: number;
   /** Contacts only — Instagram handle without the "@", e.g. "priya.styles". */
@@ -153,6 +159,15 @@ const TREE_INDENT = 60;
 
 type NameOptions = { avatar?: boolean; desc?: boolean; onViewDetails?: (row: BotTemplateRow) => void };
 
+/** Canned responses — leading "T" (text) or photo (image) badge. Also used in the Settings details header. */
+export function MediaTypeBadge({ mediaType }: { mediaType: NonNullable<BotTemplateRow['mediaType']> }) {
+  return (
+    <span className="lc-bt__type-badge" title={mediaType === 'text' ? 'Text' : 'Image'}>
+      {mediaType === 'text' ? 'T' : <TemplateIcon name="photo" />}
+    </span>
+  );
+}
+
 const nameColumn = (header = 'Name', { avatar = false, desc = true, onViewDetails }: NameOptions = {}): Column => ({
   key: 'name',
   header,
@@ -170,11 +185,7 @@ const nameColumn = (header = 'Name', { avatar = false, desc = true, onViewDetail
           {initials(row.name)}
         </Avatar>
       )}
-      {row.mediaType && (
-        <span className="lc-bt__type-badge" title={row.mediaType === 'text' ? 'Text' : 'Image'}>
-          {row.mediaType === 'text' ? 'T' : <TemplateIcon name="photo" />}
-        </span>
-      )}
+      {row.mediaType && <MediaTypeBadge mediaType={row.mediaType} />}
       <div className="lc-bt__name-block">
         <span className="lc-bt__name-line">
           <span className="lc-bt__name">{row.name}</span>

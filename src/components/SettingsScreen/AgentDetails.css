@@ -1,0 +1,169 @@
+/* AgentDetails — the Agents tab's details panel body (inside SettingsPage's .lc-sp__detail-body). */
+
+/* Same card as .lc-sp__detail-list. */
+.lc-ad__card {
+  border: 1px solid var(--lc-sp-divider);
+  border-radius: 12px;
+  background: var(--lc-color-white);
+  overflow: hidden;
+}
+
+.lc-ad__row,
+.lc-ad__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 12px 16px;
+}
+
+.lc-ad__card > * + * {
+  border-top: 1px solid var(--lc-sp-divider);
+}
+
+.lc-ad__label {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-sp-text-dimmed);
+}
+
+.lc-ad__value-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* The 28px copy button overhangs the 20px value line instead of making it taller,
+   so the label-to-value gap stays the row's 2px. */
+.lc-ad__value-line .lc-ad__icon-btn {
+  margin: -4px 0;
+}
+
+/* Label with an action on the right (Signature's pencil); the button overhangs the 16px line. */
+.lc-ad__heading-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lc-ad__heading-line .lc-ad__icon-btn {
+  margin: -6px 0;
+}
+
+.lc-ad__value {
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.lc-ad__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--lc-sp-radius-2xs);
+  background: transparent;
+  color: var(--lc-sp-text-dimmed);
+  cursor: pointer;
+}
+
+.lc-ad__icon-btn:hover {
+  background: var(--lc-color-stone-100);
+  color: var(--lc-sp-text-title);
+}
+
+.lc-ad__icon-btn:focus-visible,
+.lc-ad__chip--add:focus-visible {
+  outline: 2px solid var(--lc-sp-primary);
+  outline-offset: 1px;
+}
+
+/* --- Concurrency | Ticket limit ------------------------------------------ */
+
+/* Two cards side by side at the top of the panel, above the main card and styled like it. */
+.lc-ad__stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.lc-ad__stats .lc-ad__stat {
+  padding: 8px 12px;
+  border: 1px solid var(--lc-sp-divider);
+  border-radius: 12px;
+  background: var(--lc-color-white);
+}
+
+.lc-ad__stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+}
+
+/* --- Signature text box ---------------------------------------------------- */
+
+.lc-ad__input {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--lc-sp-border);
+  border-radius: 6px;
+  background: var(--lc-color-white);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-sp-text-title);
+  resize: vertical;
+}
+
+.lc-ad__input:focus-visible {
+  outline: none;
+  border-color: var(--lc-sp-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-sp-primary) 20%, transparent);
+}
+
+/* --- Inbox chips ------------------------------------------------------------ */
+
+.lc-ad__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lc-ad__chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--lc-sp-primary);
+  border-radius: 9999px;
+  background: var(--lc-color-green-50);
+  color: var(--lc-sp-primary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lc-ad__chip--add {
+  border: 1px dashed var(--lc-color-gray-400);
+  background: transparent;
+  color: var(--lc-sp-text-dimmed);
+  cursor: pointer;
+}
+
+.lc-ad__chip--add:hover {
+  border-color: var(--lc-sp-primary);
+  color: var(--lc-sp-primary);
+}

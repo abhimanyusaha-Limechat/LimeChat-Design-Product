@@ -91,6 +91,17 @@ describe('SettingsScreen filtering', () => {
   });
 });
 
+describe('SettingsScreen details panel', () => {
+  it("shows a canned response's format badge beside its title", async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="canned-responses" />);
+    await user.click(screen.getByText('Refund timeline'));
+
+    const panel = screen.getByRole('complementary', { name: 'Refund timeline' });
+    expect(within(panel).getByTitle('Text')).toHaveTextContent('T');
+  });
+});
+
 describe('SettingsScreen leaving and re-entering', () => {
   it('starts fresh when mounted again', async () => {
     const user = userEvent.setup();

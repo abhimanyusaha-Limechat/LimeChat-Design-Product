@@ -52,6 +52,8 @@ interface SpecPanelProps {
   canSelectParent: boolean;
   onSelectParent: () => void;
   onUnpin: () => void;
+  /** Downloads a PNG of just the pinned element. */
+  onScreenshot: () => void;
   /** Live-preview a style change on the pinned element. */
   onEdit: (prop: string, value: string) => void;
   onResetEdits: () => void;
@@ -64,7 +66,7 @@ interface SpecPanelProps {
  * The pinned element's values, grouped by tool, with off-scale ones called out.
  * Memoized: hovering other elements re-renders the Inspector, not this.
  */
-export const SpecPanel = memo(function SpecPanel({ spec, canSelectParent, onSelectParent, onUnpin, onEdit, onResetEdits, dragProps, dragging }: SpecPanelProps) {
+export const SpecPanel = memo(function SpecPanel({ spec, canSelectParent, onSelectParent, onUnpin, onScreenshot, onEdit, onResetEdits, dragProps, dragging }: SpecPanelProps) {
   const sections = buildReport(spec);
   const [copy, setCopy] = useState<CopyState>('idle');
   const timer = useRef<number | undefined>(undefined);
@@ -108,6 +110,15 @@ export const SpecPanel = memo(function SpecPanel({ spec, canSelectParent, onSele
             )}
           </span>
         </div>
+        <button
+          type="button"
+          className="lc-inspector__tool"
+          aria-label="Download screenshot of element"
+          title="Screenshot this element"
+          onClick={onScreenshot}
+        >
+          <Icon name="camera" size={16} />
+        </button>
         <button
           type="button"
           className="lc-inspector__tool"
