@@ -119,7 +119,7 @@ export function Inspector() {
   const inspecting = expanded && !closing;
   /** Filled by the Comment layer, so Esc and Alt+Enter reach its draft and thread first. */
   const commentKeys = useRef<CommentKeys | null>(null);
-  const { hovered, pinned, canSelectParent, pinId, hoveredByFocus, unpin, selectParent, selectChild, selectSibling, pinFocused, editPinned, resetPinned } =
+  const { hovered, pinned, canSelectParent, pinId, hoveredByFocus, unpin, selectParent, selectChild, selectSibling, pinFocused, editPinned, resetPinned, screenshotPinned } =
     useInspectTarget(inspecting && picking);
 
   const dockRef = useRef<HTMLDivElement>(null);
@@ -334,8 +334,8 @@ export function Inspector() {
               pinned && (
                 <SpecPanel
                   spec={pinned}
-                 
                   canSelectParent={canSelectParent}
+                  onScreenshot={screenshotPinned}
                   onSelectParent={selectParent}
                   onUnpin={unpinKeepingFocus}
                   onEdit={editPinned}

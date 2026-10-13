@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { isStyled, resetElement, setStyle } from './edits';
 import { measureElement, resolveTarget, type Spec } from './measure';
 import { isIgnoredUi, usePageCapture } from '../../hooks/usePageCapture';
+import { downloadScreenshot } from './screenshot';
 
 export interface InspectView {
   hovered: Spec | null;
@@ -194,5 +195,11 @@ export function useInspectTarget(active: boolean) {
     schedule();
   }, [schedule]);
 
-  return { ...view, unpin, selectParent, selectChild, selectSibling, pinFocused, editPinned, resetPinned };
+  /** Downloads a PNG of just the pinned element, as drawn on screen. */
+  const screenshotPinned = useCallback(() => {
+    if (!pinned.current) return;
+    downloadScreenshot(pinned.current).catch((err) => console.error('Screenshot failed', err));
+  }, []);
+
+  return { ...view, unpin, selectParent, selectChild, selectSibling, pinFocused, editPinned, resetPinned, screenshotPinned };
 }
