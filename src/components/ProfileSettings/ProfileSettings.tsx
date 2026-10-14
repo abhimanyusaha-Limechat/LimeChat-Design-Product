@@ -2,16 +2,14 @@
  * ProfileSettings — Settings → Profile: account details, password reset, and
  * API key management. Renders inside `<SettingsPage>`'s content slot.
  *
- * Laid out as one bordered settings table: each row is label + description
- * on the left, the control on the right, rows split by dividers, and a
- * footer holding "Save changes" (the Supabase/Vercel project-settings
- * pattern).
+ * Laid out as a settings table: each row is label + description on the
+ * left, the control on the right. "Save changes" lives in the page header
+ * (`<SettingsPage headerActions>`), owned by the parent.
  *
  *   <ProfileSettings
  *     email="team@limechat.ai"
  *     name={name}
  *     onNameChange={setName}
- *     onUpdateProfile={() => save(name)}
  *     onRequestPasswordChange={() => requestReset()}
  *     apiKeyMasked="lcuat.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
  *     apiKeyExpiry="Never"
@@ -113,8 +111,6 @@ export interface ProfileSettingsProps {
   email: string;
   name: string;
   onNameChange: (next: string) => void;
-  onUpdateProfile?: () => void;
-  updatingProfile?: boolean;
 
   onRequestPasswordChange?: () => void;
   requestingPasswordChange?: boolean;
@@ -130,8 +126,6 @@ export function ProfileSettings({
   email,
   name,
   onNameChange,
-  onUpdateProfile,
-  updatingProfile = false,
   onRequestPasswordChange,
   requestingPasswordChange = false,
   apiKeyMasked,
@@ -143,13 +137,8 @@ export function ProfileSettings({
   const nameId = useId();
   const apiKeyId = useId();
 
-  const profileStatus = useTransientStatus();
   const passwordStatus = useTransientStatus();
   const keyStatus = useTransientStatus();
-
-  // Last saved name — "Save changes" stays disabled until the name differs from it.
-  const [savedName, setSavedName] = useState(name);
-  const dirty = name.trim() !== '' && name !== savedName;
 
   return (
     <div className="lc-ps">
@@ -204,24 +193,6 @@ export function ProfileSettings({
         </div>
         <StatusNote state={keyStatus.state}>New key generated</StatusNote>
       </Row>
-
-      <div className="lc-ps__footer">
-        <StatusNote state={profileStatus.state}>Profile updated</StatusNote>
-        <Button
-          variant="filled"
-          color="primary"
-          size="sm"
-          loading={updatingProfile}
-          disabled={!dirty}
-          onClick={() => {
-            onUpdateProfile?.();
-            setSavedName(name);
-            profileStatus.trigger();
-          }}
-        >
-          Save changes
-        </Button>
-      </div>
     </div>
   );
 }

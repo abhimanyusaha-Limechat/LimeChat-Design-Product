@@ -9,7 +9,6 @@
 
 .lc-ps {
   --lc-ps-border: var(--lc-color-gray-300);
-  --lc-ps-divider: var(--lc-color-gray-200);
   --lc-ps-text-title: var(--lc-color-green-900);
   --lc-ps-text-dimmed: var(--lc-color-sage-500);
   --lc-ps-primary: var(--lc-color-green-700);
@@ -22,7 +21,6 @@
   flex-direction: column;
   width: 100%;
   max-width: 60%;
-  border: 1px solid var(--lc-ps-divider);
   border-radius: var(--lc-ps-radius);
   background: var(--lc-color-white);
   overflow: hidden;
@@ -62,7 +60,7 @@
 }
 
 .lc-ps__row + .lc-ps__row {
-  border-top: 1px solid var(--lc-ps-divider);
+  border-top: 1px solid var(--lc-color-white);
 }
 
 .lc-ps__row-label {
@@ -165,17 +163,7 @@
   flex-shrink: 0;
 }
 
-/* --- Footer: inline status + Save ------------------------------------ */
-
-.lc-ps__footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 12px 20px;
-  border-top: 1px solid var(--lc-ps-divider);
-  background: var(--lc-ps-bg-subtle);
-}
+/* --- Inline status ---------------------------------------------------- */
 
 .lc-ps__status {
   display: inline-flex;
