@@ -77,7 +77,6 @@ export function FlowEditorScreen() {
 
   const chromeFlow = {
     title: edits.name,
-    subtitle: flow.displayId,
     active: edits.active,
     badge: setup.badge.label,
     badgeTone: setup.badge.tone,
