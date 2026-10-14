@@ -31,11 +31,11 @@ export function rowFields(tab: string, row: BotTemplateRow): Field[] {
   }
 }
 
-/** White rounded-square initials on the green header card. */
+/** Grey rounded-square initials on the white header card. */
 const AVATAR_STYLE = {
   '--lc-avatar-radius': '8px',
-  '--lc-avatar-font': '14px',
-  '--lc-avatar-light-bg': 'var(--lc-color-white)',
+  '--lc-avatar-font': '10px',
+  '--lc-avatar-light-bg': 'var(--lc-color-gray-150)',
   '--lc-avatar-fg-accent': 'var(--lc-color-green-700)',
 } as CSSProperties;
 

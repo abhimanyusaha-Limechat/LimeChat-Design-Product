@@ -19,11 +19,11 @@ export interface SettingsTab {
 
 export interface DetailPanel {
   title: string;
-  /** Small label above the title, e.g. "Agent". */
-  eyebrow?: string;
+  /** Small label below the title, e.g. "Agent". */
+  subtitle?: string;
   /** Sits left of the title, e.g. an avatar or channel icon. */
   icon?: ReactNode;
-  /** Icon buttons left of the close button, e.g. Edit. `onClick` may be omitted for a design placeholder. */
+  /** Text + icon buttons left of the close button, e.g. Edit. `onClick` may be omitted for a design placeholder. */
   actions?: { icon: IconName; label: string; onClick?: () => void }[];
   onClose: () => void;
   children: ReactNode;
@@ -161,22 +161,21 @@ export function SettingsPage({
                     <div className="lc-sp__detail-heading">
                       {panel.icon}
                       <div className="lc-sp__detail-heading-text">
-                        {panel.eyebrow && <span className="lc-sp__detail-eyebrow">{panel.eyebrow}</span>}
                         <h2 className="lc-sp__detail-title">{panel.title}</h2>
+                        {panel.subtitle && <span className="lc-sp__detail-subtitle">{panel.subtitle}</span>}
                       </div>
                     </div>
                     <div className="lc-sp__detail-actions">
                       {panel.actions?.map((action) => (
-                        <button
+                        <Button
                           key={action.label}
-                          type="button"
-                          className="lc-sp__detail-btn"
-                          aria-label={action.label}
-                          title={action.label}
+                          variant="default"
+                          size="xs"
+                          leftSection={<Icon name={action.icon} width={14} height={14} />}
                           onClick={action.onClick}
                         >
-                          <Icon name={action.icon} width={16} height={16} />
-                        </button>
+                          {action.label}
+                        </Button>
                       ))}
                       <button type="button" className="lc-sp__detail-btn" aria-label="Close details" onClick={panel.onClose}>
                         <Icon name="close" width={16} height={16} />

@@ -281,13 +281,10 @@ export function SettingsScreen({
         : selectedAgent
           ? {
               title: selectedAgent.name,
-              eyebrow: 'Agent',
+              subtitle: 'Agent',
               icon: <DetailsAvatar name={selectedAgent.name} />,
-              // ponytail: design placeholders — no edit/delete behaviour yet; add onClick when one is decided.
-              actions: [
-                { icon: 'pencil', label: 'Edit agent' },
-                { icon: 'trash', label: 'Delete agent' },
-              ],
+              // ponytail: design placeholder — no edit behaviour yet; add onClick when one is decided.
+              actions: [{ icon: 'pencil', label: 'Edit' }],
               onClose: closePanel,
               children: (
                 <AgentDetails

@@ -6,6 +6,7 @@
  */
 import { useId, useState } from 'react';
 import type { BotTemplateRow } from '../BotTemplatesTable';
+import { Button } from '../Button';
 import { CheckIcon, Icon } from '../icons';
 import { Menu } from '../Menu';
 import { AGENT_INBOXES } from '../../data/settingsDemo';
@@ -140,6 +141,16 @@ export function AgentDetails({ agent, onChange }: { agent: BotTemplateRow; onCha
           </ul>
         </div>
       </div>
+      {/* ponytail: design placeholder — no delete behaviour yet; add onClick when one is decided. */}
+      <Button
+        className="lc-ad__delete"
+        variant="subtle"
+        color="red"
+        size="xs"
+        leftSection={<Icon name="trash" size={14} />}
+      >
+        Delete agent
+      </Button>
     </>
   );
 }
