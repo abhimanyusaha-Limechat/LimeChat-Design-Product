@@ -316,8 +316,7 @@
   padding: 8px 12px;
   border: 1px solid var(--lc-sp-divider);
   border-radius: 12px;
-  /* Selected fill, as on the table row the panel is showing (DataTable [data-selected]). */
-  background: var(--lc-sp-green-1);
+  background: var(--lc-color-white);
 }
 
 /* Optional icon/avatar + title; min-width 0 lets a long title ellipsize. */
@@ -334,7 +333,7 @@
   min-width: 0;
 }
 
-.lc-sp__detail-eyebrow {
+.lc-sp__detail-subtitle {
   font-size: 12px;
   line-height: 16px;
   color: var(--lc-sp-text-dimmed);

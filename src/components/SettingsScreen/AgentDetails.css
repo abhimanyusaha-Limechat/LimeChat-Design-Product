@@ -87,6 +87,13 @@
 
 /* --- Concurrency | Ticket limit ------------------------------------------ */
 
+/* Right-aligned under the card: block-level so the auto margin can push it over. */
+.lc-btn.lc-ad__delete {
+  display: flex;
+  width: fit-content;
+  margin: 8px 0 0 auto;
+}
+
 /* Two cards side by side at the top of the panel, above the main card and styled like it. */
 .lc-ad__stats {
   display: grid;
@@ -148,7 +155,7 @@
   height: 28px;
   padding: 0 12px;
   border: 1px solid var(--lc-sp-primary);
-  border-radius: 9999px;
+  border-radius: var(--lc-sp-radius-2xs);
   background: var(--lc-color-green-50);
   color: var(--lc-sp-primary);
   font-family: inherit;
