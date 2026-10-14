@@ -10,6 +10,7 @@ import {
   helpDeskTopNav,
   automationTopNav,
 } from './components/TopNavBar/presets';
+import { Button } from './components/Button';
 import { SettingsPage } from './components/SettingsPage';
 import { SettingsScreen } from './components/SettingsScreen';
 import { ContactsScreen } from './components/ContactsScreen';
@@ -61,6 +62,9 @@ export function App() {
   const openFlow = showCanvas && flowKind ? findFlow(flowKind, flowId) : null;
 
   const [profileName, setProfileName] = useState('LimeChat');
+  // Last saved name — "Save changes" stays disabled until the name differs from it.
+  const [savedProfileName, setSavedProfileName] = useState(profileName);
+  const profileDirty = profileName.trim() !== '' && profileName !== savedProfileName;
   const [updatingProfile, setUpdatingProfile] = useState(false);
   const [requestingPasswordChange, setRequestingPasswordChange] = useState(false);
   const [apiKeyMasked, setApiKeyMasked] = useState('lcuat.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
@@ -207,17 +211,30 @@ export function App() {
               onTabChange={(id) => setUserSettingsTab(id as 'account' | 'profile')}
               title={USER_SETTINGS_COPY[userSettingsTab].title}
               description={USER_SETTINGS_COPY[userSettingsTab].description}
+              headerActions={
+                userSettingsTab === 'profile' && (
+                  <Button
+                    variant="filled"
+                    color="primary"
+                    size="sm"
+                    loading={updatingProfile}
+                    disabled={!profileDirty}
+                    onClick={() => {
+                      setSavedProfileName(profileName);
+                      setUpdatingProfile(true);
+                      window.setTimeout(() => setUpdatingProfile(false), 700);
+                    }}
+                  >
+                    Save changes
+                  </Button>
+                )
+              }
             >
               {userSettingsTab === 'profile' ? (
                 <ProfileSettings
                   email="team@limechat.ai"
                   name={profileName}
                   onNameChange={setProfileName}
-                  updatingProfile={updatingProfile}
-                  onUpdateProfile={() => {
-                    setUpdatingProfile(true);
-                    window.setTimeout(() => setUpdatingProfile(false), 700);
-                  }}
                   requestingPasswordChange={requestingPasswordChange}
                   onRequestPasswordChange={() => {
                     setRequestingPasswordChange(true);
