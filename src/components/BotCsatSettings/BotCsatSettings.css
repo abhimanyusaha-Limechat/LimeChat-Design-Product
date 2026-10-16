@@ -297,7 +297,7 @@
 
 .lc-csat__field-input {
   width: 160px;
-  height: 38px;
+  height: var(--lc-input-sm);
   padding: 0 12px;
   border: 1px solid var(--lc-csat-divider);
   border-radius: var(--lc-csat-radius-sm);

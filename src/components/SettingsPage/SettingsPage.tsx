@@ -8,7 +8,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useScrollFade } from '../../hooks/useScrollFade';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
-import { Icon } from '../icons';
+import { ChevronDownIcon, Icon } from '../icons';
 import type { IconName } from '../iconPaths';
 import './SettingsPage.css';
 
@@ -190,6 +190,64 @@ export function SettingsPage({
         </div>
       </div>
     </div>
+  );
+}
+
+export interface SettingsSectionProps {
+  title: string;
+  description?: string;
+  /** Sits right of the title, e.g. an "X/Y enabled" badge. */
+  aside?: ReactNode;
+  children: ReactNode;
+}
+
+/**
+ * Collapsible block inside the content card: heading + subheading (the toggle)
+ * above a settings table. Starts open; sibling sections stack 40px apart.
+ */
+export function SettingsSection({ title, description, aside, children }: SettingsSectionProps) {
+  return (
+    <section className="lc-sp-section" aria-label={title}>
+      <details className="lc-sp-section__collapse" open>
+        <summary className="lc-sp-section__heading">
+          <span className="lc-sp-section__text">
+            <span className="lc-sp-section__title-row">
+              <h2 className="lc-sp-section__title">{title}</h2>
+              {aside}
+            </span>
+            {description && <span className="lc-sp-section__desc">{description}</span>}
+          </span>
+          <ChevronDownIcon className="lc-sp-section__chevron" />
+        </summary>
+        <div className="lc-sp-section__body">{children}</div>
+      </details>
+    </section>
+  );
+}
+
+/** On/off switch for settings rows. */
+export function Switch({
+  checked,
+  onChange,
+  id,
+  className,
+}: {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  id?: string;
+  className?: string;
+}) {
+  return (
+    <button
+      id={id}
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      className={className ? `lc-sp-switch ${className}` : 'lc-sp-switch'}
+      onClick={() => onChange(!checked)}
+    >
+      <span className="lc-sp-switch__thumb" />
+    </button>
   );
 }
 

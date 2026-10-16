@@ -9,6 +9,7 @@
 
 .lc-ps {
   --lc-ps-border: var(--lc-color-gray-300);
+  --lc-ps-divider: var(--lc-color-gray-200);
   --lc-ps-text-title: var(--lc-color-green-900);
   --lc-ps-text-dimmed: var(--lc-color-sage-500);
   --lc-ps-primary: var(--lc-color-green-700);
@@ -21,6 +22,10 @@
   flex-direction: column;
   width: 100%;
   max-width: 60%;
+  /* keep natural height inside SettingsPage's flex-column scroller — with
+     overflow: hidden it would otherwise shrink to fit and clip its rows */
+  flex-shrink: 0;
+  border: 1px solid var(--lc-ps-divider);
   border-radius: var(--lc-ps-radius);
   background: var(--lc-color-white);
   overflow: hidden;
@@ -60,7 +65,7 @@
 }
 
 .lc-ps__row + .lc-ps__row {
-  border-top: 1px solid var(--lc-color-white);
+  border-top: 1px solid var(--lc-ps-divider);
 }
 
 .lc-ps__row-label {
@@ -104,7 +109,7 @@
 
 .lc-ps__input {
   width: 100%;
-  height: 36px;
+  height: var(--lc-input-sm);
   padding: 0 12px;
   border: 1px solid var(--lc-ps-border);
   border-radius: var(--lc-ps-radius-sm);
@@ -128,13 +133,76 @@
   cursor: not-allowed;
 }
 
+.lc-ps__textarea {
+  height: auto;
+  padding: 8px 12px;
+  resize: vertical;
+}
+
+.lc-ps__select-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.lc-ps__select {
+  appearance: none;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+.lc-ps__select-wrap svg {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  color: var(--lc-ps-text-dimmed);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+/* the ActionCable switch sits at the row's right end, as in .lc-hda__toggle-row */
+.lc-ps__switch {
+  align-self: flex-end;
+}
+
+/* profile picture: avatar left, Upload / Remove (+ error) right */
+.lc-ps__avatar-picker {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* gray stroke that follows the 8px corners and sits over a photo, without changing the size */
+.lc-ps__avatar {
+  box-shadow: 0 0 0 1px var(--lc-ps-border);
+}
+
+.lc-ps__avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lc-ps__avatar-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.lc-ps__error {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-red-700);
+}
+
 /* read-only value with an inline action (Copy) inside the same box */
 .lc-ps__field {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
-  height: 36px;
+  height: var(--lc-input-sm);
   padding: 0 4px 0 12px;
   border: 1px solid var(--lc-ps-border);
   border-radius: var(--lc-ps-radius-sm);

@@ -41,7 +41,7 @@
   color: var(--lc-color-green-900);
 }
 .lc-qty-stepper--field {
-  height: 32px;
+  height: var(--lc-input-sm);
   gap: 10px;
   padding: 0 12px;
   box-sizing: border-box;

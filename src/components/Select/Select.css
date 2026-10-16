@@ -51,7 +51,7 @@
 
 /* --- Size scale (custom props consumed below) --------------------- */
 .lc-select[data-size='xs'] {
-  --h: 24px;
+  --h: var(--lc-input-xs);
   --pad-x: 12px;
   --gap: 8px;
   --icon-size: 12px;
@@ -63,7 +63,7 @@
   --helper-lh: 12.5px;
 }
 .lc-select[data-size='sm'] {
-  --h: 32px;
+  --h: var(--lc-input-sm);
   --pad-x: 12px;
   --gap: 8px;
   --icon-size: 16px;
@@ -75,7 +75,7 @@
   --helper-lh: 16px;
 }
 .lc-select[data-size='md'] {
-  --h: 40px;
+  --h: var(--lc-input-md);
   --pad-x: 16px;
   --gap: 12px;
   --icon-size: 16px;
@@ -87,7 +87,7 @@
   --helper-lh: 20px;
 }
 .lc-select[data-size='lg'] {
-  --h: 48px;
+  --h: var(--lc-input-lg);
   --pad-x: 16px;
   --gap: 12px;
   --icon-size: 16px;
@@ -99,7 +99,7 @@
   --helper-lh: 24px;
 }
 .lc-select[data-size='xl'] {
-  --h: 56px;
+  --h: var(--lc-input-xl);
   --pad-x: 20px;
   --gap: 16px;
   --icon-size: 16px;

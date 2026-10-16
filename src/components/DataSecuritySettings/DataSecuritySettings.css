@@ -193,7 +193,7 @@
 .lc-dss__profanity-input {
   flex: 1 1 auto;
   min-width: 0;
-  height: 32px;
+  height: var(--lc-input-sm);
   padding: 0 12px;
   border: 1px solid var(--lc-color-gray-300);
   border-radius: var(--lc-dss-radius-sm);

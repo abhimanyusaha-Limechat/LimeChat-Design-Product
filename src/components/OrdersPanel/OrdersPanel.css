@@ -112,7 +112,8 @@
 }
 .lc-op__search-input {
   width: 100%;
-  padding: 6px 28px 6px 28px;
+  height: var(--lc-input-sm);
+  padding: 0 28px 0 28px;
   border: 1px solid var(--lc-op-border);
   border-radius: 6px;
   background: var(--lc-color-gray-50);

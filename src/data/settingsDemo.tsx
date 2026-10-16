@@ -119,6 +119,27 @@ export const USER_SETTINGS_COPY: Record<'account' | 'profile', { title: string; 
   },
 };
 
+// HelpDesk Profile settings → Push notifications: one switch per event.
+export const PUSH_NOTIFICATION_OPTIONS = [
+  { key: 'newConversation', label: 'New conversation is created' },
+  { key: 'conversationAssigned', label: 'Conversation is assigned to me' },
+  { key: 'newMessageAssigned', label: 'New message is created in an assigned conversation' },
+  { key: 'autoResolved', label: 'Conversation is auto resolved' },
+  { key: 'reopenedWaiting', label: 'Conversation is opened for waiting or followup' },
+  { key: 'mentioned', label: 'You are mentioned (@tagged) in a chat' },
+  { key: 'ticketAssignedTeam', label: 'A ticket is assigned to your team' },
+  { key: 'frtReminder', label: 'FRT breach reminder' },
+  { key: 'resolutionReminder', label: 'Resolution time breach reminder' },
+  { key: 'nrtReminder', label: 'NRT breach reminder' },
+  { key: 'frtEscalation', label: 'FRT breach escalation' },
+  { key: 'resolutionEscalation', label: 'Resolution time breach escalation' },
+  { key: 'nrtEscalation', label: 'NRT breach escalation' },
+  { key: 'incomingCalls', label: 'Incoming calls' },
+  { key: 'whatsappCallPermission', label: 'Whatsapp call permission accepted' },
+] as const satisfies readonly { key: string; label: string }[];
+
+export type PushNotificationKey = (typeof PUSH_NOTIFICATION_OPTIONS)[number]['key'];
+
 export const INBOX_NAMES = [
   'Limechat (189)', 'Limechat (189) BB', 'Nonucare Support', 'Aurora Botanicals CS', 'Nimbus Coffee Orders',
   'Peak & Pine Outdoors', 'Saffron House Bookings', 'Bluebird Logistics', 'Harborlight Realty', 'Wildflower Skincare',

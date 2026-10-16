@@ -54,7 +54,7 @@
   align-items: center;
   gap: 8px;
   width: 320px;
-  height: 32px;
+  height: var(--lc-input-sm);
   margin-bottom: 8px;
   padding: 0 10px;
   border: 1px solid var(--lc-modal-border);

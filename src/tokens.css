@@ -11,6 +11,14 @@
  * component needs to change.
  */
 :root {
+  /* Input heights — every single-line field (input, select, search box) uses one
+     of these. Default is sm. Textareas grow with content and are exempt. */
+  --lc-input-xs: 24px;
+  --lc-input-sm: 32px;
+  --lc-input-md: 40px;
+  --lc-input-lg: 48px;
+  --lc-input-xl: 56px;
+
   /* Brand green — primitives/~green + color/dark */
   --lc-color-green-900: #3c492c; /* color/dark */
   --lc-color-green-800: #34540d; /* green-8 */
