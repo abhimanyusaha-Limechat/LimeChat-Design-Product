@@ -23,7 +23,6 @@
  */
 import { useId, useState, type ReactNode } from 'react';
 import { ChevronDownIcon as ChevronIcon } from '../icons';
-import { SettingsSection, Switch } from '../SettingsPage';
 import './HelpDeskAccountSettings.css';
 
 /** One label(+description) | control row of a settings table. */
@@ -78,36 +77,79 @@ function ToggleRow({
       <label className="lc-hda__toggle-label" htmlFor={id}>
         {label}
       </label>
-      <Switch id={id} checked={checked} onChange={onChange} />
+      <button
+        id={id}
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        className="lc-hda__switch-track"
+        onClick={() => onChange(!checked)}
+      >
+        <span className="lc-hda__switch-thumb" />
+      </button>
     </div>
   );
 }
 
-const ACCOUNT_TOGGLES = [
-  { key: 'hideAllTicketsAgents', label: 'Hide all tickets tab for agents on this account.' },
-  { key: 'hideQueuedTicketsAgents', label: 'Hide queued tickets tab for agents on this account.' },
-  { key: 'hideAllTicketsSupervisors', label: 'Hide all tickets tab for supervisors on this account.' },
-  { key: 'hideQueuedTicketsSupervisors', label: 'Hide queued tickets tab for supervisors on this account.' },
-  { key: 'hideBotTicketsAgents', label: 'Hide bot tickets for agents on this account.' },
-  { key: 'enforceTagging', label: 'Enforce tagging on tickets resolved by Agents' },
-  { key: 'hideOutOfStockShopify', label: 'Hide Out of Stock products from shopify' },
-  { key: 'applyPiiMasking', label: 'Apply Personal Identity Information (PII) Masking for all users' },
-  { key: 'enableActionCableMonitoring', label: 'Enable ActionCable event monitoring for this account' },
-] as const;
+export type HelpDeskToggleKey =
+  | 'hideAllTicketsAgents'
+  | 'hideQueuedTicketsAgents'
+  | 'hideAllTicketsSupervisors'
+  | 'hideQueuedTicketsSupervisors'
+  | 'hideBotTicketsAgents'
+  | 'enforceTagging'
+  | 'hideOutOfStockShopify'
+  | 'applyPiiMasking'
+  | 'enableActionCableMonitoring';
 
-export type HelpDeskToggleKey = (typeof ACCOUNT_TOGGLES)[number]['key'];
+const TOGGLE_COPY: Record<HelpDeskToggleKey, string> = {
+  hideAllTicketsAgents: 'Hide all tickets tab for agents on this account.',
+  hideQueuedTicketsAgents: 'Hide queued tickets tab for agents on this account.',
+  hideAllTicketsSupervisors: 'Hide all tickets tab for supervisors on this account.',
+  hideQueuedTicketsSupervisors: 'Hide queued tickets tab for supervisors on this account.',
+  hideBotTicketsAgents: 'Hide bot tickets for agents on this account.',
+  enforceTagging: 'Enforce tagging on tickets resolved by Agents',
+  hideOutOfStockShopify: 'Hide Out of Stock products from shopify',
+  applyPiiMasking: 'Apply Personal Identity Information (PII) Masking for all users',
+  enableActionCableMonitoring: 'Enable ActionCable event monitoring for this account',
+};
 
-interface ToggleTableProps<K extends string> {
-  options: readonly { key: K; label: string }[];
+const TOGGLE_ORDER: HelpDeskToggleKey[] = [
+  'hideAllTicketsAgents',
+  'hideQueuedTicketsAgents',
+  'hideAllTicketsSupervisors',
+  'hideQueuedTicketsSupervisors',
+  'hideBotTicketsAgents',
+  'enforceTagging',
+  'hideOutOfStockShopify',
+  'applyPiiMasking',
+  'enableActionCableMonitoring',
+];
+
+const ACCOUNT_TOGGLE_OPTIONS: ToggleOption<HelpDeskToggleKey>[] = TOGGLE_ORDER.map((key) => ({
+  key,
+  label: TOGGLE_COPY[key],
+}));
+
+export interface ToggleOption<K extends string> {
+  key: K;
+  label: string;
+}
+
+interface ToggleSectionProps<K extends string> {
+  /** Section heading above the table, as in AccountSettings. Omit for none. */
+  heading?: { title: string; description?: string };
+  options: readonly ToggleOption<K>[];
   values: Record<K, boolean>;
   onChange: (key: K, next: boolean) => void;
   /** Extra rows after the switches, inside the same table. */
   children?: ReactNode;
 }
 
-/** Bordered table of label | switch rows. */
-function ToggleTable<K extends string>({ options, values, onChange, children }: ToggleTableProps<K>) {
-  return (
+/** Bordered table of label | switch rows. With `heading`, it becomes a collapsible section (starts open). */
+function ToggleSection<K extends string>({ heading, options, values, onChange, children }: ToggleSectionProps<K>) {
+  const enabledCount = options.filter(({ key }) => values[key]).length;
+  const table = (
     <section className="lc-hda__table">
       {options.map(({ key, label }) => (
         <ToggleRow key={key} label={label} checked={values[key]} onChange={(next) => onChange(key, next)} />
@@ -115,29 +157,35 @@ function ToggleTable<K extends string>({ options, values, onChange, children }: 
       {children}
     </section>
   );
+  if (!heading) return table;
+
+  return (
+    <section className="lc-hda__group" aria-label={heading.title}>
+      <details className="lc-hda__collapse" open>
+        <summary className="lc-hda__section-heading">
+          <span className="lc-hda__section-text">
+            <span className="lc-hda__section-title-row">
+              <h2 className="lc-hda__section-title">{heading.title}</h2>
+              <span className="lc-hda__badge" data-active={enabledCount > 0}>
+                {enabledCount}/{options.length} enabled
+              </span>
+            </span>
+            {heading.description && <span className="lc-hda__section-desc">{heading.description}</span>}
+          </span>
+          <ChevronIcon className="lc-hda__section-chevron" />
+        </summary>
+        {table}
+      </details>
+    </section>
+  );
 }
 
-/** A HelpDesk toggle table as its own collapsible section, with an "X/Y enabled" count — e.g. push notifications. */
-export function HelpDeskToggleSettings<K extends string>({
-  title,
-  description,
-  ...table
-}: { title: string; description: string } & Omit<ToggleTableProps<K>, 'children'>) {
-  const enabledCount = table.options.filter(({ key }) => table.values[key]).length;
+/** A HelpDesk toggle table on its own — e.g. push notifications under Profile settings. */
+export function HelpDeskToggleSettings<K extends string>(props: Omit<ToggleSectionProps<K>, 'children'>) {
   return (
-    <SettingsSection
-      title={title}
-      description={description}
-      aside={
-        <span className="lc-hda__badge" data-active={enabledCount > 0}>
-          {enabledCount}/{table.options.length} enabled
-        </span>
-      }
-    >
-      <div className="lc-hda">
-        <ToggleTable {...table} />
-      </div>
-    </SettingsSection>
+    <div className="lc-hda">
+      <ToggleSection {...props} />
+    </div>
   );
 }
 
@@ -208,6 +256,10 @@ export interface HelpDeskAccountSettingsProps {
   selectedFileTypes: string[];
   onFileTypeToggle: (id: string, next: boolean) => void;
 
+  /** Company name/website/currency/site language section. Defaults to shown. */
+  showCompanyInfo?: boolean;
+  /** "Supported file types for attachments" row. Defaults to shown. */
+  showFileTypes?: boolean;
 }
 
 export function HelpDeskAccountSettings({
@@ -225,6 +277,8 @@ export function HelpDeskAccountSettings({
   fileTypeOptions = FILE_TYPE_OPTIONS,
   selectedFileTypes,
   onFileTypeToggle,
+  showCompanyInfo = true,
+  showFileTypes = true,
 }: HelpDeskAccountSettingsProps) {
   const companyId = useId();
   const websiteId = useId();
@@ -234,6 +288,7 @@ export function HelpDeskAccountSettings({
 
   return (
     <div className="lc-hda">
+      {showCompanyInfo && (
       <section className="lc-hda__table">
         <Row
           label="Company name"
@@ -299,8 +354,14 @@ export function HelpDeskAccountSettings({
           </div>
         </Row>
       </section>
+      )}
 
-      <ToggleTable options={ACCOUNT_TOGGLES} values={toggles} onChange={onToggleChange}>
+      <ToggleSection
+        options={ACCOUNT_TOGGLE_OPTIONS}
+        values={toggles}
+        onChange={onToggleChange}
+      >
+        {showFileTypes && (
         <Row
           label="Supported file types for attachments"
           description="Only selected file types will be allowed for conversation attachments. Unsupported files will show as ‘Attachment not supported’. Leave empty to allow all file types."
@@ -368,7 +429,8 @@ export function HelpDeskAccountSettings({
             })}
           </div>
         </Row>
-      </ToggleTable>
+        )}
+      </ToggleSection>
     </div>
   );
 }

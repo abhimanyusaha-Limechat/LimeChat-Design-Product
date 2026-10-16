@@ -39,7 +39,7 @@ describe('ProfileSettings', () => {
 
   it('accepts a small image as the profile picture and rejects other files', () => {
     const onChange = vi.fn();
-    render(<ProfileSettings {...base} contact={CONTACT} avatar={{ onChange }} />);
+    render(<ProfileSettings {...base} avatar={{ onChange }} />);
     expect(screen.getByText('AR')).toBeInTheDocument();
     const input = screen.getByLabelText('Upload profile picture');
 

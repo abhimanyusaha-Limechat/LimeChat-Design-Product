@@ -55,6 +55,93 @@
   }
 }
 
+/* --- Section heading above a table (mirrors .lc-as__section-heading) --- */
+
+/* one collapsible section: <section> > <details> > <summary> heading + table */
+/* heading text sits 12px above its table while open (8px padding + 4px) */
+.lc-hda__collapse[open] > .lc-hda__section-heading {
+  margin-bottom: 4px;
+}
+
+.lc-hda__section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  /* 16px above the text: 8px here + the 8px top padding */
+  margin-top: 8px;
+  /* lines up with the row labels: table border (1px) + row padding (20px);
+     8px vertical gives the hover tint room */
+  padding: 8px 21px;
+  border-radius: 8px;
+  list-style: none;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.lc-hda__section-heading:hover {
+  background: var(--lc-hda-bg-subtle);
+}
+
+.lc-hda__section-heading:hover .lc-hda__section-chevron {
+  color: var(--lc-hda-text-title);
+}
+
+.lc-hda__section-heading::-webkit-details-marker {
+  display: none;
+}
+
+.lc-hda__section-heading:focus-visible {
+  outline: 2px solid var(--lc-hda-primary);
+  outline-offset: 2px;
+}
+
+.lc-hda__section-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* down while open, right while collapsed */
+.lc-hda__section-chevron {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--lc-hda-text-dimmed);
+  transition: transform 150ms ease, color 120ms ease;
+}
+
+.lc-hda__collapse:not([open]) .lc-hda__section-chevron {
+  transform: rotate(-90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-hda__section-chevron {
+    transition: none;
+  }
+}
+
+.lc-hda__section-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-hda__section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--lc-hda-text-title);
+}
+
+.lc-hda__section-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-hda-text-dimmed);
+}
+
 /* rows and toggle rows share the table's divider */
 .lc-hda__table > * + * {
   border-top: 1px solid var(--lc-hda-divider);
@@ -127,6 +214,44 @@
   line-height: 18px;
   color: var(--lc-hda-text-title);
   cursor: pointer;
+}
+
+.lc-hda__switch-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--lc-color-gray-300);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.lc-hda__switch-track[aria-checked='true'] {
+  background: var(--lc-hda-primary);
+}
+
+.lc-hda__switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--lc-color-white);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease;
+}
+
+.lc-hda__switch-track[aria-checked='true'] .lc-hda__switch-thumb {
+  transform: translateX(18px);
+}
+
+.lc-hda__switch-track:focus-visible {
+  outline: 2px solid var(--lc-hda-primary);
+  outline-offset: 2px;
 }
 
 /* --- Inputs / select --------------------------------------------------- */
@@ -226,14 +351,12 @@
   color: var(--lc-hda-text-dimmed);
 }
 
-/* shared tokens, not --lc-hda-*: the push-notifications count renders in a
-   SettingsSection heading, outside .lc-hda */
 .lc-hda__badge {
   flex-shrink: 0;
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--lc-color-stone-50);
-  color: var(--lc-color-sage-500);
+  background: var(--lc-hda-bg-subtle);
+  color: var(--lc-hda-text-dimmed);
   font-size: 11px;
   font-weight: 600;
   line-height: 16px;
@@ -242,8 +365,8 @@
 }
 
 .lc-hda__badge[data-active='true'] {
-  background: color-mix(in srgb, var(--lc-color-green-700) 14%, transparent);
-  color: var(--lc-color-green-700);
+  background: color-mix(in srgb, var(--lc-hda-primary) 14%, transparent);
+  color: var(--lc-hda-primary);
 }
 
 .lc-hda__file-type-row {

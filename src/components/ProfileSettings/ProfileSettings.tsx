@@ -20,7 +20,6 @@ import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 
 import { Avatar } from '../Avatar';
 import { Button } from '../Button';
 import { Icon, CheckIcon, ChevronDownIcon } from '../icons';
-import { SettingsSection, Switch } from '../SettingsPage';
 import './ProfileSettings.css';
 
 /** "Copy" action sitting inside a read-only field — copies `value` to the clipboard. */
@@ -220,6 +219,24 @@ function AvatarPicker({ name, src, onChange }: { name: string; src?: string; onC
   );
 }
 
+/** Collapsible section: heading + subheading (the toggle) above a bordered settings table. Starts open. */
+function Section({ title, description, children }: { title: string; description: string; children: ReactNode }) {
+  return (
+    <section className="lc-ps__group" aria-label={title}>
+      <details className="lc-ps__collapse" open>
+        <summary className="lc-ps__section-heading">
+          <span className="lc-ps__section-text">
+            <h2 className="lc-ps__section-title">{title}</h2>
+            <span className="lc-ps__section-desc">{description}</span>
+          </span>
+          <ChevronDownIcon className="lc-ps__section-chevron" />
+        </summary>
+        <div className="lc-ps">{children}</div>
+      </details>
+    </section>
+  );
+}
+
 /** Extra contact fields HelpDesk agents keep on their profile. */
 export interface HelpDeskContact {
   displayName: string;
@@ -266,8 +283,9 @@ export interface ProfileSettingsProps {
   /** HelpDesk (with `contact`) — read-only "Access token" row (value + Copy) in the Access section. */
   accessTokenMasked?: string;
 
-  /** HelpDesk (with `contact`) — Profile picture row opening the Profile section. `src` is the current photo, if any. */
+  /** HelpDesk only — when set, the table opens with a Profile picture row. `src` is the current photo, if any. */
   avatar?: { src?: string; onChange: (file: File | null) => void };
+
 
   /** HelpDesk (with `contact`) — ActionCable event receipt collection switch in the Access section. */
   actionCableReceipts?: { checked: boolean; onChange: (next: boolean) => void };
@@ -312,6 +330,13 @@ export function ProfileSettings({
     <input id={nameId} className="lc-ps__input" value={name} onChange={(e) => onNameChange(e.currentTarget.value)} />
   );
 
+
+  const avatarRow = avatar && (
+    <Row label="Profile picture" description="JPG, PNG or WebP, up to 2 MB.">
+      <AvatarPicker name={name} src={avatar.src} onChange={avatar.onChange} />
+    </Row>
+  );
+
   const passwordRow = (
     <Row label="Password" description="We'll email you a secure link to set a new one.">
       <Button
@@ -342,6 +367,7 @@ export function ProfileSettings({
   if (!contact) {
     return (
       <div className="lc-ps">
+        {avatarRow}
         <Row label="Email" htmlFor={emailId} description="Used to sign in — can't be changed.">
           {emailInput}
         </Row>
@@ -356,85 +382,81 @@ export function ProfileSettings({
 
   return (
     <>
-      <SettingsSection title="Profile" description="Your photo, name and how customers and teammates reach you.">
-        <div className="lc-ps">
-          {avatar && (
-            <Row label="Profile picture" description="JPG, PNG or WebP, up to 2 MB.">
-              <AvatarPicker name={name} src={avatar.src} onChange={avatar.onChange} />
-            </Row>
-          )}
-          <Row label="Full name" htmlFor={nameId} description="Your legal name, visible to admins.">
-            {nameInput}
-          </Row>
-          <Row label="Display name" htmlFor={`${fieldId}-displayName`} description="What customers see in conversations.">
-            {contactInput('displayName', 'text', 'nickname')}
-          </Row>
-          <Row label="Email address" htmlFor={emailId} description="Used to sign in — can't be changed.">
-            {emailInput}
-          </Row>
-          <Row label="Phone number" htmlFor={`${fieldId}-phone`} description="Include the country code, e.g. +91.">
-            {contactInput('phone', 'tel', 'tel')}
-          </Row>
-          <Row label="WebRTC ID" htmlFor={`${fieldId}-webrtcId`} description="Routes in-browser calls to you.">
-            {contactInput('webrtcId')}
-          </Row>
-          <Row label="Timezone" htmlFor={`${fieldId}-timezone`} description="Used for shift hours and ticket timestamps.">
-            <div className="lc-ps__select-wrap">
-              <select
-                id={`${fieldId}-timezone`}
-                className="lc-ps__input lc-ps__select"
-                value={contact.timezone}
-                onChange={(e) => onContactChange?.({ ...contact, timezone: e.currentTarget.value })}
-              >
-                {TIMEZONE_OPTIONS.map((tz) => (
-                  <option key={tz} value={tz}>
-                    {tz}
-                  </option>
-                ))}
-              </select>
-              <ChevronDownIcon />
-            </div>
-          </Row>
-          <Row label="Address" htmlFor={`${fieldId}-address`} description="Your work location.">
-            <textarea
-              id={`${fieldId}-address`}
-              className="lc-ps__input lc-ps__textarea"
-              rows={3}
-              autoComplete="street-address"
-              value={contact.address}
-              onChange={(e) => onContactChange?.({ ...contact, address: e.currentTarget.value })}
-            />
-          </Row>
-          {passwordRow}
-        </div>
-      </SettingsSection>
-
-      <SettingsSection title="Access" description="Credentials for API access and real-time event delivery.">
-        <div className="lc-ps">
-          {accessTokenMasked && (
-            <SecretRow
-              label="Access token"
-              description="Authenticates your API requests to LimeChat HelpDesk. Treat it like a password."
-              masked={accessTokenMasked}
-            />
-          )}
-          {actionCableReceipts && (
-            <Row
-              label="ActionCable event receipt collection"
-              htmlFor={`${fieldId}-actioncable`}
-              description="Records delivery receipts for real-time events sent to you — useful when debugging missed updates."
+      <Section title="Profile" description="Your photo, name and how customers and teammates reach you.">
+        {avatarRow}
+        <Row label="Full name" htmlFor={nameId} description="Your legal name, visible to admins.">
+          {nameInput}
+        </Row>
+        <Row label="Display name" htmlFor={`${fieldId}-displayName`} description="What customers see in conversations.">
+          {contactInput('displayName', 'text', 'nickname')}
+        </Row>
+        <Row label="Email address" htmlFor={emailId} description="Used to sign in — can't be changed.">
+          {emailInput}
+        </Row>
+        <Row label="Phone number" htmlFor={`${fieldId}-phone`} description="Include the country code, e.g. +91.">
+          {contactInput('phone', 'tel', 'tel')}
+        </Row>
+        <Row label="WebRTC ID" htmlFor={`${fieldId}-webrtcId`} description="Routes in-browser calls to you.">
+          {contactInput('webrtcId')}
+        </Row>
+        <Row label="Timezone" htmlFor={`${fieldId}-timezone`} description="Used for shift hours and ticket timestamps.">
+          <div className="lc-ps__select-wrap">
+            <select
+              id={`${fieldId}-timezone`}
+              className="lc-ps__input lc-ps__select"
+              value={contact.timezone}
+              onChange={(e) => onContactChange?.({ ...contact, timezone: e.currentTarget.value })}
             >
-              <Switch
-                id={`${fieldId}-actioncable`}
-                className="lc-ps__switch"
-                checked={actionCableReceipts.checked}
-                onChange={actionCableReceipts.onChange}
-              />
-            </Row>
-          )}
-          {apiKeyRow}
-        </div>
-      </SettingsSection>
+              {TIMEZONE_OPTIONS.map((tz) => (
+                <option key={tz} value={tz}>
+                  {tz}
+                </option>
+              ))}
+            </select>
+            <ChevronDownIcon />
+          </div>
+        </Row>
+        <Row label="Address" htmlFor={`${fieldId}-address`} description="Your work location.">
+          <textarea
+            id={`${fieldId}-address`}
+            className="lc-ps__input lc-ps__textarea"
+            rows={3}
+            autoComplete="street-address"
+            value={contact.address}
+            onChange={(e) => onContactChange?.({ ...contact, address: e.currentTarget.value })}
+          />
+        </Row>
+        {passwordRow}
+      </Section>
+
+      <Section title="Access" description="Credentials for API access and real-time event delivery.">
+        {accessTokenMasked && (
+          <SecretRow
+            label="Access token"
+            description="Authenticates your API requests to LimeChat HelpDesk. Treat it like a password."
+            masked={accessTokenMasked}
+          />
+        )}
+        {actionCableReceipts && (
+          <Row
+            label="ActionCable event receipt collection"
+            htmlFor={`${fieldId}-actioncable`}
+            description="Records delivery receipts for real-time events sent to you — useful when debugging missed updates."
+          >
+            <button
+              id={`${fieldId}-actioncable`}
+              type="button"
+              role="switch"
+              aria-checked={actionCableReceipts.checked}
+              className="lc-ps__switch-track"
+              onClick={() => actionCableReceipts.onChange(!actionCableReceipts.checked)}
+            >
+              <span className="lc-ps__switch-thumb" />
+            </button>
+          </Row>
+        )}
+        {apiKeyRow}
+      </Section>
     </>
   );
 }

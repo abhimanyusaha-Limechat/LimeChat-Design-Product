@@ -20,7 +20,12 @@ import { BroadcastScreen, BotFlowsScreen, FlowsScreen, KnowledgeBaseScreen, Segm
 import { SETTINGS_COPY } from './components/SettingsScreen/settingsTabs';
 import { ProfileSettings, TIMEZONE_OPTIONS, type HelpDeskContact } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
-import { HelpDeskAccountSettings, HelpDeskToggleSettings, type HelpDeskToggleKey } from './components/HelpDeskAccountSettings';
+import {
+  HelpDeskAccountSettings,
+  HelpDeskToggleSettings,
+  type HelpDeskAccountSettingsProps,
+  type HelpDeskToggleKey,
+} from './components/HelpDeskAccountSettings';
 
 import {
   KB_COPY,
@@ -111,6 +116,22 @@ export function App() {
   const [pushNotifications, setPushNotifications] = useState(
     () => Object.fromEntries(PUSH_NOTIFICATION_OPTIONS.map((o) => [o.key, true])) as Record<PushNotificationKey, boolean>,
   );
+  const hdAccountProps: HelpDeskAccountSettingsProps = {
+    companyName: hdCompanyName,
+    onCompanyNameChange: setHdCompanyName,
+    websiteUrl: hdWebsiteUrl,
+    onWebsiteUrlChange: setHdWebsiteUrl,
+    currency: hdCurrency,
+    onCurrencyChange: setHdCurrency,
+    siteLanguageOptions: ['English (En)', 'Hindi', 'Spanish'],
+    siteLanguage: hdSiteLanguage,
+    onSiteLanguageChange: setHdSiteLanguage,
+    toggles: hdToggles,
+    onToggleChange: (key, next) => setHdToggles((prev) => ({ ...prev, [key]: next })),
+    selectedFileTypes: hdSelectedFileTypes,
+    onFileTypeToggle: (id, next) =>
+      setHdSelectedFileTypes((prev) => (next ? [...prev, id] : prev.filter((t) => t !== id))),
+  };
 
   // 'a0' is the header account — no list row matches, so none is pre-highlighted.
   const [pickedAccount] = useState(getPickedAccount);
@@ -292,8 +313,10 @@ export function App() {
                   />
                   {product === 'helpdesk' && (
                     <HelpDeskToggleSettings
-                      title="Push notifications"
-                      description="Choose which events send you a push notification."
+                      heading={{
+                        title: 'Push notifications',
+                        description: 'Choose which events send you a push notification.',
+                      }}
                       options={PUSH_NOTIFICATION_OPTIONS}
                       values={pushNotifications}
                       onChange={(key, next) => setPushNotifications((prev) => ({ ...prev, [key]: next }))}
@@ -301,27 +324,7 @@ export function App() {
                   )}
                 </div>
               ) : product === 'helpdesk' ? (
-                <HelpDeskAccountSettings
-                  companyName={hdCompanyName}
-                  onCompanyNameChange={setHdCompanyName}
-                  websiteUrl={hdWebsiteUrl}
-                  onWebsiteUrlChange={setHdWebsiteUrl}
-                  currency={hdCurrency}
-                  onCurrencyChange={setHdCurrency}
-                  siteLanguageOptions={['English (En)', 'Hindi', 'Spanish']}
-                  siteLanguage={hdSiteLanguage}
-                  onSiteLanguageChange={setHdSiteLanguage}
-                  toggles={hdToggles}
-                  onToggleChange={(key, next) =>
-                    setHdToggles((prev) => ({ ...prev, [key]: next }))
-                  }
-                  selectedFileTypes={hdSelectedFileTypes}
-                  onFileTypeToggle={(id, next) =>
-                    setHdSelectedFileTypes((prev) =>
-                      next ? [...prev, id] : prev.filter((t) => t !== id),
-                    )
-                  }
-                />
+                <HelpDeskAccountSettings {...hdAccountProps} />
               ) : (
                 <AccountSettings
                   id="1"

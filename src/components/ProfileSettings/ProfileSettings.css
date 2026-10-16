@@ -54,6 +54,103 @@
   }
 }
 
+/* --- Section heading above the table (mirrors .lc-as__section-heading) ---
+   Sits outside .lc-ps, so it uses the shared color tokens directly. */
+
+/* one collapsible section: <section> > <details> > <summary> heading + table */
+.lc-ps__group {
+  width: 100%;
+  /* the section (heading + table) takes the table's 60% cap, as Push notifications does,
+     so the chevron sits at the table's right edge */
+  max-width: 60%;
+}
+
+.lc-ps__group .lc-ps {
+  max-width: none;
+}
+
+/* sections stack 40px apart (parent's 24px gap + this + the heading's 8px top padding),
+   matching Push notifications */
+.lc-ps__group + .lc-ps__group {
+  margin-top: 8px;
+}
+
+/* heading text sits 12px above its table while open (8px padding + 4px) */
+.lc-ps__collapse[open] > .lc-ps__section-heading {
+  margin-bottom: 4px;
+}
+
+.lc-ps__section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  /* lines up with the row labels: table border (1px) + row padding (20px);
+     8px vertical gives the hover tint room */
+  padding: 8px 21px;
+  border-radius: 8px;
+  list-style: none;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.lc-ps__section-heading:hover {
+  background: var(--lc-color-stone-50);
+}
+
+.lc-ps__section-heading:hover .lc-ps__section-chevron {
+  color: var(--lc-color-green-900);
+}
+
+.lc-ps__section-heading::-webkit-details-marker {
+  display: none;
+}
+
+.lc-ps__section-heading:focus-visible {
+  outline: 2px solid var(--lc-color-green-700);
+  outline-offset: 2px;
+}
+
+.lc-ps__section-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* down while open, right while collapsed */
+.lc-ps__section-chevron {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--lc-color-sage-500);
+  transition: transform 150ms ease, color 120ms ease;
+}
+
+.lc-ps__collapse:not([open]) .lc-ps__section-chevron {
+  transform: rotate(-90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-ps__section-chevron {
+    transition: none;
+  }
+}
+
+.lc-ps__section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--lc-color-green-900);
+}
+
+.lc-ps__section-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-sage-500);
+}
+
 /* --- Rows: label+description left, control right ------------------- */
 
 .lc-ps__row {
@@ -161,9 +258,45 @@
   transform: translateY(-50%);
 }
 
-/* the ActionCable switch sits at the row's right end, as in .lc-hda__toggle-row */
-.lc-ps__switch {
+/* on/off switch — same anatomy as .lc-hda__switch-track */
+.lc-ps__switch-track {
+  position: relative;
+  flex-shrink: 0;
+  /* pinned to the row's right end, as in .lc-hda__toggle-row */
   align-self: flex-end;
+  width: 40px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--lc-color-gray-300);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.lc-ps__switch-track[aria-checked='true'] {
+  background: var(--lc-ps-primary);
+}
+
+.lc-ps__switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--lc-color-white);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease;
+}
+
+.lc-ps__switch-track[aria-checked='true'] .lc-ps__switch-thumb {
+  transform: translateX(18px);
+}
+
+.lc-ps__switch-track:focus-visible {
+  outline: 2px solid var(--lc-ps-primary);
+  outline-offset: 2px;
 }
 
 /* profile picture: avatar left, Upload / Remove (+ error) right */
