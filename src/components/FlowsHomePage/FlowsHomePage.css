@@ -61,7 +61,8 @@
   gap: 8px;
   width: 266px;
   max-width: 100%;
-  padding: 6px 12px;
+  height: var(--lc-input-sm);
+  padding: 0 12px;
   background: white;
   border: 1px solid var(--lc-fh-border);
   border-radius: var(--lc-fh-radius);

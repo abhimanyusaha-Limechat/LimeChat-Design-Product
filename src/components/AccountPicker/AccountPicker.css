@@ -59,7 +59,7 @@
 }
 .account-picker__search input {
   width: 100%;
-  height: 52px;
+  height: var(--lc-input-lg);
   padding: 0 16px 0 46px;
   box-sizing: border-box;
   border: 1px solid var(--lc-color-gray-300);

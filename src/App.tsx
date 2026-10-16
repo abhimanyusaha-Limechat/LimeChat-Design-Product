@@ -18,11 +18,22 @@ import { TicketsScreen } from './components/TicketsScreen';
 import { FlowEditorScreen, editorSetup, findFlow } from './components/FlowEditorScreen';
 import { BroadcastScreen, BotFlowsScreen, FlowsScreen, KnowledgeBaseScreen, SegmentsScreen, TemplatesScreen } from './components/ListScreens';
 import { SETTINGS_COPY } from './components/SettingsScreen/settingsTabs';
-import { ProfileSettings } from './components/ProfileSettings';
+import { ProfileSettings, TIMEZONE_OPTIONS, type HelpDeskContact } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
-import { HelpDeskAccountSettings, type HelpDeskToggleKey } from './components/HelpDeskAccountSettings';
+import {
+  HelpDeskAccountSettings,
+  HelpDeskToggleSettings,
+  type HelpDeskAccountSettingsProps,
+  type HelpDeskToggleKey,
+} from './components/HelpDeskAccountSettings';
 
-import { KB_COPY, USER_SETTINGS_COPY, USER_SETTINGS_TABS } from './data/settingsDemo';
+import {
+  KB_COPY,
+  PUSH_NOTIFICATION_OPTIONS,
+  USER_SETTINGS_COPY,
+  USER_SETTINGS_TABS,
+  type PushNotificationKey,
+} from './data/settingsDemo';
 import { getPickedAccount } from './components/AccountPicker';
 import { TICKETS } from './data/ticketsDemo';
 
@@ -64,11 +75,22 @@ export function App() {
   const [profileName, setProfileName] = useState('LimeChat');
   // Last saved name — "Save changes" stays disabled until the name differs from it.
   const [savedProfileName, setSavedProfileName] = useState(profileName);
-  const profileDirty = profileName.trim() !== '' && profileName !== savedProfileName;
+  const [hdContact, setHdContact] = useState<HelpDeskContact>({
+    displayName: 'Aditi',
+    phone: '+91 98765 43210',
+    webrtcId: 'aditi.rao@webrtc.limechat.ai',
+    timezone: TIMEZONE_OPTIONS[0],
+    address: '',
+  });
+  const [savedHdContact, setSavedHdContact] = useState(hdContact);
+  const contactDirty = product === 'helpdesk' && JSON.stringify(hdContact) !== JSON.stringify(savedHdContact);
+  const profileDirty = profileName.trim() !== '' && (profileName !== savedProfileName || contactDirty);
   const [updatingProfile, setUpdatingProfile] = useState(false);
   const [requestingPasswordChange, setRequestingPasswordChange] = useState(false);
   const [apiKeyMasked, setApiKeyMasked] = useState('lcuat.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
   const [generatingKey, setGeneratingKey] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string>();
+  const [actionCableReceipts, setActionCableReceipts] = useState(false);
 
   const [uiModePreference, setUiModePreference] = useState('Whatsapp');
   const [dndStartTime, setDndStartTime] = useState('23:01');
@@ -91,6 +113,25 @@ export function App() {
     enableActionCableMonitoring: false,
   });
   const [hdSelectedFileTypes, setHdSelectedFileTypes] = useState<string[]>(['pdfDocuments']);
+  const [pushNotifications, setPushNotifications] = useState(
+    () => Object.fromEntries(PUSH_NOTIFICATION_OPTIONS.map((o) => [o.key, true])) as Record<PushNotificationKey, boolean>,
+  );
+  const hdAccountProps: HelpDeskAccountSettingsProps = {
+    companyName: hdCompanyName,
+    onCompanyNameChange: setHdCompanyName,
+    websiteUrl: hdWebsiteUrl,
+    onWebsiteUrlChange: setHdWebsiteUrl,
+    currency: hdCurrency,
+    onCurrencyChange: setHdCurrency,
+    siteLanguageOptions: ['English (En)', 'Hindi', 'Spanish'],
+    siteLanguage: hdSiteLanguage,
+    onSiteLanguageChange: setHdSiteLanguage,
+    toggles: hdToggles,
+    onToggleChange: (key, next) => setHdToggles((prev) => ({ ...prev, [key]: next })),
+    selectedFileTypes: hdSelectedFileTypes,
+    onFileTypeToggle: (id, next) =>
+      setHdSelectedFileTypes((prev) => (next ? [...prev, id] : prev.filter((t) => t !== id))),
+  };
 
   // 'a0' is the header account — no list row matches, so none is pre-highlighted.
   const [pickedAccount] = useState(getPickedAccount);
@@ -221,6 +262,7 @@ export function App() {
                     disabled={!profileDirty}
                     onClick={() => {
                       setSavedProfileName(profileName);
+                      setSavedHdContact(hdContact);
                       setUpdatingProfile(true);
                       window.setTimeout(() => setUpdatingProfile(false), 700);
                     }}
@@ -231,48 +273,58 @@ export function App() {
               }
             >
               {userSettingsTab === 'profile' ? (
-                <ProfileSettings
-                  email="team@limechat.ai"
-                  name={profileName}
-                  onNameChange={setProfileName}
-                  requestingPasswordChange={requestingPasswordChange}
-                  onRequestPasswordChange={() => {
-                    setRequestingPasswordChange(true);
-                    window.setTimeout(() => setRequestingPasswordChange(false), 700);
-                  }}
-                  apiKeyMasked={apiKeyMasked}
-                  apiKeyExpiry="Never"
-                  generatingKey={generatingKey}
-                  onGenerateKey={() => {
-                    setGeneratingKey(true);
-                    window.setTimeout(() => {
-                      setApiKeyMasked(`lcuat.${'X'.repeat(38)}`);
-                      setGeneratingKey(false);
-                    }, 700);
-                  }}
-                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24, width: '100%' }}>
+                  <ProfileSettings
+                    email="team@limechat.ai"
+                    name={profileName}
+                    onNameChange={setProfileName}
+                    contact={product === 'helpdesk' ? hdContact : undefined}
+                    onContactChange={setHdContact}
+                    accessTokenMasked={product === 'helpdesk' ? `lcat.${'X'.repeat(36)}` : undefined}
+                    avatar={
+                      product === 'helpdesk'
+                        ? {
+                            src: avatarUrl,
+                            onChange: (file) => {
+                              if (avatarUrl) URL.revokeObjectURL(avatarUrl);
+                              setAvatarUrl(file ? URL.createObjectURL(file) : undefined);
+                            },
+                          }
+                        : undefined
+                    }
+                    actionCableReceipts={
+                      product === 'helpdesk' ? { checked: actionCableReceipts, onChange: setActionCableReceipts } : undefined
+                    }
+                    requestingPasswordChange={requestingPasswordChange}
+                    onRequestPasswordChange={() => {
+                      setRequestingPasswordChange(true);
+                      window.setTimeout(() => setRequestingPasswordChange(false), 700);
+                    }}
+                    apiKeyMasked={apiKeyMasked}
+                    apiKeyExpiry="Never"
+                    generatingKey={generatingKey}
+                    onGenerateKey={() => {
+                      setGeneratingKey(true);
+                      window.setTimeout(() => {
+                        setApiKeyMasked(`lcuat.${'X'.repeat(38)}`);
+                        setGeneratingKey(false);
+                      }, 700);
+                    }}
+                  />
+                  {product === 'helpdesk' && (
+                    <HelpDeskToggleSettings
+                      heading={{
+                        title: 'Push notifications',
+                        description: 'Choose which events send you a push notification.',
+                      }}
+                      options={PUSH_NOTIFICATION_OPTIONS}
+                      values={pushNotifications}
+                      onChange={(key, next) => setPushNotifications((prev) => ({ ...prev, [key]: next }))}
+                    />
+                  )}
+                </div>
               ) : product === 'helpdesk' ? (
-                <HelpDeskAccountSettings
-                  companyName={hdCompanyName}
-                  onCompanyNameChange={setHdCompanyName}
-                  websiteUrl={hdWebsiteUrl}
-                  onWebsiteUrlChange={setHdWebsiteUrl}
-                  currency={hdCurrency}
-                  onCurrencyChange={setHdCurrency}
-                  siteLanguageOptions={['English (En)', 'Hindi', 'Spanish']}
-                  siteLanguage={hdSiteLanguage}
-                  onSiteLanguageChange={setHdSiteLanguage}
-                  toggles={hdToggles}
-                  onToggleChange={(key, next) =>
-                    setHdToggles((prev) => ({ ...prev, [key]: next }))
-                  }
-                  selectedFileTypes={hdSelectedFileTypes}
-                  onFileTypeToggle={(id, next) =>
-                    setHdSelectedFileTypes((prev) =>
-                      next ? [...prev, id] : prev.filter((t) => t !== id),
-                    )
-                  }
-                />
+                <HelpDeskAccountSettings {...hdAccountProps} />
               ) : (
                 <AccountSettings
                   id="1"

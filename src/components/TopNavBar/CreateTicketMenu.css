@@ -29,11 +29,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 8px;
+  height: var(--lc-input-sm);
+  padding: 0 8px;
   margin-bottom: 2px;
   border: 1px solid #D9D9D9;
   border-radius: 6px;
   color: var(--lc-color-sage-500);
+  box-sizing: border-box;
 }
 .lc-create-ticket-menu__search svg {
   flex-shrink: 0;

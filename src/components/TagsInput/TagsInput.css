@@ -106,7 +106,7 @@
   align-items: center;
   gap: 6px;
   width: 100%;
-  min-height: 32px;
+  min-height: var(--lc-input-sm);
   padding: 4px 32px 4px 8px;
   border: 1px solid var(--lc-tags-border);
   border-radius: var(--lc-tags-radius);
@@ -186,7 +186,7 @@
   align-items: center;
   justify-content: center;
   width: 32px;
-  height: 32px;
+  height: var(--lc-input-sm);
   padding: 0;
   border: 0;
   background: transparent;

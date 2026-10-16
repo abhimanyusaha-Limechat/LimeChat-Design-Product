@@ -441,7 +441,7 @@
 .lc-inspector__field input,
 .lc-inspector__select {
   box-sizing: border-box;
-  height: 24px;
+  height: var(--lc-input-xs);
   padding: 0 4px;
   border: 1px solid var(--ip-line);
   border-radius: 4px;

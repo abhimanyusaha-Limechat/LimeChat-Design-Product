@@ -126,6 +126,69 @@ const TOGGLE_ORDER: HelpDeskToggleKey[] = [
   'enableActionCableMonitoring',
 ];
 
+const ACCOUNT_TOGGLE_OPTIONS: ToggleOption<HelpDeskToggleKey>[] = TOGGLE_ORDER.map((key) => ({
+  key,
+  label: TOGGLE_COPY[key],
+}));
+
+export interface ToggleOption<K extends string> {
+  key: K;
+  label: string;
+}
+
+interface ToggleSectionProps<K extends string> {
+  /** Section heading above the table, as in AccountSettings. Omit for none. */
+  heading?: { title: string; description?: string };
+  options: readonly ToggleOption<K>[];
+  values: Record<K, boolean>;
+  onChange: (key: K, next: boolean) => void;
+  /** Extra rows after the switches, inside the same table. */
+  children?: ReactNode;
+}
+
+/** Bordered table of label | switch rows. With `heading`, it becomes a collapsible section (starts open). */
+function ToggleSection<K extends string>({ heading, options, values, onChange, children }: ToggleSectionProps<K>) {
+  const enabledCount = options.filter(({ key }) => values[key]).length;
+  const table = (
+    <section className="lc-hda__table">
+      {options.map(({ key, label }) => (
+        <ToggleRow key={key} label={label} checked={values[key]} onChange={(next) => onChange(key, next)} />
+      ))}
+      {children}
+    </section>
+  );
+  if (!heading) return table;
+
+  return (
+    <section className="lc-hda__group" aria-label={heading.title}>
+      <details className="lc-hda__collapse" open>
+        <summary className="lc-hda__section-heading">
+          <span className="lc-hda__section-text">
+            <span className="lc-hda__section-title-row">
+              <h2 className="lc-hda__section-title">{heading.title}</h2>
+              <span className="lc-hda__badge" data-active={enabledCount > 0}>
+                {enabledCount}/{options.length} enabled
+              </span>
+            </span>
+            {heading.description && <span className="lc-hda__section-desc">{heading.description}</span>}
+          </span>
+          <ChevronIcon className="lc-hda__section-chevron" />
+        </summary>
+        {table}
+      </details>
+    </section>
+  );
+}
+
+/** A HelpDesk toggle table on its own — e.g. push notifications under Profile settings. */
+export function HelpDeskToggleSettings<K extends string>(props: Omit<ToggleSectionProps<K>, 'children'>) {
+  return (
+    <div className="lc-hda">
+      <ToggleSection {...props} />
+    </div>
+  );
+}
+
 export interface FileTypeOption {
   id: string;
   label: string;
@@ -293,16 +356,11 @@ export function HelpDeskAccountSettings({
       </section>
       )}
 
-      <section className="lc-hda__table">
-        {TOGGLE_ORDER.map((key) => (
-          <ToggleRow
-            key={key}
-            label={TOGGLE_COPY[key]}
-            checked={toggles[key]}
-            onChange={(next) => onToggleChange(key, next)}
-          />
-        ))}
-
+      <ToggleSection
+        options={ACCOUNT_TOGGLE_OPTIONS}
+        values={toggles}
+        onChange={onToggleChange}
+      >
         {showFileTypes && (
         <Row
           label="Supported file types for attachments"
@@ -343,7 +401,7 @@ export function HelpDeskAccountSettings({
                     {opt.label}
                   </label>
                   {isGroup && (
-                    <span className="lc-hda__file-type-badge" data-active={selectedChildCount > 0}>
+                    <span className="lc-hda__badge" data-active={selectedChildCount > 0}>
                       {selectedChildCount}/{children.length} selected
                     </span>
                   )}
@@ -372,7 +430,7 @@ export function HelpDeskAccountSettings({
           </div>
         </Row>
         )}
-      </section>
+      </ToggleSection>
     </div>
   );
 }
