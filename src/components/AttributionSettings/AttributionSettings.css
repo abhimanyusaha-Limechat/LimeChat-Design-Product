@@ -1,24 +1,27 @@
 /**
  * AttributionSettings — Settings → Attribution, HelpDesk product.
  *
- * Reuses the same divider/text/primary tokens as DataSecuritySettings
- * (`--lc-dss-*` mirrored here as `--lc-attr-*`) so the two settings pages
- * read as one system.
+ * Same tokens/anatomy as ProfileSettings/HelpDeskAccountSettings (`--lc-ps-*` /
+ * `--lc-hda-*` mirrored here as `--lc-attr-*`) — section headings (not collapsible)
+ * above bordered tables of label | control rows split by dividers.
  */
 
 .lc-attr {
+  --lc-attr-border: var(--lc-color-gray-300);
   --lc-attr-divider: var(--lc-color-gray-200);
   --lc-attr-text-title: var(--lc-color-green-900);
   --lc-attr-text-dimmed: var(--lc-color-sage-500);
   --lc-attr-primary: var(--lc-color-green-700);
   --lc-attr-bg-subtle: var(--lc-color-stone-50);
+  --lc-attr-radius: 12px;
   --lc-attr-radius-sm: 6px;
+  --lc-attr-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
   width: 100%;
-  max-width: 920px;
+  max-width: 60%;
   color: var(--lc-attr-text-title);
   container-type: inline-size;
 }
@@ -29,32 +32,33 @@
   box-sizing: border-box;
 }
 
-.lc-attr__section {
-  display: flex;
-  flex-direction: column;
-  width: 75%;
-}
+/* --- Section: heading + table ----------------------------------------- */
 
-.lc-attr__section-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--lc-attr-divider);
+/* sections stack 40px apart (24px gap + this + the heading's 8px top padding) */
+.lc-attr__group + .lc-attr__group {
+  margin-top: 8px;
 }
 
 .lc-attr__section-heading {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  /* lines up with the row labels: table border (1px) + row padding (20px);
+     12px above its table (8px padding + 4px), as in ProfileSettings */
+  margin-bottom: 4px;
+  padding: 8px 21px;
+}
+
+.lc-attr__section-text {
+  display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .lc-attr__section-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 15px;
+  margin: 0;
+  font-size: 16px;
   font-weight: 700;
   line-height: 20px;
   color: var(--lc-attr-text-title);
@@ -67,137 +71,51 @@
   color: var(--lc-attr-text-dimmed);
 }
 
-.lc-attr__info-trigger {
-  display: inline-flex;
-  cursor: default;
-}
+/* --- Table ----------------------------------------------------------- */
 
-.lc-attr__info-icon {
-  width: 16px;
-  height: 16px;
-  color: var(--lc-attr-primary);
-}
-
-.lc-attr__toggle {
-  display: inline-flex;
-  flex-shrink: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-}
-
-.lc-attr__section-header .lc-attr__toggle {
-  margin-top: 1px;
-}
-
-.lc-attr__toggle:focus-visible {
-  outline: 2px solid var(--lc-attr-primary);
-  outline-offset: 2px;
-  border-radius: 999px;
-}
-
-.lc-attr__row {
-  display: flex;
-  align-items: flex-start;
-  gap: 24px;
-  padding-top: 20px;
-  padding-left: 20px;
-  transition: opacity 120ms ease;
-}
-
-.lc-attr__row[data-disabled='true'] {
-  opacity: 0.5;
-}
-
-.lc-attr__row-label-col {
+.lc-attr__table {
   display: flex;
   flex-direction: column;
-  flex: 0 0 auto;
-  width: 260px;
-  gap: 3px;
-  padding-top: 8px;
-}
-
-.lc-attr__row-label {
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 20px;
-  color: var(--lc-attr-text-title);
-}
-
-.lc-attr__row-desc {
-  margin: 0;
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--lc-attr-text-dimmed);
-}
-
-.lc-attr__fields {
-  display: flex;
-  gap: 24px;
-}
-
-.lc-attr__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.lc-attr__field-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--lc-attr-text-title);
-}
-
-.lc-attr__field-input {
-  width: 160px;
-  height: var(--lc-input-sm);
-  padding: 0 12px;
   border: 1px solid var(--lc-attr-divider);
-  border-radius: var(--lc-attr-radius-sm);
-  background: var(--lc-attr-bg-subtle);
-  font-family: inherit;
-  font-size: 14px;
-  color: var(--lc-attr-text-title);
-}
+  border-radius: var(--lc-attr-radius);
+  background: var(--lc-color-white);
+  overflow: hidden;
+  transition: opacity 220ms var(--lc-attr-ease-out), transform 220ms var(--lc-attr-ease-out);
 
-.lc-attr__field-input:focus-visible {
-  outline: none;
-  border-color: var(--lc-attr-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-attr-primary) 20%, transparent);
-}
-
-.lc-attr__field-input:disabled {
-  cursor: not-allowed;
-}
-
-@container (max-width: 480px) {
-  .lc-attr__row {
-    flex-direction: column;
-    gap: 8px;
-  }
-  .lc-attr__row-label-col {
-    width: auto;
-    padding-top: 0;
+  @starting-style {
+    opacity: 0;
+    transform: translateY(8px);
   }
 }
 
-/* --- Switch (shared visual language with DataSecuritySettings) ------- */
+.lc-attr__table > * + * {
+  border-top: 1px solid var(--lc-attr-divider);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-attr__table {
+    transition: opacity 180ms ease;
+    transform: none;
+  }
+}
+
+/* --- Switch (in the section heading) ---------------------------------- */
 
 .lc-attr__switch-track {
   position: relative;
   flex-shrink: 0;
   width: 40px;
   height: 22px;
+  padding: 0;
+  border: 0;
   border-radius: 999px;
   background: var(--lc-color-gray-300);
+  cursor: pointer;
   transition: background-color 150ms ease;
 }
 
-.lc-attr__switch-track[data-checked='true'] {
-  background: var(--lc-color-green-500);
+.lc-attr__switch-track[aria-checked='true'] {
+  background: var(--lc-attr-primary);
 }
 
 .lc-attr__switch-thumb {
@@ -212,6 +130,92 @@
   transition: transform 150ms ease;
 }
 
-.lc-attr__switch-track[data-checked='true'] .lc-attr__switch-thumb {
+.lc-attr__switch-track[aria-checked='true'] .lc-attr__switch-thumb {
   transform: translateX(18px);
+}
+
+.lc-attr__switch-track:focus-visible {
+  outline: 2px solid var(--lc-attr-primary);
+  outline-offset: 2px;
+}
+
+/* --- Row: label+description left, Days/Hours right --------------------- */
+
+.lc-attr__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+  gap: 24px;
+  align-items: center;
+  padding: 16px 20px;
+  transition: opacity 120ms ease;
+}
+
+.lc-attr__row[data-disabled='true'] {
+  opacity: 0.5;
+}
+
+.lc-attr__row-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lc-attr__label {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-attr-text-title);
+}
+
+.lc-attr__row-control {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  min-width: 0;
+}
+
+.lc-attr__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lc-attr__field-label {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--lc-attr-text-dimmed);
+}
+
+.lc-attr__input {
+  width: 100%;
+  height: var(--lc-input-sm);
+  padding: 0 12px;
+  border: 1px solid var(--lc-attr-border);
+  border-radius: var(--lc-attr-radius-sm);
+  background: var(--lc-color-white);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-attr-text-title);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.lc-attr__input:focus-visible {
+  outline: none;
+  border-color: var(--lc-attr-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-attr-primary) 20%, transparent);
+}
+
+.lc-attr__input:disabled {
+  cursor: not-allowed;
+}
+
+/* --- Narrow containers: stack label above control --------------------- */
+
+@container (max-width: 560px) {
+  .lc-attr__row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
 }
