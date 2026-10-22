@@ -1,0 +1,378 @@
+/**
+ * InboxSettings — same tokens/anatomy as AttributionSettings (`--lc-attr-*` mirrored
+ * here as `--lc-inbs-*`): bordered tables of label | control rows split by dividers,
+ * under a segmented tab strip like BotTemplatesTable's.
+ */
+
+.lc-inbs {
+  --lc-inbs-border: var(--lc-color-gray-300);
+  --lc-inbs-divider: var(--lc-color-gray-200);
+  --lc-inbs-text-title: var(--lc-color-green-900);
+  --lc-inbs-text-dimmed: var(--lc-color-sage-500);
+  --lc-inbs-primary: var(--lc-color-green-700);
+  --lc-inbs-radius: 12px;
+  --lc-inbs-radius-sm: 6px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 60%;
+  color: var(--lc-inbs-text-title);
+  container-type: inline-size;
+}
+
+.lc-inbs *,
+.lc-inbs *::before,
+.lc-inbs *::after {
+  box-sizing: border-box;
+}
+
+/* --- Tabs ------------------------------------------------------------ */
+
+.lc-inbs__tabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px;
+  background: var(--lc-color-gray-100);
+  border-radius: 6px;
+}
+
+.lc-inbs__tab {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 4px 16px;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-color-stone-600);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.lc-inbs__tab[data-active] {
+  background: white;
+  color: var(--lc-color-green-900);
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+}
+
+.lc-inbs__tab:focus-visible {
+  outline: 2px solid var(--lc-color-green-500);
+  outline-offset: 2px;
+}
+
+.lc-inbs__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.lc-inbs__empty {
+  margin: 0;
+  padding: 40px 20px;
+  border: 1px dashed var(--lc-inbs-border);
+  border-radius: var(--lc-inbs-radius);
+  font-size: 14px;
+  text-align: center;
+  color: var(--lc-inbs-text-dimmed);
+}
+
+/* --- Section: heading + table ----------------------------------------- */
+
+.lc-inbs__group {
+  margin-top: 8px;
+}
+
+.lc-inbs__section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  /* lines up with the row labels: table border (1px) + row padding (20px) */
+  margin-bottom: 4px;
+  padding: 8px 21px;
+}
+
+.lc-inbs__section-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lc-inbs__section-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-inbs__section-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-inbs-text-dimmed);
+}
+
+.lc-inbs__badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--lc-inbs-primary);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  color: var(--lc-color-white);
+}
+
+/* --- Switch (in a section heading) ------------------------------------- */
+
+.lc-inbs__switch-track {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--lc-color-gray-300);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.lc-inbs__switch-track[aria-checked='true'] {
+  background: var(--lc-inbs-primary);
+}
+
+.lc-inbs__switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--lc-color-white);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease;
+}
+
+.lc-inbs__switch-track[aria-checked='true'] .lc-inbs__switch-thumb {
+  transform: translateX(18px);
+}
+
+.lc-inbs__switch-track:focus-visible {
+  outline: 2px solid var(--lc-inbs-primary);
+  outline-offset: 2px;
+}
+
+.lc-inbs__section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--lc-inbs-text-title);
+}
+
+.lc-inbs__table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--lc-inbs-divider);
+  border-radius: var(--lc-inbs-radius);
+  background: var(--lc-color-white);
+  overflow: hidden;
+}
+
+.lc-inbs__table > * + * {
+  border-top: 1px solid var(--lc-inbs-divider);
+}
+
+/* --- Row: label+description left, control right ---------------------- */
+
+.lc-inbs__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+  gap: 24px;
+  align-items: center;
+  padding: 16px 20px;
+}
+
+.lc-inbs__row--stacked {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.lc-inbs__row[data-disabled='true'] {
+  opacity: 0.5;
+}
+
+.lc-inbs__row-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lc-inbs__label {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-inbs-text-title);
+}
+
+.lc-inbs__row-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-inbs-text-dimmed);
+}
+
+.lc-inbs__duration {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  min-width: 0;
+}
+
+.lc-inbs__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lc-inbs__field-label {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--lc-inbs-text-dimmed);
+}
+
+.lc-inbs__input {
+  width: 100%;
+  height: var(--lc-input-sm);
+  padding: 0 12px;
+  border: 1px solid var(--lc-inbs-border);
+  border-radius: var(--lc-inbs-radius-sm);
+  background: var(--lc-color-white);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-inbs-text-title);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.lc-inbs__input:focus-visible {
+  outline: none;
+  border-color: var(--lc-inbs-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-inbs-primary) 20%, transparent);
+}
+
+.lc-inbs__input:read-only {
+  background: var(--lc-color-stone-50);
+  color: var(--lc-inbs-text-dimmed);
+}
+
+.lc-inbs__input:disabled {
+  cursor: not-allowed;
+}
+
+.lc-inbs__textarea {
+  height: auto;
+  padding: 8px 12px;
+  resize: vertical;
+}
+
+.lc-inbs__row-desc code {
+  font-size: 11px;
+}
+
+/* --- Narrow containers: stack label above control --------------------- */
+
+/* --- Opt in/out: two fields side by side ----------------------------- */
+
+.lc-inbs__row--pair {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.lc-inbs__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lc-inbs__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px 2px 10px;
+  border: 1px solid var(--lc-inbs-primary);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-inbs-primary);
+}
+
+.lc-inbs__chip-remove {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.lc-inbs__chip-remove:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--lc-inbs-primary) 12%, transparent);
+}
+
+.lc-inbs__chip-remove:focus-visible {
+  outline: 2px solid var(--lc-inbs-primary);
+  outline-offset: 1px;
+}
+
+/* --- Waiting reminder ------------------------------------------------ */
+
+.lc-inbs__reminder-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lc-inbs__reminder-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.lc-inbs__add-reminder {
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+/* Label | control rows stack first; paired fields stay side by side until there's
+   no room for two inputs. */
+@container (max-width: 560px) {
+  .lc-inbs__row:not(.lc-inbs__row--pair) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+@container (max-width: 400px) {
+  .lc-inbs__row--pair,
+  .lc-inbs__reminder-fields {
+    grid-template-columns: 1fr;
+  }
+}

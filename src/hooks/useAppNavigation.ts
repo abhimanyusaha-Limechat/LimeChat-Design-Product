@@ -30,10 +30,23 @@ const FLOW_PAGE: Record<FlowKind, { list: Page; canvas: Page }> = {
   'bot-flows': { list: 'bot-flows-list', canvas: 'bot-flows-canvas' },
 };
 
+/** What the main area shows for a Screen. Adding a page means one `Page` member and one branch here. */
+export function pageOf({ product, selected, view, userSettings }: Screen): Page {
+  const flowKind = flowKindOf(product, selected);
+  if (userSettings) return 'user-settings';
+  if (flowKind) return FLOW_PAGE[flowKind][view];
+  if (product === 'marketing' && selected === 'segments') return 'segments';
+  if ((product === 'marketing' || product === 'helpdesk') && selected === 'templates') return 'templates';
+  if (selected === 'settings') return 'settings';
+  if (product === 'automation' && selected === 'knowledge-base') return 'knowledge-base';
+  if (product === 'helpdesk' && selected === 'tickets') return 'tickets';
+  if (product === 'helpdesk' && selected === 'contacts') return 'contacts';
+  return 'home';
+}
+
 /**
  * Which Screen is open: product, rail item, flow list/editor view, settings sub-navigation
- * and user settings. `page` is derived from that, so adding a page means one `Page` member
- * and one branch here.
+ * and user settings. `page` is derived from that by `pageOf`.
  *
  * The URL hash is the only copy of this state (ADR 0001). Every change writes a complete hash
  * and pushes a history entry; Back/Forward, manual edits and pasted links arrive as `hashchange`.
@@ -43,18 +56,9 @@ const FLOW_PAGE: Record<FlowKind, { list: Page; canvas: Page }> = {
  */
 export function useAppNavigation() {
   const [screen, setScreen] = useState(() => parseHash(window.location.hash));
-  const { product, selected, view, tab, manageIndustries, integration, changePlan, ticket, flow, userSettings } = screen;
+  const { product, selected, tab, manageIndustries, integration, inbox, changePlan, ticket, flow, userSettings } = screen;
   const flowKind = flowKindOf(product, selected);
-
-  let page: Page = 'home';
-  if (userSettings) page = 'user-settings';
-  else if (flowKind) page = FLOW_PAGE[flowKind][view];
-  else if (product === 'marketing' && selected === 'segments') page = 'segments';
-  else if ((product === 'marketing' || product === 'helpdesk') && selected === 'templates') page = 'templates';
-  else if (selected === 'settings') page = 'settings';
-  else if (product === 'automation' && selected === 'knowledge-base') page = 'knowledge-base';
-  else if (product === 'helpdesk' && selected === 'tickets') page = 'tickets';
-  else if (product === 'helpdesk' && selected === 'contacts') page = 'contacts';
+  const page = pageOf(screen);
 
   /** Shows whatever the hash says, rewriting it in place (no history entry) if any of it was broken. */
   const followHash = () => {
@@ -88,6 +92,8 @@ export function useAppNavigation() {
     manageIndustries,
     /** The Integration tab's open partner form; '' when the tile grid shows. */
     integration,
+    /** The Inboxes tab's inbox being edited; '' when the list shows. */
+    inbox,
     /** HelpDesk Billing's "Change plan" sub-view is open. */
     changePlan,
     ticketId: ticket,
@@ -104,11 +110,13 @@ export function useAppNavigation() {
     leaveCanvas: () => update({ view: 'list' }),
     openUserSettings: (tab: UserSettingsTab) => update({ userSettings: tab }),
     setUserSettingsTab: (tab: UserSettingsTab) => update({ userSettings: tab }),
-    /** Picking a tab, even the current one, also closes Manage industries, any partner form and Change plan. */
-    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '', changePlan: false }),
+    /** Picking a tab, even the current one, also closes Manage industries, any partner form, inbox edit and Change plan. */
+    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '', inbox: '', changePlan: false }),
     setManageIndustries: (open: boolean) => update({ manageIndustries: open }),
     /** Opens a partner's form on the Integration tab; '' goes back to the tile grid. */
     setIntegration: (id: string) => update({ integration: id }),
+    /** Opens an inbox's edit page on the Inboxes tab; '' goes back to the list. */
+    setInbox: (id: string) => update({ inbox: id }),
     setChangePlan: (open: boolean) => update({ changePlan: open }),
     openTicket: (id: string) => update({ ticket: id }),
   };

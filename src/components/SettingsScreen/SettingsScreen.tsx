@@ -13,6 +13,7 @@ import { SettingsPage, type DetailPanel } from '../SettingsPage';
 import { DetailsAvatar, InboxDetailsIcon, SettingsDetails, inboxFields, rowFields } from './SettingsDetails';
 import { AgentDetails, type AgentPatch } from './AgentDetails';
 import { InboxesTable } from '../InboxesTable';
+import { InboxSettings, type InboxSettingsValues } from '../InboxSettings';
 import { EventsTable } from '../EventsTable';
 import { OptOutUsersTable } from '../OptOutUsersTable';
 import { BotTemplatesTable, MediaTypeBadge, type BotTemplateRow } from '../BotTemplatesTable';
@@ -67,6 +68,7 @@ import {
   findIntegrationPartner,
   withFieldMeta,
 } from '../../data/settingsDemo';
+import { DEMO_TEMPLATES } from '../../data/templatesDemo';
 import {
   HELPDESK_ADD_CTA,
   INDUSTRY_TABS,
@@ -86,17 +88,57 @@ export interface SettingsScreenProps {
   manageIndustries: boolean;
   /** The Integration tab's open partner form, e.g. 'freshdesk'; '' shows the tile grid. */
   integration: string;
+  /** The Inboxes tab's inbox being edited, by id; '' shows the list. */
+  inbox: string;
   /** HelpDesk Billing's "Change plan" sub-view. */
   changePlan: boolean;
   onTabChange: (id: string) => void;
   onManageIndustriesChange: (next: boolean) => void;
   onIntegrationChange: (partnerId: string) => void;
+  onInboxChange: (inboxId: string) => void;
   onChangePlanChange: (open: boolean) => void;
 }
 
 const WhatsAppIcon = () => <Icon name="whatsapp" stroke="#8C8C8C" />;
 
 const PlusIcon = () => <Icon name="plus" />;
+
+// Demo: every inbox starts with the same ticket durations.
+const inboxDefaults = (name: string): InboxSettingsValues => ({
+  name,
+  durations: {
+    autoClose: { days: 0, hours: 12, minutes: 0 },
+    autoResolve: { days: 2, hours: 0, minutes: 0 },
+    autoResolveBot: { days: 0, hours: 12, minutes: 0 },
+    autoAlert: { days: 0, hours: 12, minutes: 0 },
+  },
+  internalDurations: {
+    autoClose: { days: 0, hours: 12, minutes: 0 },
+    autoResolve: { days: 2, hours: 0, minutes: 0 },
+    autoAlert: { days: 0, hours: 12, minutes: 0 },
+  },
+  waitTimeMessage: {
+    enabled: true,
+    text: 'An agent will join in to assist you...\n\nQueue Position: %{position} (%{time} approx.)',
+  },
+  conversationTracking: { enabled: true, reminder: { days: 1, hours: 0, minutes: 0 } },
+  optInOut: {
+    enabled: true,
+    optInKeywords: ['START'],
+    optOutKeywords: ['UNSUB'],
+    optOutMessage: 'You can opt in again by typing %<opt_in_key>s',
+    optInMessage: 'You have successfully opted-in.',
+  },
+  waitingReminders: {
+    enabled: true,
+    reminders: [
+      { delayMinutes: 60, templateId: '' },
+      { delayMinutes: 70, templateId: '' },
+    ],
+  },
+});
+
+const REMINDER_TEMPLATES = DEMO_TEMPLATES.map((t) => ({ value: t.id, label: t.name }));
 
 const BOT_NAMES = [
   'Sales Bot',
@@ -117,10 +159,12 @@ export function SettingsScreen({
   settingsTab,
   manageIndustries,
   integration: integrationId,
+  inbox: inboxId,
   changePlan,
   onTabChange,
   onManageIndustriesChange,
   onIntegrationChange,
+  onInboxChange,
   onChangePlanChange,
 }: SettingsScreenProps) {
   const copy = SETTINGS_COPY[settingsTab];
@@ -161,6 +205,10 @@ export function SettingsScreen({
   };
 
   const [inboxSyncing, setInboxSyncing] = useState(false);
+  // Inbox edit: the URL says which inbox is open; edits to it live here (no real API yet).
+  const [inboxEdits, setInboxEdits] = useState<Record<string, InboxSettingsValues>>({});
+  const editedInbox = inboxId ? DEMO_INBOXES.find((row) => row.id === inboxId) : undefined;
+  const editedInboxValues = editedInbox && (inboxEdits[editedInbox.id] ?? inboxDefaults(editedInbox.name));
   const visibleInboxes = DEMO_INBOXES.filter(
     (row) => row.id.includes(search.trim()) || row.name.toLowerCase().includes(query),
   );
@@ -311,7 +359,7 @@ export function SettingsScreen({
   const selectedAgent = settingsTab === 'agents' ? selectedRow : undefined;
   const closePanel = () => setSelection(null);
   const detailPanel: DetailPanel | undefined =
-    product !== 'helpdesk' || reorderingSla
+    product !== 'helpdesk' || reorderingSla || editedInbox
       ? undefined
       : selectedInbox
         ? {
@@ -358,20 +406,36 @@ export function SettingsScreen({
           ? 'Manage industries'
           : integration
             ? integration.partner.name
-            : changePlan
+            : editedInbox
+              ? editedInbox.name
+              : changePlan
               ? 'Change plan'
               : copy.title
       }
-      titleIcon={integration && <span className="lc-is-title-icon">{integration.partner.icon}</span>}
+      titleIcon={
+        integration ? (
+          <span className="lc-is-title-icon">{integration.partner.icon}</span>
+        ) : (
+          editedInbox && <InboxDetailsIcon type={editedInbox.type} />
+        )
+      }
       onBack={
-        integration ? () => onIntegrationChange('') : changePlan ? () => onChangePlanChange(false) : undefined
+        integration
+          ? () => onIntegrationChange('')
+          : editedInbox
+            ? () => onInboxChange('')
+            : changePlan
+              ? () => onChangePlanChange(false)
+              : undefined
       }
       description={
         manageIndustries
           ? SETTINGS_COPY.variable.description
           : integration
             ? integration.form.description
-            : changePlan
+            : editedInbox
+              ? undefined
+              : changePlan
               ? `You are on ${CURRENT_PLAN_TIER.name} at $${CURRENT_PLAN_TIER.pricePerMonth}/month. Prices are in USD. Recurring and usage-based charges bill every 30 days.`
               : copy.description
       }
@@ -380,7 +444,18 @@ export function SettingsScreen({
       onWatchVideo={() => alert(`Play tutorial video: ${copy.title}`)}
       onViewDocs={() => alert(`Open docs: ${copy.title}`)}
       headerActions={
-        manageIndustries ? (
+        editedInbox ? (
+          <Button
+            variant="filled"
+            color="primary"
+            size="sm"
+            style={{ width: 100 }}
+            loading={savingHelpdeskSettings}
+            onClick={fakeVerify}
+          >
+            Update
+          </Button>
+        ) : manageIndustries ? (
           <>
             <Button variant="default" size="sm" onClick={() => onManageIndustriesChange(false)}>
               Back to Bot templates
@@ -555,6 +630,17 @@ export function SettingsScreen({
             )
           }
         />
+      ) : editedInbox && editedInboxValues ? (
+        <InboxSettings
+          key={editedInbox.id}
+          type={editedInbox.type}
+          detail={editedInbox.detail}
+          templates={REMINDER_TEMPLATES}
+          values={editedInboxValues}
+          onChange={(patch) =>
+            setInboxEdits((prev) => ({ ...prev, [editedInbox.id]: { ...editedInboxValues, ...patch } }))
+          }
+        />
       ) : settingsTab === 'hd-integration' || settingsTab === 'integrations' ? (
         <IntegrationsHomePage
           categories={INTEGRATION_CATEGORIES}
@@ -637,7 +723,7 @@ export function SettingsScreen({
           searchValue={search}
           onSearchChange={setSearch}
           syncing={inboxSyncing}
-          onRowEdit={(row) => alert(`Edit inbox: ${row.name}`)}
+          onRowEdit={(row) => onInboxChange(row.id)}
           onRowDelete={(row) => alert(`Delete inbox: ${row.name}`)}
           onRowSelect={rowSelectable ? (row) => selectRowId(row.id) : undefined}
           selectedId={selectedId}
