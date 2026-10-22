@@ -1,0 +1,208 @@
+/**
+ * ChangePlan — Settings → Billing → Change plan, HelpDesk product.
+ * Tokens mirror BillingSettings, as `--lc-plans-*`; the comparison table is the shared DataTable.
+ */
+
+.lc-plans {
+  --lc-plans-border: var(--lc-color-gray-200);
+  --lc-plans-text-title: var(--lc-color-green-900);
+  --lc-plans-text-body: var(--lc-color-sage-600);
+  --lc-plans-primary: var(--lc-color-green-700);
+
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  color: var(--lc-plans-text-title);
+  container-type: inline-size;
+}
+
+/* --- Plan cards ------------------------------------------------------- */
+
+.lc-plans__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lc-plans__card {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  border: 1px solid var(--lc-plans-border);
+  border-radius: 16px;
+  background: var(--lc-color-white);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.lc-plans__card:hover {
+  box-shadow: 0 4px 16px rgba(60, 73, 44, 0.08);
+}
+
+.lc-plans__card:not([data-current='true']):hover {
+  border-color: color-mix(in srgb, var(--lc-plans-primary) 40%, var(--lc-color-white));
+}
+
+.lc-plans__card[data-current='true'] {
+  border: 2px solid var(--lc-plans-primary);
+  padding: 23px;
+  background: color-mix(in srgb, var(--lc-plans-primary) 7%, var(--lc-color-white));
+}
+
+.lc-plans__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 24px;
+}
+
+.lc-plans__name {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lc-plans-text-body);
+}
+
+.lc-plans__badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--lc-plans-primary);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  color: var(--lc-color-white);
+}
+
+.lc-plans__price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin: 12px 0 0;
+}
+
+.lc-plans__amount {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.lc-plans__per,
+.lc-plans__extra {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-plans-text-body);
+}
+
+.lc-plans__extra {
+  margin: 8px 0 0;
+}
+
+.lc-plans__features {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--lc-plans-border);
+}
+
+.lc-plans__card[data-current='true'] .lc-plans__features {
+  border-top-color: color-mix(in srgb, var(--lc-plans-primary) 20%, var(--lc-color-white));
+}
+
+.lc-plans__inherits {
+  align-self: flex-start;
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--lc-color-green-100);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  color: var(--lc-color-green-800);
+}
+
+.lc-plans__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* --- Comparison section ------------------------------------------------- */
+
+.lc-plans__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lc-plans__heading {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 22px;
+}
+
+/* --- Comparison table (DataTable frame, our columns) -------------------- */
+
+.lc-plans__table {
+  flex: none;
+  border: 1px solid var(--lc-plans-border);
+  border-radius: 12px;
+}
+
+.lc-plans__table .lc-dt__row {
+  min-width: 640px;
+}
+
+.lc-plans__table .lc-dt__row--head {
+  background: var(--lc-color-gray-50);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lc-plans__table .lc-dt__row--body {
+  height: 48px;
+  font-size: 14px;
+}
+
+.lc-plans__cell {
+  flex: 1 1 0;
+  min-width: 96px;
+}
+
+.lc-plans__cell--feature {
+  flex-grow: 2.4;
+  min-width: 240px;
+}
+
+.lc-plans__check {
+  display: block;
+  color: var(--lc-plans-primary);
+}
+
+.lc-plans__cell[data-current='true'] {
+  color: var(--lc-plans-primary);
+}
+
+/* --- Narrow containers: stack the cards --------------------------------- */
+
+@container (max-width: 760px) {
+  .lc-plans__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

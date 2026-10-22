@@ -43,7 +43,7 @@ const FLOW_PAGE: Record<FlowKind, { list: Page; canvas: Page }> = {
  */
 export function useAppNavigation() {
   const [screen, setScreen] = useState(() => parseHash(window.location.hash));
-  const { product, selected, view, tab, manageIndustries, integration, ticket, flow, userSettings } = screen;
+  const { product, selected, view, tab, manageIndustries, integration, changePlan, ticket, flow, userSettings } = screen;
   const flowKind = flowKindOf(product, selected);
 
   let page: Page = 'home';
@@ -88,6 +88,8 @@ export function useAppNavigation() {
     manageIndustries,
     /** The Integration tab's open partner form; '' when the tile grid shows. */
     integration,
+    /** HelpDesk Billing's "Change plan" sub-view is open. */
+    changePlan,
     ticketId: ticket,
     /** Which Broadcast, Flow or Bot flow list/editor this item opens, if any. */
     flowKind,
@@ -102,11 +104,12 @@ export function useAppNavigation() {
     leaveCanvas: () => update({ view: 'list' }),
     openUserSettings: (tab: UserSettingsTab) => update({ userSettings: tab }),
     setUserSettingsTab: (tab: UserSettingsTab) => update({ userSettings: tab }),
-    /** Picking a tab, even the current one, also closes Manage industries and any partner form. */
-    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '' }),
+    /** Picking a tab, even the current one, also closes Manage industries, any partner form and Change plan. */
+    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '', changePlan: false }),
     setManageIndustries: (open: boolean) => update({ manageIndustries: open }),
     /** Opens a partner's form on the Integration tab; '' goes back to the tile grid. */
     setIntegration: (id: string) => update({ integration: id }),
+    setChangePlan: (open: boolean) => update({ changePlan: open }),
     openTicket: (id: string) => update({ ticket: id }),
   };
 }

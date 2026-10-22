@@ -157,6 +157,7 @@ describe('useAppNavigation', () => {
       ['#/helpdesk/settings?tab=agents', { page: 'settings', tab: 'agents' }],
       ['#/automation/settings?tab=bot-templates&industries=1', { page: 'settings', manageIndustries: true }],
       ['#/helpdesk/settings?tab=hd-integration&integration=freshdesk', { page: 'settings', integration: 'freshdesk' }],
+      ['#/helpdesk/settings?tab=billing&plans=1', { page: 'settings', tab: 'billing', changePlan: true }],
       ['#/marketing/segments?user=profile', { page: 'user-settings', userSettingsTab: 'profile' }],
       ['#/helpdesk/tickets?user=account', { page: 'user-settings', userSettingsTab: 'account' }],
     ])('restores %s in one step', (hash, expected) => {
@@ -272,6 +273,16 @@ describe('useAppNavigation', () => {
       expect(history.length).toBe(before + 1);
     });
 
+    it('opens Change plan from Billing and closes it on picking a tab', () => {
+      history.replaceState(null, '', '#/helpdesk/settings?tab=billing');
+      const { result } = setup();
+      act(() => result.current.setChangePlan(true));
+      expect(location.hash).toBe('#/helpdesk/settings?tab=billing&plans=1');
+      act(() => result.current.setTab('billing'));
+      expect(location.hash).toBe('#/helpdesk/settings?tab=billing');
+      expect(result.current.changePlan).toBe(false);
+    });
+
     it('composes back-to-back changes made in one handler', () => {
       history.replaceState(null, '', '#/automation/settings?tab=bot-templates&industries=1');
       const { result } = setup();
@@ -315,6 +326,8 @@ describe('useAppNavigation', () => {
       ['#/helpdesk/settings?integration=freshdesk', '#/helpdesk/settings', { integration: '' }],
       ['#/helpdesk/settings?tab=hd-integration&integration=constructor', '#/helpdesk/settings?tab=hd-integration', { integration: '' }],
       ['#/helpdesk/tickets?user=admin', '#/helpdesk/tickets', { page: 'tickets' }],
+      ['#/helpdesk/settings?tab=agents&plans=1', '#/helpdesk/settings?tab=agents', { changePlan: false }],
+      ['#/helpdesk/settings?tab=billing&plans=yes', '#/helpdesk/settings?tab=billing', { changePlan: false }],
     ])('corrects %s to %s in place', (hash, corrected, expected) => {
       history.replaceState(null, '', hash);
       const before = history.length;

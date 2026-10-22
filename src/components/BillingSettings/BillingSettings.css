@@ -1,0 +1,221 @@
+/**
+ * BillingSettings — Settings → Billing, HelpDesk product.
+ * Tinted main area over a white footer; tokens mirror BotCsatSettings, as `--lc-billing-*`.
+ */
+
+.lc-billing {
+  --lc-billing-border: var(--lc-color-gray-200);
+  --lc-billing-text-title: var(--lc-color-green-900);
+  --lc-billing-text-dimmed: var(--lc-color-sage-500);
+  --lc-billing-text-body: var(--lc-color-sage-600);
+  --lc-billing-primary: var(--lc-color-green-700);
+  --lc-billing-warning: var(--lc-color-amber-600);
+  /* amber-600 is ~2.8:1 on the tinted card — too faint for text. No darker amber token yet. */
+  --lc-billing-warning-text: #8a5a00;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 60%;
+  color: var(--lc-billing-text-title);
+  container-type: inline-size;
+}
+
+.lc-billing p {
+  margin: 0;
+}
+
+.lc-billing__card {
+  border: 1px solid var(--lc-billing-border);
+  border-radius: 16px;
+  background: var(--lc-color-white);
+  overflow: hidden;
+}
+
+/* --- Main (tinted) ----------------------------------------------------- */
+
+.lc-billing__main {
+  display: flex;
+  flex-direction: column;
+  /* Usage figures, bar and dates read as one block: tight inside, more air above it. */
+  gap: 12px;
+  padding: 24px 32px;
+  background: color-mix(in srgb, var(--lc-billing-primary) 7%, var(--lc-color-white));
+}
+
+.lc-billing__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.lc-billing__plan {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lc-billing__plan-label {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lc-billing-text-dimmed);
+}
+
+.lc-billing__plan-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.lc-billing__plan-name {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.lc-billing__plan-price {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-billing-text-body);
+}
+
+.lc-billing__plan-price strong {
+  color: var(--lc-billing-text-title);
+}
+
+.lc-billing__usage {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.lc-billing__used {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.lc-billing__used-count {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.lc-billing__used-of {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-billing-text-body);
+}
+
+.lc-billing__used-pct[data-over='true'] {
+  font-weight: 700;
+  color: var(--lc-billing-warning-text);
+}
+
+.lc-billing__renews {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-billing-text-body);
+}
+
+/* --- Segmented usage bar --------------------------------------------- */
+
+.lc-billing__bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--lc-color-gray-300);
+}
+
+.lc-billing__segment {
+  height: 12px;
+  border-radius: 999px;
+  background: var(--lc-color-white);
+  overflow: hidden;
+}
+
+.lc-billing__segment-fill {
+  display: block;
+  height: 100%;
+  background: var(--lc-billing-primary);
+}
+
+.lc-billing__bar[data-over='true'] .lc-billing__segment-fill {
+  background: var(--lc-billing-warning);
+}
+
+.lc-billing__cycle-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lc-billing__cycle {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-billing-text-body);
+}
+
+.lc-billing__days-left {
+  color: var(--lc-billing-text-title);
+}
+
+/* --- Footer: other allowances ---------------------------------------- */
+
+.lc-billing__footer {
+  padding: 16px 32px;
+  border-top: 1px solid var(--lc-billing-border);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-billing-text-body);
+}
+
+.lc-billing__footer strong {
+  color: var(--lc-billing-text-title);
+}
+
+/* --- Payment note ---------------------------------------------------- */
+
+.lc-billing__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--lc-billing-text-dimmed);
+}
+
+.lc-billing__note svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* --- Narrow containers: stack what's left under the used count -------- */
+
+@container (max-width: 560px) {
+  .lc-billing__main,
+  .lc-billing__footer {
+    padding-inline: 20px;
+  }
+
+  .lc-billing__usage {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

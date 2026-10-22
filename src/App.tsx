@@ -58,8 +58,8 @@ const TOP_NAV_BY_PRODUCT = {
 export function App() {
   const { signOut } = useClerk();
   const nav = useAppNavigation();
-  const { product, selected, page, tab, manageIndustries, integration, userSettingsTab, ticketId, flowKind, flowId } = nav;
-  const { switchProduct, leaveCanvas, setTab, setManageIndustries, setIntegration, setUserSettingsTab } = nav;
+  const { product, selected, page, tab, manageIndustries, integration, changePlan, userSettingsTab, ticketId, flowKind, flowId } = nav;
+  const { switchProduct, leaveCanvas, setTab, setManageIndustries, setIntegration, setChangePlan, setUserSettingsTab } = nav;
   const preset = sidebarPresets[product];
   // Account/Profile settings reached from the avatar popover — a dedicated
   // page with just those two tabs, separate from the product's own (much
@@ -220,6 +220,7 @@ export function App() {
                         },
                         ...(manageIndustries ? [{ label: 'Manage industries' }] : []),
                         ...(integration ? [{ label: findIntegrationPartner(integration)?.name ?? integration }] : []),
+                        ...(changePlan ? [{ label: 'Change plan' }] : []),
                       ]
                     : page === 'knowledge-base'
                       ? [
@@ -370,6 +371,8 @@ export function App() {
               onManageIndustriesChange={setManageIndustries}
               integration={integration}
               onIntegrationChange={setIntegration}
+              changePlan={changePlan}
+              onChangePlanChange={setChangePlan}
             />
           )}
 

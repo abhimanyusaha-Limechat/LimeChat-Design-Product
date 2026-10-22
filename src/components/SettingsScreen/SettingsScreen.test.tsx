@@ -19,18 +19,22 @@ function Harness({
 }) {
   const [tab, setTab] = useState(initialTab);
   const [integration, setIntegration] = useState('');
+  const [changePlan, setChangePlan] = useState(false);
   return (
     <SettingsScreen
       product={product}
       settingsTab={tab}
       manageIndustries={false}
       integration={integration}
+      changePlan={changePlan}
       onTabChange={(id) => {
         setTab(id);
         setIntegration('');
+        setChangePlan(false);
       }}
       onManageIndustriesChange={onManageIndustriesChange}
       onIntegrationChange={setIntegration}
+      onChangePlanChange={setChangePlan}
     />
   );
 }
@@ -197,5 +201,20 @@ describe('SettingsScreen integration forms', () => {
       .map((p) => p.id)
       .filter((id) => !INTEGRATION_FORMS[id]);
     expect(missing).toEqual([]);
+  });
+});
+
+describe('SettingsScreen Change plan', () => {
+  it('opens from Upgrade plan, marks the current plan, and goes back to Billing', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="billing" />);
+
+    await user.click(screen.getByRole('button', { name: 'Upgrade plan' }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Change plan');
+    expect(screen.getByRole('button', { name: 'Current plan' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Switch to Growth' })).toBeEnabled();
+
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(SETTINGS_COPY.billing.title);
   });
 });

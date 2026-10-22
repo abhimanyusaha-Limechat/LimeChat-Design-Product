@@ -46,8 +46,8 @@ export interface SettingsPageProps {
   onViewDocs?: () => void;
   /** Rendered at the right end of the header (e.g. a Save button), after the video/docs CTAs. */
   headerActions?: ReactNode;
-  /** Overrides the content card's padding in px (default 16). */
-  contentPadding?: number;
+  /** Overrides the content card's padding: px for every side, or a CSS `padding` value (default 16). */
+  contentPadding?: number | string;
   /** Closable 320px details panel at the right edge. Omit to hide. */
   detailPanel?: DetailPanel;
   children?: ReactNode;
