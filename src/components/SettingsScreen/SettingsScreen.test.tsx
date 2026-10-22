@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsScreen } from './SettingsScreen';
 import { SETTINGS_COPY, SETTINGS_TABS_BY_PRODUCT } from './settingsTabs';
-import { INTEGRATION_CATEGORIES, INTEGRATION_FORMS } from '../../data/settingsDemo';
+import { DEMO_INBOXES, INTEGRATION_CATEGORIES, INTEGRATION_FORMS } from '../../data/settingsDemo';
 
 // Stands in for App: the URL-owned tab and Product come from outside the Screen.
 function Harness({
@@ -19,6 +19,7 @@ function Harness({
 }) {
   const [tab, setTab] = useState(initialTab);
   const [integration, setIntegration] = useState('');
+  const [inbox, setInbox] = useState('');
   const [changePlan, setChangePlan] = useState(false);
   return (
     <SettingsScreen
@@ -26,14 +27,17 @@ function Harness({
       settingsTab={tab}
       manageIndustries={false}
       integration={integration}
+      inbox={inbox}
       changePlan={changePlan}
       onTabChange={(id) => {
         setTab(id);
         setIntegration('');
+        setInbox('');
         setChangePlan(false);
       }}
       onManageIndustriesChange={onManageIndustriesChange}
       onIntegrationChange={setIntegration}
+      onInboxChange={setInbox}
       onChangePlanChange={setChangePlan}
     />
   );
@@ -216,5 +220,47 @@ describe('SettingsScreen Change plan', () => {
 
     await user.click(screen.getByRole('button', { name: 'Back' }));
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(SETTINGS_COPY.billing.title);
+  });
+});
+
+describe('SettingsScreen inbox edit', () => {
+  it("opens from a row's Edit action, keeps edits, and goes back to the list", async () => {
+    const user = userEvent.setup();
+    const inbox = DEMO_INBOXES[0];
+    render(<Harness product="helpdesk" initialTab="inboxes" />);
+
+    const row = (await screen.findByText(inbox.name, {}, { timeout: 2000 })).closest<HTMLElement>('[role="row"]');
+    await user.click(within(row!).getByRole('button', { name: 'More actions' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Edit' }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(inbox.name);
+    expect(screen.getByRole('textbox', { name: 'Phone number' })).toHaveValue(inbox.detail);
+
+    const ticketDetails = within(screen.getByRole('region', { name: 'Ticket details' }));
+    const hours = within(ticketDetails.getByRole('group', { name: 'Auto close duration' })).getByRole('spinbutton', { name: 'Hours' });
+    await user.clear(hours);
+    await user.type(hours, '99');
+    expect(hours).toHaveValue(23);
+
+    const tracking = within(screen.getByRole('region', { name: 'Enable conversation tracking' }));
+    await user.click(tracking.getByRole('switch', { name: 'Enable conversation tracking' }));
+    expect(tracking.getByRole('spinbutton', { name: 'Days' })).toBeDisabled();
+
+    const optIn = within(screen.getByRole('region', { name: 'Opt in/out' }));
+    await user.type(optIn.getByRole('textbox', { name: 'Opt in keyword' }), 'go{Enter}');
+    expect(optIn.getByRole('button', { name: 'Remove GO' })).toBeInTheDocument();
+    await user.click(optIn.getByRole('button', { name: 'Remove START' }));
+    expect(optIn.getByRole('textbox', { name: 'Preview' })).toHaveValue('You can opt in again by typing GO');
+
+    const reminders = within(screen.getByRole('region', { name: 'Waiting reminder' }));
+    await user.click(reminders.getByRole('button', { name: 'Add reminder' }));
+    expect(reminders.getByRole('group', { name: 'Reminder 3' })).toBeInTheDocument();
+    await user.click(reminders.getByRole('button', { name: 'Delete reminder 1' }));
+    expect(reminders.queryByRole('group', { name: 'Reminder 3' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: 'CSAT' }));
+    expect(screen.getByText("CSAT settings aren't designed yet.")).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(SETTINGS_COPY.inboxes.title);
   });
 });

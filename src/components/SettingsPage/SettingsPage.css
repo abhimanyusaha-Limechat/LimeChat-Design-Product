@@ -165,6 +165,11 @@
   border-bottom: 1px solid var(--lc-sp-border);
 }
 
+/* With no description the header is one line, so centre the title, icons and actions on it. */
+.lc-sp__header:not(:has(.lc-sp__description)) {
+  align-items: center;
+}
+
 .lc-sp__header-text {
   display: flex;
   flex-direction: column;
