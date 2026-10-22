@@ -170,6 +170,7 @@
   flex-direction: column;
   gap: 0;
   min-width: 0;
+  margin-right: auto; /* keeps an optional `titleIcon` snug against the title */
 }
 
 .lc-sp__header-actions {
@@ -415,6 +416,12 @@
   /* Tint, not a flat grey, so it reads on the green header. */
   background: color-mix(in srgb, var(--lc-sp-primary) 12%, transparent);
   color: var(--lc-sp-text-title);
+}
+
+/* Header back arrow (`onBack`) reuses the icon-button look above. */
+.lc-sp__back {
+  align-self: center;
+  margin-right: -4px; /* the 28px hit area already pads the arrow */
 }
 
 .lc-sp__detail-btn:focus-visible {

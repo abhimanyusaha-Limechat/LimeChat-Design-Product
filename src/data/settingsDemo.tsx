@@ -1,5 +1,6 @@
 import { type SettingsTab } from '../components/SettingsPage';
 import { BigCommerceIcon, BlueDartIcon, CashfreeIcon, ClickPostIcon, DelhiveryIcon, EasyEcomIcon, EzyslipsIcon, FreshdeskIcon, GoogleSheetsIcon, HubSpotIcon, InitialsIcon, KaptureIcon, MagentoIcon, OdooIcon, OnedirectIcon, PayUIcon, PickrrIcon, RazorpayIcon, SalesforceIcon, ShipDelightIcon, ShiprocketIcon, ShopifyIcon, SlackIcon, StripeIcon, UnicommerceIcon, WebhookIcon, WhatsAppBusinessIcon, WooCommerceIcon, ZendeskIcon, ZohoCrmIcon, ZohoDeskIcon, type IntegrationCategory } from '../components/IntegrationsHomePage';
+import { type IntegrationField, type IntegrationSettingsProps } from '../components/IntegrationSettings';
 import { type InboxRowData } from '../components/InboxesTable';
 import { type EventRowData } from '../components/EventsTable';
 import { type OptOutUserRowData } from '../components/OptOutUsersTable';
@@ -84,6 +85,257 @@ export const INTEGRATION_CATEGORIES: IntegrationCategory[] = [
     ],
   },
 ];
+
+/** The partner tile with this id, from any category. */
+export const findIntegrationPartner = (id: string) =>
+  INTEGRATION_CATEGORIES.flatMap((c) => c.partners).find((p) => p.id === id);
+
+/** Each Integration tile's connection form. Values are fake demo data; not-connected partners start empty. */
+export const INTEGRATION_FORMS: Record<
+  string,
+  {
+    status: IntegrationSettingsProps['status'];
+    /** Subheading under the page title. */
+    description: string;
+    fields: IntegrationField[];
+    values?: Record<string, string>;
+  }
+> = {
+  // --- CRM ---
+  freshdesk: {
+    status: 'connected',
+    description: 'Create and sync Freshdesk tickets from LimeChat conversations.',
+    fields: [
+      { id: 'domain', label: 'Domain', description: 'Your Freshdesk portal address.', placeholder: 'yourcompany.freshdesk.com' },
+      { id: 'widgetId', label: 'Widget ID', description: 'Identifies your Freshdesk help widget.', placeholder: 'e.g. 82000001234', help: true },
+      { id: 'apiKey', label: 'API key', description: 'Found under Profile settings in Freshdesk.', type: 'password', help: true },
+      { id: 'password', label: 'Password', description: 'The password of your Freshdesk admin account.', type: 'password' },
+    ],
+    values: { domain: 'acme.freshdesk.com', widgetId: '82000001234', apiKey: 'demo-api-key-0000', password: 'demo-password' },
+  },
+  kapture: {
+    status: 'not-connected',
+    description: 'Create and sync Kapture tickets from LimeChat conversations.',
+    fields: [
+      { id: 'domain', label: 'Domain', description: 'Your Kapture CRM address.', placeholder: 'yourcompany.kapturecrm.com' },
+      { id: 'authKey', label: 'Auth key', description: 'Generated under Settings → API in Kapture.', type: 'password', help: true },
+    ],
+  },
+  'zoho-desk': {
+    status: 'not-connected',
+    description: 'Create and sync Zoho Desk tickets from LimeChat conversations.',
+    fields: [
+      { id: 'orgId', label: 'Organisation ID', description: 'Shown under Setup → Developer Space in Zoho Desk.', placeholder: 'e.g. 60001234567', help: true },
+      { id: 'clientId', label: 'Client ID', description: 'From your app in the Zoho API Console.' },
+      { id: 'clientSecret', label: 'Client secret', description: 'Shown next to the Client ID in the API Console.', type: 'password' },
+    ],
+  },
+  onedirect: {
+    status: 'not-connected',
+    description: 'Create and sync Onedirect tickets from LimeChat conversations.',
+    fields: [
+      { id: 'domain', label: 'Domain', description: 'Your Onedirect workspace address.', placeholder: 'yourcompany.onedirect.in' },
+      { id: 'apiKey', label: 'API key', description: 'Generated under Admin → Integrations in Onedirect.', type: 'password', help: true },
+    ],
+  },
+  zendesk: {
+    status: 'not-connected',
+    description: 'Create and sync Zendesk tickets from LimeChat conversations.',
+    fields: [
+      { id: 'subdomain', label: 'Subdomain', description: 'Your Zendesk help centre address.', placeholder: 'yourcompany.zendesk.com' },
+      { id: 'email', label: 'Agent email', description: 'The admin email the API token belongs to.', placeholder: 'admin@yourcompany.com' },
+      { id: 'apiToken', label: 'API token', description: 'Created under Admin Center → Apps and integrations → APIs.', type: 'password', help: true },
+    ],
+  },
+  odoo: {
+    status: 'not-connected',
+    description: 'Create and sync Odoo helpdesk tickets from LimeChat conversations.',
+    fields: [
+      { id: 'url', label: 'Server URL', description: 'The address you open Odoo at.', placeholder: 'https://yourcompany.odoo.com' },
+      { id: 'database', label: 'Database', description: 'Your Odoo database name.' },
+      { id: 'username', label: 'Username', description: 'The login of the user LimeChat acts as.' },
+      { id: 'apiKey', label: 'API key', description: 'Created under Preferences → Account Security in Odoo.', type: 'password', help: true },
+    ],
+  },
+
+  // --- Logistics ---
+  shiprocket: {
+    status: 'connected',
+    description: 'Share live Shiprocket shipment tracking with your customers.',
+    fields: [
+      { id: 'email', label: 'API user email', description: 'The API user created under Settings → API in Shiprocket.', help: true },
+      { id: 'password', label: 'API user password', description: 'Set when you created the API user.', type: 'password' },
+    ],
+    values: { email: 'api@acme.in', password: 'demo-password' },
+  },
+  ezyslips: {
+    status: 'not-connected',
+    description: 'Share live Ezyslips shipment tracking with your customers.',
+    fields: [
+      { id: 'email', label: 'Account email', description: 'The email you sign in to Ezyslips with.' },
+      { id: 'apiKey', label: 'API key', description: 'Found under Settings → API in Ezyslips.', type: 'password', help: true },
+    ],
+  },
+  pickrr: {
+    status: 'not-connected',
+    description: 'Share live Pickrr shipment tracking with your customers.',
+    fields: [
+      { id: 'authToken', label: 'Auth token', description: 'Found under Settings → API in your Pickrr dashboard.', type: 'password', help: true },
+    ],
+  },
+  easyecom: {
+    status: 'not-connected',
+    description: 'Share live EasyEcom order and shipment status with your customers.',
+    fields: [
+      { id: 'apiKey', label: 'API key', description: 'Generated under Account → API in EasyEcom.', type: 'password', help: true },
+      { id: 'locationKey', label: 'Location key', description: 'The warehouse orders are shipped from.' },
+    ],
+  },
+  unicommerce: {
+    status: 'not-connected',
+    description: 'Share live Unicommerce order and shipment status with your customers.',
+    fields: [
+      { id: 'tenant', label: 'Tenant', description: 'Your Unicommerce account address.', placeholder: 'yourcompany.unicommerce.com' },
+      { id: 'username', label: 'Username', description: 'A Unicommerce user with order access.' },
+      { id: 'password', label: 'Password', description: 'That user’s password.', type: 'password' },
+    ],
+  },
+  shipdelight: {
+    status: 'not-connected',
+    description: 'Share live ShipDelight shipment tracking with your customers.',
+    fields: [
+      { id: 'apiKey', label: 'API key', description: 'Shared by your ShipDelight account manager.', type: 'password' },
+    ],
+  },
+  bluedart: {
+    status: 'not-connected',
+    description: 'Share live Blue Dart shipment tracking with your customers.',
+    fields: [
+      { id: 'loginId', label: 'Login ID', description: 'Your Blue Dart customer login.' },
+      { id: 'licenseKey', label: 'Licence key', description: 'Issued with your Blue Dart API access.', type: 'password', help: true },
+    ],
+  },
+  clickpost: {
+    status: 'not-connected',
+    description: 'Share live ClickPost shipment tracking with your customers.',
+    fields: [
+      { id: 'username', label: 'Username', description: 'Your ClickPost account username.' },
+      { id: 'apiKey', label: 'API key', description: 'Found under Settings → API Keys in ClickPost.', type: 'password', help: true },
+    ],
+  },
+  delhivery: {
+    status: 'not-connected',
+    description: 'Share live Delhivery shipment tracking with your customers.',
+    fields: [
+      { id: 'apiToken', label: 'API token', description: 'Found under Settings → API Setup in Delhivery One.', type: 'password', help: true },
+    ],
+  },
+
+  // --- Storefront ---
+  shopify: {
+    status: 'connected',
+    description: 'Bring Shopify orders, products and customers into LimeChat.',
+    fields: [
+      { id: 'storeUrl', label: 'Store URL', description: 'Your store’s myshopify.com address.', placeholder: 'yourstore.myshopify.com' },
+      { id: 'accessToken', label: 'Admin API access token', description: 'From the custom app you created in Shopify admin.', type: 'password', help: true },
+    ],
+    values: { storeUrl: 'acme.myshopify.com', accessToken: 'demo-access-token' },
+  },
+  woocommerce: {
+    status: 'not-connected',
+    description: 'Bring WooCommerce orders, products and customers into LimeChat.',
+    fields: [
+      { id: 'storeUrl', label: 'Store URL', description: 'Your WordPress site address.', placeholder: 'https://yourstore.com' },
+      { id: 'consumerKey', label: 'Consumer key', description: 'Created under WooCommerce → Settings → Advanced → REST API.', help: true },
+      { id: 'consumerSecret', label: 'Consumer secret', description: 'Shown once, next to the consumer key.', type: 'password' },
+    ],
+  },
+  magento: {
+    status: 'not-connected',
+    description: 'Bring Magento orders, products and customers into LimeChat.',
+    fields: [
+      { id: 'storeUrl', label: 'Store URL', description: 'Your Magento store address.', placeholder: 'https://yourstore.com' },
+      { id: 'accessToken', label: 'Access token', description: 'From the integration under System → Extensions → Integrations.', type: 'password', help: true },
+    ],
+  },
+  bigcommerce: {
+    status: 'not-connected',
+    description: 'Bring BigCommerce orders, products and customers into LimeChat.',
+    fields: [
+      { id: 'storeHash', label: 'Store hash', description: 'The code in your store’s API path, e.g. abc123.' },
+      { id: 'accessToken', label: 'Access token', description: 'Created under Settings → API accounts in BigCommerce.', type: 'password', help: true },
+    ],
+  },
+
+  // --- Billing ---
+  razorpay: {
+    status: 'error',
+    description: 'Send Razorpay payment links and track payment status in chat.',
+    fields: [
+      { id: 'keyId', label: 'Key ID', description: 'Found under Account & Settings → API Keys in Razorpay.', placeholder: 'rzp_live_…', help: true },
+      { id: 'keySecret', label: 'Key secret', description: 'Shown once, when the key is generated.', type: 'password' },
+    ],
+    values: { keyId: 'rzp_test_demo0000', keySecret: 'demo-secret' },
+  },
+  stripe: {
+    status: 'not-connected',
+    description: 'Send Stripe payment links and track payment status in chat.',
+    fields: [
+      { id: 'secretKey', label: 'Secret key', description: 'Found under Developers → API keys in Stripe.', type: 'password', placeholder: 'sk_live_…', help: true },
+    ],
+  },
+  payu: {
+    status: 'not-connected',
+    description: 'Send PayU payment links and track payment status in chat.',
+    fields: [
+      { id: 'merchantKey', label: 'Merchant key', description: 'Found under Developers → API Keys in the PayU dashboard.', help: true },
+      { id: 'merchantSalt', label: 'Merchant salt', description: 'Shown next to the merchant key.', type: 'password' },
+    ],
+  },
+  cashfree: {
+    status: 'not-connected',
+    description: 'Send Cashfree payment links and track payment status in chat.',
+    fields: [
+      { id: 'appId', label: 'App ID', description: 'Found under Developers → API Keys in Cashfree.', help: true },
+      { id: 'secretKey', label: 'Secret key', description: 'Shown next to the App ID.', type: 'password' },
+    ],
+  },
+
+  // --- Others ---
+  'google-sheets': {
+    status: 'not-connected',
+    description: 'Log ticket and conversation data to a Google Sheet.',
+    fields: [
+      { id: 'sheetUrl', label: 'Spreadsheet URL', description: 'Share the sheet with LimeChat’s service account first.', placeholder: 'https://docs.google.com/spreadsheets/d/…' },
+      { id: 'sheetName', label: 'Sheet name', description: 'The tab rows are written to.', placeholder: 'Sheet1' },
+    ],
+  },
+  slack: {
+    status: 'not-connected',
+    description: 'Get ticket alerts in a Slack channel.',
+    fields: [
+      { id: 'botToken', label: 'Bot token', description: 'From OAuth & Permissions in your Slack app.', type: 'password', placeholder: 'xoxb-…', help: true },
+      { id: 'channel', label: 'Channel', description: 'Where ticket alerts are posted.', placeholder: '#support-alerts' },
+    ],
+  },
+  'whatsapp-business': {
+    status: 'not-connected',
+    description: 'Reply to WhatsApp Business messages from LimeChat.',
+    fields: [
+      { id: 'phoneNumberId', label: 'Phone number ID', description: 'Found under WhatsApp → API Setup in Meta for Developers.', help: true },
+      { id: 'accountId', label: 'Business account ID', description: 'Shown under the phone number ID.' },
+      { id: 'accessToken', label: 'Access token', description: 'A permanent token from a system user.', type: 'password' },
+    ],
+  },
+  webhook: {
+    status: 'not-connected',
+    description: 'Send ticket events to your own server as they happen.',
+    fields: [
+      { id: 'url', label: 'Endpoint URL', description: 'LimeChat sends ticket events here as POST requests.', placeholder: 'https://yourserver.com/limechat' },
+      { id: 'secret', label: 'Signing secret', description: 'Used to sign each request so you can verify it.', type: 'password' },
+    ],
+  },
+};
 
 // Shown only in the ticket panel's "Create a ticket" picker, to fill its third row.
 export const EXTRA_CRM_PARTNERS: IntegrationCategory['partners'] = [

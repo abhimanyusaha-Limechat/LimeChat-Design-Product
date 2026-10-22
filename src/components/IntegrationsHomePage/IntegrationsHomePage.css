@@ -24,6 +24,95 @@
   box-sizing: border-box;
 }
 
+.lc-ihp__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Chips mirror BotTemplatesTable's `.lc-bt__filter-chip`. */
+.lc-ihp__chips {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.lc-ihp__chip {
+  appearance: none;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--lc-color-gray-200, #e5e5e5);
+  border-radius: 4px;
+  background: white;
+  font: inherit;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--lc-ihp-text-dimmed);
+  cursor: pointer;
+}
+
+.lc-ihp__chip:hover {
+  background: var(--lc-ihp-tile-bg);
+}
+
+.lc-ihp__chip[aria-pressed='true'] {
+  border-color: var(--lc-color-green-700);
+  background: var(--lc-color-green-100);
+  color: var(--lc-color-green-900);
+  font-weight: 700;
+}
+
+.lc-ihp__chip:focus-visible {
+  outline: 2px solid var(--lc-color-green-500);
+  outline-offset: 2px;
+}
+
+/* Search mirrors TemplatesHomePage's `.lc-th__search`. */
+.lc-ihp__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 240px;
+  max-width: 100%;
+  height: 32px;
+  padding: 0 12px;
+  background: white;
+  border: 1px solid var(--lc-color-gray-200, #e5e5e5);
+  border-radius: 4px;
+}
+
+.lc-ihp__search:focus-within {
+  border-color: var(--lc-color-green-700);
+}
+
+.lc-ihp__search-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--lc-ihp-text-dimmed);
+}
+
+.lc-ihp__search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-ihp-text-title);
+}
+
+.lc-ihp__empty {
+  margin: 0;
+  font-size: 14px;
+  color: var(--lc-ihp-text-dimmed);
+}
+
 .lc-ihp__section-title {
   margin: 0 0 14px;
   font-size: 14px;
@@ -45,8 +134,10 @@
   justify-content: center;
   gap: 16px;
   width: 100%;
-  aspect-ratio: 1 / 1.215; /* was 1.35; 10% shorter */
-  padding: 32px 12px;
+  /* Fixed height (not aspect-ratio + padding) so two-line names like
+     "WhatsApp Business" don't make their tile taller than the rest. */
+  height: 150px;
+  padding: 0 12px;
   border: 0;
   border-radius: var(--lc-ihp-radius);
   background: var(--lc-ihp-tile-bg);
@@ -68,6 +159,7 @@
   font-size: 13px;
   font-weight: 500;
   line-height: 16px;
+  text-align: center;
   color: var(--lc-ihp-text-dimmed);
 }
 
@@ -100,13 +192,12 @@
   gap: 8px;
 }
 .lc-ihp--compact .lc-ihp__tile {
-  aspect-ratio: auto;
+  height: auto;
   gap: 8px;
   padding: 16px 4px;
 }
 .lc-ihp--compact .lc-ihp__tile-name {
   font-size: 12px;
-  text-align: center;
 }
 .lc-ihp--compact .lc-ihp__icon-circle {
   zoom: 0.81;

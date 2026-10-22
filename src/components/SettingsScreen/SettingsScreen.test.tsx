@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsScreen } from './SettingsScreen';
 import { SETTINGS_COPY, SETTINGS_TABS_BY_PRODUCT } from './settingsTabs';
+import { INTEGRATION_CATEGORIES, INTEGRATION_FORMS } from '../../data/settingsDemo';
 
 // Stands in for App: the URL-owned tab and Product come from outside the Screen.
 function Harness({
@@ -17,13 +18,19 @@ function Harness({
   onManageIndustriesChange?: (next: boolean) => void;
 }) {
   const [tab, setTab] = useState(initialTab);
+  const [integration, setIntegration] = useState('');
   return (
     <SettingsScreen
       product={product}
       settingsTab={tab}
       manageIndustries={false}
-      onTabChange={setTab}
+      integration={integration}
+      onTabChange={(id) => {
+        setTab(id);
+        setIntegration('');
+      }}
       onManageIndustriesChange={onManageIndustriesChange}
+      onIntegrationChange={setIntegration}
     />
   );
 }
@@ -157,5 +164,38 @@ describe('SettingsScreen SLA rule reordering', () => {
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
     expect(ruleNames()).toEqual(before);
+  });
+});
+
+describe('SettingsScreen integration form', () => {
+  it('opens Freshdesk from its tile, needs every field to update, and goes back', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="hd-integration" />);
+
+    await user.click(screen.getByRole('button', { name: 'Freshdesk' }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Freshdesk');
+    expect(screen.getByText(INTEGRATION_FORMS.freshdesk.description)).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Connected to Freshdesk');
+    expect(screen.queryByRole('button', { name: 'Update' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Where to find the Widget ID?' })).toHaveTextContent('Where to find?');
+
+    const domain = screen.getByRole('textbox', { name: 'Domain' });
+    await user.clear(domain);
+    expect(screen.getByRole('button', { name: 'Update' })).toBeDisabled();
+    await user.type(domain, 'new.freshdesk.com');
+    await user.click(screen.getByRole('button', { name: 'Update' }));
+    expect(screen.queryByRole('button', { name: 'Update' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(SETTINGS_COPY['hd-integration'].title);
+  });
+});
+
+describe('SettingsScreen integration forms', () => {
+  it('has a connection form for every Integration tile', () => {
+    const missing = INTEGRATION_CATEGORIES.flatMap((c) => c.partners)
+      .map((p) => p.id)
+      .filter((id) => !INTEGRATION_FORMS[id]);
+    expect(missing).toEqual([]);
   });
 });

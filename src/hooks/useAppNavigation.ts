@@ -43,7 +43,7 @@ const FLOW_PAGE: Record<FlowKind, { list: Page; canvas: Page }> = {
  */
 export function useAppNavigation() {
   const [screen, setScreen] = useState(() => parseHash(window.location.hash));
-  const { product, selected, view, tab, manageIndustries, ticket, flow, userSettings } = screen;
+  const { product, selected, view, tab, manageIndustries, integration, ticket, flow, userSettings } = screen;
   const flowKind = flowKindOf(product, selected);
 
   let page: Page = 'home';
@@ -86,6 +86,8 @@ export function useAppNavigation() {
     /** The Settings tab or List tab. */
     tab,
     manageIndustries,
+    /** The Integration tab's open partner form; '' when the tile grid shows. */
+    integration,
     ticketId: ticket,
     /** Which Broadcast, Flow or Bot flow list/editor this item opens, if any. */
     flowKind,
@@ -100,9 +102,11 @@ export function useAppNavigation() {
     leaveCanvas: () => update({ view: 'list' }),
     openUserSettings: (tab: UserSettingsTab) => update({ userSettings: tab }),
     setUserSettingsTab: (tab: UserSettingsTab) => update({ userSettings: tab }),
-    /** Picking a tab, even the current one, also closes Manage industries. */
-    setTab: (id: string) => update({ tab: id, manageIndustries: false }),
+    /** Picking a tab, even the current one, also closes Manage industries and any partner form. */
+    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '' }),
     setManageIndustries: (open: boolean) => update({ manageIndustries: open }),
+    /** Opens a partner's form on the Integration tab; '' goes back to the tile grid. */
+    setIntegration: (id: string) => update({ integration: id }),
     openTicket: (id: string) => update({ ticket: id }),
   };
 }

@@ -25,6 +25,7 @@ import {
   type CsatTimeDelay,
 } from '../BotCsatSettings';
 import { IntegrationsHomePage } from '../IntegrationsHomePage';
+import { IntegrationSettings } from '../IntegrationSettings';
 import { TagsInput } from '../TagsInput';
 import { Button } from '../Button';
 import { Menu } from '../Menu';
@@ -56,7 +57,9 @@ import {
   DEMO_VARIABLES,
   INBOX_NAMES,
   INTEGRATION_CATEGORIES,
+  INTEGRATION_FORMS,
   VARIABLE_DATA_TYPES,
+  findIntegrationPartner,
   withFieldMeta,
 } from '../../data/settingsDemo';
 import {
@@ -76,8 +79,11 @@ export interface SettingsScreenProps {
   settingsTab: string;
   /** The "Manage industries" sub-view of the Bot templates tab. */
   manageIndustries: boolean;
+  /** The Integration tab's open partner form, e.g. 'freshdesk'; '' shows the tile grid. */
+  integration: string;
   onTabChange: (id: string) => void;
   onManageIndustriesChange: (next: boolean) => void;
+  onIntegrationChange: (partnerId: string) => void;
 }
 
 const WhatsAppIcon = () => <Icon name="whatsapp" stroke="#8C8C8C" />;
@@ -102,8 +108,10 @@ export function SettingsScreen({
   product,
   settingsTab,
   manageIndustries,
+  integration: integrationId,
   onTabChange,
   onManageIndustriesChange,
+  onIntegrationChange,
 }: SettingsScreenProps) {
   const copy = SETTINGS_COPY[settingsTab];
   // The search box is shared by every tab's table but belongs to one tab: reading it under a
@@ -117,6 +125,30 @@ export function SettingsScreen({
   const [selection, setSelection] = useState<{ tab: string; id: string } | null>(null);
   const selectedId = selection?.tab === settingsTab ? selection.id : undefined;
   const selectRowId = (id: string) => setSelection({ tab: settingsTab, id });
+
+  // Integration: the URL says which partner's form is open; edits to its fields live here.
+  // Saving a partner's details makes them the saved values and marks it connected (no real API yet).
+  const [integrationEdits, setIntegrationEdits] = useState<Record<string, Record<string, string>>>({});
+  const [integrationSaves, setIntegrationSaves] = useState<Record<string, Record<string, string>>>({});
+  const integrationPartner = integrationId ? findIntegrationPartner(integrationId) : undefined;
+  const integrationForm = integrationPartner && INTEGRATION_FORMS[integrationPartner.id];
+  const integrationSaved = integrationId ? integrationSaves[integrationId] : undefined;
+  const integrationSavedValues = integrationSaved ?? integrationForm?.values ?? {};
+  const integration =
+    integrationPartner && integrationForm
+      ? {
+          partner: integrationPartner,
+          form: integrationForm,
+          status: integrationSaved ? ('connected' as const) : integrationForm.status,
+          savedValues: integrationSavedValues,
+          values: { ...integrationSavedValues, ...integrationEdits[integrationPartner.id] },
+        }
+      : undefined;
+  // Stands in for checking the details with the partner.
+  const fakeVerify = () => {
+    setSavingHelpdeskSettings(true);
+    window.setTimeout(() => setSavingHelpdeskSettings(false), 700);
+  };
 
   const [inboxSyncing, setInboxSyncing] = useState(false);
   const visibleInboxes = DEMO_INBOXES.filter(
@@ -311,8 +343,16 @@ export function SettingsScreen({
       tabs={SETTINGS_TABS_BY_PRODUCT[product]}
       activeTab={settingsTab}
       onTabChange={onTabChange}
-      title={manageIndustries ? 'Manage industries' : copy.title}
-      description={manageIndustries ? SETTINGS_COPY.variable.description : copy.description}
+      title={manageIndustries ? 'Manage industries' : integration ? integration.partner.name : copy.title}
+      titleIcon={integration && <span className="lc-is-title-icon">{integration.partner.icon}</span>}
+      onBack={integration ? () => onIntegrationChange('') : undefined}
+      description={
+        manageIndustries
+          ? SETTINGS_COPY.variable.description
+          : integration
+            ? integration.form.description
+            : copy.description
+      }
       contentPadding={settingsTab === 'custom-fields' ? 20 : undefined}
       detailPanel={detailPanel}
       onWatchVideo={() => alert(`Play tutorial video: ${copy.title}`)}
@@ -467,10 +507,36 @@ export function SettingsScreen({
         ) : undefined
       }
     >
-      {settingsTab === 'hd-integration' || settingsTab === 'integrations' ? (
+      {integration ? (
+        <IntegrationSettings
+          partnerName={integration.partner.name}
+          status={integration.status}
+          submitting={savingHelpdeskSettings}
+          onSubmit={() => {
+            setIntegrationSaves((prev) => ({ ...prev, [integration.partner.id]: integration.values }));
+            setIntegrationEdits((prev) => ({ ...prev, [integration.partner.id]: {} }));
+            fakeVerify();
+          }}
+          onRefresh={fakeVerify}
+          fields={integration.form.fields}
+          values={integration.values}
+          savedValues={integration.savedValues}
+          onChange={(fieldId, value) =>
+            setIntegrationEdits((prev) => ({
+              ...prev,
+              [integration.partner.id]: { ...prev[integration.partner.id], [fieldId]: value },
+            }))
+          }
+          onHelpClick={(fieldId) =>
+            alert(
+              `Where to find the ${integration.partner.name} ${integration.form.fields.find((f) => f.id === fieldId)?.label}`,
+            )
+          }
+        />
+      ) : settingsTab === 'hd-integration' || settingsTab === 'integrations' ? (
         <IntegrationsHomePage
           categories={INTEGRATION_CATEGORIES}
-          onPartnerClick={(id) => alert(`Connect ${id}`)}
+          onPartnerClick={onIntegrationChange}
         />
       ) : settingsTab === 'data-security' ? (
         <DataSecuritySettings

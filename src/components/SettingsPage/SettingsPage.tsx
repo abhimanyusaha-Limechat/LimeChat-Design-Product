@@ -35,6 +35,10 @@ export interface SettingsPageProps {
   activeTab?: string;
   onTabChange?: (id: string) => void;
   title: string;
+  /** Sits left of the title, e.g. an integration partner's logo. */
+  titleIcon?: ReactNode;
+  /** Shows a back arrow at the far left of the header, for sub-pages. Omit to hide. */
+  onBack?: () => void;
   description?: string;
   /** "Watch video" header CTA — opens a tutorial for this settings section. Omit to hide. */
   onWatchVideo?: () => void;
@@ -71,6 +75,8 @@ export function SettingsPage({
   activeTab,
   onTabChange,
   title,
+  titleIcon,
+  onBack,
   description,
   onWatchVideo,
   onViewDocs,
@@ -118,6 +124,12 @@ export function SettingsPage({
       <div className="lc-sp__main">
         <div className="lc-sp__card">
           <div className="lc-sp__header" data-anchor="settings-header">
+            {onBack && (
+              <button type="button" className="lc-sp__detail-btn lc-sp__back" aria-label="Back" onClick={onBack}>
+                <Icon name="chevron-left" width={20} height={20} />
+              </button>
+            )}
+            {titleIcon}
             <div className="lc-sp__header-text">
               <h1 className="lc-sp__title">{title}</h1>
               {description && <p className="lc-sp__description">{description}</p>}
