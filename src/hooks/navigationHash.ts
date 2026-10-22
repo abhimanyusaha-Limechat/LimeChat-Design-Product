@@ -12,7 +12,7 @@ import type { TemplateChannel } from '../components/TemplatesHomePage';
 export type FlowKind = 'broadcast' | 'flows' | 'bot-flows';
 export type UserSettingsTab = 'account' | 'profile';
 
-/** Everything the URL hash owns: `#/<product>/<item>?view=…&tab=…&flow=…&industries=1&integration=…&ticket=…&user=…`. */
+/** Everything the URL hash owns: `#/<product>/<item>?view=…&tab=…&flow=…&industries=1&integration=…&plans=1&ticket=…&user=…`. */
 export type Screen = {
   product: SidebarProduct;
   selected: string;
@@ -22,6 +22,8 @@ export type Screen = {
   manageIndustries: boolean;
   /** The Integration tab's open partner form, e.g. 'freshdesk'; '' when the tile grid shows. */
   integration: string;
+  /** HelpDesk Billing's "Change plan" sub-view. */
+  changePlan: boolean;
   /** The open ticket's id. Only Helpdesk Tickets has one; elsewhere it stays at the default. */
   ticket: string;
   /** The Flow editor's flow: a row id, or 'new' for "+ New". '' outside the editor. */
@@ -29,7 +31,7 @@ export type Screen = {
   userSettings: UserSettingsTab | null;
 };
 
-const DEFAULTS = { view: 'list', manageIndustries: false, integration: '', ticket: TICKETS[0].id, userSettings: null } as const;
+const DEFAULTS = { view: 'list', manageIndustries: false, integration: '', changePlan: false, ticket: TICKETS[0].id, userSettings: null } as const;
 
 const TEMPLATE_CHANNELS = ['whatsapp', 'sms', 'email'] satisfies TemplateChannel[];
 /** Each list Screen's List tabs, by `<product>/<item>`; the first is the default. */
@@ -105,6 +107,7 @@ export function toScreen(fields: { product: string; selected: string } & Partial
       Object.prototype.hasOwnProperty.call(INTEGRATION_FORMS, fields.integration)
         ? fields.integration
         : DEFAULTS.integration,
+    changePlan: onSettings && product === 'helpdesk' && tab === 'billing' && fields.changePlan === true,
     ticket:
       product === 'helpdesk' && selected === 'tickets' && TICKETS.some((t) => t.id === fields.ticket)
         ? String(fields.ticket)
@@ -125,6 +128,7 @@ export function parseHash(hash: string): Screen {
     tab: params.get('tab'),
     manageIndustries: params.get('industries') === '1',
     integration: params.get('integration'),
+    changePlan: params.get('plans') === '1',
     ticket: params.get('ticket'),
     flow: params.get('flow'),
     userSettings: params.get('user'),
@@ -138,6 +142,7 @@ export function toHash(screen: Screen) {
   if (screen.tab !== tabsOf(screen.product, screen.selected).fallback) params.set('tab', screen.tab);
   if (screen.manageIndustries) params.set('industries', '1');
   if (screen.integration) params.set('integration', screen.integration);
+  if (screen.changePlan) params.set('plans', '1');
   if (screen.ticket !== DEFAULTS.ticket) params.set('ticket', screen.ticket);
   const kind = flowKindOf(screen.product, screen.selected);
   if (kind && screen.view === 'canvas' && screen.flow !== defaultFlow(kind, screen.tab)) params.set('flow', screen.flow);
@@ -146,7 +151,7 @@ export function toHash(screen: Screen) {
   return `#/${screen.product}/${screen.selected}${query ? `?${query}` : ''}`;
 }
 
-const KNOWN_PARAMS = ['view', 'tab', 'flow', 'industries', 'integration', 'ticket', 'user'];
+const KNOWN_PARAMS = ['view', 'tab', 'flow', 'industries', 'integration', 'plans', 'ticket', 'user'];
 
 /** The hash with unknown query parameters removed, to compare against `toHash`. */
 export function withoutUnknownParams(hash: string) {

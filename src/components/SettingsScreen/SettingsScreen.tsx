@@ -18,6 +18,7 @@ import { OptOutUsersTable } from '../OptOutUsersTable';
 import { BotTemplatesTable, MediaTypeBadge, type BotTemplateRow } from '../BotTemplatesTable';
 import { DataSecuritySettings, type PiiTypeKey, type ProfanityWord } from '../DataSecuritySettings';
 import { AttributionSettings, type AttributionWindowKey, type AttributionWindowValue } from '../AttributionSettings';
+import { BillingSettings, ChangePlan } from '../BillingSettings';
 import {
   BotCsatSettings,
   type CsatFlowKey,
@@ -36,6 +37,8 @@ import {
   BOT_TEMPLATE_INDUSTRIES,
   CUSTOM_FIELD_TYPES,
   DEMO_AGENTS,
+  CURRENT_PLAN_TIER,
+  DEMO_BILLING_PLAN,
   DEMO_BOT_TEMPLATES,
   DEMO_CANNED,
   DEMO_CANNED_LIBRARY,
@@ -58,6 +61,8 @@ import {
   INBOX_NAMES,
   INTEGRATION_CATEGORIES,
   INTEGRATION_FORMS,
+  PLAN_FEATURES,
+  PLAN_TIERS,
   VARIABLE_DATA_TYPES,
   findIntegrationPartner,
   withFieldMeta,
@@ -81,9 +86,12 @@ export interface SettingsScreenProps {
   manageIndustries: boolean;
   /** The Integration tab's open partner form, e.g. 'freshdesk'; '' shows the tile grid. */
   integration: string;
+  /** HelpDesk Billing's "Change plan" sub-view. */
+  changePlan: boolean;
   onTabChange: (id: string) => void;
   onManageIndustriesChange: (next: boolean) => void;
   onIntegrationChange: (partnerId: string) => void;
+  onChangePlanChange: (open: boolean) => void;
 }
 
 const WhatsAppIcon = () => <Icon name="whatsapp" stroke="#8C8C8C" />;
@@ -109,9 +117,11 @@ export function SettingsScreen({
   settingsTab,
   manageIndustries,
   integration: integrationId,
+  changePlan,
   onTabChange,
   onManageIndustriesChange,
   onIntegrationChange,
+  onChangePlanChange,
 }: SettingsScreenProps) {
   const copy = SETTINGS_COPY[settingsTab];
   // The search box is shared by every tab's table but belongs to one tab: reading it under a
@@ -343,17 +353,29 @@ export function SettingsScreen({
       tabs={SETTINGS_TABS_BY_PRODUCT[product]}
       activeTab={settingsTab}
       onTabChange={onTabChange}
-      title={manageIndustries ? 'Manage industries' : integration ? integration.partner.name : copy.title}
+      title={
+        manageIndustries
+          ? 'Manage industries'
+          : integration
+            ? integration.partner.name
+            : changePlan
+              ? 'Change plan'
+              : copy.title
+      }
       titleIcon={integration && <span className="lc-is-title-icon">{integration.partner.icon}</span>}
-      onBack={integration ? () => onIntegrationChange('') : undefined}
+      onBack={
+        integration ? () => onIntegrationChange('') : changePlan ? () => onChangePlanChange(false) : undefined
+      }
       description={
         manageIndustries
           ? SETTINGS_COPY.variable.description
           : integration
             ? integration.form.description
-            : copy.description
+            : changePlan
+              ? `You are on ${CURRENT_PLAN_TIER.name} at $${CURRENT_PLAN_TIER.pricePerMonth}/month. Prices are in USD. Recurring and usage-based charges bill every 30 days.`
+              : copy.description
       }
-      contentPadding={settingsTab === 'custom-fields' ? 20 : undefined}
+      contentPadding={changePlan ? '48px 72px 72px' : settingsTab === 'custom-fields' ? 20 : undefined}
       detailPanel={detailPanel}
       onWatchVideo={() => alert(`Play tutorial video: ${copy.title}`)}
       onViewDocs={() => alert(`Open docs: ${copy.title}`)}
@@ -595,6 +617,15 @@ export function SettingsScreen({
             setCsatReminderDelay((prev) => ({ ...prev, [field]: value }))
           }
         />
+      ) : changePlan ? (
+        <ChangePlan
+          tiers={PLAN_TIERS}
+          features={PLAN_FEATURES}
+          currentId={CURRENT_PLAN_TIER.id}
+          onSwitch={(tier) => alert(`Switch to ${tier.name}`)}
+        />
+      ) : settingsTab === 'billing' ? (
+        <BillingSettings plan={DEMO_BILLING_PLAN} onUpgrade={() => onChangePlanChange(true)} />
       ) : settingsTab === 'events' ? (
         <EventsTable loading={tableLoading} events={DEMO_EVENTS} onCustomEvents={() => alert('Manage custom events')} />
       ) : settingsTab === 'opt-out-users' ? (

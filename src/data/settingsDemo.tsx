@@ -5,6 +5,7 @@ import { type InboxRowData } from '../components/InboxesTable';
 import { type EventRowData } from '../components/EventsTable';
 import { type OptOutUserRowData } from '../components/OptOutUsersTable';
 import { type BotTemplateRow } from '../components/BotTemplatesTable';
+import { type BillingPlan, type PlanFeature, type PlanTier } from '../components/BillingSettings';
 import { PAST_DATES } from './demoHelpers';
 
 export const KB_SOURCE_TABS = [
@@ -352,6 +353,85 @@ export const EXTRA_CRM_PARTNERS: IntegrationCategory['partners'] = [
   { id: 'dynamics-365', name: 'Dynamics 365', icon: <InitialsIcon text="D" bg="#0b5cd5" /> },
   { id: 'insightly', name: 'Insightly', icon: <InitialsIcon text="In" bg="#ffffff" color="#ea580c" /> },
 ];
+
+// HelpDesk Settings → Billing → Change plan. Cheapest first; each tier adds to the one before.
+export const PLAN_TIERS: PlanTier[] = [
+  {
+    id: 'growth',
+    name: 'Growth',
+    pricePerMonth: 199,
+    extraTicketPrice: 0.15,
+    includedAgents: 3,
+    highlights: [
+      'Verified official WhatsApp',
+      'WhatsApp broadcasts',
+      'WhatsApp journeys (ABC and order confirmation)',
+      'WhatsApp support inbox',
+      'Dedicated onboarding manager',
+    ],
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    pricePerMonth: 399,
+    extraTicketPrice: 0.15,
+    includedAgents: 5,
+    highlights: [
+      'Segmentation and cross-sell journeys',
+      'Click-based support and commerce chatbot',
+      'Helpdesk for WhatsApp, email, Instagram and Facebook',
+      'Dedicated support',
+    ],
+  },
+  {
+    id: 'advanced-plus',
+    name: 'Advanced plus',
+    pricePerMonth: 699,
+    extraTicketPrice: 0.15,
+    includedAgents: 8,
+    highlights: [
+      '2-way WhatsApp journeys and broadcasts',
+      'Gen AI support and commerce chatbot',
+      'Custom workflows and integrations',
+      'Dedicated growth consultant',
+    ],
+  },
+];
+
+const ALL_TIERS = PLAN_TIERS.map((t) => t.id);
+const PRO_AND_UP = ['pro', 'advanced-plus'];
+const ADVANCED_ONLY = ['advanced-plus'];
+
+export const PLAN_FEATURES: PlanFeature[] = [
+  { label: 'Verified official WhatsApp', tierIds: ALL_TIERS },
+  { label: 'WhatsApp broadcasts, journeys, support inbox', tierIds: ALL_TIERS },
+  { label: 'Segmentation and cross-sell journeys', tierIds: PRO_AND_UP },
+  { label: 'Click-based support and commerce chatbot', tierIds: PRO_AND_UP },
+  { label: 'Helpdesk for WhatsApp, email, Instagram, Facebook', tierIds: PRO_AND_UP },
+  { label: '2-way WhatsApp journeys and broadcasts', tierIds: ADVANCED_ONLY },
+  { label: 'Gen AI support and commerce chatbot', tierIds: ADVANCED_ONLY },
+  { label: 'Custom workflows and integrations', tierIds: ADVANCED_ONLY },
+  { label: 'Dedicated onboarding manager', tierIds: ALL_TIERS },
+  { label: 'Dedicated support', tierIds: PRO_AND_UP },
+  { label: 'Dedicated growth consultant', tierIds: ADVANCED_ONLY },
+];
+
+export const CURRENT_PLAN_TIER = PLAN_TIERS[2];
+
+// HelpDesk Settings → Billing. The cycle is anchored to today so the countdown always reads sensibly.
+const cycleStart = new Date();
+cycleStart.setDate(cycleStart.getDate() - 13);
+export const DEMO_BILLING_PLAN: BillingPlan = {
+  name: CURRENT_PLAN_TIER.name,
+  pricePerMonth: CURRENT_PLAN_TIER.pricePerMonth,
+  includedTickets: 3000,
+  extraTicketPrice: CURRENT_PLAN_TIER.extraTicketPrice,
+  includedAgents: CURRENT_PLAN_TIER.includedAgents,
+  extraAgentPrice: 12,
+  startedOn: cycleStart,
+  renewsOn: new Date(cycleStart.getFullYear(), cycleStart.getMonth() + 1, cycleStart.getDate()),
+  ticketsUsed: 2128,
+};
 
 // Reached from the avatar popover ("Account Settings" / "Profile settings")
 // instead of the product's own Settings nav — just these two tabs.
