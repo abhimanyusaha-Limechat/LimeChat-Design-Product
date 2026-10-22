@@ -1,7 +1,7 @@
 import { sidebarPresets, type SidebarProduct } from '../components/Sidebar/presets';
 import { SETTINGS_TABS_BY_PRODUCT } from '../components/SettingsScreen/settingsTabs';
 import { TICKETS } from '../data/ticketsDemo';
-import { KB_TABS } from '../data/settingsDemo';
+import { INTEGRATION_FORMS, KB_TABS } from '../data/settingsDemo';
 import { FLOW_ROWS } from '../data/flowsDemo';
 import type { BroadcastTab } from '../components/BroadcastHomePage';
 import type { FlowTab } from '../components/FlowsHomePage';
@@ -12,7 +12,7 @@ import type { TemplateChannel } from '../components/TemplatesHomePage';
 export type FlowKind = 'broadcast' | 'flows' | 'bot-flows';
 export type UserSettingsTab = 'account' | 'profile';
 
-/** Everything the URL hash owns: `#/<product>/<item>?view=…&tab=…&flow=…&industries=1&ticket=…&user=…`. */
+/** Everything the URL hash owns: `#/<product>/<item>?view=…&tab=…&flow=…&industries=1&integration=…&ticket=…&user=…`. */
 export type Screen = {
   product: SidebarProduct;
   selected: string;
@@ -20,6 +20,8 @@ export type Screen = {
   /** The Settings tab or List tab; '' on items that have neither. */
   tab: string;
   manageIndustries: boolean;
+  /** The Integration tab's open partner form, e.g. 'freshdesk'; '' when the tile grid shows. */
+  integration: string;
   /** The open ticket's id. Only Helpdesk Tickets has one; elsewhere it stays at the default. */
   ticket: string;
   /** The Flow editor's flow: a row id, or 'new' for "+ New". '' outside the editor. */
@@ -27,7 +29,7 @@ export type Screen = {
   userSettings: UserSettingsTab | null;
 };
 
-const DEFAULTS = { view: 'list', manageIndustries: false, ticket: TICKETS[0].id, userSettings: null } as const;
+const DEFAULTS = { view: 'list', manageIndustries: false, integration: '', ticket: TICKETS[0].id, userSettings: null } as const;
 
 const TEMPLATE_CHANNELS = ['whatsapp', 'sms', 'email'] satisfies TemplateChannel[];
 /** Each list Screen's List tabs, by `<product>/<item>`; the first is the default. */
@@ -96,6 +98,13 @@ export function toScreen(fields: { product: string; selected: string } & Partial
     tab,
     flow: kind && view === 'canvas' ? (isFlowOf(kind, fields.flow) ? String(fields.flow) : defaultFlow(kind, tab)) : '',
     manageIndustries: onSettings && tab === 'bot-templates' && fields.manageIndustries === true,
+    integration:
+      onSettings &&
+      (tab === 'hd-integration' || tab === 'integrations') &&
+      typeof fields.integration === 'string' &&
+      Object.prototype.hasOwnProperty.call(INTEGRATION_FORMS, fields.integration)
+        ? fields.integration
+        : DEFAULTS.integration,
     ticket:
       product === 'helpdesk' && selected === 'tickets' && TICKETS.some((t) => t.id === fields.ticket)
         ? String(fields.ticket)
@@ -115,6 +124,7 @@ export function parseHash(hash: string): Screen {
     view: params.get('view'),
     tab: params.get('tab'),
     manageIndustries: params.get('industries') === '1',
+    integration: params.get('integration'),
     ticket: params.get('ticket'),
     flow: params.get('flow'),
     userSettings: params.get('user'),
@@ -127,6 +137,7 @@ export function toHash(screen: Screen) {
   if (screen.view !== DEFAULTS.view) params.set('view', screen.view);
   if (screen.tab !== tabsOf(screen.product, screen.selected).fallback) params.set('tab', screen.tab);
   if (screen.manageIndustries) params.set('industries', '1');
+  if (screen.integration) params.set('integration', screen.integration);
   if (screen.ticket !== DEFAULTS.ticket) params.set('ticket', screen.ticket);
   const kind = flowKindOf(screen.product, screen.selected);
   if (kind && screen.view === 'canvas' && screen.flow !== defaultFlow(kind, screen.tab)) params.set('flow', screen.flow);
@@ -135,7 +146,7 @@ export function toHash(screen: Screen) {
   return `#/${screen.product}/${screen.selected}${query ? `?${query}` : ''}`;
 }
 
-const KNOWN_PARAMS = ['view', 'tab', 'flow', 'industries', 'ticket', 'user'];
+const KNOWN_PARAMS = ['view', 'tab', 'flow', 'industries', 'integration', 'ticket', 'user'];
 
 /** The hash with unknown query parameters removed, to compare against `toHash`. */
 export function withoutUnknownParams(hash: string) {

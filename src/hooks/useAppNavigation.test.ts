@@ -156,6 +156,7 @@ describe('useAppNavigation', () => {
       ['#/automation/flows?view=canvas', { page: 'bot-flows-canvas' }],
       ['#/helpdesk/settings?tab=agents', { page: 'settings', tab: 'agents' }],
       ['#/automation/settings?tab=bot-templates&industries=1', { page: 'settings', manageIndustries: true }],
+      ['#/helpdesk/settings?tab=hd-integration&integration=freshdesk', { page: 'settings', integration: 'freshdesk' }],
       ['#/marketing/segments?user=profile', { page: 'user-settings', userSettingsTab: 'profile' }],
       ['#/helpdesk/tickets?user=account', { page: 'user-settings', userSettingsTab: 'account' }],
     ])('restores %s in one step', (hash, expected) => {
@@ -311,6 +312,8 @@ describe('useAppNavigation', () => {
       ['#/helpdesk/tickets?tab=agents', '#/helpdesk/tickets', { page: 'tickets' }],
       ['#/automation/settings?industries=1', '#/automation/settings', { manageIndustries: false }],
       ['#/automation/settings?tab=bot-templates&industries=yes', '#/automation/settings?tab=bot-templates', { manageIndustries: false }],
+      ['#/helpdesk/settings?integration=freshdesk', '#/helpdesk/settings', { integration: '' }],
+      ['#/helpdesk/settings?tab=hd-integration&integration=constructor', '#/helpdesk/settings?tab=hd-integration', { integration: '' }],
       ['#/helpdesk/tickets?user=admin', '#/helpdesk/tickets', { page: 'tickets' }],
     ])('corrects %s to %s in place', (hash, corrected, expected) => {
       history.replaceState(null, '', hash);

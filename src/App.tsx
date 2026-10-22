@@ -32,6 +32,7 @@ import {
   PUSH_NOTIFICATION_OPTIONS,
   USER_SETTINGS_COPY,
   USER_SETTINGS_TABS,
+  findIntegrationPartner,
   type PushNotificationKey,
 } from './data/settingsDemo';
 import { getPickedAccount } from './components/AccountPicker';
@@ -57,8 +58,8 @@ const TOP_NAV_BY_PRODUCT = {
 export function App() {
   const { signOut } = useClerk();
   const nav = useAppNavigation();
-  const { product, selected, page, tab, manageIndustries, userSettingsTab, ticketId, flowKind, flowId } = nav;
-  const { switchProduct, leaveCanvas, setTab, setManageIndustries, setUserSettingsTab } = nav;
+  const { product, selected, page, tab, manageIndustries, integration, userSettingsTab, ticketId, flowKind, flowId } = nav;
+  const { switchProduct, leaveCanvas, setTab, setManageIndustries, setIntegration, setUserSettingsTab } = nav;
   const preset = sidebarPresets[product];
   // Account/Profile settings reached from the avatar popover — a dedicated
   // page with just those two tabs, separate from the product's own (much
@@ -215,9 +216,10 @@ export function App() {
                         },
                         {
                           label: SETTINGS_COPY[tab].title,
-                          onClick: () => setManageIndustries(false),
+                          onClick: () => setTab(tab),
                         },
                         ...(manageIndustries ? [{ label: 'Manage industries' }] : []),
+                        ...(integration ? [{ label: findIntegrationPartner(integration)?.name ?? integration }] : []),
                       ]
                     : page === 'knowledge-base'
                       ? [
@@ -366,6 +368,8 @@ export function App() {
               manageIndustries={manageIndustries}
               onTabChange={setTab}
               onManageIndustriesChange={setManageIndustries}
+              integration={integration}
+              onIntegrationChange={setIntegration}
             />
           )}
 

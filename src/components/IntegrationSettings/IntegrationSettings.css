@@ -1,0 +1,290 @@
+/**
+ * IntegrationSettings — Settings → Integration → one partner.
+ *
+ * Table anatomy and tokens mirror HelpDeskAccountSettings (`--lc-hda-*`)
+ * as `--lc-is-*`: a bordered table of label | input rows split by dividers.
+ */
+
+.lc-is {
+  --lc-is-border: var(--lc-color-gray-300);
+  --lc-is-divider: var(--lc-color-gray-200);
+  --lc-is-text-title: var(--lc-color-green-900);
+  --lc-is-text-dimmed: var(--lc-color-sage-500);
+  --lc-is-primary: var(--lc-color-green-700);
+  --lc-is-required: #E5484D;
+  --lc-is-radius: 12px;
+  --lc-is-radius-sm: 6px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding-top: 72px;
+  color: var(--lc-is-text-title);
+}
+
+.lc-is *,
+.lc-is *::before,
+.lc-is *::after {
+  box-sizing: border-box;
+}
+
+/* --- Status header: connection state + the submit button ---------------- */
+
+.lc-is__status {
+  --lc-is-status-bg: var(--lc-color-gray-100);
+  --lc-is-status-text: var(--lc-color-stone-600);
+  --lc-is-status-dot: var(--lc-color-gray-400);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 50%;
+  padding: 12px 20px;
+  /* The whole card takes the state's tint (light green when connected). */
+  border: 1px solid color-mix(in srgb, var(--lc-is-status-dot) 25%, transparent);
+  border-radius: var(--lc-is-radius);
+  background: var(--lc-is-status-bg);
+}
+
+.lc-is__status[data-status='verifying'] {
+  --lc-is-status-bg: color-mix(in srgb, var(--lc-color-amber-500) 14%, white);
+  --lc-is-status-text: var(--lc-color-amber-600);
+  --lc-is-status-dot: var(--lc-color-amber-500);
+}
+
+.lc-is__status[data-status='connected'] {
+  --lc-is-status-bg: var(--lc-color-green-50);
+  --lc-is-status-text: var(--lc-is-primary);
+  --lc-is-status-dot: var(--lc-color-green-500);
+}
+
+.lc-is__status[data-status='error'] {
+  --lc-is-status-bg: var(--lc-color-red-50);
+  --lc-is-status-text: var(--lc-color-red-700);
+  --lc-is-status-dot: var(--lc-color-red-500);
+}
+
+.lc-is__status-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--lc-color-white); /* reads against the tinted card */
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  color: var(--lc-is-status-text);
+}
+
+.lc-is__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Refresh icon button — re-checks the saved details. */
+.lc-is__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lc-is-border);
+  border-radius: var(--lc-is-radius-sm);
+  background: var(--lc-color-white);
+  color: var(--lc-is-primary);
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.lc-is__action:hover:not(:disabled) {
+  background: var(--lc-color-green-50);
+}
+
+.lc-is__action:focus-visible {
+  outline: 2px solid var(--lc-is-primary);
+  outline-offset: 2px;
+}
+
+.lc-is__action:disabled {
+  color: var(--lc-color-gray-400);
+  cursor: not-allowed;
+}
+
+.lc-is__action[aria-busy='true'] {
+  color: var(--lc-is-primary);
+  cursor: progress;
+}
+
+.lc-is__action[aria-busy='true'] svg {
+  animation: lc-is-spin 700ms linear infinite;
+}
+
+@keyframes lc-is-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-is__action[aria-busy='true'] svg {
+    animation: none;
+  }
+}
+
+.lc-is__status-target {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.lc-is__status-dot {
+  align-self: center;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lc-is-status-dot);
+}
+
+.lc-is__status[data-status='verifying'] .lc-is__status-dot {
+  animation: lc-is-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes lc-is-pulse {
+  to { opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-is__status[data-status='verifying'] .lc-is__status-dot {
+    animation: none;
+  }
+}
+
+/* --- Fields table ------------------------------------------------------- */
+
+/* One label column, as wide as the longest label (capped at half the table
+   so subheadings wrap), shared by every row via subgrid so inputs line up. */
+.lc-is__table {
+  display: grid;
+  grid-template-columns: fit-content(50%) minmax(0, 1fr);
+  column-gap: 24px;
+  width: 50%;
+  border: 1px solid var(--lc-is-divider);
+  border-radius: var(--lc-is-radius);
+  background: var(--lc-color-white);
+  overflow: hidden;
+}
+
+.lc-is__row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+  padding: 16px 20px;
+}
+
+.lc-is__row + .lc-is__row {
+  border-top: 1px solid var(--lc-is-divider);
+}
+
+.lc-is__row-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lc-is__label-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-is__row-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-is-text-dimmed);
+}
+
+/* Plain text link — no Button padding, so the gap to the label is exactly 8px. */
+.lc-is__help {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--lc-is-primary);
+  cursor: pointer;
+}
+
+.lc-is__help:hover {
+  text-decoration: underline;
+}
+
+.lc-is__help:focus-visible {
+  outline: 2px solid var(--lc-is-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.lc-is__label {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.lc-is__required {
+  margin-right: 4px;
+  color: var(--lc-is-required);
+  font-size: 10px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.lc-is__input {
+  width: 100%;
+  height: var(--lc-input-sm);
+  padding: 0 12px;
+  border: 1px solid var(--lc-is-border);
+  border-radius: var(--lc-is-radius-sm);
+  background: var(--lc-color-white);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-is-text-title);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.lc-is__input::placeholder {
+  color: var(--lc-color-gray-500);
+}
+
+.lc-is__input:focus-visible {
+  outline: none;
+  border-color: var(--lc-is-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-is-primary) 20%, transparent);
+}
+
+/* Partner icon beside the page title: the 50px tile circle shrunk to 32px. */
+.lc-is-title-icon {
+  display: flex;
+  align-self: center;
+}
+
+.lc-is-title-icon .lc-ihp__icon-circle {
+  zoom: 0.64;
+}
+
+@media (max-width: 900px) {
+  .lc-is__status,
+  .lc-is__table {
+    width: 100%;
+  }
+}
