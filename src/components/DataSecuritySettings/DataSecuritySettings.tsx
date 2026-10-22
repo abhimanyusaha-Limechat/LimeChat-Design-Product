@@ -1,6 +1,10 @@
 /**
  * DataSecuritySettings — Settings → Data security, HelpDesk product.
  *
+ * Highlighted "Mask message PII" card above a bordered table of PII switches, then a
+ * "Block profanity" section heading above its own table — the same table anatomy as
+ * `ProfileSettings`/`HelpDeskAccountSettings`/`AttributionSettings`/`BotCsatSettings`.
+ *
  *   <DataSecuritySettings
  *     maskMessagePii={maskMessagePii}
  *     onMaskMessagePiiChange={setMaskMessagePii}
@@ -8,7 +12,7 @@
  *     onPiiTypeChange={(key, next) => ...}
  *   />
  */
-import { useState, type ReactNode } from 'react';
+import { useId, useState } from 'react';
 import { Button } from '../Button';
 import { Tooltip } from '../Tooltip';
 import { CloseIcon } from '../icons';
@@ -33,41 +37,41 @@ function ShieldIcon() {
 }
 
 
-/** Purely decorative track/thumb — the enclosing row is the actual switch control. */
-function SwitchTrack({ checked }: { checked: boolean }) {
-  return (
-    <span className="lc-dss__switch-track" data-checked={checked} aria-hidden="true">
-      <span className="lc-dss__switch-thumb" />
-    </span>
-  );
-}
-
-/** A whole row acts as the switch's hit target, not just the track. */
+/** Table row: label + description on the left, switch pinned to the far right. */
 function ToggleRow({
-  className,
+  label,
+  description,
   checked,
   onChange,
   disabled,
-  children,
 }: {
-  className: string;
+  label: string;
+  description?: string;
   checked: boolean;
   onChange: (next: boolean) => void;
   disabled?: boolean;
-  children: ReactNode;
 }) {
+  const id = useId();
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      disabled={disabled}
-      className={className}
-      onClick={() => onChange(!checked)}
-    >
-      {children}
-      <SwitchTrack checked={checked} />
-    </button>
+    <div className="lc-dss__row">
+      <div className="lc-dss__row-label">
+        <label className="lc-dss__label" htmlFor={id}>
+          {label}
+        </label>
+        {description && <p className="lc-dss__row-desc">{description}</p>}
+      </div>
+      <button
+        id={id}
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        disabled={disabled}
+        className="lc-dss__switch-track"
+        onClick={() => onChange(!checked)}
+      >
+        <span className="lc-dss__switch-thumb" />
+      </button>
+    </div>
   );
 }
 
@@ -169,6 +173,8 @@ export function DataSecuritySettings({
 }: DataSecuritySettingsProps) {
   const allSelected = PII_TYPE_ORDER.every((key) => piiTypes[key]);
   const [pendingWord, setPendingWord] = useState('');
+  const piiTitleId = useId();
+  const profanityTitleId = useId();
 
   const handleAddWord = () => {
     const text = pendingWord.trim();
@@ -179,62 +185,71 @@ export function DataSecuritySettings({
 
   return (
     <div className="lc-dss">
-      <ToggleRow
-        className="lc-dss__header-row"
-        checked={maskMessagePii}
-        onChange={onMaskMessagePiiChange}
-      >
-        <ShieldIcon />
-        <span className="lc-dss__header-copy">
-          <span className="lc-dss__header-label">Mask message PII</span>
-          <span className="lc-dss__header-desc">
-            Mask sensitive customer information in WhatsApp and website widget messages
-          </span>
-        </span>
-      </ToggleRow>
-
-      <div className="lc-dss__list">
-        <ToggleRow
-          className="lc-dss__list-row lc-dss__select-all-row"
-          checked={allSelected}
-          disabled={!maskMessagePii}
-          onChange={(next) => PII_TYPE_ORDER.forEach((key) => onPiiTypeChange(key, next))}
+      <section className="lc-dss__group" aria-labelledby={piiTitleId}>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={maskMessagePii}
+          className="lc-dss__header-row"
+          onClick={() => onMaskMessagePiiChange(!maskMessagePii)}
         >
-          <span className="lc-dss__list-label">Mask all</span>
-        </ToggleRow>
+          <ShieldIcon />
+          <span className="lc-dss__header-copy">
+            <span id={piiTitleId} className="lc-dss__header-label">Mask message PII</span>
+            <span className="lc-dss__header-desc">
+              Mask sensitive customer information in WhatsApp and website widget messages
+            </span>
+          </span>
+          <span className="lc-dss__header-switch" data-checked={maskMessagePii} aria-hidden="true">
+            <span className="lc-dss__switch-thumb" />
+          </span>
+        </button>
 
-        {PII_TYPE_ORDER.map((key) => (
+        <div className="lc-dss__table" data-disabled={!maskMessagePii}>
           <ToggleRow
-            key={key}
-            className="lc-dss__list-row"
-            checked={piiTypes[key]}
+            label="Mask all"
+            checked={allSelected}
             disabled={!maskMessagePii}
-            onChange={(next) => onPiiTypeChange(key, next)}
+            onChange={(next) => PII_TYPE_ORDER.forEach((key) => onPiiTypeChange(key, next))}
+          />
+          {PII_TYPE_ORDER.map((key) => (
+            <ToggleRow
+              key={key}
+              label={PII_TYPE_LABEL[key]}
+              description={PII_TYPE_DESC[key]}
+              checked={piiTypes[key]}
+              disabled={!maskMessagePii}
+              onChange={(next) => onPiiTypeChange(key, next)}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="lc-dss__group" aria-labelledby={profanityTitleId}>
+        <div className="lc-dss__section-heading">
+          <div className="lc-dss__section-text">
+            <h2 id={profanityTitleId} className="lc-dss__section-title">Block profanity</h2>
+            <p className="lc-dss__section-desc">
+              Stop agents from sending profanity or any word your team should never send.
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={blockProfanity}
+            aria-labelledby={profanityTitleId}
+            className="lc-dss__switch-track"
+            onClick={() => onBlockProfanityChange(!blockProfanity)}
           >
-            <span className="lc-dss__list-copy">
-              <span className="lc-dss__list-label">{PII_TYPE_LABEL[key]}</span>
-              <span className="lc-dss__desc">{PII_TYPE_DESC[key]}</span>
-            </span>
-          </ToggleRow>
-        ))}
+            <span className="lc-dss__switch-thumb" />
+          </button>
+        </div>
 
-        <ToggleRow
-          className="lc-dss__list-row"
-          checked={blockProfanity}
-          onChange={onBlockProfanityChange}
-        >
-          <span className="lc-dss__list-copy">
-            <span className="lc-dss__list-label">Block profanity</span>
-            <span className="lc-dss__desc">
-              Stop agents from sending profanity or any word your team should never send
-            </span>
-          </span>
-        </ToggleRow>
-
-        <div className="lc-dss__profanity-panel" data-disabled={!blockProfanity}>
+        <div className="lc-dss__table" data-disabled={!blockProfanity}>
           <div className="lc-dss__profanity-add">
             <input
-              className="lc-dss__profanity-input"
+              className="lc-dss__input"
+              aria-label="Word or phrase to block"
               placeholder="Add a word or phrase to block"
               value={pendingWord}
               disabled={!blockProfanity}
@@ -258,59 +273,55 @@ export function DataSecuritySettings({
           </div>
 
           {profanityWords.length > 0 ? (
-            <ul className="lc-dss__profanity-list">
-              {profanityWords.map((word) => (
-                <li key={word.id} className="lc-dss__profanity-item">
-                  <span className="lc-dss__profanity-text">&ldquo;{word.text}&rdquo;</span>
-                  <div
-                    className="lc-dss__profanity-match"
-                    role="radiogroup"
-                    aria-label={`Match type for "${word.text}"`}
-                  >
-                    <Tooltip label="Only blocks messages containing this exact word or phrase">
-                      <button
-                        type="button"
-                        role="radio"
-                        aria-checked={word.matchType === 'whole'}
-                        data-active={word.matchType === 'whole'}
-                        disabled={!blockProfanity}
-                        onClick={() => onProfanityMatchTypeChange(word.id, 'whole')}
-                      >
-                        Whole
-                      </button>
-                    </Tooltip>
-                    <Tooltip label="Blocks any message containing this text as part of a larger word">
-                      <button
-                        type="button"
-                        role="radio"
-                        aria-checked={word.matchType === 'partial'}
-                        data-active={word.matchType === 'partial'}
-                        disabled={!blockProfanity}
-                        onClick={() => onProfanityMatchTypeChange(word.id, 'partial')}
-                      >
-                        Part
-                      </button>
-                    </Tooltip>
-                  </div>
-                  <button
-                    type="button"
-                    className="lc-dss__profanity-remove"
-                    aria-label={`Remove "${word.text}"`}
-                    disabled={!blockProfanity}
-                    onClick={() => onRemoveProfanityWord(word.id)}
-                  >
-                    <CloseIcon />
-                  </button>
-                </li>
-              ))}
-            </ul>
+            profanityWords.map((word) => (
+              <div key={word.id} className="lc-dss__profanity-item">
+                <span className="lc-dss__profanity-text">&ldquo;{word.text}&rdquo;</span>
+                <div
+                  className="lc-dss__profanity-match"
+                  role="radiogroup"
+                  aria-label={`Match type for "${word.text}"`}
+                >
+                  <Tooltip label="Only blocks messages containing this exact word or phrase">
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={word.matchType === 'whole'}
+                      data-active={word.matchType === 'whole'}
+                      disabled={!blockProfanity}
+                      onClick={() => onProfanityMatchTypeChange(word.id, 'whole')}
+                    >
+                      Whole
+                    </button>
+                  </Tooltip>
+                  <Tooltip label="Blocks any message containing this text as part of a larger word">
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={word.matchType === 'partial'}
+                      data-active={word.matchType === 'partial'}
+                      disabled={!blockProfanity}
+                      onClick={() => onProfanityMatchTypeChange(word.id, 'partial')}
+                    >
+                      Part
+                    </button>
+                  </Tooltip>
+                </div>
+                <button
+                  type="button"
+                  className="lc-dss__profanity-remove"
+                  aria-label={`Remove "${word.text}"`}
+                  disabled={!blockProfanity}
+                  onClick={() => onRemoveProfanityWord(word.id)}
+                >
+                  <CloseIcon />
+                </button>
+              </div>
+            ))
           ) : (
-            <p className="lc-dss__profanity-empty">
-              No words or phrases blocked yet — add one above.
-            </p>
+            <p className="lc-dss__profanity-empty">No words or phrases blocked yet — add one above.</p>
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

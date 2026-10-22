@@ -1,26 +1,28 @@
 /**
  * DataSecuritySettings — Settings → Data security, HelpDesk product.
  *
- * List rows share the label-column/control-column anatomy of
- * AccountSettings/ProfileSettings/HelpDeskAccountSettings (`--lc-as-*`/
- * `--lc-hda-*` mirrored here as `--lc-dss-*`). The master "Mask message PII"
- * row is the one switch that gates every row below it, so it breaks from
- * that plain-row anatomy into its own highlighted card.
+ * Highlighted master-toggle card (as in BotCsatSettings) above a bordered table of
+ * label | switch rows, then a section heading above the profanity table — the tables use
+ * the same tokens/anatomy as ProfileSettings/HelpDeskAccountSettings/AttributionSettings,
+ * mirrored as `--lc-dss-*`.
  */
 
 .lc-dss {
+  --lc-dss-border: var(--lc-color-gray-300);
   --lc-dss-divider: var(--lc-color-gray-200);
   --lc-dss-text-title: var(--lc-color-green-900);
   --lc-dss-text-dimmed: var(--lc-color-sage-500);
   --lc-dss-primary: var(--lc-color-green-700);
   --lc-dss-bg-subtle: var(--lc-color-stone-50);
-  --lc-dss-radius-sm: 4px;
-  --lc-dss-label-col: minmax(180px, 300px);
+  --lc-dss-radius: 12px;
+  --lc-dss-radius-sm: 6px;
+  --lc-dss-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   display: flex;
   flex-direction: column;
+  gap: 32px;
   width: 100%;
-  max-width: 920px;
+  max-width: 60%;
   color: var(--lc-dss-text-title);
   container-type: inline-size;
 }
@@ -31,50 +33,33 @@
   box-sizing: border-box;
 }
 
-/* --- Shared row-as-button reset ------------------------------------- */
+/* --- Master toggle: highlighted card --------------------------------- */
 
-.lc-dss__header-row,
-.lc-dss__list-row {
+.lc-dss__header-row {
   display: grid;
-  align-self: flex-start;
-  margin: 0;
-  border: 0;
-  background: none;
+  grid-template-columns: auto 1fr auto;
+  align-items: flex-start;
+  width: 100%;
+  gap: 16px;
+  margin: 0 0 12px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--lc-dss-primary) 30%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--lc-dss-primary) 7%, transparent);
   font-family: inherit;
   text-align: left;
   color: inherit;
   cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease;
-}
-
-.lc-dss__header-row:disabled,
-.lc-dss__list-row:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.lc-dss__header-row:focus-visible,
-.lc-dss__list-row:focus-visible {
-  outline: 2px solid var(--lc-dss-primary);
-  outline-offset: 2px;
-}
-
-/* --- Master toggle: a highlighted card, not a plain row -------------- */
-
-.lc-dss__header-row {
-  grid-template-columns: auto 1fr auto;
-  align-items: flex-start;
-  width: 75%;
-  gap: 16px;
-  padding: 16px;
-  margin-bottom: 28px;
-  border: 1px solid color-mix(in srgb, var(--lc-dss-primary) 30%, transparent);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--lc-dss-primary) 7%, transparent);
+  transition: background-color 120ms ease;
 }
 
 .lc-dss__header-row:hover {
   background: color-mix(in srgb, var(--lc-dss-primary) 12%, transparent);
+}
+
+.lc-dss__header-row:focus-visible {
+  outline: 2px solid var(--lc-dss-primary);
+  outline-offset: 2px;
 }
 
 .lc-dss__header-icon {
@@ -104,133 +89,206 @@
   color: var(--lc-dss-text-dimmed);
 }
 
-/* --- Plain list rows -------------------------------------------------- */
+/* --- Section heading (Block profanity) -------------------------------- */
 
-.lc-dss__list {
+.lc-dss__section-heading {
   display: flex;
-  flex-direction: column;
-}
-
-.lc-dss__list-row {
-  grid-template-columns: var(--lc-dss-label-col) minmax(0, 420px);
-  align-items: flex-start;
-  gap: 24px;
-  margin-inline-start: -12px;
-  padding-inline: 12px 80px;
-  padding-block: 14px;
-  border-radius: var(--lc-dss-radius-sm);
-}
-
-.lc-dss__list-row:hover {
-  background: var(--lc-dss-bg-subtle);
-}
-
-.lc-dss__list-row:disabled:hover {
-  background: none;
-}
-
-.lc-dss__select-all-row {
   align-items: center;
-  margin-bottom: 8px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--lc-dss-divider);
+  justify-content: space-between;
+  gap: 12px;
+  /* lines up with the row labels: table border (1px) + row padding (20px) */
+  margin-bottom: 4px;
+  padding: 8px 21px;
 }
 
-.lc-dss__list-copy {
+.lc-dss__section-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
-.lc-dss__list-label {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 18px;
+.lc-dss__section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
   color: var(--lc-dss-text-title);
-  transition: color 120ms ease;
 }
 
-.lc-dss__desc {
+.lc-dss__section-desc {
   margin: 0;
   font-size: 12px;
   line-height: 16px;
   color: var(--lc-dss-text-dimmed);
 }
 
-.lc-dss__list-row[aria-checked='false'] .lc-dss__list-label {
-  color: var(--lc-dss-text-dimmed);
-}
+/* --- Table ----------------------------------------------------------- */
 
-/* --- Block profanity: word/phrase list ------------------------------- */
-
-.lc-dss__profanity-panel {
+.lc-dss__table {
   display: flex;
   flex-direction: column;
-  width: 75%;
-  gap: 10px;
-  margin: -6px 0 14px 12px;
-  padding: 4px 0 4px 16px;
-  border-left: 2px solid var(--lc-dss-divider);
+  border: 1px solid var(--lc-dss-divider);
+  border-radius: var(--lc-dss-radius);
+  background: var(--lc-color-white);
+  overflow: hidden;
+  transition: opacity 220ms var(--lc-dss-ease-out), transform 220ms var(--lc-dss-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.lc-dss__table > * + * {
+  border-top: 1px solid var(--lc-dss-divider);
+}
+
+.lc-dss__table[data-disabled='true'] > * {
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-dss__table {
+    transition: opacity 180ms ease;
+    transform: none;
+  }
+}
+
+/* --- Row: label+description left, switch far right --------------------- */
+
+.lc-dss__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 20px;
   transition: opacity 120ms ease;
 }
 
-.lc-dss__profanity-panel[data-disabled='true'] {
-  opacity: 0.6;
+/* "Mask all" — the only row that opens a table */
+.lc-dss__row:first-child {
+  background: var(--lc-dss-bg-subtle);
 }
 
-.lc-dss__profanity-empty {
+.lc-dss__row-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lc-dss__label {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-dss-text-title);
+}
+
+.lc-dss__row-desc {
   margin: 0;
-  padding: 10px 0;
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 16px;
   color: var(--lc-dss-text-dimmed);
 }
+
+/* --- Switch ---------------------------------------------------------- */
+
+.lc-dss__switch-track,
+.lc-dss__header-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--lc-color-gray-300);
+  transition: background-color 150ms ease;
+}
+
+.lc-dss__switch-track {
+  cursor: pointer;
+}
+
+.lc-dss__switch-track:disabled {
+  cursor: not-allowed;
+}
+
+.lc-dss__switch-track[aria-checked='true'] {
+  background: var(--lc-dss-primary);
+}
+
+/* The card's switch keeps the brighter primary green it had before. */
+.lc-dss__header-switch[data-checked='true'] {
+  background: var(--lc-color-green-500);
+}
+
+.lc-dss__switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--lc-color-white);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease;
+}
+
+.lc-dss__switch-track[aria-checked='true'] .lc-dss__switch-thumb,
+.lc-dss__header-switch[data-checked='true'] .lc-dss__switch-thumb {
+  transform: translateX(18px);
+}
+
+.lc-dss__switch-track:focus-visible {
+  outline: 2px solid var(--lc-dss-primary);
+  outline-offset: 2px;
+}
+
+/* --- Block profanity: add row + word rows ------------------------------ */
 
 .lc-dss__profanity-add {
   display: flex;
   gap: 8px;
+  padding: 16px 20px;
 }
 
-.lc-dss__profanity-input {
+.lc-dss__input {
   flex: 1 1 auto;
   min-width: 0;
   height: var(--lc-input-sm);
   padding: 0 12px;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--lc-dss-border);
   border-radius: var(--lc-dss-radius-sm);
   background: var(--lc-color-white);
   font-family: inherit;
   font-size: 14px;
+  line-height: 20px;
   color: var(--lc-dss-text-title);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
-.lc-dss__profanity-input:focus-visible {
+.lc-dss__input:focus-visible {
   outline: none;
   border-color: var(--lc-dss-primary);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-dss-primary) 20%, transparent);
 }
 
-.lc-dss__profanity-input:disabled {
+.lc-dss__input:disabled {
   cursor: not-allowed;
-  background: var(--lc-dss-bg-subtle);
 }
 
-.lc-dss__profanity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.lc-dss__profanity-empty {
   margin: 0;
-  padding: 0;
-  list-style: none;
+  padding: 16px 20px;
+  font-size: 13px;
+  color: var(--lc-dss-text-dimmed);
 }
 
 .lc-dss__profanity-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 10px;
-  border-radius: var(--lc-dss-radius-sm);
-  background: var(--lc-color-red-50);
-  border: 0;
+  padding: 12px 20px;
 }
 
 .lc-dss__profanity-text {
@@ -301,55 +359,16 @@
   height: 14px;
 }
 
-@container (max-width: 480px) {
-  .lc-dss__profanity-item {
-    flex-wrap: wrap;
-  }
-}
+/* --- Narrow containers -------------------------------------------------- */
 
 @container (max-width: 480px) {
   .lc-dss__header-row {
     grid-template-columns: auto 1fr;
   }
-  .lc-dss__header-row .lc-dss__switch-track {
+  .lc-dss__header-switch {
     grid-column: 2;
   }
-  .lc-dss__list-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
+  .lc-dss__profanity-item {
+    flex-wrap: wrap;
   }
-}
-
-/* --- Switch -------------------------------------------------------- */
-
-.lc-dss__switch-track {
-  position: relative;
-  flex-shrink: 0;
-  width: 40px;
-  height: 22px;
-  border-radius: 999px;
-  background: var(--lc-color-gray-300);
-  transition: background-color 150ms ease;
-}
-
-.lc-dss__switch-track[data-checked='true'] {
-  /* Design-system primary green (matches every other active toggle/filled
-     control), not the darker --lc-dss-primary used for text/border accents. */
-  background: var(--lc-color-green-500);
-}
-
-.lc-dss__switch-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--lc-color-white);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-  transition: transform 150ms ease;
-}
-
-.lc-dss__switch-track[data-checked='true'] .lc-dss__switch-thumb {
-  transform: translateX(18px);
 }
