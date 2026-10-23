@@ -655,3 +655,14 @@
     transform: none;
   }
 }
+
+.lc-modal__field-error {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-red-600);
+}
+
+.lc-modal__input[aria-invalid='true'] {
+  border-color: var(--lc-color-red-500);
+}

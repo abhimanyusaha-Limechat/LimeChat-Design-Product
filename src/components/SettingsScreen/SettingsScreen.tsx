@@ -13,7 +13,7 @@ import { SettingsPage, type DetailPanel } from '../SettingsPage';
 import { DetailsAvatar, InboxDetailsIcon, SettingsDetails, inboxFields, rowFields } from './SettingsDetails';
 import { AgentDetails, type AgentPatch } from './AgentDetails';
 import { InboxesTable } from '../InboxesTable';
-import { InboxSettings, type InboxSettingsValues } from '../InboxSettings';
+import { InboxSettings, type InboxAgent, type InboxSettingsValues } from '../InboxSettings';
 import { EventsTable } from '../EventsTable';
 import { OptOutUsersTable } from '../OptOutUsersTable';
 import { BotTemplatesTable, MediaTypeBadge, type BotTemplateRow } from '../BotTemplatesTable';
@@ -136,7 +136,44 @@ const inboxDefaults = (name: string): InboxSettingsValues => ({
       { delayMinutes: 70, templateId: '' },
     ],
   },
+  csat: {
+    enabled: true,
+    format: 'link',
+    sendingType: 'automatic',
+    ratingScale: '5',
+    sendWhenAutoResolved: true,
+    sendOutOfOffice: true,
+    message: 'Hey, there! 👋 , please take a few moments to share feedback for conversation',
+    reminder: { enabled: true, delay: { days: 0, hours: 1, minutes: 0 }, message: '' },
+  },
+  // Demo: set up by an admin elsewhere, so the tab shows its "contact admin" hint.
+  configuration: { callbackUrl: '' },
+  collaborators: {
+    c1: { onlyAssignManually: false },
+    c2: { onlyAssignManually: false },
+    c3: { onlyAssignManually: false },
+    c4: { onlyAssignManually: false },
+  },
+  businessHours: {
+    enabled: true,
+    timezone: 'America/Los_Angeles (GMT-8:00)',
+    unavailableMessage: 'We are unavailable at the moment. Leave a message we will respond once we are back.',
+    // Sunday first: Monday to Friday, 9 AM for 8 hours.
+    days: Array.from({ length: 7 }, (_, i) => ({
+      enabled: i >= 1 && i <= 5,
+      slots: [{ start: 9 * 60, hours: 8 }],
+    })),
+  },
 });
+
+// Demo: the account's collaborators, as agents an inbox can add. Two are flagged to show the warning.
+const INBOX_AGENTS: InboxAgent[] = DEMO_COLLABORATORS.map((c) => ({
+  id: c.id,
+  name: c.name,
+  email: c.description,
+  role: c.role === 'Admin' ? 'Administrator' : 'Agent',
+  incompleteProfile: c.id === 'c3' || c.id === 'c9',
+}));
 
 const REMINDER_TEMPLATES = DEMO_TEMPLATES.map((t) => ({ value: t.id, label: t.name }));
 
@@ -206,6 +243,8 @@ export function SettingsScreen({
 
   const [inboxSyncing, setInboxSyncing] = useState(false);
   // Inbox edit: the URL says which inbox is open; edits to it live here (no real API yet).
+  // Agents created from an inbox's Collaborators tab; they join the account's roster.
+  const [createdAgents, setCreatedAgents] = useState<InboxAgent[]>([]);
   const [inboxEdits, setInboxEdits] = useState<Record<string, InboxSettingsValues>>({});
   const editedInbox = inboxId ? DEMO_INBOXES.find((row) => row.id === inboxId) : undefined;
   const editedInboxValues = editedInbox && (inboxEdits[editedInbox.id] ?? inboxDefaults(editedInbox.name));
@@ -441,8 +480,9 @@ export function SettingsScreen({
       }
       contentPadding={changePlan ? '48px 72px 72px' : settingsTab === 'custom-fields' ? 20 : undefined}
       detailPanel={detailPanel}
-      onWatchVideo={() => alert(`Play tutorial video: ${copy.title}`)}
-      onViewDocs={() => alert(`Open docs: ${copy.title}`)}
+      // The inbox edit page has no tutorial or docs page of its own.
+      onWatchVideo={editedInbox ? undefined : () => alert(`Play tutorial video: ${copy.title}`)}
+      onViewDocs={editedInbox ? undefined : () => alert(`Open docs: ${copy.title}`)}
       headerActions={
         editedInbox ? (
           <Button
@@ -636,6 +676,12 @@ export function SettingsScreen({
           type={editedInbox.type}
           detail={editedInbox.detail}
           templates={REMINDER_TEMPLATES}
+          agents={[...INBOX_AGENTS, ...createdAgents]}
+          onCreateAgent={(agent) => {
+            const id = `new-${createdAgents.length + 1}`;
+            setCreatedAgents((prev) => [...prev, { ...agent, id }]);
+            return id;
+          }}
           values={editedInboxValues}
           onChange={(patch) =>
             setInboxEdits((prev) => ({ ...prev, [editedInbox.id]: { ...editedInboxValues, ...patch } }))

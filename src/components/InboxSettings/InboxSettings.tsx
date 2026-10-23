@@ -2,7 +2,7 @@
  * InboxSettings — Settings → Inboxes → Edit: one inbox's settings, split into tabs.
  *
  * Same design language as `AttributionSettings`: section headings above bordered
- * tables of label + description | control rows. Only General has content so far;
+ * tables of label + description | control rows. Only General, Business Hours, CSAT, Collaborators and Configuration have content so far;
  * the other tabs show a placeholder. The open tab is local — it resets per inbox.
  *
  *   <InboxSettings
@@ -15,21 +15,27 @@
 import { useId, useState } from 'react';
 import type { InboxType } from '../InboxesTable';
 import type { SelectItem } from '../Select';
+import { BusinessHoursTab, type InboxBusinessHours } from './InboxBusinessHoursTab';
+import { ConfigurationTab, type InboxConfiguration } from './InboxConfigurationTab';
+import { CollaboratorsTab, type InboxAgent, type InboxCollaborators } from './InboxCollaboratorsTab';
+import { CsatTab, type InboxCsat } from './InboxCsatTab';
 import {
+  DurationSection,
   OptInOutSection,
   SectionHeading,
   WaitingReminderSection,
-  type Heading,
+  type DurationRow,
+  type InboxDuration,
+  type InboxDurationField,
   type OptInOut,
   type WaitingReminders,
 } from './InboxSettingsSections';
 import './InboxSettings.css';
 
+export type { InboxDuration, InboxDurationField };
 export type InboxDurationKey = 'autoClose' | 'autoResolve' | 'autoResolveBot' | 'autoAlert';
 /** Internal tickets have no bot, so no auto resolve bot duration. */
 export type InternalDurationKey = Exclude<InboxDurationKey, 'autoResolveBot'>;
-export type InboxDurationField = 'days' | 'hours' | 'minutes';
-export type InboxDuration = Record<InboxDurationField, number>;
 
 export interface InboxSettingsValues {
   name: string;
@@ -41,6 +47,10 @@ export interface InboxSettingsValues {
   conversationTracking: { enabled: boolean; reminder: InboxDuration };
   optInOut: OptInOut;
   waitingReminders: WaitingReminders;
+  csat: InboxCsat;
+  businessHours: InboxBusinessHours;
+  collaborators: InboxCollaborators;
+  configuration: InboxConfiguration;
 }
 
 export interface InboxSettingsProps {
@@ -51,6 +61,10 @@ export interface InboxSettingsProps {
   onChange: (patch: Partial<InboxSettingsValues>) => void;
   /** Templates a waiting reminder can send. */
   templates: SelectItem[];
+  /** Every agent that can be added to the inbox. */
+  agents: InboxAgent[];
+  /** Creates a new account agent from the Collaborators tab; returns its id. */
+  onCreateAgent: (agent: { name: string; email: string; role: string }) => string;
 }
 
 const TABS = [
@@ -70,8 +84,6 @@ const DETAIL_LABEL: Record<InboxType, string> = {
   facebook: 'Page',
 };
 
-type DurationRow<K extends string> = { key: K; label: string; description: string };
-
 const DURATIONS: DurationRow<InboxDurationKey>[] = [
   { key: 'autoClose', label: 'Auto close duration', description: 'Close a ticket after this long with no reply from the customer.' },
   { key: 'autoResolve', label: 'Auto resolve duration', description: 'Resolve a ticket after this long with no activity.' },
@@ -84,64 +96,6 @@ const TRACKING_DURATIONS: DurationRow<'reminder'>[] = [
 ];
 
 const INTERNAL_DURATIONS = DURATIONS.filter((d): d is DurationRow<InternalDurationKey> => d.key !== 'autoResolveBot');
-
-const FIELDS: { name: InboxDurationField; label: string; max?: number }[] = [
-  { name: 'days', label: 'Days' },
-  { name: 'hours', label: 'Hours', max: 23 },
-  { name: 'minutes', label: 'Minutes', max: 59 },
-];
-
-function clamp(value: number, max?: number) {
-  if (Number.isNaN(value) || value < 0) return 0;
-  return max === undefined ? value : Math.min(value, max);
-}
-
-/** A headed table of Days | Hours | Minutes rows. */
-function DurationSection<K extends string>({
-  rows,
-  values,
-  onChange,
-  ...heading
-}: Heading & {
-  rows: DurationRow<K>[];
-  values: Record<K, InboxDuration>;
-  onChange: (next: Record<K, InboxDuration>) => void;
-}) {
-  const off = heading.toggle?.checked === false;
-  return (
-    <section className="lc-inbs__group" aria-label={heading.title}>
-      <SectionHeading {...heading} />
-      <div className="lc-inbs__table">
-        {rows.map(({ key, label, description }) => (
-          <div key={key} className="lc-inbs__row" data-disabled={off}>
-            <div className="lc-inbs__row-label">
-              <span className="lc-inbs__label">{label}</span>
-              <p className="lc-inbs__row-desc">{description}</p>
-            </div>
-            <div className="lc-inbs__duration" role="group" aria-label={label}>
-              {FIELDS.map(({ name, label: fieldLabel, max }) => (
-                <label key={name} className="lc-inbs__field">
-                  <span className="lc-inbs__field-label">{fieldLabel}</span>
-                  <input
-                    type="number"
-                    min={0}
-                    max={max}
-                    className="lc-inbs__input"
-                    value={values[key][name]}
-                    disabled={off}
-                    onChange={(e) =>
-                      onChange({ ...values, [key]: { ...values[key], [name]: clamp(e.currentTarget.valueAsNumber, max) } })
-                    }
-                  />
-                </label>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 function GeneralTab({ type, detail, values, onChange, templates }: InboxSettingsProps) {
   const nameId = useId();
@@ -197,7 +151,7 @@ function GeneralTab({ type, detail, values, onChange, templates }: InboxSettings
           toggle={{ checked: wait.enabled, onChange: (enabled) => onChange({ waitTimeMessage: { ...wait, enabled } }) }}
         />
         <div className="lc-inbs__table">
-          <div className="lc-inbs__row lc-inbs__row--stacked" data-disabled={!wait.enabled}>
+          <div className="lc-inbs__row" data-disabled={!wait.enabled}>
             <div className="lc-inbs__row-label">
               <label className="lc-inbs__label" htmlFor={waitMessageId}>Message</label>
               <p className="lc-inbs__row-desc">
@@ -248,24 +202,39 @@ export function InboxSettings(props: InboxSettingsProps) {
 
   return (
     <div className="lc-inbs">
-      <div className="lc-inbs__tabs" role="tablist" aria-label="Inbox settings">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={t.id === tab}
-            className="lc-inbs__tab"
-            data-active={t.id === tab || undefined}
-            onClick={() => setTab(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="lc-inbs__tabbar">
+        <div className="lc-inbs__tabs" role="tablist" aria-label="Inbox settings">
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={t.id === tab}
+              className="lc-inbs__tab"
+              data-active={t.id === tab || undefined}
+              onClick={() => setTab(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="lc-inbs__panel" role="tabpanel" aria-label={tabLabel}>
         {tab === 'general' ? (
           <GeneralTab {...props} />
+        ) : tab === 'business-hours' ? (
+          <BusinessHoursTab value={props.values.businessHours} onChange={(businessHours) => props.onChange({ businessHours })} />
+        ) : tab === 'collaborators' ? (
+          <CollaboratorsTab
+            agents={props.agents}
+            value={props.values.collaborators}
+            onChange={(collaborators) => props.onChange({ collaborators })}
+            onCreateAgent={props.onCreateAgent}
+          />
+        ) : tab === 'configuration' ? (
+          <ConfigurationTab value={props.values.configuration} />
+        ) : tab === 'csat' ? (
+          <CsatTab value={props.values.csat} onChange={(csat) => props.onChange({ csat })} />
         ) : (
           // ponytail: placeholder until these tabs are designed.
           <p className="lc-inbs__empty">{tabLabel} settings aren't designed yet.</p>

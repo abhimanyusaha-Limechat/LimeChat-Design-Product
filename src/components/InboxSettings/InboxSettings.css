@@ -17,7 +17,7 @@
   flex-direction: column;
   gap: 24px;
   width: 100%;
-  max-width: 60%;
+  max-width: 75%;
   color: var(--lc-inbs-text-title);
   container-type: inline-size;
 }
@@ -29,6 +29,20 @@
 }
 
 /* --- Tabs ------------------------------------------------------------ */
+
+/* Sticks to the top of the scrolling settings content. The opaque backdrop covers the
+   whole gap below the tabs, so scrolled rows are clipped flush at its bottom edge; the
+   negative margins keep the layout spacing unchanged (24px = the .lc-inbs gap). */
+.lc-inbs__tabbar {
+  position: sticky;
+  /* Sticky offsets measure from inside the scroller's padding, so cancel the content card's
+     16px padding; otherwise rows show through the strip above the tabs. */
+  top: -16px;
+  z-index: 2;
+  margin: -16px 0 -24px;
+  padding: 16px 0 24px;
+  background: var(--lc-color-white);
+}
 
 .lc-inbs__tabs {
   display: flex;
@@ -87,6 +101,8 @@
 /* --- Section: heading + table ----------------------------------------- */
 
 .lc-inbs__group {
+  display: flex;
+  flex-direction: column;
   margin-top: 8px;
 }
 
@@ -290,12 +306,370 @@
 
 /* --- Narrow containers: stack label above control --------------------- */
 
-/* --- Opt in/out: two fields side by side ----------------------------- */
+/* --- Configuration --------------------------------------------------- */
 
-.lc-inbs__row--pair {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.lc-inbs__copy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-inbs__note {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  color: var(--lc-inbs-text-title);
+}
+
+/* --- Collaborators --------------------------------------------------- */
+
+.lc-inbs__agent-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 24px;
+}
+
+.lc-inbs__search {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: var(--lc-input-sm);
+  padding: 0 12px;
+  border: 1px solid var(--lc-inbs-border);
+  border-radius: var(--lc-inbs-radius-sm);
+  background: var(--lc-color-white);
+  color: var(--lc-color-gray-500);
+}
+
+.lc-inbs__search:focus-within {
+  border-color: var(--lc-inbs-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-inbs-primary) 20%, transparent);
+}
+
+.lc-inbs__search svg {
+  flex-shrink: 0;
+}
+
+.lc-inbs__search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-inbs-text-title);
+}
+
+.lc-inbs__agent-group + .lc-inbs__agent-group {
+  margin-top: 24px;
+}
+
+.lc-inbs__list-title {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--lc-inbs-text-title);
+}
+
+/* The shared DataTable shell supplies the header, 60px rows and hover; these are the cells. */
+.lc-inbs__table-shell {
+  flex: none;
+  border: 1px solid var(--lc-inbs-divider);
+  border-radius: var(--lc-inbs-radius);
+}
+
+.lc-inbs__col {
+  min-width: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-color-stone-600);
+}
+
+.lc-inbs__th {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 15px;
+}
+
+/* Start the Name header over the name text, past the avatar (36px) and its gap (12px). */
+.lc-inbs__th--name {
+  padding-left: 48px;
+}
+
+.lc-inbs .lc-inbs__avatar {
+  --lc-avatar-light-bg: var(--lc-color-gray-200);
+  --lc-avatar-fg-accent: var(--lc-color-stone-600);
+}
+
+.lc-inbs__col--name {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: 12px;
+  min-width: 200px;
+}
+
+.lc-inbs__col--role {
+  flex: 0 0 120px;
+}
+
+.lc-inbs__col--assign {
+  display: flex;
+  flex: 0 0 220px;
+  align-items: center;
+  gap: 10px;
+}
+
+.lc-inbs__col--action {
+  display: flex;
+  flex: 0 0 110px;
+  justify-content: flex-end;
+}
+
+.lc-inbs__agent-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.lc-inbs__agent-name-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lc-inbs__agent-name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--lc-inbs-text-title);
+}
+
+.lc-inbs__agent-name[data-incomplete] {
+  color: var(--lc-color-red-600);
+}
+
+.lc-inbs__agent-flag {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-red-600);
+}
+
+.lc-inbs__agent-email {
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--lc-inbs-text-dimmed);
+}
+
+.lc-inbs__agent-switch-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.lc-inbs__count {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--lc-color-gray-100);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-color-stone-600);
+}
+
+/* Inset like the section headings, so titles line up with the table's row content. */
+.lc-inbs__list-title,
+.lc-inbs__list-hint {
+  padding: 0 21px;
+}
+
+.lc-inbs__list-hint {
+  margin-bottom: 12px;
+}
+
+.lc-inbs__role-filter {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+/* Sticks to the bottom of the scrolling content so the Undo is always in reach. */
+.lc-inbs__undo {
+  position: sticky;
+  bottom: 16px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 8px 8px 8px 16px;
+  border-radius: 8px;
+  background: var(--lc-color-green-900);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-color-white);
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.2);
+}
+
+.lc-inbs__undo .lc-btn {
+  color: var(--lc-color-white);
+  text-decoration: underline;
+}
+
+.lc-inbs__create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* --- Business hours -------------------------------------------------- */
+
+.lc-inbs__row--top {
   align-items: start;
 }
+
+.lc-inbs__day {
+  grid-template-columns: 200px minmax(0, 1fr);
+}
+
+/* The slots' column-label row (16px + 8px gap) sits above the first select, so the day
+   name and switch drop by that much to centre on it. The switch sits at the column's
+   right edge, beside the name. */
+.lc-inbs__day-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 32px;
+  margin-top: 24px;
+}
+
+.lc-inbs__slots {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lc-inbs__slots[data-disabled='true'] {
+  opacity: 0.5;
+}
+
+.lc-inbs__slot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 88px 24px;
+  align-items: center;
+  gap: 12px;
+}
+
+.lc-inbs__slot--head {
+  align-items: end;
+}
+
+/* Joins two slots of one day: a short line, an AND pill, a short line. */
+.lc-inbs__and {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: flex-start;
+  margin-left: 12px;
+}
+
+.lc-inbs__and::before,
+.lc-inbs__and::after {
+  content: '';
+  width: 1px;
+  height: 8px;
+  background: var(--lc-inbs-border);
+}
+
+.lc-inbs__and-pill {
+  padding: 0 8px;
+  border: 1px solid var(--lc-inbs-primary);
+  border-radius: var(--lc-inbs-radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-inbs-primary);
+}
+
+.lc-inbs__closing-head {
+  text-align: center;
+}
+
+.lc-inbs__closing {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+  color: var(--lc-inbs-text-title);
+}
+
+.lc-inbs__slots > .lc-inbs__icon-btn {
+  align-self: flex-start;
+}
+
+/* --- CSAT ------------------------------------------------------------ */
+
+.lc-inbs__radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+.lc-inbs__radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-inbs-text-title);
+  cursor: pointer;
+}
+
+.lc-inbs__radio input {
+  margin: 0;
+  accent-color: var(--lc-inbs-primary);
+}
+
+.lc-inbs__radio:has(input:disabled) {
+  cursor: not-allowed;
+}
+
+.lc-inbs__switch-track--end {
+  justify-self: end;
+}
+
+.lc-inbs__switch-track:disabled {
+  cursor: not-allowed;
+}
+
+/* --- Opt in/out ------------------------------------------------------ */
 
 .lc-inbs__chips {
   display: flex;
@@ -349,30 +723,55 @@
   justify-content: space-between;
 }
 
+/* Icon-only Button: a square with no label gap. */
+.lc-inbs__icon-btn {
+  width: 24px;
+  padding: 0;
+  gap: 0;
+}
+
 .lc-inbs__reminder-fields {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  align-items: start;
+}
+
+.lc-inbs__reminder-fields .lc-select__label {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-inbs-text-dimmed);
+}
+
+/* Each field: label left, control right (the select's own label/control are its two children). */
+.lc-inbs__reminder-fields > .lc-inbs__field,
+.lc-inbs__reminder-fields > .lc-select {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+  align-items: center;
+  gap: 24px;
 }
 
 .lc-inbs__add-reminder {
-  align-self: flex-start;
+  align-self: flex-end;
   margin-top: 8px;
 }
 
-/* Label | control rows stack first; paired fields stay side by side until there's
-   no room for two inputs. */
+/* Label | control rows stack when the container is narrow. */
 @container (max-width: 560px) {
-  .lc-inbs__row:not(.lc-inbs__row--pair) {
+  .lc-inbs__row {
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+
+  .lc-inbs__agent-tools {
+    flex-wrap: wrap;
   }
 }
 
 @container (max-width: 400px) {
-  .lc-inbs__row--pair,
-  .lc-inbs__reminder-fields {
+  .lc-inbs__reminder-fields > .lc-inbs__field,
+  .lc-inbs__reminder-fields > .lc-select {
     grid-template-columns: 1fr;
+    gap: 6px;
   }
 }
