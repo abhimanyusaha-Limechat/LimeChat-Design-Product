@@ -2,8 +2,8 @@
  * InboxSettings — Settings → Inboxes → Edit: one inbox's settings, split into tabs.
  *
  * Same design language as `AttributionSettings`: section headings above bordered
- * tables of label + description | control rows. Only General, Business Hours, CSAT, Collaborators and Configuration have content so far;
- * the other tabs show a placeholder. The open tab is local — it resets per inbox.
+ * tables of label + description | control rows. The WhatsApp Widget tab only shows for
+ * WhatsApp inboxes. The open tab is local — it resets per inbox.
  *
  *   <InboxSettings
  *     type="whatsapp"
@@ -19,6 +19,11 @@ import { BusinessHoursTab, type InboxBusinessHours } from './InboxBusinessHoursT
 import { ConfigurationTab, type InboxConfiguration } from './InboxConfigurationTab';
 import { CollaboratorsTab, type InboxAgent, type InboxCollaborators } from './InboxCollaboratorsTab';
 import { CsatTab, type InboxCsat } from './InboxCsatTab';
+import { PopupMessageSection, type InboxPopupMessage } from './InboxPopupMessageSection';
+import { PrefilledMessageSection, type InboxPrefilledMessage } from './InboxPrefilledMessageSection';
+import { ShopifyPagesSection, type InboxShopifyPages } from './InboxShopifyPagesSection';
+import { WhatsAppWidgetTab, ZIndexSection, type InboxWhatsAppWidget } from './InboxWhatsAppWidgetTab';
+import { WidgetPreview } from './InboxWidgetPreview';
 import {
   DurationSection,
   OptInOutSection,
@@ -51,6 +56,12 @@ export interface InboxSettingsValues {
   businessHours: InboxBusinessHours;
   collaborators: InboxCollaborators;
   configuration: InboxConfiguration;
+  whatsappWidget: InboxWhatsAppWidget;
+  whatsappPopup: InboxPopupMessage;
+  whatsappPages: InboxShopifyPages;
+  whatsappPrefill: InboxPrefilledMessage;
+  /** CSS z-index of the widget on the customer's site. */
+  whatsappZIndex: number;
 }
 
 export interface InboxSettingsProps {
@@ -201,45 +212,71 @@ export function InboxSettings(props: InboxSettingsProps) {
   const tabLabel = tabs.find((t) => t.id === tab)?.label;
 
   return (
-    <div className="lc-inbs">
-      <div className="lc-inbs__tabbar">
-        <div className="lc-inbs__tabs" role="tablist" aria-label="Inbox settings">
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={t.id === tab}
-              className="lc-inbs__tab"
-              data-active={t.id === tab || undefined}
-              onClick={() => setTab(t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
+    <div className="lc-inbs-shell">
+      <div className="lc-inbs">
+        <div className="lc-inbs__tabbar">
+          <div className="lc-inbs__tabs" role="tablist" aria-label="Inbox settings">
+            {tabs.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={t.id === tab}
+                className="lc-inbs__tab"
+                data-active={t.id === tab || undefined}
+                onClick={() => setTab(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="lc-inbs__panel" role="tabpanel" aria-label={tabLabel}>
+          {tab === 'general' ? (
+            <GeneralTab {...props} />
+          ) : tab === 'business-hours' ? (
+            <BusinessHoursTab value={props.values.businessHours} onChange={(businessHours) => props.onChange({ businessHours })} />
+          ) : tab === 'collaborators' ? (
+            <CollaboratorsTab
+              agents={props.agents}
+              value={props.values.collaborators}
+              onChange={(collaborators) => props.onChange({ collaborators })}
+              onCreateAgent={props.onCreateAgent}
+            />
+          ) : tab === 'configuration' ? (
+            <ConfigurationTab value={props.values.configuration} />
+          ) : tab === 'csat' ? (
+            <CsatTab value={props.values.csat} onChange={(csat) => props.onChange({ csat })} />
+          ) : (
+            <>
+              <WhatsAppWidgetTab
+                value={props.values.whatsappWidget}
+                onChange={(whatsappWidget) => props.onChange({ whatsappWidget })}
+              />
+              <PopupMessageSection
+                value={props.values.whatsappPopup}
+                onChange={(whatsappPopup) => props.onChange({ whatsappPopup })}
+              />
+              <ShopifyPagesSection
+                value={props.values.whatsappPages}
+                onChange={(whatsappPages) => props.onChange({ whatsappPages })}
+              />
+              <PrefilledMessageSection
+                value={props.values.whatsappPrefill}
+                pages={props.values.whatsappPages}
+                onChange={(whatsappPrefill) => props.onChange({ whatsappPrefill })}
+              />
+              <ZIndexSection
+                value={props.values.whatsappZIndex}
+                onChange={(whatsappZIndex) => props.onChange({ whatsappZIndex })}
+              />
+            </>
+          )}
         </div>
       </div>
-      <div className="lc-inbs__panel" role="tabpanel" aria-label={tabLabel}>
-        {tab === 'general' ? (
-          <GeneralTab {...props} />
-        ) : tab === 'business-hours' ? (
-          <BusinessHoursTab value={props.values.businessHours} onChange={(businessHours) => props.onChange({ businessHours })} />
-        ) : tab === 'collaborators' ? (
-          <CollaboratorsTab
-            agents={props.agents}
-            value={props.values.collaborators}
-            onChange={(collaborators) => props.onChange({ collaborators })}
-            onCreateAgent={props.onCreateAgent}
-          />
-        ) : tab === 'configuration' ? (
-          <ConfigurationTab value={props.values.configuration} />
-        ) : tab === 'csat' ? (
-          <CsatTab value={props.values.csat} onChange={(csat) => props.onChange({ csat })} />
-        ) : (
-          // ponytail: placeholder until these tabs are designed.
-          <p className="lc-inbs__empty">{tabLabel} settings aren't designed yet.</p>
-        )}
-      </div>
+      {tab === 'whatsapp-widget' && (
+        <WidgetPreview phone={props.detail} widgets={props.values.whatsappWidget} popups={props.values.whatsappPopup} />
+      )}
     </div>
   );
 }

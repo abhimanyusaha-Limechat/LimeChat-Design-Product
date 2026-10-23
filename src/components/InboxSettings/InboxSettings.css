@@ -17,7 +17,7 @@
   flex-direction: column;
   gap: 24px;
   width: 100%;
-  max-width: 75%;
+  max-width: 65%;
   color: var(--lc-inbs-text-title);
   container-type: inline-size;
 }
@@ -86,16 +86,6 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-.lc-inbs__empty {
-  margin: 0;
-  padding: 40px 20px;
-  border: 1px dashed var(--lc-inbs-border);
-  border-radius: var(--lc-inbs-radius);
-  font-size: 14px;
-  text-align: center;
-  color: var(--lc-inbs-text-dimmed);
 }
 
 /* --- Section: heading + table ----------------------------------------- */
@@ -250,6 +240,10 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   min-width: 0;
+}
+
+.lc-inbs__duration--pair {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .lc-inbs__field {
@@ -636,9 +630,16 @@
 
 /* --- CSAT ------------------------------------------------------------ */
 
+/* Fixed columns (3 = the most choices any row has) so options line up from row to row. */
 .lc-inbs__radios {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 24px;
+}
+
+.lc-inbs__checks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px 24px;
 }
 
@@ -659,6 +660,63 @@
 
 .lc-inbs__radio:has(input:disabled) {
   cursor: not-allowed;
+}
+
+.lc-inbs__error {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-red-700);
+}
+
+/* --- WhatsApp widget ------------------------------------------------- */
+
+/* An uploaded file: thumbnail, name + kind, then its actions. */
+.lc-inbs__media {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px 8px 8px;
+  border: 1px solid var(--lc-inbs-divider);
+  border-radius: var(--lc-inbs-radius-sm);
+}
+
+.lc-inbs__media-thumb {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--lc-inbs-radius-sm);
+  object-fit: contain;
+  background: var(--lc-color-stone-50);
+}
+
+.lc-inbs__media-thumb--empty {
+  display: grid;
+  place-items: center;
+  color: var(--lc-inbs-text-dimmed);
+}
+
+.lc-inbs__media-thumb--whatsapp {
+  display: grid;
+  place-items: center;
+  color: var(--lc-color-white);
+  background: var(--lc-inbs-whatsapp);
+}
+
+.lc-inbs__media-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lc-inbs__media-name {
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .lc-inbs__switch-track--end {
@@ -736,7 +794,8 @@
   gap: 12px;
 }
 
-.lc-inbs__reminder-fields .lc-select__label {
+.lc-inbs__reminder-fields .lc-select__label,
+.lc-inbs__duration .lc-select__label {
   font-size: 12px;
   line-height: 16px;
   color: var(--lc-inbs-text-dimmed);
@@ -773,5 +832,360 @@
   .lc-inbs__reminder-fields > .lc-select {
     grid-template-columns: 1fr;
     gap: 6px;
+  }
+}
+
+/* --- Shell + WhatsApp widget preview -------------------------------- */
+
+/* The settings column plus, on the WhatsApp Widget tab, a sticky phone preview in the space beside it. */
+.lc-inbs-shell {
+  --lc-inbs-whatsapp: #25d366; /* WhatsApp brand green */
+
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  width: 100%;
+  container-type: inline-size;
+}
+
+.lc-inbs-preview {
+  /* Bezel + screen. Shrinks in short windows so the phone, button and copy card (106px more)
+     all fit in the scroll area instead of being cut off at the bottom. */
+  --lc-inbs-phone-h: clamp(380px, calc(100vh - 320px), 560px);
+  --lc-inbs-preview-h: calc(var(--lc-inbs-phone-h) + 106px); /* + 12px gap each for the 24px preview button and the copy card (2-line hint + padding) */
+
+  /* Holds the phone at the vertical middle of the scroll area (a sticky `top` % is of its
+     height) while the settings scroll past; no transform, so it stops cleanly at the form's end. */
+  position: sticky;
+  top: max(0px, calc(50% - var(--lc-inbs-preview-h) / 2));
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.lc-inbs-preview *,
+.lc-inbs-preview *::before,
+.lc-inbs-preview *::after,
+.lc-inbs-browser *,
+.lc-inbs-browser *::before,
+.lc-inbs-browser *::after {
+  box-sizing: border-box;
+}
+
+.lc-inbs-preview__code {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 440px;
+  padding: 12px;
+  border: 1px solid var(--lc-color-green-200);
+  border-radius: 12px;
+  background: var(--lc-color-green-100);
+}
+
+.lc-inbs-preview__hint {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-green-900);
+  /* Never more than two lines, so the preview's height (and its centring) stays put. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.lc-inbs-preview__code .lc-btn {
+  flex: none;
+}
+
+.lc-inbs-preview__note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-sage-500);
+}
+
+.lc-inbs-preview__phone {
+  width: 240px;
+  padding: 10px;
+  border-radius: 36px;
+  background: var(--lc-color-green-900);
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.18);
+}
+
+.lc-inbs-preview__screen {
+  position: relative;
+  /* The mock-up's 220px screen stands in for a 375px-wide phone. */
+  --s: 0.587;
+
+  height: calc(var(--lc-inbs-phone-h) - 20px);
+  overflow: hidden;
+  border-radius: 26px;
+  background: var(--lc-color-white);
+}
+
+/* Stand-in website: grey blocks only. */
+.lc-inbs-preview__site {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 12px;
+}
+
+.lc-inbs-preview__site span {
+  display: block;
+  border-radius: 6px;
+  background: var(--lc-color-gray-50);
+}
+
+.lc-inbs-preview__bar {
+  height: 20px;
+}
+
+.lc-inbs-preview__hero {
+  height: 120px;
+}
+
+.lc-inbs-preview__line {
+  height: 8px;
+}
+
+.lc-inbs-preview__line--short {
+  width: 60%;
+}
+
+.lc-inbs-preview__site .lc-inbs-preview__tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: none;
+}
+
+.lc-inbs-preview__tiles > span {
+  height: 90px;
+}
+
+/* The wider desktop page: roomier blocks and a third tile. */
+.lc-inbs-preview__site--desktop {
+  gap: 16px;
+  padding: 24px 32px;
+}
+
+.lc-inbs-preview__site--desktop .lc-inbs-preview__bar {
+  height: 28px;
+}
+
+.lc-inbs-preview__site--desktop .lc-inbs-preview__hero {
+  height: 180px;
+}
+
+.lc-inbs-preview__site--desktop .lc-inbs-preview__line {
+  height: 10px;
+}
+
+.lc-inbs-preview__site--desktop .lc-inbs-preview__tiles {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.lc-inbs-preview__site--desktop .lc-inbs-preview__tiles > span {
+  height: 100px;
+}
+
+/* Widget (+ pop-up), in real pixels times the screen's `--s` (the phone mock-up is a
+   scaled-down 375px page; the desktop view is 1:1). Side pop-ups sit toward the screen's
+   middle; top ones stack above the widget. */
+.lc-inbs-preview__widget {
+  --size: calc(68px * var(--s));
+
+  position: absolute;
+  bottom: calc(var(--mb) * var(--s) * 1px);
+  display: flex;
+  align-items: flex-end;
+  gap: calc(10px * var(--s));
+}
+
+.lc-inbs-preview__widget[data-size='small'] {
+  --size: calc(54px * var(--s));
+}
+
+.lc-inbs-preview__widget[data-size='large'] {
+  --size: calc(82px * var(--s));
+}
+
+.lc-inbs-preview__widget[data-side='right'] {
+  right: calc(var(--ms) * var(--s) * 1px);
+}
+
+.lc-inbs-preview__widget[data-side='left'] {
+  left: calc(var(--ms) * var(--s) * 1px);
+  flex-direction: row-reverse;
+}
+
+.lc-inbs-preview__widget[data-popup='top'] {
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.lc-inbs-preview__widget[data-popup='top'][data-side='left'] {
+  align-items: flex-start;
+}
+
+.lc-inbs-preview__logo {
+  flex: none;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.2);
+}
+
+.lc-inbs-preview__logo--whatsapp {
+  display: grid;
+  place-items: center;
+  color: var(--lc-color-white);
+  background: var(--lc-inbs-whatsapp);
+}
+
+.lc-inbs-preview__logo--whatsapp svg {
+  width: 60%;
+  height: 60%;
+}
+
+.lc-inbs-preview__button {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(10px * var(--s));
+  height: var(--size);
+  padding: 0 calc(20px * var(--s)) 0 calc(7px * var(--s));
+  border-radius: 999px;
+  background: var(--lc-inbs-whatsapp);
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.2);
+  font-size: calc(var(--size) * 0.3);
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--lc-color-white);
+}
+
+.lc-inbs-preview__button .lc-inbs-preview__logo {
+  width: calc(var(--size) - 14px * var(--s));
+  height: calc(var(--size) - 14px * var(--s));
+  box-shadow: none;
+}
+
+.lc-inbs-preview__popup {
+  width: calc(256px * var(--s));
+  overflow: hidden;
+  border-radius: calc(17px * var(--s));
+  background: var(--lc-color-white);
+  box-shadow: 0 4px 16px rgba(16, 24, 40, 0.16);
+  font-size: calc(17px * var(--s));
+  line-height: calc(22px * var(--s));
+  color: var(--lc-color-green-900);
+}
+
+.lc-inbs-preview__media {
+  display: block;
+  width: 100%;
+  height: calc(120px * var(--s));
+  object-fit: cover;
+}
+
+.lc-inbs-preview__popup-body {
+  display: flex;
+  gap: calc(10px * var(--s));
+  padding: calc(14px * var(--s));
+  overflow-wrap: anywhere;
+}
+
+.lc-inbs-preview__company {
+  flex: none;
+  width: calc(38px * var(--s));
+  height: calc(38px * var(--s));
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.lc-inbs-preview__heading {
+  display: block;
+  font-size: calc(19px * var(--s));
+}
+
+.lc-inbs-preview__text {
+  margin: 0;
+}
+
+.lc-inbs-preview__cta {
+  display: block;
+  margin: 0 calc(14px * var(--s)) calc(14px * var(--s));
+  padding: calc(7px * var(--s));
+  border-radius: calc(10px * var(--s));
+  background: var(--lc-inbs-whatsapp);
+  font-weight: 700;
+  text-align: center;
+  color: var(--lc-color-white);
+}
+
+/* --- Desktop preview modal ------------------------------------------- */
+
+.lc-inbs-browser {
+  --lc-inbs-whatsapp: #25d366; /* WhatsApp brand green */
+
+  overflow: hidden;
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 12px;
+}
+
+.lc-inbs-browser__bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--lc-color-gray-100);
+}
+
+.lc-inbs-browser__bar > span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--lc-color-gray-300);
+}
+
+.lc-inbs-browser__address {
+  flex: 1;
+  height: 20px;
+  margin-left: 12px;
+  border-radius: 10px;
+  background: var(--lc-color-white);
+}
+
+.lc-inbs-browser__screen {
+  --s: 1;
+
+  position: relative;
+  height: 440px;
+  overflow: hidden;
+  background: var(--lc-color-white);
+}
+
+.lc-inbs-browser__note {
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-sage-500);
+}
+
+/* No room beside the settings: drop the preview rather than squeeze the form. */
+@container (max-width: 820px) {
+  .lc-inbs-preview {
+    display: none;
   }
 }

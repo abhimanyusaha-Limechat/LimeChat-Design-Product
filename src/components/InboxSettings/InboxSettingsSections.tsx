@@ -1,6 +1,7 @@
 /**
- * The switched sections of InboxSettings' General tab: a shared heading with an
- * optional on/off switch, Opt in/out and Waiting reminder.
+ * Shared pieces of InboxSettings' tabs: a heading with an optional on/off switch,
+ * label | control rows (plain, radio, switch), and the General tab's Opt in/out and
+ * Waiting reminder sections.
  */
 import { useId, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
@@ -63,6 +64,128 @@ export function SectionHeading({ title, description, isNew, toggle }: Heading) {
           <span className="lc-inbs__switch-thumb" />
         </button>
       )}
+    </div>
+  );
+}
+
+export interface Choice<V extends string> {
+  value: V;
+  label: string;
+}
+
+export function Row({ label, description, off = false, children }: { label: string; description: string; off?: boolean; children: ReactNode }) {
+  return (
+    <div className="lc-inbs__row" data-disabled={off}>
+      <div className="lc-inbs__row-label">
+        <span className="lc-inbs__label">{label}</span>
+        <p className="lc-inbs__row-desc">{description}</p>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+export function RadioRow<V extends string>({
+  label,
+  description,
+  choices,
+  value,
+  off,
+  onChange,
+}: {
+  label: string;
+  description: string;
+  choices: Choice<V>[];
+  value: V;
+  off: boolean;
+  onChange: (next: V) => void;
+}) {
+  const name = useId();
+  return (
+    <Row label={label} description={description} off={off}>
+      <div className="lc-inbs__radios" role="radiogroup" aria-label={label}>
+        {choices.map((c) => (
+          <label key={c.value} className="lc-inbs__radio">
+            <input
+              type="radio"
+              name={name}
+              checked={value === c.value}
+              disabled={off}
+              onChange={() => onChange(c.value)}
+            />
+            {c.label}
+          </label>
+        ))}
+      </div>
+    </Row>
+  );
+}
+
+export function SwitchRow({
+  label,
+  description,
+  checked,
+  off = false,
+  onChange,
+}: {
+  label: string;
+  description: string;
+  checked: boolean;
+  off?: boolean;
+  onChange: (next: boolean) => void;
+}) {
+  const labelId = useId();
+  return (
+    <div className="lc-inbs__row" data-disabled={off}>
+      <div className="lc-inbs__row-label">
+        <span id={labelId} className="lc-inbs__label">{label}</span>
+        <p className="lc-inbs__row-desc">{description}</p>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-labelledby={labelId}
+        disabled={off}
+        className="lc-inbs__switch-track lc-inbs__switch-track--end"
+        onClick={() => onChange(!checked)}
+      >
+        <span className="lc-inbs__switch-thumb" />
+      </button>
+    </div>
+  );
+}
+
+export function TextRow({
+  label,
+  description,
+  placeholder,
+  value,
+  off = false,
+  onChange,
+}: {
+  label: string;
+  description: string;
+  placeholder: string;
+  value: string;
+  off?: boolean;
+  onChange: (next: string) => void;
+}) {
+  const id = useId();
+  return (
+    <div className="lc-inbs__row" data-disabled={off}>
+      <div className="lc-inbs__row-label">
+        <label className="lc-inbs__label" htmlFor={id}>{label}</label>
+        <p className="lc-inbs__row-desc">{description}</p>
+      </div>
+      <input
+        id={id}
+        className="lc-inbs__input"
+        placeholder={placeholder}
+        value={value}
+        disabled={off}
+        onChange={(e) => onChange(e.currentTarget.value)}
+      />
     </div>
   );
 }
@@ -299,7 +422,7 @@ const FIELDS: { name: InboxDurationField; label: string; max?: number }[] = [
   { name: 'minutes', label: 'Minutes', max: 59 },
 ];
 
-function clamp(value: number, max?: number) {
+export function clamp(value: number, max?: number) {
   if (Number.isNaN(value) || value < 0) return 0;
   return max === undefined ? value : Math.min(value, max);
 }
