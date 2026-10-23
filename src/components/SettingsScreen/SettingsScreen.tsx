@@ -27,6 +27,7 @@ import {
   type CsatRatingScale,
   type CsatTimeDelay,
 } from '../BotCsatSettings';
+import { TicketAssignmentSettings, type AssignmentStrategy } from '../TicketAssignmentSettings';
 import { IntegrationsHomePage } from '../IntegrationsHomePage';
 import { IntegrationSettings } from '../IntegrationSettings';
 import { DEFAULT_SHOPIFY_PERMISSIONS, ShopifyActionsPermissions, type ShopifyPermissions } from '../ShopifyActionsPermissions';
@@ -419,6 +420,12 @@ export function SettingsScreen({
     botIntent: { days: 2, hours: 0 },
   });
 
+  const [assignStrategy, setAssignStrategy] = useState<AssignmentStrategy>('round-robin');
+  // A handful of inboxes start on manual assignment so both panels have content.
+  const [assignManualIds, setAssignManualIds] = useState(() => DEMO_INBOXES.slice(0, 6).map((i) => i.id));
+  const [assignOfflineEnabled, setAssignOfflineEnabled] = useState(true);
+  const [assignOfflineIds, setAssignOfflineIds] = useState<string[]>([]);
+
   const [csatEnabled, setCsatEnabled] = useState(true);
   const [csatFlows, setCsatFlows] = useState<Record<CsatFlowKey, boolean>>({
     showProducts: false,
@@ -799,6 +806,22 @@ export function SettingsScreen({
               ...prev,
               [key]: { ...prev[key], [field]: value },
             }))
+          }
+        />
+      ) : settingsTab === 'ticket-assignment' ? (
+        <TicketAssignmentSettings
+          inboxes={DEMO_INBOXES}
+          strategy={assignStrategy}
+          onStrategyChange={setAssignStrategy}
+          manualIds={assignManualIds}
+          onManualChange={(id, manual) =>
+            setAssignManualIds((prev) => (manual ? [...prev, id] : prev.filter((x) => x !== id)))
+          }
+          offlineEnabled={assignOfflineEnabled}
+          onOfflineEnabledChange={setAssignOfflineEnabled}
+          offlineInboxIds={assignOfflineIds}
+          onOfflineInboxToggle={(id) =>
+            setAssignOfflineIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
           }
         />
       ) : settingsTab === 'bot-csat' ? (

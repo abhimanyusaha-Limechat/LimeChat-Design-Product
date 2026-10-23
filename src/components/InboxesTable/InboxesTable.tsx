@@ -46,7 +46,7 @@ const TYPE_ICON: Record<InboxType, InboxIconName> = {
   facebook: 'facebook',
 };
 
-const TYPE_LABEL: Record<InboxType, string> = {
+export const TYPE_LABEL: Record<InboxType, string> = {
   whatsapp: 'Whatsapp',
   email: 'Email',
   instagram: 'Instagram',
