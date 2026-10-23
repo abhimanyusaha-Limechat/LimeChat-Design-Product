@@ -13,7 +13,7 @@ import { SettingsPage, type DetailPanel } from '../SettingsPage';
 import { DetailsAvatar, InboxDetailsIcon, SettingsDetails, inboxFields, rowFields } from './SettingsDetails';
 import { AgentDetails, type AgentPatch } from './AgentDetails';
 import { InboxesTable } from '../InboxesTable';
-import { InboxSettings, type InboxAgent, type InboxSettingsValues } from '../InboxSettings';
+import { InboxSettings, type InboxAgent, type InboxSettingsValues, type PopupSettings, type WhatsAppWidgetSettings } from '../InboxSettings';
 import { EventsTable } from '../EventsTable';
 import { OptOutUsersTable } from '../OptOutUsersTable';
 import { BotTemplatesTable, MediaTypeBadge, type BotTemplateRow } from '../BotTemplatesTable';
@@ -103,6 +103,29 @@ const WhatsAppIcon = () => <Icon name="whatsapp" stroke="#8C8C8C" />;
 
 const PlusIcon = () => <Icon name="plus" />;
 
+const widgetDefaults: WhatsAppWidgetSettings = {
+  enabled: true,
+  type: 'icon',
+  position: 'right',
+  size: 'medium',
+  disappearOnScroll: false,
+  marginBottom: 24,
+  marginSide: 24,
+  icon: { name: 'Static without stroke', kind: 'image' },
+};
+
+const popupDefaults: PopupSettings = {
+  position: 'side',
+  type: 'static',
+  appearAfter: 3,
+  disappearAfter: 10,
+  heading: '',
+  body: "Hey, Let's chat!",
+  ctaText: '',
+  companyImage: null,
+  media: null,
+};
+
 // Demo: every inbox starts with the same ticket durations.
 const inboxDefaults = (name: string): InboxSettingsValues => ({
   name,
@@ -148,6 +171,17 @@ const inboxDefaults = (name: string): InboxSettingsValues => ({
   },
   // Demo: set up by an admin elsewhere, so the tab shows its "contact admin" hint.
   configuration: { callbackUrl: '' },
+  whatsappWidget: { mobile: widgetDefaults, desktop: widgetDefaults },
+  whatsappPopup: { enabled: true, desktop: popupDefaults, mobile: popupDefaults },
+  whatsappPages: { home: true, cart: true, blog: true, products: true, collections: true, checkout: true, pages: true },
+  whatsappPrefill: {
+    productText: 'Hey! I would like to know about',
+    includeVariant: false,
+    collectionText: '',
+    otherText: "Hey, Let's chat about LimeChat Development V2.",
+    utm: true,
+  },
+  whatsappZIndex: 1000,
   collaborators: {
     c1: { onlyAssignManually: false },
     c2: { onlyAssignManually: false },

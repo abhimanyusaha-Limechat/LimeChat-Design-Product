@@ -2,31 +2,19 @@
  * The Configuration tab of InboxSettings: the callback URL to paste into the channel
  * provider (Twilio). It's set up by an admin, so an inbox without one shows a hint instead.
  */
-import { useEffect, useId, useState } from 'react';
+import { useId } from 'react';
 import { Button } from '../Button';
 import { SectionHeading } from './InboxSettingsSections';
+import { useCopied } from './useCopied';
 
 export interface InboxConfiguration {
   /** Empty until an admin has set the inbox up. */
   callbackUrl: string;
 }
 
-const COPIED_MS = 2000;
-
 export function ConfigurationTab({ value }: { value: InboxConfiguration }) {
   const urlId = useId();
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), COPIED_MS);
-    return () => clearTimeout(timer);
-  }, [copied]);
-
-  const copy = () => {
-    // The clipboard can be unavailable (insecure context, denied permission); the URL stays selectable.
-    navigator.clipboard?.writeText(value.callbackUrl).then(() => setCopied(true), () => undefined);
-  };
+  const { copied, copy } = useCopied(value.callbackUrl);
 
   return (
     <section className="lc-inbs__group" aria-label="Callback URL">

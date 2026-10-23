@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsScreen } from './SettingsScreen';
@@ -323,6 +323,46 @@ describe('SettingsScreen inbox edit', () => {
     expect(csat.getByRole('radio', { name: 'Link-based' })).toBeDisabled();
     const csatReminder = within(screen.getByRole('region', { name: 'Enable CSAT reminder' }));
     expect(csatReminder.getByRole('spinbutton', { name: 'Hours' })).toHaveValue(1);
+
+    expect(screen.queryByRole('complementary', { name: 'Mobile preview' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('tab', { name: 'WhatsApp Widget' }));
+    expect(screen.getByRole('complementary', { name: 'Mobile preview' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Preview on desktop' }));
+    expect(screen.getByRole('dialog', { name: 'Desktop preview' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Close' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: 'Copy code' }));
+    expect(await screen.findByRole('button', { name: 'Copied' })).toBeInTheDocument();
+    expect(await navigator.clipboard.readText()).toContain(`data-phone="${inbox.detail.replace(/\D/g, '')}"`);
+    const widget = within(screen.getByRole('region', { name: 'WhatsApp Widget for Mobile' }));
+    expect(widget.getByRole('spinbutton', { name: 'From right' })).toHaveValue(24);
+    await user.click(widget.getByRole('radio', { name: 'Left' }));
+    expect(widget.getByRole('spinbutton', { name: 'From left' })).toHaveValue(24);
+    expect(widget.getByText('Static without stroke')).toBeInTheDocument();
+    await user.click(widget.getByRole('button', { name: 'Remove widget icon' }));
+    expect(widget.getByRole('button', { name: 'Upload widget icon' })).toBeInTheDocument();
+    await user.click(widget.getByRole('switch', { name: 'WhatsApp Widget for Mobile' }));
+    expect(widget.getByRole('radio', { name: 'Icon' })).toBeDisabled();
+    // Desktop is set up separately, so mobile's edits don't reach it.
+    const desktopWidget = within(screen.getByRole('region', { name: 'WhatsApp Widget for Desktop' }));
+    expect(desktopWidget.getByRole('radio', { name: 'Icon' })).toBeEnabled();
+    expect(desktopWidget.getByRole('spinbutton', { name: 'From right' })).toHaveValue(24);
+    // Pop-up copy is set per device.
+    const popup = within(screen.getByRole('region', { name: 'Pop-up Message' }));
+    await user.type(popup.getByRole('textbox', { name: 'Heading' }), 'Hi there');
+    await user.click(popup.getByRole('tab', { name: 'Mobile' }));
+    expect(popup.getByRole('textbox', { name: 'Heading' })).toHaveValue('');
+    expect(popup.getByRole('combobox', { name: 'Time to appear' })).toHaveValue('3');
+    expect(popup.getByText('Select Media')).toBeInTheDocument();
+    const pages = within(screen.getByRole('region', { name: 'Shopify pages' }));
+    await user.click(pages.getByRole('checkbox', { name: 'Checkout' }));
+    expect(pages.getByRole('checkbox', { name: 'Checkout' })).not.toBeChecked();
+    // Unticking a page type disables its pre-filled message.
+    const prefill = within(screen.getByRole('region', { name: 'Pre-filled text message' }));
+    expect(prefill.getByRole('textbox', { name: 'Collections pages' })).toBeEnabled();
+    await user.click(pages.getByRole('checkbox', { name: 'Collections' }));
+    expect(prefill.getByRole('textbox', { name: 'Collections pages' })).toBeDisabled();
+    expect(screen.getByRole('spinbutton', { name: 'Z-Index value' })).toHaveValue(1000);
 
     await user.click(screen.getByRole('button', { name: 'Back' }));
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(SETTINGS_COPY.inboxes.title);

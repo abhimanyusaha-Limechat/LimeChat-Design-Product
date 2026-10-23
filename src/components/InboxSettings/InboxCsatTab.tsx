@@ -2,8 +2,16 @@
  * The CSAT tab of InboxSettings: how and when this inbox asks customers to rate an
  * agent's conversation. One master switch dims every row below it.
  */
-import { useId, type ReactNode } from 'react';
-import { DurationSection, SectionHeading, type DurationRow, type InboxDuration } from './InboxSettingsSections';
+import { useId } from 'react';
+import {
+  DurationSection,
+  RadioRow,
+  SectionHeading,
+  SwitchRow,
+  type Choice,
+  type DurationRow,
+  type InboxDuration,
+} from './InboxSettingsSections';
 
 export interface InboxCsat {
   enabled: boolean;
@@ -17,11 +25,6 @@ export interface InboxCsat {
   message: string;
   /** Nudges a customer who hasn't answered the survey. */
   reminder: { enabled: boolean; delay: InboxDuration; message: string };
-}
-
-interface Choice<V extends string> {
-  value: V;
-  label: string;
 }
 
 const FORMATS: Choice<InboxCsat['format']>[] = [
@@ -43,89 +46,6 @@ const SCALES: Choice<InboxCsat['ratingScale']>[] = [
   { value: '3', label: '3 stars' },
   { value: '5', label: '5 stars' },
 ];
-
-function Row({ label, description, off, children }: { label: string; description: string; off: boolean; children: ReactNode }) {
-  return (
-    <div className="lc-inbs__row" data-disabled={off}>
-      <div className="lc-inbs__row-label">
-        <span className="lc-inbs__label">{label}</span>
-        <p className="lc-inbs__row-desc">{description}</p>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function RadioRow<V extends string>({
-  label,
-  description,
-  choices,
-  value,
-  off,
-  onChange,
-}: {
-  label: string;
-  description: string;
-  choices: Choice<V>[];
-  value: V;
-  off: boolean;
-  onChange: (next: V) => void;
-}) {
-  const name = useId();
-  return (
-    <Row label={label} description={description} off={off}>
-      <div className="lc-inbs__radios" role="radiogroup" aria-label={label}>
-        {choices.map((c) => (
-          <label key={c.value} className="lc-inbs__radio">
-            <input
-              type="radio"
-              name={name}
-              checked={value === c.value}
-              disabled={off}
-              onChange={() => onChange(c.value)}
-            />
-            {c.label}
-          </label>
-        ))}
-      </div>
-    </Row>
-  );
-}
-
-function SwitchRow({
-  label,
-  description,
-  checked,
-  off,
-  onChange,
-}: {
-  label: string;
-  description: string;
-  checked: boolean;
-  off: boolean;
-  onChange: (next: boolean) => void;
-}) {
-  const labelId = useId();
-  return (
-    <div className="lc-inbs__row" data-disabled={off}>
-      <div className="lc-inbs__row-label">
-        <span id={labelId} className="lc-inbs__label">{label}</span>
-        <p className="lc-inbs__row-desc">{description}</p>
-      </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-labelledby={labelId}
-        disabled={off}
-        className="lc-inbs__switch-track lc-inbs__switch-track--end"
-        onClick={() => onChange(!checked)}
-      >
-        <span className="lc-inbs__switch-thumb" />
-      </button>
-    </div>
-  );
-}
 
 export function CsatTab({ value, onChange }: { value: InboxCsat; onChange: (next: InboxCsat) => void }) {
   const messageId = useId();
