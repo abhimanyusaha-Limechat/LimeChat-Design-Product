@@ -1,0 +1,236 @@
+/**
+ * TicketAssignmentSettings — Settings → Ticket Assignment, HelpDesk product.
+ *
+ * Two tinted panels of inbox cards plus an offline-assignment row; tokens mirror the other
+ * HelpDesk settings pages (`--lc-csat-*`, `--lc-attr-*`) as `--lc-ta-*`.
+ */
+
+.lc-ta {
+  --lc-ta-border: var(--lc-color-gray-300);
+  --lc-ta-divider: var(--lc-color-gray-200);
+  --lc-ta-text-title: var(--lc-color-green-900);
+  --lc-ta-text-dimmed: var(--lc-color-sage-500);
+  --lc-ta-primary: var(--lc-color-green-700);
+  --lc-ta-panel-bg: var(--lc-color-stone-50);
+  --lc-ta-radius: 12px;
+  --lc-ta-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  color: var(--lc-ta-text-title);
+  container-type: inline-size;
+}
+
+.lc-ta *,
+.lc-ta *::before,
+.lc-ta *::after {
+  box-sizing: border-box;
+}
+
+/* --- Panels ---------------------------------------------------------- */
+
+.lc-ta__panels {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.lc-ta__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--lc-ta-divider);
+  border-radius: var(--lc-ta-radius);
+  background: var(--lc-ta-panel-bg);
+  min-width: 0;
+}
+
+.lc-ta__panel-heading,
+.lc-ta__radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 28px;
+  min-height: 24px;
+}
+
+.lc-ta__panel-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.lc-ta__subhead {
+  margin-top: -4px;
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--lc-ta-text-dimmed);
+}
+
+.lc-ta__info {
+  display: inline-flex;
+  color: var(--lc-ta-text-dimmed);
+  border-radius: 50%;
+  cursor: help;
+}
+
+.lc-ta__info:focus-visible {
+  outline: 2px solid var(--lc-ta-primary);
+  outline-offset: 2px;
+}
+
+.lc-ta__empty {
+  margin: 0;
+  padding: 24px 8px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--lc-ta-text-dimmed);
+}
+
+/* --- Strategy radios ---------------------------------------------------- */
+
+.lc-ta__radio-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lc-ta__radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.lc-ta__radio input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.lc-ta__radio-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--lc-ta-border);
+  border-radius: 50%;
+  background: var(--lc-color-white);
+  transition: border-color 120ms ease;
+}
+
+.lc-ta__radio-dot::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--lc-ta-primary);
+  transform: scale(0);
+  transition: transform 120ms ease;
+}
+
+.lc-ta__radio-dot[data-checked='true'] {
+  border-color: var(--lc-ta-primary);
+}
+
+.lc-ta__radio-dot[data-checked='true']::after {
+  transform: scale(1);
+}
+
+.lc-ta__radio:has(input:focus-visible) .lc-ta__radio-dot {
+  outline: 2px solid var(--lc-ta-primary);
+  outline-offset: 2px;
+}
+
+.lc-ta__radio-label {
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.lc-ta__radio-label[data-checked='true'] {
+  font-weight: 700;
+}
+
+/* --- Inbox cards -------------------------------------------------------- */
+
+.lc-ta__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 12px;
+  max-height: 440px;
+  overflow-y: auto;
+  /* room for the cards' focus ring and hover lift, which overflow-y would otherwise clip */
+  margin: -3px;
+  padding: 3px;
+}
+
+.lc-ta__card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 84px;
+  padding: 12px;
+  border: 1px solid var(--lc-ta-border);
+  border-radius: 8px;
+  background: var(--lc-color-white);
+  font-family: inherit;
+  text-align: left;
+  color: var(--lc-ta-text-title);
+  cursor: pointer;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.lc-ta__card:hover {
+  border-color: var(--lc-ta-primary);
+  box-shadow: 0 1px 4px rgba(60, 73, 44, 0.12);
+}
+
+.lc-ta__card:focus-visible {
+  outline: 2px solid var(--lc-ta-primary);
+  outline-offset: 1px;
+}
+
+.lc-ta__card-channel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--lc-color-gray-500);
+}
+
+.lc-ta__card[data-type='whatsapp'] .lc-ta__card-channel { color: var(--lc-color-green-500); }
+.lc-ta__card[data-type='email'] .lc-ta__card-channel { color: #f08c00; }
+.lc-ta__card[data-type='facebook'] .lc-ta__card-channel { color: var(--lc-color-blue-600); }
+
+.lc-ta__card-name {
+  font-size: 15px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+/* --- Offline assignment row -------------------------------------------- */
+
+.lc-ta__offline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+@container (max-width: 640px) {
+  .lc-ta__panels {
+    grid-template-columns: 1fr;
+  }
+}
