@@ -291,6 +291,9 @@ export function ModalTextField({
   required,
   disabled,
   placeholder,
+  type,
+  autoComplete,
+  error,
 }: {
   label: ReactNode;
   value: string;
@@ -298,18 +301,28 @@ export function ModalTextField({
   required?: boolean;
   disabled?: boolean;
   placeholder?: string;
+  type?: 'text' | 'email';
+  autoComplete?: string;
+  /** Shown under the field in red; also marks the input invalid. */
+  error?: string;
 }) {
   const id = useId();
+  const errorId = `${id}-error`;
   return (
     <FieldShell label={label} htmlFor={id} required={required}>
       <input
         id={id}
+        type={type}
+        autoComplete={autoComplete}
         className="lc-modal__input"
         value={value}
         disabled={disabled}
         placeholder={placeholder}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
         onChange={(e) => onChange?.(e.currentTarget.value)}
       />
+      {error && <p id={errorId} className="lc-modal__field-error">{error}</p>}
     </FieldShell>
   );
 }

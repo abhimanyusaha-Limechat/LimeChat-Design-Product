@@ -257,8 +257,72 @@ describe('SettingsScreen inbox edit', () => {
     await user.click(reminders.getByRole('button', { name: 'Delete reminder 1' }));
     expect(reminders.queryByRole('group', { name: 'Reminder 3' })).not.toBeInTheDocument();
 
+    await user.click(screen.getByRole('tab', { name: 'Business Hours' }));
+    const monday = within(screen.getByRole('group', { name: 'Monday' }));
+    expect(monday.getByText('05:00 PM', { selector: '.lc-inbs__closing' })).toBeInTheDocument();
+    await user.selectOptions(monday.getByRole('combobox', { name: 'Monday slot 1 hours' }), '2');
+    expect(monday.getByText('11:00 AM', { selector: '.lc-inbs__closing' })).toBeInTheDocument();
+    await user.click(monday.getByRole('button', { name: 'Add Monday hours' }));
+    expect(monday.getByRole('combobox', { name: 'Monday slot 2 starting hour' })).toHaveValue('660');
+    await user.click(monday.getByRole('button', { name: 'Remove Monday slot 2' }));
+    expect(monday.queryByRole('combobox', { name: 'Monday slot 2 hours' })).not.toBeInTheDocument();
+    await user.click(within(screen.getByRole('group', { name: 'Sunday' })).getByRole('switch', { name: 'Sunday open' }));
+    expect(within(screen.getByRole('group', { name: 'Sunday' })).getByRole('combobox', { name: 'Sunday slot 1 hours' })).toBeEnabled();
+
+    await user.click(screen.getByRole('tab', { name: 'Collaborators' }));
+    const agents = within(screen.getByRole('region', { name: 'Agents' }));
+    const addedList = within(agents.getByRole('region', { name: /^Collaborators added/ }));
+    const availableList = within(agents.getByRole('region', { name: /^Available collaborators/ }));
+    expect(addedList.getByText('Aarav Mehta')).toBeInTheDocument();
+    // Column headers sort: Name ascending, then descending, then back to the original order.
+    const nameSort = addedList.getByRole('button', { name: 'Name' });
+    await user.click(nameSort);
+    expect(addedList.getAllByRole('row')[1]).toHaveTextContent('Aarav Mehta');
+    await user.click(nameSort);
+    expect(addedList.getAllByRole('row')[1]).toHaveTextContent('Rohan Iyer');
+    await user.click(nameSort);
+    await user.click(addedList.getByRole('switch', { name: 'Only assign Aarav Mehta manually' }));
+    expect(addedList.getByRole('switch', { name: 'Only assign Aarav Mehta manually' })).toBeChecked();
+    // Removing offers an undo that restores the agent with their manual-assignment setting.
+    await user.click(addedList.getByRole('button', { name: 'Remove Aarav Mehta' }));
+    expect(addedList.queryByText('Aarav Mehta')).not.toBeInTheDocument();
+    await user.click(agents.getByRole('button', { name: 'Undo' }));
+    expect(addedList.getByRole('switch', { name: 'Only assign Aarav Mehta manually' })).toBeChecked();
+    await user.click(addedList.getByRole('button', { name: 'Remove Aarav Mehta' }));
+    expect(availableList.getByText('Aarav Mehta')).toBeInTheDocument();
+    // Search narrows both lists.
+    await user.type(agents.getByRole('searchbox', { name: 'Search agents' }), 'sneha');
+    expect(availableList.queryByText('Aarav Mehta')).not.toBeInTheDocument();
+    await user.click(availableList.getByRole('button', { name: 'Add Sneha Pillai to inbox' }));
+    expect(addedList.getByText('Sneha Pillai')).toBeInTheDocument();
+    await user.clear(agents.getByRole('searchbox', { name: 'Search agents' }));
+    expect(agents.getAllByText('Incomplete profile').length).toBeGreaterThan(0);
+    // Create a brand-new agent and add it to the inbox in one go.
+    await user.click(agents.getByRole('button', { name: 'Create agent' }));
+    const dialog = within(screen.getByRole('dialog'));
+    await user.click(dialog.getByRole('button', { name: 'Create agent' }));
+    expect(dialog.getByText('Enter the agent’s name.')).toBeInTheDocument();
+    await user.type(dialog.getByLabelText(/Full name/), 'Zoya Khan');
+    await user.type(dialog.getByLabelText(/Email address/), 'aarav@limechat.ai');
+    await user.click(dialog.getByRole('button', { name: 'Create agent' }));
+    expect(dialog.getByText('An agent with this email already exists.')).toBeInTheDocument();
+    await user.clear(dialog.getByLabelText(/Email address/));
+    await user.type(dialog.getByLabelText(/Email address/), 'zoya@limechat.ai');
+    await user.click(dialog.getByRole('button', { name: 'Create agent' }));
+    expect(addedList.getByText('Zoya Khan')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: 'Configuration' }));
+    expect(screen.getByText('Please contact admin to set this up.')).toBeInTheDocument();
+
     await user.click(screen.getByRole('tab', { name: 'CSAT' }));
-    expect(screen.getByText("CSAT settings aren't designed yet.")).toBeInTheDocument();
+    const csat = within(screen.getByRole('region', { name: 'Agent CSAT' }));
+    expect(csat.getByRole('radio', { name: '5 stars' })).toBeChecked();
+    await user.click(csat.getByRole('radio', { name: '3 stars' }));
+    expect(csat.getByRole('radio', { name: '3 stars' })).toBeChecked();
+    await user.click(csat.getByRole('switch', { name: 'Agent CSAT' }));
+    expect(csat.getByRole('radio', { name: 'Link-based' })).toBeDisabled();
+    const csatReminder = within(screen.getByRole('region', { name: 'Enable CSAT reminder' }));
+    expect(csatReminder.getByRole('spinbutton', { name: 'Hours' })).toHaveValue(1);
 
     await user.click(screen.getByRole('button', { name: 'Back' }));
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(SETTINGS_COPY.inboxes.title);

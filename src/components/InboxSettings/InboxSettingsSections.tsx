@@ -2,10 +2,14 @@
  * The switched sections of InboxSettings' General tab: a shared heading with an
  * optional on/off switch, Opt in/out and Waiting reminder.
  */
-import { useId, useState } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { NativeSelect, type SelectItem } from '../Select';
 import { Icon } from '../icons';
+
+export type InboxDurationField = 'days' | 'hours' | 'minutes';
+export type InboxDuration = Record<InboxDurationField, number>;
+export type DurationRow<K extends string> = { key: K; label: string; description: string };
 
 export interface OptInOut {
   enabled: boolean;
@@ -86,42 +90,46 @@ function KeywordInput({
     setPending('');
   };
   return (
-    <div className="lc-inbs__field">
-      <label className="lc-inbs__label" htmlFor={id}>{label}</label>
-      <input
-        id={id}
-        className="lc-inbs__input"
-        placeholder={placeholder}
-        aria-describedby={hintId}
-        value={pending}
-        disabled={disabled}
-        onChange={(e) => setPending(e.currentTarget.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            add();
-          }
-        }}
-      />
-      <p id={hintId} className="lc-inbs__row-desc">Case insensitive. Type a keyword and press Enter.</p>
-      {value.length > 0 && (
-        <ul className="lc-inbs__chips" aria-label={`${label}s`}>
-          {value.map((keyword) => (
-            <li key={keyword} className="lc-inbs__chip">
-              {keyword}
-              <button
-                type="button"
-                className="lc-inbs__chip-remove"
-                aria-label={`Remove ${keyword}`}
-                disabled={disabled}
-                onClick={() => onChange(value.filter((k) => k !== keyword))}
-              >
-                <Icon name="close" width={12} height={12} />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="lc-inbs__row" data-disabled={disabled}>
+      <div className="lc-inbs__row-label">
+        <label className="lc-inbs__label" htmlFor={id}>{label}</label>
+        <p id={hintId} className="lc-inbs__row-desc">Case insensitive. Type a keyword and press Enter.</p>
+      </div>
+      <div className="lc-inbs__field">
+        <input
+          id={id}
+          className="lc-inbs__input"
+          placeholder={placeholder}
+          aria-describedby={hintId}
+          value={pending}
+          disabled={disabled}
+          onChange={(e) => setPending(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              add();
+            }
+          }}
+        />
+        {value.length > 0 && (
+          <ul className="lc-inbs__chips" aria-label={`${label}s`}>
+            {value.map((keyword) => (
+              <li key={keyword} className="lc-inbs__chip">
+                {keyword}
+                <button
+                  type="button"
+                  className="lc-inbs__chip-remove"
+                  aria-label={`Remove ${keyword}`}
+                  disabled={disabled}
+                  onClick={() => onChange(value.filter((k) => k !== keyword))}
+                >
+                  <Icon name="close" width={12} height={12} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
@@ -140,54 +148,55 @@ export function OptInOutSection({ value, onChange }: { value: OptInOut; onChange
         toggle={{ checked: value.enabled, onChange: (enabled) => onChange({ ...value, enabled }) }}
       />
       <div className="lc-inbs__table">
-        <div className="lc-inbs__row lc-inbs__row--pair" data-disabled={off}>
-          <KeywordInput
-            label="Opt in keyword"
-            placeholder="SUBSCRIBE"
-            value={value.optInKeywords}
-            disabled={off}
-            onChange={(optInKeywords) => onChange({ ...value, optInKeywords })}
-          />
-          <KeywordInput
-            label="Opt out keyword"
-            placeholder="UNSUBSCRIBE"
-            value={value.optOutKeywords}
-            disabled={off}
-            onChange={(optOutKeywords) => onChange({ ...value, optOutKeywords })}
-          />
-        </div>
-        <div className="lc-inbs__row lc-inbs__row--pair" data-disabled={off}>
-          <div className="lc-inbs__field">
+        <KeywordInput
+          label="Opt in keyword"
+          placeholder="SUBSCRIBE"
+          value={value.optInKeywords}
+          disabled={off}
+          onChange={(optInKeywords) => onChange({ ...value, optInKeywords })}
+        />
+        <KeywordInput
+          label="Opt out keyword"
+          placeholder="UNSUBSCRIBE"
+          value={value.optOutKeywords}
+          disabled={off}
+          onChange={(optOutKeywords) => onChange({ ...value, optOutKeywords })}
+        />
+        <div className="lc-inbs__row" data-disabled={off}>
+          <div className="lc-inbs__row-label">
             <label className="lc-inbs__label" htmlFor={optOutId}>Opt out message</label>
-            <textarea
-              id={optOutId}
-              className="lc-inbs__input lc-inbs__textarea"
-              rows={4}
-              value={value.optOutMessage}
-              disabled={off}
-              onChange={(e) => onChange({ ...value, optOutMessage: e.currentTarget.value })}
-            />
             <p className="lc-inbs__row-desc">
               <code>{'%<opt_in_key>s'}</code> becomes the first opt-in keyword.
             </p>
           </div>
-          <div className="lc-inbs__field">
-            <label className="lc-inbs__label" htmlFor={previewId}>Preview</label>
-            <textarea id={previewId} className="lc-inbs__input lc-inbs__textarea" rows={4} value={preview} readOnly />
-          </div>
+          <textarea
+            id={optOutId}
+            className="lc-inbs__input lc-inbs__textarea"
+            rows={4}
+            value={value.optOutMessage}
+            disabled={off}
+            onChange={(e) => onChange({ ...value, optOutMessage: e.currentTarget.value })}
+          />
         </div>
-        <div className="lc-inbs__row lc-inbs__row--pair" data-disabled={off}>
-          <div className="lc-inbs__field">
-            <label className="lc-inbs__label" htmlFor={optInId}>Opt in message</label>
-            <textarea
-              id={optInId}
-              className="lc-inbs__input lc-inbs__textarea"
-              rows={4}
-              value={value.optInMessage}
-              disabled={off}
-              onChange={(e) => onChange({ ...value, optInMessage: e.currentTarget.value })}
-            />
+        <div className="lc-inbs__row" data-disabled={off}>
+          <div className="lc-inbs__row-label">
+            <label className="lc-inbs__label" htmlFor={previewId}>Preview</label>
+            <p className="lc-inbs__row-desc">How the opt out message reads to customers.</p>
           </div>
+          <textarea id={previewId} className="lc-inbs__input lc-inbs__textarea" rows={4} value={preview} readOnly />
+        </div>
+        <div className="lc-inbs__row" data-disabled={off}>
+          <div className="lc-inbs__row-label">
+            <label className="lc-inbs__label" htmlFor={optInId}>Opt in message</label>
+          </div>
+          <textarea
+            id={optInId}
+            className="lc-inbs__input lc-inbs__textarea"
+            rows={4}
+            value={value.optInMessage}
+            disabled={off}
+            onChange={(e) => onChange({ ...value, optInMessage: e.currentTarget.value })}
+          />
         </div>
       </div>
     </section>
@@ -224,14 +233,16 @@ export function WaitingReminderSection({
             <div className="lc-inbs__reminder-head">
               <span className="lc-inbs__label">Reminder {i + 1}</span>
               <Button
-                variant="subtle"
+                variant="outline"
+                color="red"
                 size="xs"
+                className="lc-inbs__icon-btn"
+                leftSection={<Icon name="trash" size={14} />}
                 disabled={off}
                 aria-label={`Delete reminder ${i + 1}`}
+                title="Delete reminder"
                 onClick={() => onChange({ ...value, reminders: value.reminders.filter((_, j) => j !== i) })}
-              >
-                Delete
-              </Button>
+              />
             </div>
             <div className="lc-inbs__reminder-fields">
               <label className="lc-inbs__field">
@@ -251,11 +262,11 @@ export function WaitingReminderSection({
               <NativeSelect
                 label="Template"
                 size="sm"
+                fullWidth
                 data={templates}
                 placeholder="Select a template"
                 value={reminder.templateId}
                 disabled={off}
-                error={reminder.templateId ? undefined : 'Select a template'}
                 onChange={(e) => setReminder(i, { templateId: e.currentTarget.value })}
               />
             </div>
@@ -263,7 +274,7 @@ export function WaitingReminderSection({
         ))}
       </div>
       <Button
-        variant="subtle"
+        variant="outline"
         size="sm"
         className="lc-inbs__add-reminder"
         leftSection={<Icon name="plus" />}
@@ -278,6 +289,68 @@ export function WaitingReminderSection({
       >
         Add reminder
       </Button>
+    </section>
+  );
+}
+
+const FIELDS: { name: InboxDurationField; label: string; max?: number }[] = [
+  { name: 'days', label: 'Days' },
+  { name: 'hours', label: 'Hours', max: 23 },
+  { name: 'minutes', label: 'Minutes', max: 59 },
+];
+
+function clamp(value: number, max?: number) {
+  if (Number.isNaN(value) || value < 0) return 0;
+  return max === undefined ? value : Math.min(value, max);
+}
+
+/** A headed table of Days | Hours | Minutes rows. */
+export function DurationSection<K extends string>({
+  rows,
+  values,
+  onChange,
+  children,
+  ...heading
+}: Heading & {
+  /** Extra rows under the duration rows, inside the same table. */
+  children?: ReactNode;
+  rows: DurationRow<K>[];
+  values: Record<K, InboxDuration>;
+  onChange: (next: Record<K, InboxDuration>) => void;
+}) {
+  const off = heading.toggle?.checked === false;
+  return (
+    <section className="lc-inbs__group" aria-label={heading.title}>
+      <SectionHeading {...heading} />
+      <div className="lc-inbs__table">
+        {rows.map(({ key, label, description }) => (
+          <div key={key} className="lc-inbs__row" data-disabled={off}>
+            <div className="lc-inbs__row-label">
+              <span className="lc-inbs__label">{label}</span>
+              <p className="lc-inbs__row-desc">{description}</p>
+            </div>
+            <div className="lc-inbs__duration" role="group" aria-label={label}>
+              {FIELDS.map(({ name, label: fieldLabel, max }) => (
+                <label key={name} className="lc-inbs__field">
+                  <span className="lc-inbs__field-label">{fieldLabel}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={max}
+                    className="lc-inbs__input"
+                    value={values[key][name]}
+                    disabled={off}
+                    onChange={(e) =>
+                      onChange({ ...values, [key]: { ...values[key], [name]: clamp(e.currentTarget.valueAsNumber, max) } })
+                    }
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+        ))}
+        {children}
+      </div>
     </section>
   );
 }
