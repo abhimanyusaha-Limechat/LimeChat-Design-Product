@@ -3,6 +3,7 @@ import { BigCommerceIcon, BlueDartIcon, CashfreeIcon, ClickPostIcon, DelhiveryIc
 import { type IntegrationField, type IntegrationSettingsProps } from '../components/IntegrationSettings';
 import { type InboxRowData } from '../components/InboxesTable';
 import { type EventRowData } from '../components/EventsTable';
+import { type WebhookRowData } from '../components/WebhooksTable';
 import { type OptOutUserRowData } from '../components/OptOutUsersTable';
 import { type BotTemplateRow } from '../components/BotTemplatesTable';
 import { type BillingPlan, type PlanFeature, type PlanTier } from '../components/BillingSettings';
@@ -82,8 +83,12 @@ export const INTEGRATION_CATEGORIES: IntegrationCategory[] = [
       { id: 'google-sheets', name: 'Google Sheets', icon: <GoogleSheetsIcon /> },
       { id: 'slack', name: 'Slack', icon: <SlackIcon /> },
       { id: 'whatsapp-business', name: 'WhatsApp Business', icon: <WhatsAppBusinessIcon /> },
-      { id: 'webhook', name: 'Webhook', icon: <WebhookIcon /> },
     ],
+  },
+  {
+    id: 'webhooks',
+    title: 'Webhooks',
+    partners: [{ id: 'webhook', name: 'Webhook', icon: <WebhookIcon /> }],
   },
 ];
 
@@ -96,6 +101,8 @@ export const INTEGRATION_FORMS: Record<
   string,
   {
     status: IntegrationSettingsProps['status'];
+    /** Page title when it isn't the partner's name. */
+    title?: string;
     /** Subheading under the page title. */
     description: string;
     fields: IntegrationField[];
@@ -233,14 +240,12 @@ export const INTEGRATION_FORMS: Record<
   },
 
   // --- Storefront ---
+  // Shopify has no credential form: its page is <ShopifyActionsPermissions>, so `fields` is empty.
   shopify: {
     status: 'connected',
-    description: 'Bring Shopify orders, products and customers into LimeChat.',
-    fields: [
-      { id: 'storeUrl', label: 'Store URL', description: 'Your store’s myshopify.com address.', placeholder: 'yourstore.myshopify.com' },
-      { id: 'accessToken', label: 'Admin API access token', description: 'From the custom app you created in Shopify admin.', type: 'password', help: true },
-    ],
-    values: { storeUrl: 'acme.myshopify.com', accessToken: 'demo-access-token' },
+    title: 'Shopify Actions Permissions',
+    description: 'Customize shopify actions that your agents will be allowed to perform',
+    fields: [],
   },
   woocommerce: {
     status: 'not-connected',
@@ -328,13 +333,11 @@ export const INTEGRATION_FORMS: Record<
       { id: 'accessToken', label: 'Access token', description: 'A permanent token from a system user.', type: 'password' },
     ],
   },
+  // Webhook has no credential form: its page is the endpoints table (<WebhooksTable>), so `fields` is empty.
   webhook: {
     status: 'not-connected',
     description: 'Send ticket events to your own server as they happen.',
-    fields: [
-      { id: 'url', label: 'Endpoint URL', description: 'LimeChat sends ticket events here as POST requests.', placeholder: 'https://yourserver.com/limechat' },
-      { id: 'secret', label: 'Signing secret', description: 'Used to sign each request so you can verify it.', type: 'password' },
-    ],
+    fields: [],
   },
 };
 
@@ -534,6 +537,18 @@ export const DEMO_OPT_OUT_USERS: OptOutUserRowData[] = OPT_OUT_NAMES.map((name, 
   name,
   phone: `+91-${9000000000 - i * 13579241}`,
 }));
+
+export const DEMO_WEBHOOKS: WebhookRowData[] = [
+  { id: 'wh1', url: 'https://web.limechat.ai/limechat-webengage-dsn', status: 'failing' },
+  { id: 'wh2', url: 'https://play.svix.com/in/e_izNLAFLWvGXf07EU1zGQ1zV0vs8/', status: 'active' },
+  { id: 'wh3', url: 'https://httpstat.us/500', status: 'failing' },
+  { id: 'wh4', url: 'https://kapture.com/handle-incoming-messages', status: 'failing' },
+  { id: 'wh5', url: 'https://webhook.site/933f7d80-e47e-4e0a-9fc5-aea6b2df0a15', status: 'failing' },
+  { id: 'wh6', url: 'https://webhook.site/2330234b-500f-4cab-9607-6c76623832ce', status: 'failing' },
+  { id: 'wh7', url: 'https://webhook.site/ccbcaa1c-6475-41a9-bab6-feeb4944e05a', status: 'failing' },
+  { id: 'wh8', url: 'https://bot-benchmarking.limechat.ai/get_payload', status: 'active' },
+  { id: 'wh9', url: 'https://flow-builder.limechat.ai/webhook/handle-dashboard-conversation', status: 'failing' },
+];
 
 export const DEMO_BOT_TEMPLATES: BotTemplateRow[] = [
   { id: 'bt1', name: 'Cart & Checkout Management', description: 'Helps in managing carts and Checkout', type: 'task', usecases: ['Sales'], industries: [], scope: 'global' },

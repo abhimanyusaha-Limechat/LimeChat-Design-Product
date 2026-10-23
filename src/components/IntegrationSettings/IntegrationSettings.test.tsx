@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { IntegrationSettings, type IntegrationSettingsProps } from './IntegrationSettings';
 
 const saved = { domain: 'acme.freshdesk.com' };
@@ -27,9 +27,8 @@ describe('IntegrationSettings status header', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Connecting to Freshdesk');
   });
 
-  it('shows Refresh always, and Update only once a field changes', () => {
+  it('shows Update only once a field changes', () => {
     const { rerender } = render(<IntegrationSettings {...base} />);
-    expect(screen.getByRole('button', { name: 'Refresh connection' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Update' })).not.toBeInTheDocument();
 
     rerender(<IntegrationSettings {...base} values={{ domain: 'new.freshdesk.com' }} />);
@@ -39,9 +38,59 @@ describe('IntegrationSettings status header', () => {
     expect(screen.getByRole('button', { name: 'Update' })).toBeDisabled();
   });
 
-  it('offers Connect, not Refresh, before the first connection', () => {
+  it('shows an Active switch only when onActiveChange is given', () => {
+    const onActiveChange = vi.fn();
+    const { rerender } = render(<IntegrationSettings {...base} />);
+    expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+
+    rerender(<IntegrationSettings {...base} onActiveChange={onActiveChange} />);
+    fireEvent.click(screen.getByRole('switch', { name: 'Active' }));
+    expect(onActiveChange).toHaveBeenCalledWith(true);
+
+  });
+
+  it('disables the fields while the Active switch is off', () => {
+    const { rerender } = render(<IntegrationSettings {...base} active={false} onActiveChange={() => {}} />);
+    expect(screen.getByLabelText(/Domain/)).toBeDisabled();
+
+    rerender(<IntegrationSettings {...base} active onActiveChange={() => {}} />);
+    expect(screen.getByLabelText(/Domain/)).toBeEnabled();
+
+    rerender(<IntegrationSettings {...base} status="not-connected" active={false} onActiveChange={() => {}} />);
+    expect(screen.getByLabelText(/Domain/)).toBeDisabled();
+    expect(screen.getByRole('switch', { name: 'Active' })).toBeEnabled();
+  });
+
+  it('reads Not connected while the Active switch is off', () => {
+    const { rerender } = render(<IntegrationSettings {...base} active onActiveChange={() => {}} />);
+    expect(screen.getByRole('status')).toHaveTextContent('Connected to Freshdesk');
+
+    rerender(<IntegrationSettings {...base} active={false} onActiveChange={() => {}} />);
+    expect(screen.getByRole('status')).toHaveTextContent('Not connected to Freshdesk');
+  });
+
+  it('reads Update, not Connect, when the Active switch is present', () => {
+    render(
+      <IntegrationSettings {...base} status="not-connected" savedValues={{}} values={{ domain: 'x' }} onActiveChange={() => {}} />,
+    );
+    expect(screen.getByRole('button', { name: 'Update' })).toBeEnabled();
+  });
+
+  it('renders children as extra rows and shows Update when they have changed', () => {
+    const { rerender } = render(
+      <IntegrationSettings {...base} fields={[]}>
+        <div>Extra row</div>
+      </IntegrationSettings>,
+    );
+    expect(screen.getByText('Extra row')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Update' })).not.toBeInTheDocument();
+
+    rerender(<IntegrationSettings {...base} fields={[]} changed />);
+    expect(screen.getByRole('button', { name: 'Update' })).toBeEnabled();
+  });
+
+  it('offers Connect before the first connection', () => {
     render(<IntegrationSettings {...base} status="not-connected" savedValues={{}} values={{ domain: 'x' }} />);
     expect(screen.getByRole('button', { name: 'Connect' })).toBeEnabled();
-    expect(screen.queryByRole('button', { name: 'Refresh connection' })).not.toBeInTheDocument();
   });
 });

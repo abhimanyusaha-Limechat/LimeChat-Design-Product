@@ -1,0 +1,40 @@
+/**
+ * ShopifyActionsPermissions — rows inside the IntegrationSettings table; row,
+ * label and switch styles come from there (`.lc-is__*`). Only what's new is here.
+ */
+
+.lc-sap__checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+}
+
+.lc-sap__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.lc-sap__check input {
+  margin: 0;
+  accent-color: var(--lc-is-primary);
+}
+
+.lc-sap__check:has(input:disabled) {
+  color: var(--lc-color-gray-500);
+  cursor: not-allowed;
+}
+
+.lc-sap__warn {
+  display: inline-flex;
+  color: var(--lc-color-amber-500);
+}
+
+.lc-sap__warn:focus-visible {
+  outline: 2px solid var(--lc-is-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

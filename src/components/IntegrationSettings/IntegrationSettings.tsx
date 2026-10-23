@@ -1,8 +1,8 @@
 /**
  * IntegrationSettings — Settings → Integration → one partner (e.g. Freshdesk):
- * a status header (connection state, a refresh icon that re-checks the saved
- * details, and — only once a field is edited — an Update/Connect button) above
- * the partner's connection fields, each optionally with a "Where to find?" link.
+ * a status header (connection state and — only once a field is edited — an
+ * Update/Connect button) above the partner's connection fields, each optionally
+ * with a "Where to find?" link.
  *
  * Same design language as `HelpDeskAccountSettings`: a bordered table of
  * label | input rows. The partner icon/title and back arrow live in the page
@@ -16,13 +16,10 @@
  *     savedValues={savedValues}
  *     onChange={(id, value) => ...}
  *     onSubmit={() => ...}
- *     onRefresh={() => ...}
  *   />
  */
-import { useId } from 'react';
+import { useId, type ReactNode } from 'react';
 import { Button } from '../Button';
-import { Icon } from '../icons';
-import { Tooltip } from '../Tooltip';
 import './IntegrationSettings.css';
 
 export interface IntegrationField {
@@ -70,9 +67,15 @@ export interface IntegrationSettingsProps {
   onHelpClick?: (fieldId: string) => void;
   /** Saves `values` (Update, or Connect when not connected yet). */
   onSubmit?: () => void;
-  /** Re-checks the saved details. Hidden while not connected — there is nothing to refresh. */
-  onRefresh?: () => void;
   submitting?: boolean;
+  /** Extra rows (`.lc-is__row`) shown in the table after the fields, e.g. a partner's permissions. */
+  children?: ReactNode;
+  /** Whether the extra rows in `children` have unsaved edits; shows Update like an edited field does. */
+  changed?: boolean;
+  /** Whether the integration is switched on. Pair with `onActiveChange` to show the Active switch. */
+  active?: boolean;
+  /** Shows an Active switch; while it's off the fields are disabled. The submit button then always reads "Update". */
+  onActiveChange?: (active: boolean) => void;
 }
 
 export function IntegrationSettings({
@@ -84,12 +87,18 @@ export function IntegrationSettings({
   onChange,
   onHelpClick,
   onSubmit,
-  onRefresh,
   submitting,
+  children,
+  changed,
+  active,
+  onActiveChange,
 }: IntegrationSettingsProps) {
   const idPrefix = useId();
-  const status: IntegrationStatus = submitting ? 'verifying' : savedStatus;
-  const dirty = fields.some((f) => (values[f.id] ?? '') !== (savedValues[f.id] ?? ''));
+  const dirty = !!changed || fields.some((f) => (values[f.id] ?? '') !== (savedValues[f.id] ?? ''));
+  // Switched off: the whole fields section is read-only until it's turned back on.
+  const locked = onActiveChange !== undefined && !active;
+  // Switched off reads as not connected, whatever the saved state.
+  const status: IntegrationStatus = submitting ? 'verifying' : locked ? 'not-connected' : savedStatus;
   const complete = fields.every((f) => values[f.id]?.trim());
   return (
     <div className="lc-is">
@@ -99,29 +108,28 @@ export function IntegrationSettings({
           {STATUS_LABEL[status]} <span className="lc-is__status-target">to {partnerName}</span>
         </span>
         <div className="lc-is__actions">
-          {savedStatus !== 'not-connected' && (
-            <Tooltip label="Refresh connection" position="bottom">
-              <button
-                type="button"
-                className="lc-is__action"
-                aria-label="Refresh connection"
-                aria-busy={submitting || undefined}
-                disabled={submitting}
-                onClick={onRefresh}
-              >
-                <Icon name="refresh" width={18} height={18} />
-              </button>
-            </Tooltip>
+          {onActiveChange && (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={!!active}
+              aria-label="Active"
+              className="lc-is__switch"
+              disabled={submitting}
+              onClick={() => onActiveChange(!active)}
+            >
+              <span className="lc-is__switch-thumb" aria-hidden="true" />
+            </button>
           )}
           {dirty && (
             <Button variant="filled" color="primary" size="sm" disabled={!complete || submitting} onClick={onSubmit}>
-              {savedStatus === 'not-connected' ? 'Connect' : 'Update'}
+              {savedStatus === 'not-connected' && !onActiveChange ? 'Connect' : 'Update'}
             </Button>
           )}
         </div>
       </div>
 
-      <div className="lc-is__table">
+      <div className="lc-is__table" data-disabled={locked || undefined}>
         {fields.map((field) => {
           const id = `${idPrefix}-${field.id}`;
           return (
@@ -136,6 +144,7 @@ export function IntegrationSettings({
                     <button
                       type="button"
                       className="lc-is__help"
+                      disabled={locked}
                       aria-label={`Where to find the ${field.label}?`}
                       onClick={() => onHelpClick?.(field.id)}
                     >
@@ -155,6 +164,7 @@ export function IntegrationSettings({
                 className="lc-is__input"
                 type={field.type ?? 'text'}
                 required
+                disabled={locked}
                 autoComplete="off"
                 placeholder={field.placeholder}
                 value={values[field.id] ?? ''}
@@ -163,6 +173,7 @@ export function IntegrationSettings({
             </div>
           );
         })}
+        {children}
       </div>
     </div>
   );
