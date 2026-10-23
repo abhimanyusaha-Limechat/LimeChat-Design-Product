@@ -87,54 +87,52 @@
   flex-shrink: 0;
 }
 
-/* Refresh icon button — re-checks the saved details. */
-.lc-is__action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+/* Active switch — turns a connected integration on or off. */
+.lc-is__switch {
+  position: relative;
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 22px;
   padding: 0;
-  border: 1px solid var(--lc-is-border);
-  border-radius: var(--lc-is-radius-sm);
-  background: var(--lc-color-white);
-  color: var(--lc-is-primary);
+  border: 0;
+  border-radius: 999px;
+  background: var(--lc-color-gray-300);
   cursor: pointer;
-  transition: background-color 120ms ease;
+  transition: background-color 150ms ease;
 }
 
-.lc-is__action:hover:not(:disabled) {
-  background: var(--lc-color-green-50);
+.lc-is__row > .lc-is__switch {
+  justify-self: end;
 }
 
-.lc-is__action:focus-visible {
+.lc-is__switch[aria-checked='true'] {
+  background: var(--lc-is-primary);
+}
+
+.lc-is__switch:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lc-is__switch:focus-visible {
   outline: 2px solid var(--lc-is-primary);
   outline-offset: 2px;
 }
 
-.lc-is__action:disabled {
-  color: var(--lc-color-gray-400);
-  cursor: not-allowed;
+.lc-is__switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--lc-color-white);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: transform 150ms ease;
 }
 
-.lc-is__action[aria-busy='true'] {
-  color: var(--lc-is-primary);
-  cursor: progress;
-}
-
-.lc-is__action[aria-busy='true'] svg {
-  animation: lc-is-spin 700ms linear infinite;
-}
-
-@keyframes lc-is-spin {
-  to { transform: rotate(360deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lc-is__action[aria-busy='true'] svg {
-    animation: none;
-  }
+.lc-is__switch[aria-checked='true'] .lc-is__switch-thumb {
+  transform: translateX(18px);
 }
 
 .lc-is__status-target {
@@ -177,6 +175,20 @@
   border-radius: var(--lc-is-radius);
   background: var(--lc-color-white);
   overflow: hidden;
+}
+
+.lc-is__table[data-disabled] {
+  background: var(--lc-color-gray-50);
+}
+
+.lc-is__table[data-disabled] .lc-is__row-label {
+  opacity: 0.6;
+}
+
+.lc-is__help:disabled {
+  color: var(--lc-color-gray-400);
+  cursor: not-allowed;
+  text-decoration: none;
 }
 
 .lc-is__row {
@@ -264,6 +276,12 @@
 
 .lc-is__input::placeholder {
   color: var(--lc-color-gray-500);
+}
+
+.lc-is__input:disabled {
+  background: var(--lc-color-gray-100);
+  color: var(--lc-color-gray-500);
+  cursor: not-allowed;
 }
 
 .lc-is__input:focus-visible {

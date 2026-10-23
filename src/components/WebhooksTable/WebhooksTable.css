@@ -1,0 +1,17 @@
+/** WebhooksTable — only what EventsTable's "lc-ev" styles don't cover. */
+
+.lc-wh__cell--status {
+  flex: 0 0 160px;
+}
+
+.lc-wh__status {
+  display: inline-flex;
+}
+
+.lc-wh__status[data-status='active'] {
+  color: var(--lc-color-green-500);
+}
+
+.lc-wh__status[data-status='failing'] {
+  color: var(--lc-color-red-500);
+}

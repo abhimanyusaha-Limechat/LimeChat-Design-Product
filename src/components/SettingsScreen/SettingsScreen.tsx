@@ -16,6 +16,7 @@ import { InboxesTable } from '../InboxesTable';
 import { InboxSettings, type InboxAgent, type InboxSettingsValues, type PopupSettings, type WhatsAppWidgetSettings } from '../InboxSettings';
 import { EventsTable } from '../EventsTable';
 import { OptOutUsersTable } from '../OptOutUsersTable';
+import { WebhooksTable } from '../WebhooksTable';
 import { BotTemplatesTable, MediaTypeBadge, type BotTemplateRow } from '../BotTemplatesTable';
 import { DataSecuritySettings, type PiiTypeKey, type ProfanityWord } from '../DataSecuritySettings';
 import { AttributionSettings, type AttributionWindowKey, type AttributionWindowValue } from '../AttributionSettings';
@@ -28,6 +29,7 @@ import {
 } from '../BotCsatSettings';
 import { IntegrationsHomePage } from '../IntegrationsHomePage';
 import { IntegrationSettings } from '../IntegrationSettings';
+import { DEFAULT_SHOPIFY_PERMISSIONS, ShopifyActionsPermissions, type ShopifyPermissions } from '../ShopifyActionsPermissions';
 import { TagsInput } from '../TagsInput';
 import { Button } from '../Button';
 import { Menu } from '../Menu';
@@ -51,6 +53,7 @@ import {
   DEMO_INBOXES,
   DEMO_INDUSTRIES,
   DEMO_OPT_OUT_USERS,
+  DEMO_WEBHOOKS,
   DEMO_RULES,
   DEMO_RULE_LIBRARY,
   DEMO_SLA,
@@ -255,6 +258,8 @@ export function SettingsScreen({
   // Saving a partner's details makes them the saved values and marks it connected (no real API yet).
   const [integrationEdits, setIntegrationEdits] = useState<Record<string, Record<string, string>>>({});
   const [integrationSaves, setIntegrationSaves] = useState<Record<string, Record<string, string>>>({});
+  // Logistics partners can be switched on/off once connected (on by default once connected); the rest are on whenever connected.
+  const [integrationActive, setIntegrationActive] = useState<Record<string, boolean>>({});
   const integrationPartner = integrationId ? findIntegrationPartner(integrationId) : undefined;
   const integrationForm = integrationPartner && INTEGRATION_FORMS[integrationPartner.id];
   const integrationSaved = integrationId ? integrationSaves[integrationId] : undefined;
@@ -269,6 +274,14 @@ export function SettingsScreen({
           values: { ...integrationSavedValues, ...integrationEdits[integrationPartner.id] },
         }
       : undefined;
+  // Shopify's page is a set of agent permissions, not credentials; prepaid orders need Razorpay connected.
+  const isShopifyPage = integration?.partner.id === 'shopify';
+  // Webhook's page is its list of endpoints, not a credential form.
+  const isWebhookPage = integration?.partner.id === 'webhook';
+  const [shopifySaved, setShopifySaved] = useState<ShopifyPermissions>(DEFAULT_SHOPIFY_PERMISSIONS);
+  const [shopifyPermissions, setShopifyPermissions] = useState(shopifySaved);
+  const shopifyChanged = JSON.stringify(shopifyPermissions) !== JSON.stringify(shopifySaved);
+  const razorpayConnected = !!integrationSaves.razorpay || INTEGRATION_FORMS.razorpay.status === 'connected';
   // Stands in for checking the details with the partner.
   const fakeVerify = () => {
     setSavingHelpdeskSettings(true);
@@ -332,7 +345,7 @@ export function SettingsScreen({
   };
   // Demo: a table's data "loads" again when the tab, list tab or sub-page changes.
   const tableLoading = useDemoLoading(
-    [settingsTab, listTab, manageIndustries, industryTab, variableScope].join(':'),
+    [settingsTab, listTab, manageIndustries, industryTab, variableScope, integrationId].join(':'),
   );
   const [tagsInInternalTickets, setTagsInInternalTickets] = useState(false);
   // Tags: one tree per tab (Customer / Contact). Moves apply immediately.
@@ -478,7 +491,7 @@ export function SettingsScreen({
         manageIndustries
           ? 'Manage industries'
           : integration
-            ? integration.partner.name
+            ? (integration.form.title ?? integration.partner.name)
             : editedInbox
               ? editedInbox.name
               : changePlan
@@ -678,17 +691,31 @@ export function SettingsScreen({
         ) : undefined
       }
     >
-      {integration ? (
+      {isWebhookPage ? (
+        <WebhooksTable
+          loading={tableLoading}
+          webhooks={DEMO_WEBHOOKS}
+          onEdit={(row) => alert(`Edit webhook: ${row.url}`)}
+          onDelete={(row) => alert(`Delete webhook: ${row.url}`)}
+        />
+      ) : integration ? (
         <IntegrationSettings
           partnerName={integration.partner.name}
           status={integration.status}
           submitting={savingHelpdeskSettings}
+          changed={isShopifyPage && shopifyChanged}
+          active={integrationActive[integration.partner.id] ?? integration.status === 'connected'}
+          onActiveChange={
+            INTEGRATION_CATEGORIES.find((c) => c.id === 'logistics-partners')?.partners.some((p) => p.id === integration.partner.id)
+              ? (on) => setIntegrationActive((prev) => ({ ...prev, [integration.partner.id]: on }))
+              : undefined
+          }
           onSubmit={() => {
+            if (isShopifyPage) setShopifySaved(shopifyPermissions);
             setIntegrationSaves((prev) => ({ ...prev, [integration.partner.id]: integration.values }));
             setIntegrationEdits((prev) => ({ ...prev, [integration.partner.id]: {} }));
             fakeVerify();
           }}
-          onRefresh={fakeVerify}
           fields={integration.form.fields}
           values={integration.values}
           savedValues={integration.savedValues}
@@ -703,7 +730,15 @@ export function SettingsScreen({
               `Where to find the ${integration.partner.name} ${integration.form.fields.find((f) => f.id === fieldId)?.label}`,
             )
           }
-        />
+        >
+          {isShopifyPage && (
+            <ShopifyActionsPermissions
+              values={shopifyPermissions}
+              onChange={setShopifyPermissions}
+              prepaidAvailable={razorpayConnected}
+            />
+          )}
+        </IntegrationSettings>
       ) : editedInbox && editedInboxValues ? (
         <InboxSettings
           key={editedInbox.id}
