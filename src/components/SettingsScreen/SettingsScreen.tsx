@@ -854,7 +854,7 @@ export function SettingsScreen({
         <EventsTable loading={tableLoading} events={DEMO_EVENTS} onCustomEvents={() => alert('Manage custom events')} />
       ) : settingsTab === 'opt-out-users' ? (
         <OptOutUsersTable loading={tableLoading} users={DEMO_OPT_OUT_USERS} />
-      ) : settingsTab === 'inboxes' ? (
+      ) : settingsTab === 'inboxes' || settingsTab === 'widget' ? (
         <InboxesTable
           loading={tableLoading}
           inboxes={visibleInboxes}

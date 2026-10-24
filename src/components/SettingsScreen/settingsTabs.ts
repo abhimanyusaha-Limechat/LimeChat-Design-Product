@@ -17,6 +17,7 @@ export const SETTINGS_TABS: SettingsTab[] = [
 // operations config instead of the generic list above.
 export const HELPDESK_SETTINGS_TABS: SettingsTab[] = [
   { id: 'inboxes', label: 'Inboxes' },
+  { id: 'widget', label: 'Widget' },
   { id: 'agents', label: 'Agents' },
   { id: 'teams', label: 'Teams' },
   { id: 'automation-rules', label: 'Automation rules' },
@@ -102,6 +103,10 @@ export const SETTINGS_COPY: Record<string, { title: string; description: string 
     title: 'Bot templates',
     description: 'Manage reusable templates available to this bot.',
   },
+  widget: {
+    title: 'Widget',
+    description: 'Customize the chat widget your customers use to reach you from your website.',
+  },
   agents: {
     title: 'Agents',
     description: 'Manage the agents who handle tickets on this account.',
@@ -163,6 +168,7 @@ export const SETTINGS_COPY: Record<string, { title: string; description: string 
 // Helpdesk Settings tabs with a primary "+ <thing>" CTA in the header.
 export const HELPDESK_ADD_CTA: Record<string, string> = {
   inboxes: 'Inbox',
+  widget: 'Widget',
   agents: 'Agent',
   teams: 'Team',
   'automation-rules': 'Automation rule',
