@@ -15,6 +15,9 @@
 import { useId, useState } from 'react';
 import type { InboxType } from '../InboxesTable';
 import type { SelectItem } from '../Select';
+import { Tooltip } from '../Tooltip';
+import { Icon } from '../icons';
+import type { IconName } from '../iconPaths';
 import { BusinessHoursTab, type InboxBusinessHours } from './InboxBusinessHoursTab';
 import { ConfigurationTab, type InboxConfiguration } from './InboxConfigurationTab';
 import { CollaboratorsTab, type InboxAgent, type InboxCollaborators } from './InboxCollaboratorsTab';
@@ -24,6 +27,12 @@ import { PrefilledMessageSection, type InboxPrefilledMessage } from './InboxPref
 import { ShopifyPagesSection, type InboxShopifyPages } from './InboxShopifyPagesSection';
 import { WhatsAppWidgetDeviceSection, WhatsAppWidgetTab, ZIndexSection, type InboxWhatsAppWidget } from './InboxWhatsAppWidgetTab';
 import { WidgetPreview } from './InboxWidgetPreview';
+import { WidgetAppearanceSection, type InboxWidgetAppearance } from './InboxWidgetAppearanceSection';
+import { WidgetHomepageSection, type InboxWidgetHomepage } from './InboxWidgetHomepageSection';
+import { WidgetCodeSection } from './InboxWidgetCodeSection';
+import { WidgetCardsSection, type InboxWidgetCards } from './InboxWidgetCardsSection';
+import { WidgetPreChatSection, type InboxWidgetPreChat } from './InboxWidgetPreChatSection';
+import { WidgetGeneralSection, type InboxWidgetGeneral } from './InboxWidgetGeneralSection';
 import { WidgetEcommerceSection, type InboxWidgetEcommerce } from './InboxWidgetEcommerceSection';
 import {
   DurationSection,
@@ -65,6 +74,16 @@ export interface InboxSettingsValues {
   whatsappZIndex: number;
   /** The widget editor's Ecommerce tab. */
   widgetEcommerce: InboxWidgetEcommerce;
+  /** The widget editor's General tab. */
+  widgetGeneral: InboxWidgetGeneral;
+  /** The widget editor's Appearance tab. */
+  widgetAppearance: InboxWidgetAppearance;
+  /** The widget editor's Homescreen tab. */
+  widgetHomepage: InboxWidgetHomepage;
+  /** The widget editor's Pre Chat form tab. */
+  widgetPreChat: InboxWidgetPreChat;
+  /** The widget editor's Cards tab. */
+  widgetCards: InboxWidgetCards;
 }
 
 export interface InboxSettingsProps {
@@ -83,7 +102,7 @@ export interface InboxSettingsProps {
   variant?: 'inbox' | 'widget';
 }
 
-const TABS = [
+const TABS: TabDef[] = [
   { id: 'general', label: 'General' },
   { id: 'business-hours', label: 'Business Hours' },
   { id: 'csat', label: 'CSAT' },
@@ -92,15 +111,23 @@ const TABS = [
   { id: 'whatsapp-widget', label: 'WhatsApp Widget' },
 ];
 
-const WIDGET_TABS = [
-  { id: 'general', label: 'General' },
-  { id: 'appearance', label: 'Appearance' },
-  { id: 'homescreen', label: 'Homescreen' },
-  { id: 'pre-chat-form', label: 'Pre Chat form' },
-  { id: 'ecommerce', label: 'Ecommerce' },
-  { id: 'mobile', label: 'Mobile' },
-  { id: 'desktop', label: 'Desktop' },
-  { id: 'code', label: 'Code' },
+interface TabDef {
+  id: string;
+  label: string;
+  /** Set on the widget editor's tabs, which collapse to icons. */
+  icon?: IconName;
+}
+
+const WIDGET_TABS: TabDef[] = [
+  { id: 'general', label: 'General', icon: 'settings' },
+  { id: 'appearance', label: 'Appearance', icon: 'palette' },
+  { id: 'homescreen', label: 'Homescreen', icon: 'home' },
+  { id: 'cards', label: 'Cards', icon: 'card' },
+  { id: 'pre-chat-form', label: 'Pre Chat form', icon: 'form' },
+  { id: 'ecommerce', label: 'Ecommerce', icon: 'tag' },
+  { id: 'mobile', label: 'Mobile', icon: 'phone' },
+  { id: 'desktop', label: 'Desktop', icon: 'layout' },
+  { id: 'code', label: 'Code', icon: 'code' },
 ];
 
 const DETAIL_LABEL: Record<InboxType, string> = {
@@ -138,9 +165,27 @@ function WidgetPanel({ tab, props }: { tab: string; props: InboxSettingsProps })
   const { values, onChange } = props;
   switch (tab) {
     case 'general':
-      return <ZIndexSection value={values.whatsappZIndex} onChange={(whatsappZIndex) => onChange({ whatsappZIndex })} />;
+      return <WidgetGeneralSection value={values.widgetGeneral} onChange={(widgetGeneral) => onChange({ widgetGeneral })} />;
+    case 'appearance':
+      return (
+        <>
+          <WidgetAppearanceSection value={values.widgetAppearance} onChange={(widgetAppearance) => onChange({ widgetAppearance })} />
+          <ZIndexSection value={values.whatsappZIndex} onChange={(whatsappZIndex) => onChange({ whatsappZIndex })} />
+        </>
+      );
     case 'homescreen':
-      return <PopupMessageSection value={values.whatsappPopup} onChange={(whatsappPopup) => onChange({ whatsappPopup })} />;
+      return (
+        <>
+          <WidgetHomepageSection value={values.widgetHomepage} onChange={(widgetHomepage) => onChange({ widgetHomepage })} />
+          <PopupMessageSection value={values.whatsappPopup} onChange={(whatsappPopup) => onChange({ whatsappPopup })} />
+        </>
+      );
+    case 'pre-chat-form':
+      return <WidgetPreChatSection value={values.widgetPreChat} onChange={(widgetPreChat) => onChange({ widgetPreChat })} />;
+    case 'cards':
+      return <WidgetCardsSection value={values.widgetCards} onChange={(widgetCards) => onChange({ widgetCards })} />;
+    case 'code':
+      return <WidgetCodeSection />;
     case 'ecommerce':
       return <WidgetEcommerceSection value={values.widgetEcommerce} onChange={(widgetEcommerce) => onChange({ widgetEcommerce })} />;
     case 'mobile':
@@ -266,19 +311,31 @@ export function InboxSettings(props: InboxSettingsProps) {
       <div className="lc-inbs">
         <div className="lc-inbs__tabbar">
           <div className="lc-inbs__tabs" role="tablist" aria-label="Inbox settings">
-            {tabs.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                role="tab"
-                aria-selected={t.id === tab}
-                className="lc-inbs__tab"
-                data-active={t.id === tab || undefined}
-                onClick={() => setTab(t.id)}
-              >
-                {t.label}
-              </button>
-            ))}
+            {tabs.map((t) => {
+              const active = t.id === tab;
+              const tabButton = (
+                <button
+                  key={t.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  aria-label={t.label}
+                  className="lc-inbs__tab"
+                  data-active={active || undefined}
+                  data-icon={t.icon ? true : undefined}
+                  onClick={() => setTab(t.id)}
+                >
+                  {t.icon && <Icon name={t.icon} size={16} />}
+                  {(!t.icon || active) && t.label}
+                </button>
+              );
+              // Widget tabs collapse to icons so all of them fit; the open one keeps its label.
+              return t.icon && !active ? (
+                <Tooltip key={t.id} label={t.label} position="bottom">{tabButton}</Tooltip>
+              ) : (
+                tabButton
+              );
+            })}
           </div>
         </div>
         <div className="lc-inbs__panel" role="tabpanel" aria-label={tabLabel}>
