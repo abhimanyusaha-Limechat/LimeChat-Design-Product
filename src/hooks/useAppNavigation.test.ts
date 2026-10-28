@@ -159,6 +159,7 @@ describe('useAppNavigation', () => {
       ['#/helpdesk/settings?tab=hd-integration&integration=freshdesk', { page: 'settings', integration: 'freshdesk' }],
       ['#/helpdesk/settings?tab=billing&plans=1', { page: 'settings', tab: 'billing', changePlan: true }],
       ['#/helpdesk/settings?inbox=36000', { page: 'settings', tab: 'inboxes', inbox: '36000' }],
+      ['#/helpdesk/settings?tab=widget&inbox=36000', { page: 'settings', tab: 'widget', inbox: '36000' }],
       ['#/marketing/segments?user=profile', { page: 'user-settings', userSettingsTab: 'profile' }],
       ['#/helpdesk/tickets?user=account', { page: 'user-settings', userSettingsTab: 'account' }],
     ])('restores %s in one step', (hash, expected) => {

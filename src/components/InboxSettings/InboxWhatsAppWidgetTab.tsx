@@ -142,6 +142,26 @@ function WidgetSection({
   );
 }
 
+/** One device's section, for the widget editor where Mobile and Desktop are separate tabs. */
+export function WhatsAppWidgetDeviceSection({
+  device,
+  value,
+  onChange,
+}: {
+  device: WidgetDevice;
+  value: InboxWhatsAppWidget;
+  onChange: (next: InboxWhatsAppWidget) => void;
+}) {
+  const label = DEVICES.find((d) => d.device === device)?.label ?? device;
+  return (
+    <WidgetSection
+      title={`WhatsApp Widget for ${label}`}
+      value={value[device]}
+      onChange={(next) => onChange({ ...value, [device]: next })}
+    />
+  );
+}
+
 export function WhatsAppWidgetTab({
   value,
   onChange,

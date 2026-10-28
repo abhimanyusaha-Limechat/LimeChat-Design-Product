@@ -1,0 +1,293 @@
+/**
+ * WidgetCards — Settings → Widget card grid. Scoped to "lc-wc".
+ * Cards are square, at most 240px (the Widget 2.0 design size). Columns share the row so
+ * six fit across (from about 1,040px of space up); narrower areas drop to fewer columns
+ * instead of squeezing below 160px.
+ */
+
+.lc-wc {
+  display: grid;
+  /* (100% − 5 gaps) / 6 is the width of one of six columns; auto-fill then yields exactly six. */
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, max(160px, calc((100% - 80px) / 6))), 1fr));
+  gap: 16px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.lc-wc *,
+.lc-wc *::before,
+.lc-wc *::after {
+  box-sizing: border-box;
+}
+
+.lc-wc__card {
+  position: relative;
+  max-width: 240px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--lc-color-green-50);
+  border: 1px solid var(--lc-color-gray-200);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(3, 3, 3, 0.2), 0 2px 2px rgba(255, 255, 255, 0.12), 0 0 2px rgba(250, 250, 250, 0.14);
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+/* Hover lifts the card and tints its border; selected keeps its own green. */
+.lc-wc__card:hover:not(.lc-wc__card--skeleton, .lc-wc__card--create),
+.lc-wc__card:focus-within:not(.lc-wc__card--skeleton, .lc-wc__card--create) {
+  border-color: var(--lc-color-green-500);
+  box-shadow: 0 6px 16px rgba(58, 52, 29, 0.14), 0 1px 3px rgba(3, 3, 3, 0.2);
+  transform: translateY(-2px);
+}
+
+.lc-wc__card[data-selected] {
+  background: var(--lc-color-green-100);
+  border-color: var(--lc-color-green-500);
+}
+
+.lc-wc__card--skeleton {
+  padding: 20% 11% 15%;
+}
+
+.lc-wc__card--create {
+  background: transparent;
+  border: 1px dashed var(--lc-color-gray-400);
+  box-shadow: none;
+}
+
+.lc-wc__card--create:hover,
+.lc-wc__card--create:focus-within {
+  background: var(--lc-color-green-50);
+  border-color: var(--lc-color-green-500);
+  box-shadow: 0 6px 16px rgba(58, 52, 29, 0.1);
+  transform: translateY(-2px);
+}
+
+.lc-wc__card--create:hover .lc-wc__avatar--create,
+.lc-wc__card--create:focus-within .lc-wc__avatar--create {
+  transition: background-color 150ms ease, border-color 150ms ease;
+  background: white;
+  border-color: var(--lc-color-green-500);
+}
+
+.lc-wc__card--create:hover .lc-wc__create-label,
+.lc-wc__card--create:focus-within .lc-wc__create-label {
+  color: var(--lc-color-green-900);
+}
+
+/* The whole card is one button, so the click target is the full 240×240. */
+.lc-wc__main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  /* Percentages are of the card width: 48 / 26 / 36px at the design's 240px. */
+  padding: 20% 11% 15%;
+  background: none;
+  border: 0;
+  border-radius: inherit;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.lc-wc__main:focus-visible {
+  outline: 2px solid var(--lc-color-green-500);
+  outline-offset: -2px;
+}
+
+.lc-wc__avatar {
+  display: flex;
+  padding: 7.5px;
+  background: white;
+  border-radius: 36px;
+  filter: drop-shadow(0 3px 1px rgba(58, 52, 29, 0.05)) drop-shadow(0 1px 0.5px rgba(58, 52, 29, 0.09))
+    drop-shadow(0 0 0.5px rgba(58, 52, 29, 0.1));
+}
+
+.lc-wc__avatar--create {
+  /* Same 54px outer size as the WhatsApp avatar, with the smaller plus centred. */
+  padding: 13px;
+  background: transparent;
+  border: 1px solid var(--lc-color-gray-300);
+  filter: none;
+}
+
+.lc-wc__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 39px;
+  height: 39px;
+  color: var(--lc-color-green-500);
+}
+
+.lc-wc__plus {
+  display: block;
+  width: 26px;
+  height: 26px;
+}
+
+.lc-wc__info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.lc-wc__kind {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--lc-color-sage-500);
+}
+
+.lc-wc__name-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.lc-wc__inbox-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  object-fit: none;
+}
+
+.lc-wc__name {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--lc-color-green-900);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-wc__create-label {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--lc-color-sage-500);
+}
+
+.lc-wc__status {
+  position: absolute;
+  top: 8px;
+  left: 7px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  background: white;
+  border: 1px solid var(--lc-color-gray-200);
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--lc-color-green-500);
+  pointer-events: none;
+}
+
+.lc-wc__status-dot {
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+  border-radius: 50%;
+}
+
+.lc-wc__actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 32px;
+  padding: 0;
+  background: white;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.lc-wc__card:hover .lc-wc__actions,
+.lc-wc__actions:focus-within {
+  opacity: 1;
+}
+
+.lc-wc__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 28px;
+  padding: 4px;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  color: var(--lc-color-green-900);
+  cursor: pointer;
+}
+
+.lc-wc__action:hover {
+  background: var(--lc-color-gray-200);
+}
+
+.lc-wc__action:focus-visible {
+  outline: 2px solid var(--lc-color-green-500);
+  outline-offset: -2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-wc__card,
+  .lc-wc__actions {
+    transition: none;
+  }
+
+  .lc-wc__card:hover:not(.lc-wc__card--skeleton),
+  .lc-wc__card:focus-within:not(.lc-wc__card--skeleton) {
+    transform: none;
+  }
+}
+
+/* Inactive: the widget is off, so its chip goes grey. Disabled: unavailable, so the whole card dims. */
+.lc-wc__card[data-status='inactive'] .lc-wc__status,
+.lc-wc__card[data-status='disabled'] .lc-wc__status {
+  color: var(--lc-color-gray-500);
+}
+
+.lc-wc__card[data-status='disabled'] {
+  background: var(--lc-color-gray-100);
+  box-shadow: none;
+}
+
+.lc-wc__card[data-status='disabled'] .lc-wc__main {
+  cursor: not-allowed;
+}
+
+.lc-wc__card[data-status='disabled'] .lc-wc__avatar,
+.lc-wc__card[data-status='disabled'] .lc-wc__info {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.lc-wc__card[data-status='disabled']:hover {
+  border-color: var(--lc-color-gray-200);
+  box-shadow: none;
+  transform: none;
+}
+
+/* Error: the widget is on but failing, so only its chip turns red. */
+.lc-wc__card[data-status='error'] .lc-wc__status {
+  color: #ff7e61;
+}

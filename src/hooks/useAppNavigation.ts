@@ -92,7 +92,7 @@ export function useAppNavigation() {
     manageIndustries,
     /** The Integration tab's open partner form; '' when the tile grid shows. */
     integration,
-    /** The Inboxes tab's inbox being edited; '' when the list shows. */
+    /** The inbox being edited (from the Inboxes or Widget tab); '' when the list shows. */
     inbox,
     /** HelpDesk Billing's "Change plan" sub-view is open. */
     changePlan,
@@ -115,7 +115,7 @@ export function useAppNavigation() {
     setManageIndustries: (open: boolean) => update({ manageIndustries: open }),
     /** Opens a partner's form on the Integration tab; '' goes back to the tile grid. */
     setIntegration: (id: string) => update({ integration: id }),
-    /** Opens an inbox's edit page on the Inboxes tab; '' goes back to the list. */
+    /** Opens an inbox's edit page from the Inboxes or Widget tab; '' goes back to the list. */
     setInbox: (id: string) => update({ inbox: id }),
     setChangePlan: (open: boolean) => update({ changePlan: open }),
     openTicket: (id: string) => update({ ticket: id }),

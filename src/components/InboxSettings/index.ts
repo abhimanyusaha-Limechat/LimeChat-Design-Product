@@ -17,3 +17,4 @@ export type { InboxPopupMessage, PopupSettings } from './InboxPopupMessageSectio
 export type { MediaFile } from './MediaPicker';
 export type { InboxShopifyPages, ShopifyPage } from './InboxShopifyPagesSection';
 export type { InboxPrefilledMessage } from './InboxPrefilledMessageSection';
+export type { InboxWidgetEcommerce, ProductImageRatio } from './InboxWidgetEcommerceSection';
