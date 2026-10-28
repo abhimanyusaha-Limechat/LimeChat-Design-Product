@@ -1,0 +1,266 @@
+/**
+ * AgentsHomePage — Automation → Agents card grid. Scoped to "lc-ag".
+ * Page chrome (padding, background, settle-in) matches the other Automation
+ * landing views; the grid holds three ~360px cards at desktop width and
+ * reflows to two and one as the main area narrows.
+ */
+
+.lc-ag {
+  --lc-ag-border: var(--lc-color-gray-300);
+  --lc-ag-title: var(--lc-color-green-900);
+  --lc-ag-dimmed: var(--lc-color-sage-500);
+  --lc-ag-body: var(--lc-color-stone-600);
+  --lc-ag-radius: 8px;
+  --lc-ag-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --lc-ag-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 12px 16px 20px;
+  font-family: var(--lc-ag-font-family);
+  color: var(--lc-ag-title);
+  background: var(--lc-color-stone-25);
+  box-sizing: border-box;
+  overflow-y: auto;
+  /* mirrors the other landing pages' quiet settle-in on mount */
+  transition: opacity 220ms var(--lc-ag-ease-out), transform 220ms var(--lc-ag-ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(1.004);
+  }
+}
+
+.lc-ag *,
+.lc-ag *::before,
+.lc-ag *::after {
+  box-sizing: border-box;
+}
+
+/* The design file sets these actions in caps; the shared Button capitalises. */
+.lc-ag__btn {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* --- Toolbar --------------------------------------------------------------- */
+
+.lc-ag__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  margin-bottom: 20px;
+}
+
+/* --- Grid ------------------------------------------------------------------ */
+
+.lc-ag__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+/* A single row of cards is centred in the space under the toolbar. "safe" keeps a row that
+   is taller than the page (narrow window, cards stacked) anchored to the top, where it can
+   still be scrolled through. */
+.lc-ag__grid--centered {
+  flex: 1;
+  align-content: safe center;
+}
+
+.lc-ag__card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  background: var(--lc-color-white);
+  border: 1px solid var(--lc-color-gray-200);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(3, 3, 3, 0.06);
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+/* The border doubles to 2px on hover; the padding gives back that pixel so the card's
+   contents stay exactly where they were. */
+.lc-ag__card:hover:not(.lc-ag__card--skeleton),
+.lc-ag__card:focus-within:not(.lc-ag__card--skeleton) {
+  padding: 19px;
+  border-width: 2px;
+  border-color: var(--lc-color-green-500);
+  box-shadow: 0 10px 24px rgba(58, 52, 29, 0.24), 0 2px 6px rgba(3, 3, 3, 0.16);
+  transform: translateY(-2px);
+}
+
+/* A disabled agent isn't running, so its card reads back a step. */
+.lc-ag__card[data-status='disabled'] {
+  background: var(--lc-color-stone-50);
+}
+
+.lc-ag__card--skeleton {
+  gap: 0;
+  min-height: 320px;
+}
+
+/* --- Card header ----------------------------------------------------------- */
+
+.lc-ag__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lc-ag__model {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--lc-ag-title);
+}
+
+/* The model's own mark, so it carries the body colour rather than reading as a muted glyph. */
+.lc-ag__model-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--lc-ag-title);
+}
+
+.lc-ag__badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-ag__badge {
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.lc-ag__badge--active {
+  color: var(--lc-color-green-700);
+}
+
+.lc-ag__badge--unsaved {
+  color: var(--lc-color-amber-600);
+}
+
+.lc-ag__badge--disabled {
+  color: var(--lc-color-gray-500);
+}
+
+/* --- Body ------------------------------------------------------------------ */
+
+.lc-ag__name {
+  margin: 4px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--lc-color-blue-600);
+}
+
+/* Cards sit side by side, so long copy is clamped to keep them the same shape. */
+.lc-ag__description,
+.lc-ag__goal {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-ag-body);
+}
+
+.lc-ag__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lc-ag__label {
+  font-size: 13px;
+  color: var(--lc-ag-dimmed);
+}
+
+.lc-ag__tasks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lc-ag__task {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--lc-ag-border);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--lc-color-green-700);
+}
+
+.lc-ag__task-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--lc-color-green-500);
+}
+
+/* --- Card actions ---------------------------------------------------------- */
+
+.lc-ag__card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+/* --- Empty state ----------------------------------------------------------- */
+
+.lc-ag__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 48px auto 0;
+  text-align: center;
+}
+
+.lc-ag__empty-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--lc-ag-dimmed);
+}
+
+.lc-ag__empty-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.lc-ag__empty-text {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--lc-ag-body);
+}
