@@ -845,13 +845,22 @@
   align-items: flex-start;
   gap: 24px;
   width: 100%;
+  /* At least as tall as the scroll area, so the sticky preview always has room to sit at the
+     same centred spot; on a short tab the shell would otherwise shrink and push it up. */
+  flex: 1 0 auto;
   container-type: inline-size;
+}
+
+/* A fixed share of the row, so wide content on one tab can't widen the column and nudge the preview left. */
+.lc-inbs-shell > .lc-inbs {
+  flex: 0 0 65%;
+  min-width: 0;
 }
 
 .lc-inbs-preview {
   /* Bezel + screen. Shrinks in short windows so the phone, button and copy card (106px more)
      all fit in the scroll area instead of being cut off at the bottom. */
-  --lc-inbs-phone-h: clamp(380px, calc(100vh - 320px), 560px);
+  --lc-inbs-phone-h: clamp(420px, calc(100vh - 260px), 640px);
   --lc-inbs-preview-h: calc(var(--lc-inbs-phone-h) + 106px); /* + 12px gap each for the 24px preview button and the copy card (2-line hint + padding) */
 
   /* Holds the phone at the vertical middle of the scroll area (a sticky `top` % is of its
@@ -864,6 +873,11 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
+}
+
+/* Without the copy card only the 24px preview button (+ 12px gap) sits under the phone. */
+.lc-inbs-preview[data-no-code] {
+  --lc-inbs-preview-h: calc(var(--lc-inbs-phone-h) + 36px);
 }
 
 .lc-inbs-preview *,
@@ -1188,4 +1202,62 @@
   .lc-inbs-preview {
     display: none;
   }
+}
+
+/* --- Widget Ecommerce: product card image ratio tiles ------------------ */
+
+.lc-inbs__ratios {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.lc-inbs__ratio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  padding: 0;
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+}
+
+.lc-inbs__ratio[aria-checked='true'] {
+  border-color: var(--lc-inbs-primary);
+}
+
+.lc-inbs__ratio:focus-visible {
+  outline: 2px solid var(--lc-inbs-primary);
+  outline-offset: 2px;
+}
+
+.lc-inbs__ratio-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lc-color-gray-100);
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lc-inbs-text-title);
+}
+
+.lc-inbs__ratio[data-ratio='1:1'] .lc-inbs__ratio-box {
+  width: 64px;
+  height: 64px;
+}
+
+.lc-inbs__ratio[data-ratio='9:16'] .lc-inbs__ratio-box {
+  width: 36px;
+  height: 64px;
+}
+
+.lc-inbs__ratio[data-ratio='16:9'] .lc-inbs__ratio-box {
+  width: 64px;
+  height: 36px;
 }

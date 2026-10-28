@@ -13,6 +13,7 @@ import { SettingsPage, type DetailPanel } from '../SettingsPage';
 import { DetailsAvatar, InboxDetailsIcon, SettingsDetails, inboxFields, rowFields } from './SettingsDetails';
 import { AgentDetails, type AgentPatch } from './AgentDetails';
 import { InboxesTable } from '../InboxesTable';
+import { WidgetCards, type WidgetKind, type WidgetStatus } from '../WidgetCards';
 import { InboxSettings, type InboxAgent, type InboxSettingsValues, type PopupSettings, type WhatsAppWidgetSettings } from '../InboxSettings';
 import { EventsTable } from '../EventsTable';
 import { OptOutUsersTable } from '../OptOutUsersTable';
@@ -186,6 +187,7 @@ const inboxDefaults = (name: string): InboxSettingsValues => ({
     utm: true,
   },
   whatsappZIndex: 1000,
+  widgetEcommerce: { imageRatio: '1:1', storeType: 'None', extractTitle: true, messagePrefix: 'Know more about' },
   collaborators: {
     c1: { onlyAssignManually: false },
     c2: { onlyAssignManually: false },
@@ -446,6 +448,14 @@ export function SettingsScreen({
   const [csatRatingScale, setCsatRatingScale] = useState<CsatRatingScale>('5');
   const [csatDelay, setCsatDelay] = useState<CsatTimeDelay>({ hours: 0, minutes: 0, seconds: 15 });
   const [csatReminderDelay, setCsatReminderDelay] = useState<CsatTimeDelay>({ hours: 0, minutes: 0, seconds: 20 });
+
+  const whatsappWidgets = visibleInboxes.filter((row) => row.type === 'whatsapp');
+  // ponytail: demo statuses until widgets have a real one — shows each card state.
+  // ponytail: demo kinds too — the second card shows a web widget.
+  const widgetKindById: Record<string, WidgetKind> = whatsappWidgets[1] ? { [whatsappWidgets[1].id]: 'web' } : {};
+  const widgetStatusById: Record<string, WidgetStatus> = Object.fromEntries(
+    whatsappWidgets.flatMap((row, i): [string, WidgetStatus][] => (i === 2 ? [[row.id, 'inactive']] : i === 3 ? [[row.id, 'disabled']] : i === 4 ? [[row.id, 'error']] : [])),
+  );
 
   const selectedInbox = selectedId ? visibleInboxes.find((r) => r.id === selectedId) : undefined;
   const selectedRow = selectedId ? visibleCollaborators.find((r) => r.id === selectedId) : undefined;
@@ -749,6 +759,7 @@ export function SettingsScreen({
       ) : editedInbox && editedInboxValues ? (
         <InboxSettings
           key={editedInbox.id}
+          variant={settingsTab === 'widget' ? 'widget' : 'inbox'}
           type={editedInbox.type}
           detail={editedInbox.detail}
           templates={REMINDER_TEMPLATES}
@@ -854,7 +865,19 @@ export function SettingsScreen({
         <EventsTable loading={tableLoading} events={DEMO_EVENTS} onCustomEvents={() => alert('Manage custom events')} />
       ) : settingsTab === 'opt-out-users' ? (
         <OptOutUsersTable loading={tableLoading} users={DEMO_OPT_OUT_USERS} />
-      ) : settingsTab === 'inboxes' || settingsTab === 'widget' ? (
+      ) : settingsTab === 'widget' ? (
+        <WidgetCards
+          loading={tableLoading}
+          widgets={whatsappWidgets}
+          statusById={widgetStatusById}
+          kindById={widgetKindById}
+          selectedId={selectedId}
+          onSelect={rowSelectable ? (row) => selectRowId(row.id) : undefined}
+          onEdit={(row) => onInboxChange(row.id)}
+          onDelete={(row) => alert(`Delete widget: ${row.name}`)}
+          onCreate={() => alert('Create a widget')}
+        />
+      ) : settingsTab === 'inboxes' ? (
         <InboxesTable
           loading={tableLoading}
           inboxes={visibleInboxes}

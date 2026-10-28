@@ -22,7 +22,7 @@ export type Screen = {
   manageIndustries: boolean;
   /** The Integration tab's open partner form, e.g. 'freshdesk'; '' when the tile grid shows. */
   integration: string;
-  /** The Inboxes tab's inbox being edited, by id; '' when the list shows. */
+  /** The inbox being edited, by id (from the Inboxes or Widget tab); '' when the list shows. */
   inbox: string;
   /** HelpDesk Billing's "Change plan" sub-view. */
   changePlan: boolean;
@@ -109,7 +109,7 @@ export function toScreen(fields: { product: string; selected: string } & Partial
       Object.prototype.hasOwnProperty.call(INTEGRATION_FORMS, fields.integration)
         ? fields.integration
         : DEFAULTS.integration,
-    inbox: onSettings && tab === 'inboxes' && DEMO_INBOXES.some((i) => i.id === fields.inbox) ? String(fields.inbox) : DEFAULTS.inbox,
+    inbox: onSettings && (tab === 'inboxes' || tab === 'widget') && DEMO_INBOXES.some((i) => i.id === fields.inbox) ? String(fields.inbox) : DEFAULTS.inbox,
     changePlan: onSettings && product === 'helpdesk' && tab === 'billing' && fields.changePlan === true,
     ticket:
       product === 'helpdesk' && selected === 'tickets' && TICKETS.some((t) => t.id === fields.ticket)

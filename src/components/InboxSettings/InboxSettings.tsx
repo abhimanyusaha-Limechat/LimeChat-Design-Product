@@ -22,8 +22,9 @@ import { CsatTab, type InboxCsat } from './InboxCsatTab';
 import { PopupMessageSection, type InboxPopupMessage } from './InboxPopupMessageSection';
 import { PrefilledMessageSection, type InboxPrefilledMessage } from './InboxPrefilledMessageSection';
 import { ShopifyPagesSection, type InboxShopifyPages } from './InboxShopifyPagesSection';
-import { WhatsAppWidgetTab, ZIndexSection, type InboxWhatsAppWidget } from './InboxWhatsAppWidgetTab';
+import { WhatsAppWidgetDeviceSection, WhatsAppWidgetTab, ZIndexSection, type InboxWhatsAppWidget } from './InboxWhatsAppWidgetTab';
 import { WidgetPreview } from './InboxWidgetPreview';
+import { WidgetEcommerceSection, type InboxWidgetEcommerce } from './InboxWidgetEcommerceSection';
 import {
   DurationSection,
   OptInOutSection,
@@ -62,6 +63,8 @@ export interface InboxSettingsValues {
   whatsappPrefill: InboxPrefilledMessage;
   /** CSS z-index of the widget on the customer's site. */
   whatsappZIndex: number;
+  /** The widget editor's Ecommerce tab. */
+  widgetEcommerce: InboxWidgetEcommerce;
 }
 
 export interface InboxSettingsProps {
@@ -76,6 +79,8 @@ export interface InboxSettingsProps {
   agents: InboxAgent[];
   /** Creates a new account agent from the Collaborators tab; returns its id. */
   onCreateAgent: (agent: { name: string; email: string; role: string }) => string;
+  /** 'widget' is the Widget tab's editor: the same inbox, with the widget's own tabs. Defaults to 'inbox'. */
+  variant?: 'inbox' | 'widget';
 }
 
 const TABS = [
@@ -85,6 +90,17 @@ const TABS = [
   { id: 'collaborators', label: 'Collaborators' },
   { id: 'configuration', label: 'Configuration' },
   { id: 'whatsapp-widget', label: 'WhatsApp Widget' },
+];
+
+const WIDGET_TABS = [
+  { id: 'general', label: 'General' },
+  { id: 'appearance', label: 'Appearance' },
+  { id: 'homescreen', label: 'Homescreen' },
+  { id: 'pre-chat-form', label: 'Pre Chat form' },
+  { id: 'ecommerce', label: 'Ecommerce' },
+  { id: 'mobile', label: 'Mobile' },
+  { id: 'desktop', label: 'Desktop' },
+  { id: 'code', label: 'Code' },
 ];
 
 const DETAIL_LABEL: Record<InboxType, string> = {
@@ -107,6 +123,39 @@ const TRACKING_DURATIONS: DurationRow<'reminder'>[] = [
 ];
 
 const INTERNAL_DURATIONS = DURATIONS.filter((d): d is DurationRow<InternalDurationKey> => d.key !== 'autoResolveBot');
+
+/** A widget tab whose design isn't in yet. */
+function ComingSoon({ title }: { title: string }) {
+  return (
+    <section className="lc-inbs__group" aria-label={title}>
+      <SectionHeading title={title} description="This section's settings are coming soon." />
+    </section>
+  );
+}
+
+/** The widget editor's panels; each reuses the WhatsApp widget sections where one fits. */
+function WidgetPanel({ tab, props }: { tab: string; props: InboxSettingsProps }) {
+  const { values, onChange } = props;
+  switch (tab) {
+    case 'general':
+      return <ZIndexSection value={values.whatsappZIndex} onChange={(whatsappZIndex) => onChange({ whatsappZIndex })} />;
+    case 'homescreen':
+      return <PopupMessageSection value={values.whatsappPopup} onChange={(whatsappPopup) => onChange({ whatsappPopup })} />;
+    case 'ecommerce':
+      return <WidgetEcommerceSection value={values.widgetEcommerce} onChange={(widgetEcommerce) => onChange({ widgetEcommerce })} />;
+    case 'mobile':
+    case 'desktop':
+      return (
+        <WhatsAppWidgetDeviceSection
+          device={tab}
+          value={values.whatsappWidget}
+          onChange={(whatsappWidget) => onChange({ whatsappWidget })}
+        />
+      );
+    default:
+      return <ComingSoon title={WIDGET_TABS.find((t) => t.id === tab)?.label ?? tab} />;
+  }
+}
 
 function GeneralTab({ type, detail, values, onChange, templates }: InboxSettingsProps) {
   const nameId = useId();
@@ -208,7 +257,8 @@ function GeneralTab({ type, detail, values, onChange, templates }: InboxSettings
 export function InboxSettings(props: InboxSettingsProps) {
   const [tab, setTab] = useState('general');
   // The widget is WhatsApp's chat button for websites, so other channels don't get the tab.
-  const tabs = props.type === 'whatsapp' ? TABS : TABS.filter((t) => t.id !== 'whatsapp-widget');
+  const isWidget = props.variant === 'widget';
+  const tabs = isWidget ? WIDGET_TABS : props.type === 'whatsapp' ? TABS : TABS.filter((t) => t.id !== 'whatsapp-widget');
   const tabLabel = tabs.find((t) => t.id === tab)?.label;
 
   return (
@@ -232,7 +282,9 @@ export function InboxSettings(props: InboxSettingsProps) {
           </div>
         </div>
         <div className="lc-inbs__panel" role="tabpanel" aria-label={tabLabel}>
-          {tab === 'general' ? (
+          {isWidget ? (
+            <WidgetPanel tab={tab} props={props} />
+          ) : tab === 'general' ? (
             <GeneralTab {...props} />
           ) : tab === 'business-hours' ? (
             <BusinessHoursTab value={props.values.businessHours} onChange={(businessHours) => props.onChange({ businessHours })} />
@@ -274,8 +326,13 @@ export function InboxSettings(props: InboxSettingsProps) {
           )}
         </div>
       </div>
-      {tab === 'whatsapp-widget' && (
-        <WidgetPreview phone={props.detail} widgets={props.values.whatsappWidget} popups={props.values.whatsappPopup} />
+      {(isWidget || tab === 'whatsapp-widget') && (
+        <WidgetPreview
+          phone={props.detail}
+          widgets={props.values.whatsappWidget}
+          popups={props.values.whatsappPopup}
+          showCode={!isWidget}
+        />
       )}
     </div>
   );

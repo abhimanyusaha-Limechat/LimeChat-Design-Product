@@ -95,11 +95,14 @@ export function WidgetPreview({
   phone,
   widgets,
   popups,
+  showCode = true,
 }: {
   /** The inbox's WhatsApp number; the embed code is for this inbox. */
   phone: string;
   widgets: InboxWhatsAppWidget;
   popups: InboxPopupMessage;
+  /** Shows the "Copy code" card under the phone; the widget editor leaves it out. */
+  showCode?: boolean;
 }) {
   const { copied, copy } = useCopied(widgetSnippet(phone));
   const [desktopOpen, setDesktopOpen] = useState(false);
@@ -108,7 +111,7 @@ export function WidgetPreview({
   const mobile = widgets.mobile;
   const desktop = widgets.desktop;
   return (
-    <aside className="lc-inbs-preview" aria-label="Mobile preview">
+    <aside className="lc-inbs-preview" data-no-code={!showCode || undefined} aria-label="Mobile preview">
       <div className="lc-inbs-preview__phone" aria-hidden="true">
         <div className="lc-inbs-preview__screen">
           <Site />
@@ -118,12 +121,14 @@ export function WidgetPreview({
       <Button variant="outline" size="xs" onClick={() => setDesktopOpen(true)}>
         Preview on desktop
       </Button>
-      <div className="lc-inbs-preview__code">
-        <p className="lc-inbs-preview__hint">Copy the script to enable the WhatsApp widget.</p>
-        <Button variant="outline" size="sm" onClick={copy}>
-          <span aria-live="polite">{copied ? 'Copied' : 'Copy code'}</span>
-        </Button>
-      </div>
+      {showCode && (
+        <div className="lc-inbs-preview__code">
+          <p className="lc-inbs-preview__hint">Copy the script to enable the WhatsApp widget.</p>
+          <Button variant="outline" size="sm" onClick={copy}>
+            <span aria-live="polite">{copied ? 'Copied' : 'Copy code'}</span>
+          </Button>
+        </div>
+      )}
       {!mobile.enabled && <p className="lc-inbs-preview__note">The mobile widget is switched off.</p>}
       <Modal
         open={desktopOpen}
