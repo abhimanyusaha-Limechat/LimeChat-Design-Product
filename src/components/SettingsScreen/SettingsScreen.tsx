@@ -14,7 +14,7 @@ import { DetailsAvatar, InboxDetailsIcon, SettingsDetails, inboxFields, rowField
 import { AgentDetails, type AgentPatch } from './AgentDetails';
 import { InboxesTable } from '../InboxesTable';
 import { WidgetCards, type WidgetKind, type WidgetStatus } from '../WidgetCards';
-import { InboxSettings, type InboxAgent, type InboxSettingsValues, type PopupSettings, type WhatsAppWidgetSettings } from '../InboxSettings';
+import { InboxSettings, type InboxAgent, type InboxSettingsValues, type PopupSettings, type WhatsAppWidgetSettings, WidgetEditorActions, WIDGET_EMBED_CODE } from '../InboxSettings';
 import { EventsTable } from '../EventsTable';
 import { OptOutUsersTable } from '../OptOutUsersTable';
 import { WebhooksTable } from '../WebhooksTable';
@@ -187,6 +187,28 @@ const inboxDefaults = (name: string): InboxSettingsValues => ({
     utm: true,
   },
   whatsappZIndex: 1000,
+  widgetAppearance: { baseColor: '1B83AC', shade: 7, font: 'Lato', icon: null, logo: null },
+  widgetHomepage: {
+    heading: 'Hello & Welcome',
+    tagline: 'Our team is available to assist you round the clock',
+    multiChannel: true,
+    inboxes: ['Whatsapp_Customer_support', 'Email_Customer_support'],
+    customButtons: true,
+    buttons: [
+      { name: '', subheading: '', link: '', icon: { name: 'videocall.png', kind: 'image' } },
+      { name: '', subheading: '', link: '', icon: { name: 'bookcall.png', kind: 'image' } },
+    ],
+    agentOfflineStatus: true,
+  },
+  widgetPreChat: { enabled: true, message: '', name: false, email: false, phone: false },
+  widgetCards: {
+    template: 'compact',
+    elements: { description: true, sellingPrice: true, mrp: true, discount: true, rating: true, reviewCount: true, tagPills: true, ribbonBadge: true },
+    buttonCount: 2,
+    buttonStyle: 'primary-outline',
+    buttonLayout: 'stacked',
+  },
+  widgetGeneral: { botName: 'Bot101', inbox: 'Website widget', filePicker: false, emojiPicker: false, restartButton: false, showUnread: false },
   widgetEcommerce: { imageRatio: '1:1', storeType: 'None', extractTitle: true, messagePrefix: 'Know more about' },
   collaborators: {
     c1: { onlyAssignManually: false },
@@ -453,9 +475,16 @@ export function SettingsScreen({
   // ponytail: demo statuses until widgets have a real one — shows each card state.
   // ponytail: demo kinds too — the second card shows a web widget.
   const widgetKindById: Record<string, WidgetKind> = whatsappWidgets[1] ? { [whatsappWidgets[1].id]: 'web' } : {};
-  const widgetStatusById: Record<string, WidgetStatus> = Object.fromEntries(
+  const demoWidgetStatusById: Record<string, WidgetStatus> = Object.fromEntries(
     whatsappWidgets.flatMap((row, i): [string, WidgetStatus][] => (i === 2 ? [[row.id, 'inactive']] : i === 3 ? [[row.id, 'disabled']] : i === 4 ? [[row.id, 'error']] : [])),
   );
+  // Active / Inactive switched in the widget editor; disabled and errored widgets keep their status.
+  const [widgetActiveById, setWidgetActiveById] = useState<Record<string, boolean>>({});
+  const widgetStatusById: Record<string, WidgetStatus> = { ...demoWidgetStatusById };
+  for (const [id, active] of Object.entries(widgetActiveById)) {
+    const status = demoWidgetStatusById[id];
+    if (status !== 'disabled' && status !== 'error') widgetStatusById[id] = active ? 'active' : 'inactive';
+  }
 
   const selectedInbox = selectedId ? visibleInboxes.find((r) => r.id === selectedId) : undefined;
   const selectedRow = selectedId ? visibleCollaborators.find((r) => r.id === selectedId) : undefined;
@@ -549,16 +578,26 @@ export function SettingsScreen({
       onViewDocs={editedInbox ? undefined : () => alert(`Open docs: ${copy.title}`)}
       headerActions={
         editedInbox ? (
-          <Button
-            variant="filled"
-            color="primary"
-            size="sm"
-            style={{ width: 100 }}
-            loading={savingHelpdeskSettings}
-            onClick={fakeVerify}
-          >
-            Update
-          </Button>
+          <>
+            {settingsTab === 'widget' && (
+              <WidgetEditorActions
+                active={(widgetStatusById[editedInbox.id] ?? 'active') === 'active'}
+                canToggle={!['disabled', 'error'].includes(widgetStatusById[editedInbox.id] ?? 'active')}
+                code={WIDGET_EMBED_CODE}
+                onActiveChange={(active) => setWidgetActiveById((prev) => ({ ...prev, [editedInbox.id]: active }))}
+              />
+            )}
+            <Button
+              variant="filled"
+              color="primary"
+              size="sm"
+              style={{ width: 100 }}
+              loading={savingHelpdeskSettings}
+              onClick={fakeVerify}
+            >
+              Update
+            </Button>
+          </>
         ) : manageIndustries ? (
           <>
             <Button variant="default" size="sm" onClick={() => onManageIndustriesChange(false)}>
