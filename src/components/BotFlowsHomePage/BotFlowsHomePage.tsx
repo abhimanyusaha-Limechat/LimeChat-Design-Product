@@ -66,16 +66,22 @@ function RowActions({
   onDelete?: (row: BotFlowRowData) => void;
 }) {
   return (
-    <ActionMenu
-      ariaLabel="Flow actions"
-      icon={<BotFlowIcon name="dots-vertical" />}
-      items={[
-        { label: 'Edit', icon: <BotFlowIcon name="edit" />, onClick: () => onEdit?.(row) },
-        { label: 'Clone', icon: <BotFlowIcon name="copy" />, onClick: () => onClone?.(row) },
-        { label: 'Download', icon: <BotFlowIcon name="download" />, onClick: () => onDownload?.(row) },
-        { label: 'Delete', icon: <BotFlowIcon name="trash" />, danger: true, onClick: () => onDelete?.(row) },
-      ]}
-    />
+    <>
+      <Tooltip label="Edit flow">
+        <button type="button" className="lc-menu__trigger" aria-label="Edit flow" onClick={() => onEdit?.(row)}>
+          <BotFlowIcon name="edit-square" />
+        </button>
+      </Tooltip>
+      <ActionMenu
+        ariaLabel="Flow actions"
+        icon={<BotFlowIcon name="dots-vertical" />}
+        items={[
+          { label: 'Clone', icon: <BotFlowIcon name="copy" />, onClick: () => onClone?.(row) },
+          { label: 'Download', icon: <BotFlowIcon name="download" />, onClick: () => onDownload?.(row) },
+          { label: 'Delete', icon: <BotFlowIcon name="trash" />, danger: true, onClick: () => onDelete?.(row) },
+        ]}
+      />
+    </>
   );
 }
 

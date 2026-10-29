@@ -4,7 +4,8 @@
  * under a segmented tab strip like BotTemplatesTable's.
  */
 
-.lc-inbs {
+.lc-inbs,
+.lc-inbs__header-switch {
   --lc-inbs-border: var(--lc-color-gray-300);
   --lc-inbs-divider: var(--lc-color-gray-200);
   --lc-inbs-text-title: var(--lc-color-green-900);
@@ -12,7 +13,9 @@
   --lc-inbs-primary: var(--lc-color-green-700);
   --lc-inbs-radius: 12px;
   --lc-inbs-radius-sm: 6px;
+}
 
+.lc-inbs {
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -1260,4 +1263,355 @@
 .lc-inbs__ratio[data-ratio='16:9'] .lc-inbs__ratio-box {
   width: 64px;
   height: 36px;
+}
+
+.lc-inbs__checks--stack {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lc-inbs__help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--lc-inbs-primary);
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--lc-inbs-primary);
+  cursor: help;
+}
+
+.lc-inbs__color {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lc-inbs__color-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lc-inbs__color-swatch {
+  width: 40px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+.lc-inbs__hex {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 32px;
+  border: 1px solid var(--lc-inbs-border, #d9d9d9);
+  border-radius: 6px;
+  color: var(--lc-inbs-text-title);
+}
+
+.lc-inbs__hex-input {
+  width: 80px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  text-transform: uppercase;
+}
+
+.lc-inbs__hex:focus-within {
+  outline: 2px solid var(--lc-inbs-primary);
+}
+
+.lc-inbs__hex:has([aria-invalid='true']) {
+  border-color: var(--lc-color-red-700);
+}
+
+.lc-inbs__shades {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.lc-inbs__shade {
+  height: 48px;
+  padding: 0 0 6px;
+  border: 0;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 0 2px rgb(0 0 0 / 35%);
+  cursor: pointer;
+}
+
+.lc-inbs__shade[aria-checked='true'] {
+  outline: 2px solid var(--lc-inbs-primary);
+  outline-offset: 2px;
+}
+
+.lc-inbs__inline-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lc-inbs__tab[data-icon] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 4px 10px;
+}
+
+/* The open tab shows its label beside the icon; keep it as small as the icon-only ones. */
+.lc-inbs__tab[data-icon][data-active] {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Icon tabs don't stretch, so spread them across the bar. */
+.lc-inbs__tabs:has(.lc-inbs__tab[data-icon]) {
+  justify-content: space-between;
+}
+
+/* --- Cards tab ------------------------------------------------------------ */
+
+.lc-inbs__option-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.lc-inbs__option-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  text-align: left;
+  font: inherit;
+  background: var(--lc-color-white);
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.lc-inbs__option-card[aria-checked='true'] {
+  border-color: var(--lc-inbs-primary);
+  background: var(--lc-color-green-50, #f3f8ec);
+}
+
+.lc-inbs__option-card:focus-visible,
+.lc-inbs__segment:focus-visible {
+  outline: 2px solid var(--lc-inbs-primary);
+  outline-offset: 2px;
+}
+
+.lc-inbs__option-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.lc-inbs__option-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 72px;
+  background: var(--lc-color-white);
+  border: 1px solid var(--lc-color-gray-200);
+  border-radius: 6px;
+}
+
+/* Wireframes of each template: i = grey blocks, b = the button bar. */
+.lc-inbs__thumb-card {
+  display: flex;
+  gap: 4px;
+  width: 70%;
+}
+
+.lc-inbs__thumb-card i,
+.lc-inbs__thumb-card b,
+.lc-inbs__thumb-buttons i {
+  display: block;
+  border-radius: 2px;
+  background: var(--lc-color-gray-300);
+}
+
+.lc-inbs__thumb-card b,
+.lc-inbs__thumb-buttons i {
+  background: var(--lc-inbs-primary);
+}
+
+.lc-inbs__thumb-card {
+  flex-direction: column;
+  align-items: center;
+}
+
+.lc-inbs__thumb-card i { width: 60%; height: 8px; }
+.lc-inbs__thumb-card i:first-child { width: 40%; height: 24px; }
+.lc-inbs__thumb-card b { width: 100%; height: 6px; }
+
+.lc-inbs__thumb-card[data-template='wide'] {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: center;
+}
+
+.lc-inbs__thumb-card[data-template='wide'] i:first-child { grid-row: span 3; width: 24px; height: 40px; }
+.lc-inbs__thumb-card[data-template='wide'] i,
+.lc-inbs__thumb-card[data-template='wide'] b { width: 100%; }
+
+.lc-inbs__thumb-card[data-template='immersive'] i:first-child { width: 100%; height: 30px; background: var(--lc-color-gray-500, #888); }
+.lc-inbs__thumb-card[data-template='immersive'] i:not(:first-child) { display: none; }
+
+.lc-inbs__thumb-card[data-template='editorial'] i:first-child { width: 100%; height: 6px; }
+
+.lc-inbs__thumb-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.lc-inbs__thumb-buttons i { width: 28px; height: 10px; }
+.lc-inbs__thumb-buttons[data-style='primary-outline'] i:last-child {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--lc-inbs-primary);
+}
+
+.lc-inbs__elements {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 8px;
+}
+
+.lc-inbs__element {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.lc-inbs__element + .lc-inbs__element {
+  border-top: 1px solid var(--lc-color-gray-200);
+}
+
+.lc-inbs__element[data-locked] {
+  cursor: default;
+}
+
+.lc-inbs__element input {
+  margin: 0;
+  accent-color: var(--lc-inbs-primary);
+}
+
+.lc-inbs__element .lc-inbs__option-text {
+  flex: 1;
+}
+
+.lc-inbs__tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--lc-color-gray-100);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-stone-600);
+}
+
+.lc-inbs__segment {
+  min-width: 56px;
+  padding: 8px 16px;
+  font: inherit;
+  color: var(--lc-inbs-text-title);
+  background: var(--lc-color-white);
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.lc-inbs__segment[aria-checked='true'] {
+  background: var(--lc-inbs-primary);
+  border-color: var(--lc-inbs-primary);
+  color: var(--lc-color-white);
+  font-weight: 700;
+}
+
+.lc-inbs__segment:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lc-inbs__header-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--lc-inbs-border);
+  border-radius: 6px;
+  background: var(--lc-color-white);
+  white-space: nowrap;
+}
+
+.lc-inbs__header-switch .lc-inbs__label {
+  font-weight: 700;
+  color: var(--lc-color-stone-600);
+}
+
+.lc-inbs__header-switch:has([aria-checked='true']) .lc-inbs__label {
+  color: var(--lc-inbs-primary);
+}
+
+/* --- Code tab ------------------------------------------------------------- */
+
+.lc-inbs__code-panel {
+  overflow: hidden;
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 8px;
+  background: var(--lc-color-gray-50, #fafafa);
+}
+
+.lc-inbs__code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 8px 8px 16px;
+  border-bottom: 1px solid var(--lc-color-gray-200);
+}
+
+.lc-inbs__code-lang {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--lc-color-stone-600);
+}
+
+.lc-inbs__code {
+  margin: 0;
+  max-height: 360px;
+  padding: 16px;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--lc-inbs-text-title);
+  tab-size: 2;
+}
+
+.lc-inbs__code:focus-visible {
+  outline: 2px solid var(--lc-inbs-primary);
+  outline-offset: -2px;
+}
+
+.lc-inbs__code-str {
+  color: #b4531f;
 }

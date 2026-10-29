@@ -16,7 +16,7 @@ import { SettingsScreen } from './components/SettingsScreen';
 import { ContactsScreen } from './components/ContactsScreen';
 import { TicketsScreen } from './components/TicketsScreen';
 import { FlowEditorScreen, editorSetup, findFlow } from './components/FlowEditorScreen';
-import { BroadcastScreen, BotFlowsScreen, FlowsScreen, KnowledgeBaseScreen, SegmentsScreen, TemplatesScreen } from './components/ListScreens';
+import { AgentsScreen, BroadcastScreen, BotFlowsScreen, FlowsScreen, KnowledgeBaseScreen, SegmentsScreen, TemplatesScreen } from './components/ListScreens';
 import { SETTINGS_COPY } from './components/SettingsScreen/settingsTabs';
 import { ProfileSettings, TIMEZONE_OPTIONS, type HelpDeskContact } from './components/ProfileSettings';
 import { AccountSettings } from './components/AccountSettings';
@@ -362,6 +362,7 @@ export function App() {
           {page === 'broadcast-list' && <BroadcastScreen />}
           {page === 'flows-list' && <FlowsScreen />}
           {page === 'bot-flows-list' && <BotFlowsScreen />}
+          {page === 'agents' && <AgentsScreen />}
           {page === 'segments' && <SegmentsScreen />}
           {page === 'templates' && <TemplatesScreen />}
           {page === 'knowledge-base' && <KnowledgeBaseScreen />}
