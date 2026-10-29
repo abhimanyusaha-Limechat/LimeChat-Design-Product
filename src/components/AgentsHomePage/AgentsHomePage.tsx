@@ -89,7 +89,7 @@ function AgentCard({
         <ul className="lc-ag__tasks">
           {row.tasks.map((task) => (
             <li key={task} className="lc-ag__task">
-              <Icon name="robot" className="lc-ag__task-icon" />
+              <Icon name="list-check" className="lc-ag__task-icon" />
               {task}
             </li>
           ))}
