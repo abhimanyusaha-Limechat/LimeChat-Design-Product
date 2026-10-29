@@ -10,9 +10,14 @@ import { useDemoLoading } from '../../hooks/useDemoLoading';
 import { canMove, flattenTree, keyboardTarget, moveTag, type DropTarget } from './tagTree';
 import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsPage, type DetailPanel } from '../SettingsPage';
-import { DetailsAvatar, InboxDetailsIcon, SettingsDetails, inboxFields, rowFields } from './SettingsDetails';
+import { DetailsAvatar, InboxDetailsIcon, SettingsDetails, rowFields } from './SettingsDetails';
 import { AgentDetails, type AgentPatch } from './AgentDetails';
-import { InboxesTable } from '../InboxesTable';
+import { AgentEdit } from './AgentEdit';
+import { InboxCollaboratorsPanel } from './InboxCollaboratorsPanel';
+import { RuleDetails } from './RuleDetails';
+import { SlaPolicyDetails } from './SlaPolicyDetails';
+import { TeamDetails } from './TeamDetails';
+import { InboxChannelIcon, InboxesTable } from '../InboxesTable';
 import { WidgetCards, type WidgetKind, type WidgetStatus } from '../WidgetCards';
 import { InboxSettings, type InboxAgent, type InboxSettingsValues, type PopupSettings, type WhatsAppWidgetSettings } from '../InboxSettings';
 import { EventsTable } from '../EventsTable';
@@ -62,6 +67,7 @@ import {
   DEMO_SLA_LIBRARY,
   DEMO_TAGS,
   DEMO_TEAMS,
+  DEMO_TEAM_LEVELS,
   DEMO_USE_CASES,
   DEMO_VARIABLES,
   INBOX_NAMES,
@@ -73,6 +79,8 @@ import {
   findIntegrationPartner,
   withFieldMeta,
 } from '../../data/settingsDemo';
+import { ruleFor } from '../../data/ruleDemo';
+import { slaPolicyFor } from '../../data/slaPolicyDemo';
 import { DEMO_TEMPLATES } from '../../data/templatesDemo';
 import {
   HELPDESK_ADD_CTA,
@@ -95,12 +103,15 @@ export interface SettingsScreenProps {
   integration: string;
   /** The Inboxes tab's inbox being edited, by id; '' shows the list. */
   inbox: string;
+  /** The Agents tab's agent being edited, by id; '' shows the list. */
+  agent: string;
   /** HelpDesk Billing's "Change plan" sub-view. */
   changePlan: boolean;
   onTabChange: (id: string) => void;
   onManageIndustriesChange: (next: boolean) => void;
   onIntegrationChange: (partnerId: string) => void;
   onInboxChange: (inboxId: string) => void;
+  onAgentChange: (agentId: string) => void;
   onChangePlanChange: (open: boolean) => void;
 }
 
@@ -188,12 +199,8 @@ const inboxDefaults = (name: string): InboxSettingsValues => ({
   },
   whatsappZIndex: 1000,
   widgetEcommerce: { imageRatio: '1:1', storeType: 'None', extractTitle: true, messagePrefix: 'Know more about' },
-  collaborators: {
-    c1: { onlyAssignManually: false },
-    c2: { onlyAssignManually: false },
-    c3: { onlyAssignManually: false },
-    c4: { onlyAssignManually: false },
-  },
+  // Demo: the first 20 agents are on every inbox; the rest show up in the Add menu.
+  collaborators: Object.fromEntries(DEMO_COLLABORATORS.slice(0, 20).map((c) => [c.id, { onlyAssignManually: false }])),
   businessHours: {
     enabled: true,
     timezone: 'America/Los_Angeles (GMT-8:00)',
@@ -237,11 +244,13 @@ export function SettingsScreen({
   manageIndustries,
   integration: integrationId,
   inbox: inboxId,
+  agent: agentId,
   changePlan,
   onTabChange,
   onManageIndustriesChange,
   onIntegrationChange,
   onInboxChange,
+  onAgentChange,
   onChangePlanChange,
 }: SettingsScreenProps) {
   const copy = SETTINGS_COPY[settingsTab];
@@ -297,7 +306,8 @@ export function SettingsScreen({
   const [createdAgents, setCreatedAgents] = useState<InboxAgent[]>([]);
   const [inboxEdits, setInboxEdits] = useState<Record<string, InboxSettingsValues>>({});
   const editedInbox = inboxId ? DEMO_INBOXES.find((row) => row.id === inboxId) : undefined;
-  const editedInboxValues = editedInbox && (inboxEdits[editedInbox.id] ?? inboxDefaults(editedInbox.name));
+  const inboxValuesOf = (row: { id: string; name: string }) => inboxEdits[row.id] ?? inboxDefaults(row.name);
+  const editedInboxValues = editedInbox && inboxValuesOf(editedInbox);
   const visibleInboxes = DEMO_INBOXES.filter(
     (row) => row.id.includes(search.trim()) || row.name.toLowerCase().includes(query),
   );
@@ -320,6 +330,8 @@ export function SettingsScreen({
   const [agentRole, setAgentRole] = useState('all');
   // Agents: edits made in the details panel, applied over the demo rows.
   const [agentEdits, setAgentEdits] = useState<Record<string, AgentPatch>>({});
+  // The edit page's unsaved changes; they reach the list, header and panel only when Update is clicked.
+  const [agentDraft, setAgentDraft] = useState<{ id: string; patch: AgentPatch } | null>(null);
   // The Inbox dropdown is shared by Agents and Custom fields.
   const [agentInbox, setAgentInbox] = useState('all');
   const [fieldType, setFieldType] = useState('all');
@@ -457,44 +469,87 @@ export function SettingsScreen({
     whatsappWidgets.flatMap((row, i): [string, WidgetStatus][] => (i === 2 ? [[row.id, 'inactive']] : i === 3 ? [[row.id, 'disabled']] : i === 4 ? [[row.id, 'error']] : [])),
   );
 
+  const editedAgent = agentId ? peopleRows.agents.find((a) => a.id === agentId) : undefined;
+  const agentDraftPatch = editedAgent && agentDraft?.id === editedAgent.id ? agentDraft.patch : undefined;
   const selectedInbox = selectedId ? visibleInboxes.find((r) => r.id === selectedId) : undefined;
   const selectedRow = selectedId ? visibleCollaborators.find((r) => r.id === selectedId) : undefined;
   const selectedAgent = settingsTab === 'agents' ? selectedRow : undefined;
   const closePanel = () => setSelection(null);
+  const patchAgent = (id: string, patch: AgentPatch) =>
+    setAgentEdits((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }));
+  // Opening or leaving the edit page starts from the saved agent, dropping unsaved changes.
+  const openAgent = (id: string) => {
+    setAgentDraft(null);
+    onAgentChange(id);
+  };
+  // Rows without an edit page yet keep the demo alert.
+  const editRow = (row: BotTemplateRow) =>
+    settingsTab === 'agents' ? openAgent(row.id) : alert(`Edit template: ${row.name}`);
+  const cloneRow = (row: BotTemplateRow) => alert(`Clone template: ${row.name}`);
+  const updateAgent = () => {
+    if (!editedAgent || !agentDraftPatch) return;
+    patchAgent(editedAgent.id, agentDraftPatch);
+    setAgentDraft(null);
+    fakeVerify();
+  };
   const detailPanel: DetailPanel | undefined =
-    product !== 'helpdesk' || reorderingSla || editedInbox
+    product !== 'helpdesk' || reorderingSla || editedInbox || editedAgent
       ? undefined
       : selectedInbox
         ? {
             title: selectedInbox.name,
-            icon: <InboxDetailsIcon type={selectedInbox.type} />,
+            subtitle: selectedInbox.detail,
+            icon: <InboxChannelIcon type={selectedInbox.type} />,
+            actions: [{ icon: 'pencil', label: 'Edit', onClick: () => onInboxChange(selectedInbox.id) }],
             onClose: closePanel,
-            children: <SettingsDetails fields={inboxFields(selectedInbox)} />,
+            children: (
+              <InboxCollaboratorsPanel
+                key={selectedInbox.id}
+                agents={[...INBOX_AGENTS, ...createdAgents]}
+                value={inboxValuesOf(selectedInbox).collaborators}
+                onChange={(collaborators) =>
+                  setInboxEdits((prev) => ({ ...prev, [selectedInbox.id]: { ...inboxValuesOf(selectedInbox), collaborators } }))
+                }
+              />
+            ),
           }
         : selectedAgent
           ? {
               title: selectedAgent.name,
               subtitle: 'Agent',
-              icon: <DetailsAvatar name={selectedAgent.name} />,
-              // ponytail: design placeholder — no edit behaviour yet; add onClick when one is decided.
-              actions: [{ icon: 'pencil', label: 'Edit' }],
+              icon: <DetailsAvatar name={selectedAgent.name} src={selectedAgent.avatar} />,
+              actions: [{ icon: 'pencil', label: 'Edit', onClick: () => openAgent(selectedAgent.id) }],
               onClose: closePanel,
               children: (
                 <AgentDetails
                   key={selectedAgent.id}
                   agent={selectedAgent}
-                  onChange={(patch) =>
-                    setAgentEdits((prev) => ({ ...prev, [selectedAgent.id]: { ...prev[selectedAgent.id], ...patch } }))
-                  }
+                  onChange={(patch) => patchAgent(selectedAgent.id, patch)}
                 />
               ),
             }
           : selectedRow
             ? {
                 title: selectedRow.name,
+                subtitle: settingsTab === 'sla-rules' ? 'SLA policy' : settingsTab === 'automation-rules' ? 'Automation rule' : undefined,
                 icon: selectedRow.mediaType && <MediaTypeBadge mediaType={selectedRow.mediaType} />,
+                actions: [
+                  { icon: 'pencil', label: 'Edit', onClick: () => editRow(selectedRow) },
+                  ...(settingsTab === 'automation-rules'
+                    ? [{ icon: 'copy' as const, label: 'Clone', onClick: () => cloneRow(selectedRow) }]
+                    : []),
+                ],
                 onClose: closePanel,
-                children: <SettingsDetails fields={rowFields(settingsTab, selectedRow)} />,
+                children:
+                  settingsTab === 'teams' ? (
+                    <TeamDetails description={selectedRow.description} levels={DEMO_TEAM_LEVELS[selectedRow.id] ?? []} />
+                  ) : settingsTab === 'sla-rules' ? (
+                    <SlaPolicyDetails policy={slaPolicyFor(selectedRow.id)} />
+                  ) : settingsTab === 'automation-rules' ? (
+                    <RuleDetails rule={ruleFor(selectedRow.id)} />
+                  ) : (
+                    <SettingsDetails fields={rowFields(settingsTab, selectedRow)} />
+                  ),
               }
             : undefined;
   const rowSelectable = product === 'helpdesk' && !reorderingSla;
@@ -511,7 +566,9 @@ export function SettingsScreen({
             ? (integration.form.title ?? integration.partner.name)
             : editedInbox
               ? editedInbox.name
-              : changePlan
+              : editedAgent
+                ? editedAgent.name
+                : changePlan
               ? 'Change plan'
               : copy.title
       }
@@ -519,7 +576,7 @@ export function SettingsScreen({
         integration ? (
           <span className="lc-is-title-icon">{integration.partner.icon}</span>
         ) : (
-          editedInbox && <InboxDetailsIcon type={editedInbox.type} />
+          editedInbox ? <InboxDetailsIcon type={editedInbox.type} /> : editedAgent && <DetailsAvatar name={editedAgent.name} src={editedAgent.avatar} />
         )
       }
       onBack={
@@ -527,7 +584,9 @@ export function SettingsScreen({
           ? () => onIntegrationChange('')
           : editedInbox
             ? () => onInboxChange('')
-            : changePlan
+            : editedAgent
+              ? () => openAgent('')
+              : changePlan
               ? () => onChangePlanChange(false)
               : undefined
       }
@@ -536,7 +595,7 @@ export function SettingsScreen({
           ? SETTINGS_COPY.variable.description
           : integration
             ? integration.form.description
-            : editedInbox
+            : editedInbox || editedAgent
               ? undefined
               : changePlan
               ? `You are on ${CURRENT_PLAN_TIER.name} at $${CURRENT_PLAN_TIER.pricePerMonth}/month. Prices are in USD. Recurring and usage-based charges bill every 30 days.`
@@ -545,17 +604,18 @@ export function SettingsScreen({
       contentPadding={changePlan ? '48px 72px 72px' : settingsTab === 'custom-fields' ? 20 : undefined}
       detailPanel={detailPanel}
       // The inbox edit page has no tutorial or docs page of its own.
-      onWatchVideo={editedInbox ? undefined : () => alert(`Play tutorial video: ${copy.title}`)}
-      onViewDocs={editedInbox ? undefined : () => alert(`Open docs: ${copy.title}`)}
+      onWatchVideo={editedInbox || editedAgent ? undefined : () => alert(`Play tutorial video: ${copy.title}`)}
+      onViewDocs={editedInbox || editedAgent ? undefined : () => alert(`Open docs: ${copy.title}`)}
       headerActions={
-        editedInbox ? (
+        editedInbox || editedAgent ? (
           <Button
             variant="filled"
             color="primary"
             size="sm"
             style={{ width: 100 }}
             loading={savingHelpdeskSettings}
-            onClick={fakeVerify}
+            disabled={!!editedAgent && !agentDraftPatch}
+            onClick={editedAgent ? updateAgent : fakeVerify}
           >
             Update
           </Button>
@@ -714,6 +774,7 @@ export function SettingsScreen({
           webhooks={DEMO_WEBHOOKS}
           onEdit={(row) => alert(`Edit webhook: ${row.url}`)}
           onDelete={(row) => alert(`Delete webhook: ${row.url}`)}
+          iconActions={product === 'helpdesk'}
         />
       ) : integration ? (
         <IntegrationSettings
@@ -756,6 +817,12 @@ export function SettingsScreen({
             />
           )}
         </IntegrationSettings>
+      ) : editedAgent ? (
+        <AgentEdit
+          key={editedAgent.id}
+          agent={{ ...editedAgent, ...agentDraftPatch }}
+          onChange={(patch) => setAgentDraft({ id: editedAgent.id, patch: { ...agentDraftPatch, ...patch } })}
+        />
       ) : editedInbox && editedInboxValues ? (
         <InboxSettings
           key={editedInbox.id}
@@ -886,6 +953,7 @@ export function SettingsScreen({
           syncing={inboxSyncing}
           onRowEdit={(row) => onInboxChange(row.id)}
           onRowDelete={(row) => alert(`Delete inbox: ${row.name}`)}
+          iconActions={product === 'helpdesk'}
           onRowSelect={rowSelectable ? (row) => selectRowId(row.id) : undefined}
           selectedId={selectedId}
           onSync={
@@ -1008,9 +1076,11 @@ export function SettingsScreen({
           dataTypeFilter={variableDataType}
           onDataTypeFilterChange={setVariableDataType}
           onAccountFilterClick={() => alert('Filter by account')}
-          onRowEdit={(row) => alert(`Edit template: ${row.name}`)}
-          onRowClone={(row) => alert(`Clone template: ${row.name}`)}
+          onRowEdit={editRow}
+          onRowClone={cloneRow}
           onRowDelete={(row) => alert(`Delete template: ${row.name}`)}
+          iconActions={product === 'helpdesk'}
+          overflowActions={settingsTab === 'sla-rules'}
           onRowSelect={rowSelectable && isPeopleTab && settingsTab !== 'collaborators' ? (row) => selectRowId(row.id) : undefined}
           selectedId={selectedId}
         />

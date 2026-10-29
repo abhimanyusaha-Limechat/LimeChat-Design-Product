@@ -1,11 +1,9 @@
-/* AgentDetails — the Agents tab's details panel body (inside SettingsPage's .lc-sp__detail-body). */
+/* AgentDetails — the Agents tab's details panel body (inside SettingsPage's .lc-sp__detail-body, which is the bottom of the panel's one card). */
 
-/* Same card as .lc-sp__detail-list. */
+/* One flat list: no boxes, just hairline dividers between the rows. */
 .lc-ad__card {
-  border: 1px solid var(--lc-sp-divider);
-  border-radius: 12px;
-  background: var(--lc-color-white);
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .lc-ad__row,
@@ -14,7 +12,7 @@
   flex-direction: column;
   gap: 2px;
   min-width: 0;
-  padding: 12px 16px;
+  padding: 12px 0;
 }
 
 .lc-ad__card > * + * {
@@ -94,19 +92,15 @@
   margin: 8px 0 0 auto;
 }
 
-/* Two cards side by side at the top of the panel, above the main card and styled like it. */
+/* The first row of the list: two figures side by side, split by a vertical divider. */
 .lc-ad__stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 8px;
 }
 
-.lc-ad__stats .lc-ad__stat {
-  padding: 8px 12px;
-  border: 1px solid var(--lc-sp-divider);
-  border-radius: 12px;
-  background: var(--lc-color-white);
+.lc-ad__stats .lc-ad__stat + .lc-ad__stat {
+  padding-left: 16px;
+  border-left: 1px solid var(--lc-sp-divider);
 }
 
 .lc-ad__stat-value {
@@ -159,7 +153,7 @@
   background: var(--lc-color-green-50);
   color: var(--lc-sp-primary);
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 

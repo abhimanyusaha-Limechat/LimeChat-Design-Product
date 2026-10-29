@@ -12,8 +12,11 @@
  *     onSync={() => refetchInboxes()}
  *   />
  */
+import type { CSSProperties } from 'react';
+import { Avatar } from '../Avatar';
 import { Button } from '../Button';
 import { ActionMenu } from '../Menu';
+import { RowActions } from '../RowActions';
 import { InboxIcon, type InboxIconName } from './icons';
 import {
   DataTable,
@@ -36,7 +39,11 @@ export interface InboxRowData {
   type: InboxType;
   /** Channel-specific identifier, e.g. a phone number, email address or handle. */
   detail: string;
+  /** Shows a badge after the name: the inbox isn't fully set up, or its connection is failing. */
+  status?: 'setup-incomplete' | 'error';
 }
+
+const STATUS_LABEL = { 'setup-incomplete': 'Setup incomplete', error: 'Error' } as const;
 
 const TYPE_ICON: Record<InboxType, InboxIconName> = {
   whatsapp: 'whatsapp',
@@ -45,6 +52,17 @@ const TYPE_ICON: Record<InboxType, InboxIconName> = {
   sms: 'sms',
   facebook: 'facebook',
 };
+
+const FRAME_STYLE = { '--lc-avatar-radius': '8px' } as CSSProperties;
+
+/** The channel's icon in its brand colour, on a rounded square filled with 20% of that colour. Used in the table and the details panel. */
+export function InboxChannelIcon({ type, size = 32 }: { type: InboxType; size?: number }) {
+  return (
+    <Avatar size={size} className="lc-ib__row-frame" data-channel={type} style={FRAME_STYLE}>
+      <InboxIcon name={TYPE_ICON[type]} className="lc-ib__row-icon" data-type={type} />
+    </Avatar>
+  );
+}
 
 export const TYPE_LABEL: Record<InboxType, string> = {
   whatsapp: 'Whatsapp',
@@ -68,6 +86,8 @@ export interface InboxesTableProps {
   /** Makes rows clickable (opens a details panel). */
   onRowSelect?: (row: InboxRowData) => void;
   selectedId?: string;
+  /** Shows Edit and Delete icon buttons in each row instead of the ⋯ menu. */
+  iconActions?: boolean;
 }
 
 export function InboxesTable({
@@ -80,6 +100,7 @@ export function InboxesTable({
   onRowDelete,
   onRowSelect,
   selectedId,
+  iconActions = false,
   loading = false,
 }: InboxesTableProps) {
 
@@ -89,7 +110,7 @@ export function InboxesTable({
   );
 
   return (
-    <div className="lc-ib">
+    <div className="lc-ib" data-icon-actions={iconActions || undefined}>
       <div className="lc-ib__toolbar" data-anchor="inbox-toolbar">
         <div className="lc-ib__search">
           <InboxIcon name="search" className="lc-ib__search-icon" />
@@ -117,7 +138,7 @@ export function InboxesTable({
 
       <DataTable aria-busy={loading || undefined} aria-label="Inboxes" data-anchor="inbox-table">
         <DataTableHead>
-          <DataTableSortHeader className="lc-ib__cell--name lc-ib__cell" label="Name" sortKey="name" sort={sort} onSort={toggleSort} />
+          <DataTableSortHeader className="lc-ib__cell--name lc-ib__cell lc-ib__cell--name-head" label="Name" sortKey="name" sort={sort} onSort={toggleSort} />
           <DataTableSortHeader className="lc-ib__cell--type lc-ib__cell" label="Type" sortKey="type" sort={sort} onSort={toggleSort} />
           <div role="columnheader" className="lc-ib__cell--actions lc-ib__cell" aria-label="Actions" />
         </DataTableHead>
@@ -144,14 +165,15 @@ export function InboxesTable({
               onClick={onRowSelect ? (e) => selectRow(e, () => onRowSelect(row)) : undefined}
             >
               <div role="cell" className="lc-ib__cell--name lc-ib__cell">
-                <InboxIcon
-                  name={TYPE_ICON[row.type]}
-                  className="lc-ib__row-icon"
-                  data-type={row.type}
-                />
+                <InboxChannelIcon type={row.type} size={36} />
                 <div className="lc-ib__name-block">
                   <div className="lc-ib__name-line">
                     <span className="lc-ib__name">{row.name}</span>
+                    {row.status && (
+                      <span className="lc-ib__badge" data-tone={row.status === 'error' ? 'danger' : 'warning'}>
+                        {STATUS_LABEL[row.status]}
+                      </span>
+                    )}
                   </div>
                   <span className="lc-ib__meta-line">{row.detail}</span>
                 </div>
@@ -163,14 +185,18 @@ export function InboxesTable({
                 </div>
               </div>
               <div role="cell" className="lc-ib__cell--actions lc-ib__cell">
-                <ActionMenu
-                  ariaLabel={`Actions for ${row.name}`}
-                  icon={<InboxIcon name="dots-vertical" />}
-                  items={[
-                    { label: 'Edit', onClick: () => onRowEdit?.(row) },
-                    { label: 'Delete', danger: true, onClick: () => onRowDelete?.(row) },
-                  ]}
-                />
+                {iconActions ? (
+                  <RowActions name={row.name} onEdit={() => onRowEdit?.(row)} onDelete={() => onRowDelete?.(row)} />
+                ) : (
+                  <ActionMenu
+                    ariaLabel={`Actions for ${row.name}`}
+                    icon={<InboxIcon name="dots-vertical" />}
+                    items={[
+                      { label: 'Edit', onClick: () => onRowEdit?.(row) },
+                      { label: 'Delete', danger: true, onClick: () => onRowDelete?.(row) },
+                    ]}
+                  />
+                )}
               </div>
             </DataTableRow>
           ))

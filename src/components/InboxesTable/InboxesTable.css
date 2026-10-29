@@ -122,6 +122,11 @@
   gap: 16px;
 }
 
+/* The header's label lines up with the names, past the 36px channel icon and the 16px gap. */
+.lc-ib__cell--name-head {
+  padding-left: 52px;
+}
+
 .lc-ib__cell--type {
   flex: 0 0 140px;
 }
@@ -130,6 +135,10 @@
   flex: 0 0 32px;
   display: flex;
   justify-content: flex-end;
+}
+
+.lc-ib[data-icon-actions] .lc-ib__cell--actions {
+  flex-basis: 56px;
 }
 
 .lc-ib__name-block {
@@ -143,6 +152,26 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.lc-ib__badge {
+  flex-shrink: 0;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.lc-ib__badge[data-tone='danger'] {
+  background: var(--lc-color-red-50);
+  color: var(--lc-color-red-700);
+}
+
+/* amber-600 alone is too light for 11px text on a yellow tint; darken it for contrast (as in BotTemplatesTable). */
+.lc-ib__badge[data-tone='warning'] {
+  background: color-mix(in srgb, var(--lc-color-amber-500) 18%, white);
+  color: color-mix(in srgb, var(--lc-color-amber-600) 65%, black);
 }
 
 .lc-ib__name {
@@ -165,20 +194,39 @@
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-  color: var(--lc-ib-text-dimmed);
+  color: var(--lc-ib-channel, var(--lc-ib-text-dimmed));
 }
 
-/* Channel brand colours; email/sms have no brand and stay neutral. */
-.lc-ib__row-icon[data-type='whatsapp'] {
-  color: #25d366;
+/* Neutral default for channels without a brand colour (email, sms). Lower specificity than the
+   brand rules below, so those win. */
+.lc-ib__row-frame {
+  --lc-ib-channel: var(--lc-color-sage-500);
 }
 
-.lc-ib__row-icon[data-type='instagram'] {
-  color: #e4405f;
+/* Channel brand colours; email/sms have no brand and stay neutral. Also set on the details panel's
+   icon frame (.lc-ib__row-frame), whose fill is a tint of the same colour. */
+.lc-ib__row-icon[data-type='whatsapp'],
+.lc-ib__row-frame[data-channel='whatsapp'] {
+  --lc-ib-channel: #25d366;
 }
 
-.lc-ib__row-icon[data-type='facebook'] {
-  color: #1877f2;
+.lc-ib__row-icon[data-type='instagram'],
+.lc-ib__row-frame[data-channel='instagram'] {
+  --lc-ib-channel: #e4405f;
+}
+
+.lc-ib__row-icon[data-type='facebook'],
+.lc-ib__row-frame[data-channel='facebook'] {
+  --lc-ib-channel: #1877f2;
+}
+
+.lc-avatar.lc-ib__row-frame {
+  --lc-avatar-light-bg: color-mix(in srgb, var(--lc-ib-channel) var(--lc-ib-tint, 20%), transparent);
+}
+
+/* The table's rows use a lighter 10% tint; the details panel header keeps the 20% default. */
+.lc-ib .lc-avatar.lc-ib__row-frame {
+  --lc-ib-tint: 10%;
 }
 
 .lc-ib__type-block {

@@ -510,7 +510,9 @@ const inboxDetail = (type: InboxRowData['type'], name: string, i: number) => {
 
 export const DEMO_INBOXES: InboxRowData[] = INBOX_NAMES.map((name, i) => {
   const type = INBOX_TYPES[i % INBOX_TYPES.length];
-  return { id: inboxId(i), name, type, detail: inboxDetail(type, name, i) };
+  // Demo: one inbox mid-setup and one failing, to show both badges.
+  const status = i === 1 ? ('setup-incomplete' as const) : i === 4 ? ('error' as const) : undefined;
+  return { id: inboxId(i), name, type, detail: inboxDetail(type, name, i), status };
 });
 
 const EVENT_NAMES = ['test_var', 'order_placed', 'cart_abandoned', 'checkout_started', 'order_delivered', 'test_var'];
@@ -621,6 +623,19 @@ export const DEMO_COLLABORATORS: BotTemplateRow[] = [
   { id: 'c13', name: 'Yash Agarwal', description: 'yash@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Admin' },
   { id: 'c14', name: 'Pooja Reddy', description: 'pooja@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
   { id: 'c15', name: 'Sameer Khan', description: 'sameer@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
+  { id: 'c16', name: 'Kavya Joshi', description: 'kavya@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
+  { id: 'c17', name: 'Harsh Vora', description: 'harsh@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
+  { id: 'c18', name: 'Riya Chawla', description: 'riya@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
+  { id: 'c19', name: 'Aditya Nambiar', description: 'aditya@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Admin' },
+  { id: 'c20', name: 'Simran Kaur', description: 'simran@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
+  { id: 'c21', name: 'Manav Sethi', description: 'manav@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
+  { id: 'c22', name: 'Ishaan Bose', description: 'ishaan@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
+  { id: 'c23', name: 'Neha Gupta', description: 'neha@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
+  { id: 'c24', name: 'Rahul Verma', description: 'rahul@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
+  { id: 'c25', name: 'Anjali Sinha', description: 'anjali@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
+  { id: 'c26', name: 'Dev Patel', description: 'dev@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
+  { id: 'c27', name: 'Lavanya Iyer', description: 'lavanya@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Editor' },
+  { id: 'c28', name: 'Karan Malik', description: 'karan@limechat.ai', type: 'task', usecases: [], industries: [], scope: 'account', role: 'Viewer' },
 ];
 
 export const DEMO_TEAMS: BotTemplateRow[] = [
@@ -634,6 +649,16 @@ export const DEMO_TEAMS: BotTemplateRow[] = [
   { id: 't8', name: 'Escalations', description: 'Owns complex or high-severity tickets from other teams', type: 'task', usecases: [], industries: [], scope: 'account' },
   { id: 't9', name: 'Social Media', description: 'Responds to Instagram and Facebook messages and comments', type: 'task', usecases: [], industries: [], scope: 'account' },
 ];
+
+// Demo: each team escalates through three levels of five agents, by team id.
+export const DEMO_TEAM_LEVELS: Record<string, BotTemplateRow[][]> = Object.fromEntries(
+  DEMO_TEAMS.map((team, i) => [
+    team.id,
+    [0, 1, 2].map((level) =>
+      [0, 1, 2, 3, 4].map((k) => DEMO_COLLABORATORS[(i * 3 + level * 5 + k) % DEMO_COLLABORATORS.length]),
+    ),
+  ]),
+);
 
 // Tags nest up to three levels: `parentId` points at the parent tag; siblings keep this order.
 export const DEMO_TAGS: BotTemplateRow[] = [

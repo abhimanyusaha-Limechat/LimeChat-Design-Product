@@ -1,6 +1,6 @@
 /**
- * Agents tab details panel body: email and phone (copyable), signature (editable
- * via its pencil), concurrency and ticket limit, and assigned inboxes (addable).
+ * Agents tab details panel body, one flat list: concurrency and ticket limit, email and phone
+ * (copyable), signature (editable via its pencil), and assigned inboxes (addable).
  * Changes apply as they're made.
  * Mount with `key={agent.id}` so switching agents resets the signature editor.
  */
@@ -12,7 +12,9 @@ import { Menu } from '../Menu';
 import { AGENT_INBOXES } from '../../data/settingsDemo';
 import './AgentDetails.css';
 
-export type AgentPatch = Partial<Pick<BotTemplateRow, 'signature' | 'inboxes'>>;
+export type AgentPatch = Partial<
+  Pick<BotTemplateRow, 'name' | 'avatar' | 'role' | 'phone' | 'webrtcId' | 'platforms' | 'concurrency' | 'ticketLimit' | 'signature' | 'inboxes'>
+>;
 
 function CopyButton({ value, label }: { value: string; label: string }) {
   const [copied, setCopied] = useState(false);
@@ -97,11 +99,11 @@ export function AgentDetails({ agent, onChange }: { agent: BotTemplateRow; onCha
 
   return (
     <>
-      <div className="lc-ad__stats">
-        <Stat label="Concurrency" unit="chats at once" value={agent.concurrency} />
-        <Stat label="Ticket limit" unit="Open tickets daily" value={agent.ticketLimit} />
-      </div>
       <div className="lc-ad__card">
+        <div className="lc-ad__stats">
+          <Stat label="Concurrency" unit="chats at once" value={agent.concurrency} />
+          <Stat label="Ticket limit" unit="Open tickets daily" value={agent.ticketLimit} />
+        </div>
         <CopyRow label="Email" value={agent.description} />
         <CopyRow label="Phone" value={agent.phone} />
         <SignatureRow

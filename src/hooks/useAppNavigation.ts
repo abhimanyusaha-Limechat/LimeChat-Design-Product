@@ -56,7 +56,7 @@ export function pageOf({ product, selected, view, userSettings }: Screen): Page 
  */
 export function useAppNavigation() {
   const [screen, setScreen] = useState(() => parseHash(window.location.hash));
-  const { product, selected, tab, manageIndustries, integration, inbox, changePlan, ticket, flow, userSettings } = screen;
+  const { product, selected, tab, manageIndustries, integration, inbox, agent, changePlan, ticket, flow, userSettings } = screen;
   const flowKind = flowKindOf(product, selected);
   const page = pageOf(screen);
 
@@ -94,6 +94,8 @@ export function useAppNavigation() {
     integration,
     /** The inbox being edited (from the Inboxes or Widget tab); '' when the list shows. */
     inbox,
+    /** The agent being edited (from the Agents tab); '' when the list shows. */
+    agent,
     /** HelpDesk Billing's "Change plan" sub-view is open. */
     changePlan,
     ticketId: ticket,
@@ -111,12 +113,14 @@ export function useAppNavigation() {
     openUserSettings: (tab: UserSettingsTab) => update({ userSettings: tab }),
     setUserSettingsTab: (tab: UserSettingsTab) => update({ userSettings: tab }),
     /** Picking a tab, even the current one, also closes Manage industries, any partner form, inbox edit and Change plan. */
-    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '', inbox: '', changePlan: false }),
+    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '', inbox: '', agent: '', changePlan: false }),
     setManageIndustries: (open: boolean) => update({ manageIndustries: open }),
     /** Opens a partner's form on the Integration tab; '' goes back to the tile grid. */
     setIntegration: (id: string) => update({ integration: id }),
     /** Opens an inbox's edit page from the Inboxes or Widget tab; '' goes back to the list. */
     setInbox: (id: string) => update({ inbox: id }),
+    /** Opens an agent's edit page from the Agents tab; '' goes back to the list. */
+    setAgent: (id: string) => update({ agent: id }),
     setChangePlan: (open: boolean) => update({ changePlan: open }),
     openTicket: (id: string) => update({ ticket: id }),
   };

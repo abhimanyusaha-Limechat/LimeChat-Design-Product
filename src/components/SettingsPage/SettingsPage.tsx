@@ -23,7 +23,7 @@ export interface DetailPanel {
   subtitle?: string;
   /** Sits left of the title, e.g. an avatar or channel icon. */
   icon?: ReactNode;
-  /** Text + icon buttons left of the close button, e.g. Edit. `onClick` may be omitted for a design placeholder. */
+  /** Icon buttons left of the close button (the label is the tooltip and accessible name), e.g. Edit. `onClick` may be omitted for a design placeholder. */
   actions?: { icon: IconName; label: string; onClick?: () => void }[];
   onClose: () => void;
   children: ReactNode;
@@ -87,6 +87,7 @@ export function SettingsPage({
 }: SettingsPageProps) {
   const navScroll = useScrollFade();
   const contentScroll = useScrollFade();
+  const detailScroll = useScrollFade();
   // Keep the last panel mounted so it can animate out; `open` flips a frame after mount so it animates in.
   const [heldPanel, setHeldPanel] = useState(detailPanel);
   if (detailPanel && detailPanel !== heldPanel) setHeldPanel(detailPanel);
@@ -174,27 +175,29 @@ export function SettingsPage({
                       {panel.icon}
                       <div className="lc-sp__detail-heading-text">
                         <h2 className="lc-sp__detail-title">{panel.title}</h2>
-                        {panel.subtitle && <span className="lc-sp__detail-subtitle">{panel.subtitle}</span>}
+                        {panel.subtitle && (
+                          <span className="lc-sp__detail-subtitle" title={panel.subtitle}>
+                            {panel.subtitle}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="lc-sp__detail-actions">
                       {panel.actions?.map((action) => (
-                        <Button
-                          key={action.label}
-                          variant="default"
-                          size="xs"
-                          leftSection={<Icon name={action.icon} width={14} height={14} />}
-                          onClick={action.onClick}
-                        >
-                          {action.label}
-                        </Button>
+                        <Tooltip key={action.label} label={action.label}>
+                          <button type="button" className="lc-sp__detail-btn" aria-label={action.label} onClick={action.onClick}>
+                            <Icon name={action.icon} width={16} height={16} />
+                          </button>
+                        </Tooltip>
                       ))}
                       <button type="button" className="lc-sp__detail-btn" aria-label="Close details" onClick={panel.onClose}>
                         <Icon name="close" width={16} height={16} />
                       </button>
                     </div>
                   </div>
-                  <div className="lc-sp__detail-body">{panel.children}</div>
+                  <div className="lc-sp__detail-body" {...detailScroll}>
+                    {panel.children}
+                  </div>
                 </aside>
               </div>
             )}

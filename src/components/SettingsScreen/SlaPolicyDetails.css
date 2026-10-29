@@ -1,0 +1,179 @@
+/* SlaPolicyDetails — the SLA rules details panel's policy summary (inside .lc-sp__detail-body).
+   Sections are split by hairline dividers, like the other details panels' rows. */
+
+.lc-sla {
+  display: flex;
+  flex-direction: column;
+}
+
+.lc-sla__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.lc-sla__section + .lc-sla__section {
+  border-top: 1px solid var(--lc-sp-divider);
+}
+
+.lc-sla__heading {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.lc-sla__list,
+.lc-sla__steps {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Secondary text: field names, timings. */
+.lc-sla__label {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-sp-text-dimmed);
+}
+
+.lc-sla__label strong {
+  font-weight: 700;
+  color: var(--lc-sp-text-title);
+}
+
+/* --- Conditions: "When Inbox is" over the matched values as chips ------------ */
+
+.lc-sla__conditions {
+  gap: 12px;
+}
+
+.lc-sla__condition {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lc-sla__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lc-sla__chip {
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--lc-color-green-50);
+  color: var(--lc-sp-primary);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  overflow-wrap: anywhere;
+}
+
+/* --- SLA Rule: metric on the left, time on the right ------------------------- */
+
+.lc-sla__target {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.lc-sla__target + .lc-sla__target {
+  border-top: 1px solid var(--lc-sp-divider);
+}
+
+.lc-sla__target:first-child {
+  padding-top: 0;
+}
+
+.lc-sla__target:last-child {
+  padding-bottom: 0;
+}
+
+.lc-sla__time {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Reminders ---------------------------------------------------------------- */
+
+.lc-sla__sentence {
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+/* --- Escalation: numbered levels joined by a line ---------------------------- */
+
+.lc-sla__steps {
+  gap: 12px;
+}
+
+.lc-sla__step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* The line from one number down to the next. */
+.lc-sla__step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 24px;
+  bottom: -12px;
+  left: 11px;
+  width: 1px;
+  background: var(--lc-sp-divider);
+}
+
+.lc-sla__step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--lc-color-gray-200);
+  color: var(--lc-color-stone-600);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.lc-sla__step-text {
+  display: flex;
+  /* The 24px number is 4px taller than the 20px first line; centre the line on it. */
+  padding-top: 2px;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.lc-sla__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Chips under a step's name (automation rule actions). */
+.lc-sla__step-text .lc-sla__chips {
+  margin-top: 4px;
+}

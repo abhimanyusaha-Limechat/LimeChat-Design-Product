@@ -8,6 +8,7 @@ import { Avatar } from '../Avatar';
 import { Button } from '../Button';
 import { NativeSelect } from '../Select';
 import { ActionMenu } from '../Menu';
+import { RowActions } from '../RowActions';
 import { Tooltip } from '../Tooltip';
 import { InboxIcon, type InboxType } from '../InboxesTable';
 import { TemplateIcon } from '../TemplatesHomePage';
@@ -71,6 +72,12 @@ export interface BotTemplateRow {
   ticketLimit?: number;
   /** Agents only — appended to the agent's replies; may span lines. */
   signature?: string;
+  /** Agents only — URL of the agent's profile picture; the initials show without one. */
+  avatar?: string;
+  /** Agents only — the agent's WebRTC (calling) id. */
+  webrtcId?: string;
+  /** Agents only — Products the agent can open, e.g. "Helpdesk"; unset means all of them. */
+  platforms?: string[];
   /** Contacts only — number of tickets the contact has raised. */
   tickets?: number;
   /** Contacts only — Instagram handle without the "@", e.g. "priya.styles". */
@@ -181,7 +188,7 @@ const nameColumn = (header = 'Name', { avatar = false, desc = true, onViewDetail
   cell: (row) => (
     <>
       {avatar && (
-        <Avatar size={36} radius="xl" alt={row.name} className="lc-bt__avatar" style={AVATAR_STYLE}>
+        <Avatar size={36} radius="xl" src={row.avatar} alt={row.name} className="lc-bt__avatar" style={AVATAR_STYLE}>
           {initials(row.name)}
         </Avatar>
       )}
@@ -377,6 +384,10 @@ export interface BotTemplatesTableProps {
   /** Makes rows clickable (opens a details panel). Clicks on buttons inside a row are ignored. */
   onRowSelect?: (row: BotTemplateRow) => void;
   selectedId?: string;
+  /** Shows Edit, Clone (where a row can be cloned) and Delete icon buttons in each row instead of the ⋯ menu. */
+  iconActions?: boolean;
+  /** With `iconActions`: only Edit is an icon; Clone and Delete go in a ⋯ menu. */
+  overflowActions?: boolean;
   /**
    * Reorder mode: rows show a drag handle and keep the given order (no sorting),
    * and the toolbar shows `hint` instead of tabs / search / filters.
@@ -433,13 +444,15 @@ export function BotTemplatesTable({
   onRowDelete,
   onRowSelect,
   selectedId,
+  iconActions = false,
+  overflowActions = false,
   reorder,
   tree,
   loading = false,
 }: BotTemplatesTableProps) {
   const isFiles = variant === 'files';
   const isVariables = variant === 'variables' || isFiles;
-  const canClone = variant === 'templates' || isVariables;
+  const canClone = variant === 'templates' || isVariables || variant === 'rules';
   // No row handlers (e.g. Contacts) means no ⋯ menu.
   const hasRowMenu = !!(onRowEdit || onRowClone || onRowDelete);
   const columns = columnsFor(variant, showUseCases, webSource, onViewDetails);
@@ -475,7 +488,7 @@ export function BotTemplatesTable({
   );
 
   return (
-    <div className="lc-bt" data-variant={variant}>
+    <div className="lc-bt" data-variant={variant} data-icon-actions={iconActions || undefined} data-overflow-actions={overflowActions || undefined}>
       <div className="lc-bt__toolbar">
         {reorder ? (
           <p className="lc-bt__reorder-hint">
@@ -721,7 +734,16 @@ export function BotTemplatesTable({
                   ) : (
                     <span className="lc-bt__action-slot" aria-hidden="true" />
                   ))}
-                {hasRowMenu && (
+                {hasRowMenu && iconActions && (
+                  <RowActions
+                    name={row.name}
+                    onEdit={() => onRowEdit?.(row)}
+                    onClone={canClone ? () => onRowClone?.(row) : undefined}
+                    onDelete={() => onRowDelete?.(row)}
+                    overflow={overflowActions}
+                  />
+                )}
+                {hasRowMenu && !iconActions && (
                   <ActionMenu
                     ariaLabel={`Actions for ${row.name}`}
                     icon={<Icon name="dots-vertical" />}

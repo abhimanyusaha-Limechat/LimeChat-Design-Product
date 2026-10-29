@@ -1,0 +1,96 @@
+/* AgentEdit — the Agents tab's edit page. Rows, tables, inputs, checks and radios come from InboxSettings (.lc-inbs). */
+
+.lc-ae__error {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-red-600);
+}
+
+/* AvatarPicker's photo stroke reads this ProfileSettings token. */
+.lc-ae__avatar {
+  --lc-ps-border: var(--lc-inbs-border);
+}
+
+/* Initials about 30% smaller than the lg Avatar's 32/40 (22/28). */
+.lc-ae__avatar .lc-avatar[data-size='lg'] {
+  --lc-avatar-font: 22px;
+  --lc-avatar-line: 28px;
+}
+
+/* One checkbox per line. */
+.lc-ae__checks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* --- Assigned inbox chips ----------------------------------------------- */
+
+.lc-ae__chips-row {
+  padding: 16px 20px;
+}
+
+.lc-ae__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lc-ae__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 6px 0 10px;
+  border: 1px solid var(--lc-inbs-primary);
+  border-radius: 16px;
+  background: var(--lc-color-green-50);
+  color: var(--lc-inbs-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lc-ae__chip-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+}
+
+.lc-ae__chip-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.lc-ae__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease, transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.lc-ae__chip-remove:active {
+  transform: scale(0.95);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lc-ae__chip-remove:hover {
+    background: color-mix(in srgb, var(--lc-inbs-primary) 15%, transparent);
+  }
+}
+
+.lc-ae__chip-remove:focus-visible {
+  outline: 2px solid var(--lc-inbs-primary);
+  outline-offset: 1px;
+}

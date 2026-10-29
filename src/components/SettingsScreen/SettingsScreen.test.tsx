@@ -20,6 +20,7 @@ function Harness({
   const [tab, setTab] = useState(initialTab);
   const [integration, setIntegration] = useState('');
   const [inbox, setInbox] = useState('');
+  const [agent, setAgent] = useState('');
   const [changePlan, setChangePlan] = useState(false);
   return (
     <SettingsScreen
@@ -28,25 +29,77 @@ function Harness({
       manageIndustries={false}
       integration={integration}
       inbox={inbox}
+      agent={agent}
       changePlan={changePlan}
       onTabChange={(id) => {
         setTab(id);
         setIntegration('');
         setInbox('');
+        setAgent('');
         setChangePlan(false);
       }}
       onManageIndustriesChange={onManageIndustriesChange}
       onIntegrationChange={setIntegration}
       onInboxChange={setInbox}
+      onAgentChange={setAgent}
       onChangePlanChange={setChangePlan}
     />
   );
 }
 
+/** The table row holding this text, once the demo data has loaded. */
+const rowOf = async (text: string) =>
+  (await screen.findByText(text, {}, { timeout: 2000 })).closest<HTMLElement>('[role="row"]')!;
+
 // The Settings tab list on the left; the segmented list tabs inside a table are role=tab.
 const sideTab = (name: string) => within(screen.getByRole('navigation', { name: 'Settings' })).getByRole('button', { name });
 
 const products = Object.keys(SETTINGS_TABS_BY_PRODUCT) as SidebarProduct[];
+
+describe('Agents edit page', () => {
+  it('opens from the row menu, edits the agent and goes back to the list', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="agents" />);
+    const row = await rowOf('Aarav Mehta');
+    // Helpdesk rows show Edit and Delete icons instead of a ⋯ menu.
+    await user.click(within(row).getByRole('button', { name: 'Edit Aarav Mehta' }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Aarav Mehta');
+
+    const name = screen.getByRole('textbox', { name: 'Agent name' });
+    await user.clear(name);
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter the agent');
+    await user.type(name, 'Aarav M');
+    // Role is the table's role split in two: administrators have no editor / viewer choice.
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Role' }), 'Agent');
+    await user.click(screen.getByRole('radio', { name: 'Viewer' }));
+    const addInbox = screen.getByRole('combobox', { name: 'Add inbox' });
+    const removable = () => screen.getAllByRole('button', { name: /^Remove / }).length;
+    const before = removable();
+    await user.selectOptions(addInbox, within(addInbox).getAllByRole('option')[1]);
+    expect(removable()).toBe(before + 1);
+    expect(screen.getByLabelText('Upload profile picture')).toBeInTheDocument();
+    // Nothing is saved until Update: the heading keeps the saved name, and Back drops the draft.
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Aarav Mehta');
+    await user.click(screen.getByRole('button', { name: 'Update' }));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Aarav M');
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+
+    expect(await screen.findByText('Aarav M', {}, { timeout: 2000 })).toBeInTheDocument();
+  });
+
+  it('drops unsaved changes when going back without Update', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="agents" />);
+    const row = await rowOf('Aarav Mehta');
+    // Helpdesk rows show Edit and Delete icons instead of a ⋯ menu.
+    await user.click(within(row).getByRole('button', { name: 'Edit Aarav Mehta' }));
+    expect(screen.getByRole('button', { name: 'Update' })).toBeDisabled();
+    await user.type(screen.getByRole('textbox', { name: 'Agent name' }), ' Jr');
+    expect(screen.getByRole('button', { name: 'Update' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(await screen.findByText('Aarav Mehta', {}, { timeout: 2000 })).toBeInTheDocument();
+  });
+});
 
 describe('SettingsScreen tabs', () => {
   it.each(products.flatMap((p) => SETTINGS_TABS_BY_PRODUCT[p].map((t) => [p, t.id] as const)))(
@@ -223,15 +276,91 @@ describe('SettingsScreen Change plan', () => {
   });
 });
 
+describe('SLA rule row actions', () => {
+  it('keeps Edit as an icon and puts Clone and Delete in a menu', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="sla-rules" />);
+    const row = (await screen.findAllByRole('row', {}, { timeout: 2000 }))[1];
+    expect(within(row).getByRole('button', { name: /^Edit / })).toBeInTheDocument();
+    expect(within(row).queryByRole('button', { name: /^Delete / })).not.toBeInTheDocument();
+    await user.click(within(row).getByRole('button', { name: 'More actions' }));
+    expect(screen.getByRole('menuitem', { name: 'Clone' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeInTheDocument();
+  });
+});
+
+describe('SLA rule details panel', () => {
+  it('summarises the policy: conditions, targets, reminders and escalation', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="sla-rules" />);
+    await user.click(await screen.findByText('First response – urgent', {}, { timeout: 2000 }));
+
+    expect(within(screen.getByRole('region', { name: 'Conditions' })).getAllByRole('listitem')).toHaveLength(3);
+    expect(screen.getByText('80247')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'SLA Rule' })).getByText(/Resolution Time/)).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Reminders' })).getByText(/30 min before SLA breach/)).toBeInTheDocument();
+    const escalation = within(screen.getByRole('region', { name: 'Escalation' }));
+    expect(escalation.getByText(/level 1 escalation/i)).toBeInTheDocument();
+    expect(escalation.getByText(/level 2 escalation/i)).toBeInTheDocument();
+  });
+});
+
+describe('Automation rule details panel', () => {
+  it('shows the event, conditions and actions', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="automation-rules" />);
+    await user.click(await screen.findByText('Auto-assign by inbox', {}, { timeout: 2000 }));
+
+    expect(within(screen.getByRole('region', { name: 'Event' })).getByText('created')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Conditions' })).getByText('Limechat (189)')).toBeInTheDocument();
+    const actions = within(screen.getByRole('region', { name: 'Actions' }));
+    expect(actions.getByText('Assign Team')).toBeInTheDocument();
+    expect(actions.getByText('Customer Support')).toBeInTheDocument();
+  });
+});
+
+describe('Team details panel', () => {
+  it('shows the description and the agents at each of the three levels', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="teams" />);
+    await user.click(await screen.findByText('Customer Support', {}, { timeout: 2000 }));
+
+    expect(within(screen.getByRole('region', { name: 'Description' })).getByText(/first-line customer queries/)).toBeInTheDocument();
+    const composition = within(screen.getByRole('region', { name: 'Team composition' }));
+    const level1 = within(composition.getByRole('group', { name: 'Level 1' }));
+    const level2 = within(composition.getByRole('group', { name: 'Level 2' }));
+    expect(level1.getAllByRole('listitem')).toHaveLength(5);
+    expect(level2.getAllByRole('listitem')).toHaveLength(5);
+    expect(within(composition.getByRole('group', { name: 'Level 3' })).getAllByRole('listitem')).toHaveLength(5);
+    expect(level1.getByText('Aarav Mehta')).toBeInTheDocument();
+    expect(level1.getByText('aarav@limechat.ai')).toBeInTheDocument();
+  });
+});
+
+describe('Inbox details panel collaborators', () => {
+  it('lists the inbox collaborators, filters them, and removes one', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="inboxes" />);
+    const row = await rowOf(DEMO_INBOXES[0].name);
+    await user.click(row);
+
+    const panel = within(screen.getByRole('region', { name: 'Collaborators' }));
+    expect(panel.getAllByRole('listitem')).toHaveLength(20);
+    await user.type(panel.getByRole('searchbox', { name: 'Search collaborators' }), 'aarav');
+    expect(panel.getAllByRole('listitem')).toHaveLength(1);
+    await user.click(panel.getByRole('button', { name: 'Remove Aarav Mehta' }));
+    expect(panel.getByText('No collaborators match.')).toBeInTheDocument();
+  });
+});
+
 describe('SettingsScreen inbox edit', () => {
   it("opens from a row's Edit action, keeps edits, and goes back to the list", async () => {
     const user = userEvent.setup();
     const inbox = DEMO_INBOXES[0];
     render(<Harness product="helpdesk" initialTab="inboxes" />);
 
-    const row = (await screen.findByText(inbox.name, {}, { timeout: 2000 })).closest<HTMLElement>('[role="row"]');
-    await user.click(within(row!).getByRole('button', { name: 'More actions' }));
-    await user.click(screen.getByRole('menuitem', { name: 'Edit' }));
+    const row = await rowOf(inbox.name);
+    await user.click(within(row).getByRole('button', { name: `Edit ${inbox.name}` }));
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(inbox.name);
     expect(screen.getByRole('textbox', { name: 'Phone number' })).toHaveValue(inbox.detail);
 
@@ -279,7 +408,7 @@ describe('SettingsScreen inbox edit', () => {
     await user.click(nameSort);
     expect(addedList.getAllByRole('row')[1]).toHaveTextContent('Aarav Mehta');
     await user.click(nameSort);
-    expect(addedList.getAllByRole('row')[1]).toHaveTextContent('Rohan Iyer');
+    expect(addedList.getAllByRole('row')[1]).toHaveTextContent('Yash Agarwal');
     await user.click(nameSort);
     await user.click(addedList.getByRole('switch', { name: 'Only assign Aarav Mehta manually' }));
     expect(addedList.getByRole('switch', { name: 'Only assign Aarav Mehta manually' })).toBeChecked();
@@ -291,10 +420,10 @@ describe('SettingsScreen inbox edit', () => {
     await user.click(addedList.getByRole('button', { name: 'Remove Aarav Mehta' }));
     expect(availableList.getByText('Aarav Mehta')).toBeInTheDocument();
     // Search narrows both lists.
-    await user.type(agents.getByRole('searchbox', { name: 'Search agents' }), 'sneha');
+    await user.type(agents.getByRole('searchbox', { name: 'Search agents' }), 'karan');
     expect(availableList.queryByText('Aarav Mehta')).not.toBeInTheDocument();
-    await user.click(availableList.getByRole('button', { name: 'Add Sneha Pillai to inbox' }));
-    expect(addedList.getByText('Sneha Pillai')).toBeInTheDocument();
+    await user.click(availableList.getByRole('button', { name: 'Add Karan Malik to inbox' }));
+    expect(addedList.getByText('Karan Malik')).toBeInTheDocument();
     await user.clear(agents.getByRole('searchbox', { name: 'Search agents' }));
     expect(agents.getAllByText('Incomplete profile').length).toBeGreaterThan(0);
     // Create a brand-new agent and add it to the inbox in one go.
