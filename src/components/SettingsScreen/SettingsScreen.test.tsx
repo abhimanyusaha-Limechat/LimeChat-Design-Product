@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsScreen } from './SettingsScreen';
@@ -21,6 +21,7 @@ function Harness({
   const [integration, setIntegration] = useState('');
   const [inbox, setInbox] = useState('');
   const [agent, setAgent] = useState('');
+  const [team, setTeam] = useState('');
   const [changePlan, setChangePlan] = useState(false);
   return (
     <SettingsScreen
@@ -30,18 +31,21 @@ function Harness({
       integration={integration}
       inbox={inbox}
       agent={agent}
+      team={team}
       changePlan={changePlan}
       onTabChange={(id) => {
         setTab(id);
         setIntegration('');
         setInbox('');
         setAgent('');
+        setTeam('');
         setChangePlan(false);
       }}
       onManageIndustriesChange={onManageIndustriesChange}
       onIntegrationChange={setIntegration}
       onInboxChange={setInbox}
       onAgentChange={setAgent}
+      onTeamChange={setTeam}
       onChangePlanChange={setChangePlan}
     />
   );
@@ -334,6 +338,151 @@ describe('Team details panel', () => {
     expect(within(composition.getByRole('group', { name: 'Level 3' })).getAllByRole('listitem')).toHaveLength(5);
     expect(level1.getByText('Aarav Mehta')).toBeInTheDocument();
     expect(level1.getByText('aarav@limechat.ai')).toBeInTheDocument();
+  });
+});
+
+describe('Team edit page', () => {
+  async function openEdit(user: ReturnType<typeof userEvent.setup>) {
+    render(<Harness product="helpdesk" initialTab="teams" />);
+    await user.click(await screen.findByText('Customer Support', {}, { timeout: 2000 }));
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+  }
+
+  it('adds and removes members and levels, and saves them with Update', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+
+    expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('Customer Support');
+    expect(screen.getByRole('textbox', { name: 'Description' })).toHaveValue(
+      'Handles first-line customer queries across all inboxes',
+    );
+    const update = screen.getByRole('button', { name: 'Update' });
+    expect(update).toBeDisabled();
+    expect(screen.getAllByRole('row')).toHaveLength(3);
+    expect(screen.getAllByText('5 members')).toHaveLength(3);
+
+    await user.click(screen.getByRole('button', { name: 'Level 1 members' }));
+    await user.click(screen.getByRole('button', { name: 'Remove Aarav Mehta from level 1' }));
+    expect(screen.getByText('4 members')).toBeInTheDocument();
+    expect(update).toBeEnabled();
+
+    await user.click(screen.getByRole('button', { name: 'Insert A Level' }));
+    expect(screen.getAllByRole('row')).toHaveLength(4);
+    expect(screen.getByText('0 members')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Delete level 4' }));
+    expect(screen.getAllByRole('row')).toHaveLength(3);
+
+    await user.click(update);
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    // The team's details panel is still open behind the edit page.
+    const level1 = within(await screen.findByRole('group', { name: 'Level 1' }));
+    expect(level1.getAllByRole('listitem')).toHaveLength(4);
+    expect(level1.queryByText('Aarav Mehta')).not.toBeInTheDocument();
+  });
+
+  it('renames the team and rewrites its description by typing, and needs a name to save', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+    const title = screen.getByRole('textbox', { name: 'Title' });
+    const update = screen.getByRole('button', { name: 'Update' });
+
+    await user.clear(title);
+    expect(title).toBeInvalid();
+    expect(update).toBeDisabled();
+    await user.type(title, 'Care Team');
+    await user.clear(screen.getByRole('textbox', { name: 'Description' }));
+    await user.type(screen.getByRole('textbox', { name: 'Description' }), 'Everything first-line');
+    expect(update).toBeEnabled();
+
+    await user.click(update);
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(await screen.findByRole('heading', { level: 1, name: 'Teams' })).toBeInTheDocument();
+    expect(screen.getAllByText('Care Team').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Customer Support')).not.toBeInTheDocument();
+  });
+
+  it('expands and collapses a level by clicking its header, but not its buttons', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+    const first = screen.getAllByRole('row')[0];
+    const chevron = within(first).getByRole('button', { name: 'Level 1 members' });
+    expect(chevron).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(within(first).getByText('5 members'));
+    expect(chevron).toHaveAttribute('aria-expanded', 'true');
+    await user.click(within(first).getByText('5 members'));
+    expect(chevron).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(chevron);
+    expect(chevron).toHaveAttribute('aria-expanded', 'true');
+    await user.click(within(first).getByRole('button', { name: 'Add Member' }));
+    expect(chevron).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('searches the Add Member menu by name or email', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+    await user.click(within(screen.getAllByRole('row')[0]).getByRole('button', { name: 'Add Member' }));
+    const menu = within(screen.getByRole('menu', { name: 'Add a member to level 1' }));
+    const all = menu.getAllByRole('menuitem').length;
+
+    await user.type(menu.getByRole('searchbox', { name: 'Search collaborators' }), 'zzz');
+    expect(menu.getByText('No collaborators found.')).toBeInTheDocument();
+
+    await user.clear(menu.getByRole('searchbox'));
+    await user.type(menu.getByRole('searchbox'), '@limechat');
+    expect(menu.getAllByRole('menuitem')).toHaveLength(all);
+  });
+
+  it('turns Auto-assign on and keeps it after Update', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+    const toggle = screen.getByRole('switch', { name: 'Auto-assign' });
+    expect(toggle).toHaveAttribute('aria-checked', 'false');
+    expect(screen.getByRole('button', { name: 'Update' })).toBeDisabled();
+
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-checked', 'true');
+    await user.click(screen.getByRole('button', { name: 'Update' }));
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    expect(screen.getByRole('switch', { name: 'Auto-assign' })).toHaveAttribute('aria-checked', 'true');
+  });
+
+  it('replaces the team from a CSV, and reports a bad file', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+    const upload = screen.getByLabelText('Upload team data', { selector: 'aside' }).querySelector('input[type="file"]');
+    if (!(upload instanceof HTMLInputElement)) throw new Error('no file input');
+
+    await user.upload(upload, new File(['email,level\nnobody@x.com,1'], 'team.csv', { type: 'text/csv' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent("Row 2: nobody@x.com isn't a collaborator");
+    expect(screen.getAllByRole('row')).toHaveLength(3);
+
+    await user.upload(upload, new File(['email,level\naarav@limechat.ai,1\nisha@limechat.ai,2'], 'team.csv', { type: 'text/csv' }));
+    expect(await screen.findByRole('status')).toHaveTextContent('Imported 2 members across 2 levels.');
+    expect(screen.getAllByRole('row')).toHaveLength(2);
+  });
+});
+
+describe('Products tab', () => {
+  it('lists the synced catalog and refreshes "Last synced" on Sync', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      render(<Harness product="helpdesk" initialTab="products" />);
+      expect(await screen.findByText('Nike Air Zoom Pegasus 41')).toBeInTheDocument();
+      expect(screen.getByRole('status')).toHaveTextContent('Last synced 2 hours ago');
+
+      await user.click(screen.getByRole('button', { name: 'Sync from Shopify' }));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1600);
+      });
+      expect(screen.getByRole('status')).toHaveTextContent('Last synced just now');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

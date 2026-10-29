@@ -40,6 +40,10 @@ export interface SettingsPageProps {
   /** Shows a back arrow at the far left of the header, for sub-pages. Omit to hide. */
   onBack?: () => void;
   description?: string;
+  /** Makes the title a text box (a blank title is the caller's to reject). Omit for plain text. */
+  onTitleChange?: (next: string) => void;
+  /** Makes the description a text box, shown even when empty. Omit for plain text. */
+  onDescriptionChange?: (next: string) => void;
   /** "Watch video" header CTA — opens a tutorial for this settings section. Omit to hide. */
   onWatchVideo?: () => void;
   /** "View docs" header CTA — opens the LimeChat docs page for this settings section. Omit to hide. */
@@ -78,6 +82,8 @@ export function SettingsPage({
   titleIcon,
   onBack,
   description,
+  onTitleChange,
+  onDescriptionChange,
   onWatchVideo,
   onViewDocs,
   headerActions,
@@ -132,8 +138,34 @@ export function SettingsPage({
             )}
             {titleIcon}
             <div className="lc-sp__header-text">
-              <h1 className="lc-sp__title">{title}</h1>
-              {description && <p className="lc-sp__description">{description}</p>}
+              <h1 className="lc-sp__title">
+                {onTitleChange ? (
+                  <input
+                    className="lc-sp__edit"
+                    aria-label="Title"
+                    aria-invalid={!title.trim() || undefined}
+                    autoComplete="off"
+                    value={title}
+                    onChange={(e) => onTitleChange(e.currentTarget.value)}
+                  />
+                ) : (
+                  title
+                )}
+              </h1>
+              {onDescriptionChange ? (
+                <p className="lc-sp__description">
+                  <input
+                    className="lc-sp__edit"
+                    aria-label="Description"
+                    placeholder="Add a description"
+                    autoComplete="off"
+                    value={description ?? ''}
+                    onChange={(e) => onDescriptionChange(e.currentTarget.value)}
+                  />
+                </p>
+              ) : (
+                description && <p className="lc-sp__description">{description}</p>
+              )}
             </div>
             {(helpCtas.length > 0 || headerActions) && (
               <div className="lc-sp__header-actions">

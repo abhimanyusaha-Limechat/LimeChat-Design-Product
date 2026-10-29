@@ -1,7 +1,7 @@
 import { sidebarPresets, type SidebarProduct } from '../components/Sidebar/presets';
 import { SETTINGS_TABS_BY_PRODUCT } from '../components/SettingsScreen/settingsTabs';
 import { TICKETS } from '../data/ticketsDemo';
-import { DEMO_AGENTS, DEMO_INBOXES, INTEGRATION_FORMS, KB_TABS } from '../data/settingsDemo';
+import { DEMO_AGENTS, DEMO_INBOXES, DEMO_TEAMS, INTEGRATION_FORMS, KB_TABS } from '../data/settingsDemo';
 import { FLOW_ROWS } from '../data/flowsDemo';
 import type { BroadcastTab } from '../components/BroadcastHomePage';
 import type { FlowTab } from '../components/FlowsHomePage';
@@ -26,6 +26,8 @@ export type Screen = {
   inbox: string;
   /** The agent being edited, by id (from the Agents tab); '' when the list shows. */
   agent: string;
+  /** The team being edited, by id (from the Teams tab); '' when the list shows. */
+  team: string;
   /** HelpDesk Billing's "Change plan" sub-view. */
   changePlan: boolean;
   /** The open ticket's id. Only Helpdesk Tickets has one; elsewhere it stays at the default. */
@@ -35,7 +37,7 @@ export type Screen = {
   userSettings: UserSettingsTab | null;
 };
 
-const DEFAULTS = { view: 'list', manageIndustries: false, integration: '', inbox: '', agent: '', changePlan: false, ticket: TICKETS[0].id, userSettings: null } as const;
+const DEFAULTS = { view: 'list', manageIndustries: false, integration: '', inbox: '', agent: '', team: '', changePlan: false, ticket: TICKETS[0].id, userSettings: null } as const;
 
 const TEMPLATE_CHANNELS = ['whatsapp', 'sms', 'email'] satisfies TemplateChannel[];
 /** Each list Screen's List tabs, by `<product>/<item>`; the first is the default. */
@@ -116,6 +118,10 @@ export function toScreen(fields: { product: string; selected: string } & Partial
       onSettings && product === 'helpdesk' && tab === 'agents' && DEMO_AGENTS.some((a) => a.id === fields.agent)
         ? String(fields.agent)
         : DEFAULTS.agent,
+    team:
+      onSettings && product === 'helpdesk' && tab === 'teams' && DEMO_TEAMS.some((t) => t.id === fields.team)
+        ? String(fields.team)
+        : DEFAULTS.team,
     changePlan: onSettings && product === 'helpdesk' && tab === 'billing' && fields.changePlan === true,
     ticket:
       product === 'helpdesk' && selected === 'tickets' && TICKETS.some((t) => t.id === fields.ticket)
@@ -139,6 +145,7 @@ export function parseHash(hash: string): Screen {
     integration: params.get('integration'),
     inbox: params.get('inbox'),
     agent: params.get('agent'),
+    team: params.get('team'),
     changePlan: params.get('plans') === '1',
     ticket: params.get('ticket'),
     flow: params.get('flow'),
@@ -155,6 +162,7 @@ export function toHash(screen: Screen) {
   if (screen.integration) params.set('integration', screen.integration);
   if (screen.inbox) params.set('inbox', screen.inbox);
   if (screen.agent) params.set('agent', screen.agent);
+  if (screen.team) params.set('team', screen.team);
   if (screen.changePlan) params.set('plans', '1');
   if (screen.ticket !== DEFAULTS.ticket) params.set('ticket', screen.ticket);
   const kind = flowKindOf(screen.product, screen.selected);
@@ -164,7 +172,7 @@ export function toHash(screen: Screen) {
   return `#/${screen.product}/${screen.selected}${query ? `?${query}` : ''}`;
 }
 
-const KNOWN_PARAMS = ['view', 'tab', 'flow', 'industries', 'integration', 'inbox', 'agent', 'plans', 'ticket', 'user'];
+const KNOWN_PARAMS = ['view', 'tab', 'flow', 'industries', 'integration', 'inbox', 'agent', 'team', 'plans', 'ticket', 'user'];
 
 /** The hash with unknown query parameters removed, to compare against `toHash`. */
 export function withoutUnknownParams(hash: string) {

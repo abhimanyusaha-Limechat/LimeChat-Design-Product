@@ -213,6 +213,39 @@
   color: var(--lc-sp-text-dimmed);
 }
 
+/* Title / description typed in place: looks like the text until hovered or focused. */
+.lc-sp__edit {
+  box-sizing: border-box;
+  width: calc(100% + 14px);
+  min-width: 0;
+  margin: 0 -7px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-overflow: ellipsis;
+}
+
+.lc-sp__edit::placeholder {
+  color: var(--lc-sp-text-dimmed);
+}
+
+.lc-sp__edit:hover {
+  border-color: var(--lc-color-gray-300);
+}
+
+.lc-sp__edit:focus-visible {
+  border-color: var(--lc-color-green-500);
+  outline: none;
+  background: var(--lc-color-white);
+}
+
+.lc-sp__edit[aria-invalid] {
+  border-color: var(--lc-color-red-600);
+}
+
 .lc-sp__content {
   display: flex;
   flex-direction: column;

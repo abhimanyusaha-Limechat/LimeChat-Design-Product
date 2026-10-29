@@ -33,6 +33,7 @@ import {
   USER_SETTINGS_COPY,
   USER_SETTINGS_TABS,
   DEMO_AGENTS,
+  DEMO_TEAMS,
   DEMO_INBOXES,
   findIntegrationPartner,
   type PushNotificationKey,
@@ -60,8 +61,8 @@ const TOP_NAV_BY_PRODUCT = {
 export function App() {
   const { signOut } = useClerk();
   const nav = useAppNavigation();
-  const { product, selected, page, tab, manageIndustries, integration, inbox, agent, changePlan, userSettingsTab, ticketId, flowKind, flowId } = nav;
-  const { switchProduct, leaveCanvas, setTab, setManageIndustries, setIntegration, setInbox, setAgent, setChangePlan, setUserSettingsTab } = nav;
+  const { product, selected, page, tab, manageIndustries, integration, inbox, agent, team, changePlan, userSettingsTab, ticketId, flowKind, flowId } = nav;
+  const { switchProduct, leaveCanvas, setTab, setManageIndustries, setIntegration, setInbox, setAgent, setTeam, setChangePlan, setUserSettingsTab } = nav;
   const preset = sidebarPresets[product];
   // Account/Profile settings reached from the avatar popover — a dedicated
   // page with just those two tabs, separate from the product's own (much
@@ -224,6 +225,7 @@ export function App() {
                         ...(integration ? [{ label: findIntegrationPartner(integration)?.name ?? integration }] : []),
                         ...(inbox ? [{ label: DEMO_INBOXES.find((i) => i.id === inbox)?.name ?? inbox }] : []),
                         ...(agent ? [{ label: DEMO_AGENTS.find((a) => a.id === agent)?.name ?? agent }] : []),
+                        ...(team ? [{ label: DEMO_TEAMS.find((t) => t.id === team)?.name ?? team }] : []),
                         ...(changePlan ? [{ label: 'Change plan' }] : []),
                       ]
                     : page === 'knowledge-base'
@@ -380,6 +382,8 @@ export function App() {
               onInboxChange={setInbox}
               agent={agent}
               onAgentChange={setAgent}
+              team={team}
+              onTeamChange={setTeam}
               changePlan={changePlan}
               onChangePlanChange={setChangePlan}
             />
