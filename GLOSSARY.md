@@ -94,6 +94,10 @@ _Avoid_: Ticket state, conversation state
 The cart and orders an agent works with while one ticket is open; part of the Ticket session. It starts fresh when the ticket changes.
 _Avoid_: Basket, checkout
 
+**Catalog product**:
+An item synced from the company's store (Shopify), listed read-only on Settings > Products and browsed by agents in a ticket's Products tab. Not to be confused with a Product (Helpdesk, Marketing, Automation).
+_Avoid_: SKU, listing, store item
+
 **Cart**:
 The products an agent has collected during a Commerce session, before turning them into an order.
 _Avoid_: Basket

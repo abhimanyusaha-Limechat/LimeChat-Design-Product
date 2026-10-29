@@ -17,9 +17,11 @@ import { InboxCollaboratorsPanel } from './InboxCollaboratorsPanel';
 import { RuleDetails } from './RuleDetails';
 import { SlaPolicyDetails } from './SlaPolicyDetails';
 import { TeamDetails } from './TeamDetails';
+import { TeamEdit } from './TeamEdit';
+import { CatalogTable } from '../CatalogTable';
 import { InboxChannelIcon, InboxesTable } from '../InboxesTable';
 import { WidgetCards, type WidgetKind, type WidgetStatus } from '../WidgetCards';
-import { InboxSettings, type InboxAgent, type InboxSettingsValues, type PopupSettings, type WhatsAppWidgetSettings, WidgetEditorActions, WIDGET_EMBED_CODE } from '../InboxSettings';
+import { InboxSettings, type InboxAgent, type InboxSettingsValues, type PopupSettings, type WhatsAppWidgetSettings, HeaderSwitch, WidgetEditorActions, WIDGET_EMBED_CODE } from '../InboxSettings';
 import { EventsTable } from '../EventsTable';
 import { OptOutUsersTable } from '../OptOutUsersTable';
 import { WebhooksTable } from '../WebhooksTable';
@@ -79,6 +81,7 @@ import {
   findIntegrationPartner,
   withFieldMeta,
 } from '../../data/settingsDemo';
+import { CATALOG_STORE, DEMO_CATALOG } from '../../data/catalogDemo';
 import { ruleFor } from '../../data/ruleDemo';
 import { slaPolicyFor } from '../../data/slaPolicyDemo';
 import { DEMO_TEMPLATES } from '../../data/templatesDemo';
@@ -105,6 +108,8 @@ export interface SettingsScreenProps {
   inbox: string;
   /** The Agents tab's agent being edited, by id; '' shows the list. */
   agent: string;
+  /** The Teams tab's team being edited, by id; '' shows the list. */
+  team: string;
   /** HelpDesk Billing's "Change plan" sub-view. */
   changePlan: boolean;
   onTabChange: (id: string) => void;
@@ -112,7 +117,16 @@ export interface SettingsScreenProps {
   onIntegrationChange: (partnerId: string) => void;
   onInboxChange: (inboxId: string) => void;
   onAgentChange: (agentId: string) => void;
+  onTeamChange: (teamId: string) => void;
   onChangePlanChange: (open: boolean) => void;
+}
+
+/** A team's edits: its name, description and levels, and whether tickets auto-assign to it. */
+interface TeamPatch {
+  name?: string;
+  description?: string;
+  levels?: BotTemplateRow[][];
+  autoAssign?: boolean;
 }
 
 const WhatsAppIcon = () => <Icon name="whatsapp" stroke="#8C8C8C" />;
@@ -267,12 +281,14 @@ export function SettingsScreen({
   integration: integrationId,
   inbox: inboxId,
   agent: agentId,
+  team: teamId,
   changePlan,
   onTabChange,
   onManageIndustriesChange,
   onIntegrationChange,
   onInboxChange,
   onAgentChange,
+  onTeamChange,
   onChangePlanChange,
 }: SettingsScreenProps) {
   const copy = SETTINGS_COPY[settingsTab];
@@ -316,6 +332,18 @@ export function SettingsScreen({
   const [shopifyPermissions, setShopifyPermissions] = useState(shopifySaved);
   const shopifyChanged = JSON.stringify(shopifyPermissions) !== JSON.stringify(shopifySaved);
   const razorpayConnected = !!integrationSaves.razorpay || INTEGRATION_FORMS.razorpay.status === 'connected';
+  const shopifyConnected = !!integrationSaves.shopify || INTEGRATION_FORMS.shopify.status === 'connected';
+  // Products: the catalog "syncs" from the store on request; `catalogSyncedAt` is when that last finished.
+  const [catalogSyncing, setCatalogSyncing] = useState(false);
+  const [catalogSyncedAt, setCatalogSyncedAt] = useState(CATALOG_STORE.lastSyncedAt);
+  // ponytail: stands in for the real fetch â€” a server-side call to Shopify's Admin API (no token can live in this bundle).
+  const syncCatalog = () => {
+    setCatalogSyncing(true);
+    window.setTimeout(() => {
+      setCatalogSyncedAt(new Date().toISOString());
+      setCatalogSyncing(false);
+    }, 1500);
+  };
   // Stands in for checking the details with the partner.
   const fakeVerify = () => {
     setSavingHelpdeskSettings(true);
@@ -354,6 +382,10 @@ export function SettingsScreen({
   const [agentEdits, setAgentEdits] = useState<Record<string, AgentPatch>>({});
   // The edit page's unsaved changes; they reach the list, header and panel only when Update is clicked.
   const [agentDraft, setAgentDraft] = useState<{ id: string; patch: AgentPatch } | null>(null);
+  // Teams: edits saved by Update, over the demo teams; and the edit page's unsaved edits for one team.
+  const [teamSaves, setTeamSaves] = useState<Record<string, TeamPatch>>({});
+  const [teamDraft, setTeamDraft] = useState<{ id: string; patch: TeamPatch } | null>(null);
+  const teamLevelsOf = (id: string) => teamSaves[id]?.levels ?? DEMO_TEAM_LEVELS[id] ?? [];
   // The Inbox dropdown is shared by Agents and Custom fields.
   const [agentInbox, setAgentInbox] = useState('all');
   const [fieldType, setFieldType] = useState('all');
@@ -395,7 +427,7 @@ export function SettingsScreen({
   const peopleRows: Record<string, BotTemplateRow[]> = {
     collaborators: DEMO_COLLABORATORS,
     agents: DEMO_AGENTS.map((a) => ({ ...a, ...agentEdits[a.id] })),
-    teams: DEMO_TEAMS,
+    teams: DEMO_TEAMS.map((t) => ({ ...t, name: teamSaves[t.id]?.name ?? t.name, description: teamSaves[t.id]?.description ?? t.description })),
     'automation-rules': withSwitches(listTab === 'library' ? DEMO_RULE_LIBRARY : DEMO_RULES),
     'canned-responses': listTab === 'library' ? DEMO_CANNED_LIBRARY : DEMO_CANNED,
     'sla-rules': withSwitches(listTab === 'library' ? DEMO_SLA_LIBRARY : (slaDraft ?? slaOrder)),
@@ -484,8 +516,8 @@ export function SettingsScreen({
   const [csatReminderDelay, setCsatReminderDelay] = useState<CsatTimeDelay>({ hours: 0, minutes: 0, seconds: 20 });
 
   const whatsappWidgets = visibleInboxes.filter((row) => row.type === 'whatsapp');
-  // ponytail: demo statuses until widgets have a real one — shows each card state.
-  // ponytail: demo kinds too — the second card shows a web widget.
+  // ponytail: demo statuses until widgets have a real one â€” shows each card state.
+  // ponytail: demo kinds too â€” the second card shows a web widget.
   const widgetKindById: Record<string, WidgetKind> = whatsappWidgets[1] ? { [whatsappWidgets[1].id]: 'web' } : {};
   const demoWidgetStatusById: Record<string, WidgetStatus> = Object.fromEntries(
     whatsappWidgets.flatMap((row, i): [string, WidgetStatus][] => (i === 2 ? [[row.id, 'inactive']] : i === 3 ? [[row.id, 'disabled']] : i === 4 ? [[row.id, 'error']] : [])),
@@ -500,6 +532,18 @@ export function SettingsScreen({
 
   const editedAgent = agentId ? peopleRows.agents.find((a) => a.id === agentId) : undefined;
   const agentDraftPatch = editedAgent && agentDraft?.id === editedAgent.id ? agentDraft.patch : undefined;
+  const editedTeam = teamId ? peopleRows.teams.find((t) => t.id === teamId) : undefined;
+  const teamDraftPatch = editedTeam && teamDraft?.id === editedTeam.id ? teamDraft.patch : undefined;
+  // What the edit page shows: the saved team with the unsaved edits on top.
+  const draftedTeam = editedTeam && {
+    ...editedTeam,
+    levels: teamLevelsOf(editedTeam.id),
+    autoAssign: false,
+    ...teamSaves[editedTeam.id],
+    ...teamDraftPatch,
+  };
+  const patchTeam = (patch: TeamPatch) =>
+    editedTeam && setTeamDraft({ id: editedTeam.id, patch: { ...teamDraftPatch, ...patch } });
   const selectedInbox = selectedId ? visibleInboxes.find((r) => r.id === selectedId) : undefined;
   const selectedRow = selectedId ? visibleCollaborators.find((r) => r.id === selectedId) : undefined;
   const selectedAgent = settingsTab === 'agents' ? selectedRow : undefined;
@@ -511,9 +555,17 @@ export function SettingsScreen({
     setAgentDraft(null);
     onAgentChange(id);
   };
+  const openTeam = (id: string) => {
+    setTeamDraft(null);
+    onTeamChange(id);
+  };
   // Rows without an edit page yet keep the demo alert.
   const editRow = (row: BotTemplateRow) =>
-    settingsTab === 'agents' ? openAgent(row.id) : alert(`Edit template: ${row.name}`);
+    settingsTab === 'agents'
+      ? openAgent(row.id)
+      : settingsTab === 'teams'
+        ? openTeam(row.id)
+        : alert(`Edit template: ${row.name}`);
   const cloneRow = (row: BotTemplateRow) => alert(`Clone template: ${row.name}`);
   const updateAgent = () => {
     if (!editedAgent || !agentDraftPatch) return;
@@ -521,8 +573,14 @@ export function SettingsScreen({
     setAgentDraft(null);
     fakeVerify();
   };
+  const updateTeam = () => {
+    if (!editedTeam || !teamDraftPatch) return;
+    setTeamSaves((prev) => ({ ...prev, [editedTeam.id]: { ...prev[editedTeam.id], ...teamDraftPatch } }));
+    setTeamDraft(null);
+    fakeVerify();
+  };
   const detailPanel: DetailPanel | undefined =
-    product !== 'helpdesk' || reorderingSla || editedInbox || editedAgent
+    product !== 'helpdesk' || reorderingSla || editedInbox || editedAgent || editedTeam
       ? undefined
       : selectedInbox
         ? {
@@ -571,7 +629,7 @@ export function SettingsScreen({
                 onClose: closePanel,
                 children:
                   settingsTab === 'teams' ? (
-                    <TeamDetails description={selectedRow.description} levels={DEMO_TEAM_LEVELS[selectedRow.id] ?? []} />
+                    <TeamDetails description={selectedRow.description} levels={teamLevelsOf(selectedRow.id)} />
                   ) : settingsTab === 'sla-rules' ? (
                     <SlaPolicyDetails policy={slaPolicyFor(selectedRow.id)} />
                   ) : settingsTab === 'automation-rules' ? (
@@ -597,7 +655,9 @@ export function SettingsScreen({
               ? editedInbox.name
               : editedAgent
                 ? editedAgent.name
-                : changePlan
+                : draftedTeam
+                  ? draftedTeam.name
+                  : changePlan
               ? 'Change plan'
               : copy.title
       }
@@ -615,7 +675,9 @@ export function SettingsScreen({
             ? () => onInboxChange('')
             : editedAgent
               ? () => openAgent('')
-              : changePlan
+              : editedTeam
+                ? () => openTeam('')
+                : changePlan
               ? () => onChangePlanChange(false)
               : undefined
       }
@@ -624,7 +686,9 @@ export function SettingsScreen({
           ? SETTINGS_COPY.variable.description
           : integration
             ? integration.form.description
-            : editedInbox || editedAgent
+            : draftedTeam
+              ? draftedTeam.description
+              : editedInbox || editedAgent
               ? undefined
               : changePlan
               ? `You are on ${CURRENT_PLAN_TIER.name} at $${CURRENT_PLAN_TIER.pricePerMonth}/month. Prices are in USD. Recurring and usage-based charges bill every 30 days.`
@@ -633,10 +697,12 @@ export function SettingsScreen({
       contentPadding={changePlan ? '48px 72px 72px' : settingsTab === 'custom-fields' ? 20 : undefined}
       detailPanel={detailPanel}
       // The inbox edit page has no tutorial or docs page of its own.
-      onWatchVideo={editedInbox || editedAgent ? undefined : () => alert(`Play tutorial video: ${copy.title}`)}
-      onViewDocs={editedInbox || editedAgent ? undefined : () => alert(`Open docs: ${copy.title}`)}
+      onTitleChange={draftedTeam && ((name) => patchTeam({ name }))}
+      onDescriptionChange={draftedTeam && ((description) => patchTeam({ description }))}
+      onWatchVideo={editedInbox || editedAgent || editedTeam ? undefined : () => alert(`Play tutorial video: ${copy.title}`)}
+      onViewDocs={editedInbox || editedAgent || editedTeam ? undefined : () => alert(`Open docs: ${copy.title}`)}
       headerActions={
-        editedInbox || editedAgent ? (
+        editedInbox || editedAgent || editedTeam ? (
           <>
             {editedInbox && settingsTab === 'widget' && (
               <WidgetEditorActions
@@ -646,14 +712,17 @@ export function SettingsScreen({
                 onActiveChange={(active) => setWidgetActiveById((prev) => ({ ...prev, [editedInbox.id]: active }))}
               />
             )}
+            {draftedTeam && (
+              <HeaderSwitch label="Auto-assign" checked={draftedTeam.autoAssign} onChange={(autoAssign) => patchTeam({ autoAssign })} />
+            )}
             <Button
               variant="filled"
               color="primary"
               size="sm"
               style={{ width: 100 }}
               loading={savingHelpdeskSettings}
-              disabled={!!editedAgent && !agentDraftPatch}
-              onClick={editedAgent ? updateAgent : fakeVerify}
+              disabled={(!!editedAgent && !agentDraftPatch) || (!!draftedTeam && (!teamDraftPatch || !draftedTeam.name.trim()))}
+              onClick={editedAgent ? updateAgent : editedTeam ? updateTeam : fakeVerify}
             >
               Update
             </Button>
@@ -862,6 +931,12 @@ export function SettingsScreen({
           agent={{ ...editedAgent, ...agentDraftPatch }}
           onChange={(patch) => setAgentDraft({ id: editedAgent.id, patch: { ...agentDraftPatch, ...patch } })}
         />
+      ) : draftedTeam ? (
+        <TeamEdit
+          key={draftedTeam.id}
+          levels={draftedTeam.levels}
+          onChange={(levels) => patchTeam({ levels })}
+        />
       ) : editedInbox && editedInboxValues ? (
         <InboxSettings
           key={editedInbox.id}
@@ -967,6 +1042,20 @@ export function SettingsScreen({
         />
       ) : settingsTab === 'billing' ? (
         <BillingSettings plan={DEMO_BILLING_PLAN} onUpgrade={() => onChangePlanChange(true)} />
+      ) : settingsTab === 'products' ? (
+        <CatalogTable
+          products={DEMO_CATALOG}
+          store={CATALOG_STORE.domain}
+          lastSyncedAt={catalogSyncedAt}
+          connected={shopifyConnected}
+          loading={tableLoading}
+          syncing={catalogSyncing}
+          onSync={syncCatalog}
+          onConnect={() => {
+            onTabChange('hd-integration');
+            onIntegrationChange('shopify');
+          }}
+        />
       ) : settingsTab === 'events' ? (
         <EventsTable loading={tableLoading} events={DEMO_EVENTS} onCustomEvents={() => alert('Manage custom events')} />
       ) : settingsTab === 'opt-out-users' ? (

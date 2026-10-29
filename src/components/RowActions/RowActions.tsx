@@ -13,6 +13,7 @@ import './RowActions.css';
 
 export function RowActions({ name, onEdit, onClone, onDelete, overflow = false }: {
   name: string;
+  /** Omit for rows with no edit page of their own. */
   onEdit?: () => void;
   /** Adds a Clone action; omit for rows that can't be cloned. */
   onClone?: () => void;
@@ -21,11 +22,13 @@ export function RowActions({ name, onEdit, onClone, onDelete, overflow = false }
 }) {
   return (
     <div className="lc-row-actions">
-      <Tooltip label="Edit">
-        <button type="button" className="lc-row-actions__btn" aria-label={`Edit ${name}`} onClick={onEdit}>
-          <Icon name="pencil" />
-        </button>
-      </Tooltip>
+      {onEdit && (
+        <Tooltip label="Edit">
+          <button type="button" className="lc-row-actions__btn" aria-label={`Edit ${name}`} onClick={onEdit}>
+            <Icon name="pencil" />
+          </button>
+        </Tooltip>
+      )}
       {overflow ? (
         <ActionMenu
           ariaLabel={`More actions for ${name}`}

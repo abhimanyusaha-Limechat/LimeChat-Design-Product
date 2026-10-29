@@ -1,0 +1,320 @@
+/* CatalogTable — Settings → Products. The table frame, rows and pagination come from DataTable. */
+
+.lc-ct {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  color: var(--lc-color-green-900);
+}
+
+.lc-ct--empty {
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.lc-ct__empty-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.lc-ct__empty-text {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-color-sage-500);
+}
+
+/* --- Toolbar --------------------------------------------------------------- */
+
+.lc-ct__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.lc-ct__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.lc-ct__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 320px;
+  max-width: 100%;
+  height: var(--lc-input-sm);
+  padding: 0 12px;
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 4px;
+  background: white;
+}
+
+.lc-ct__search:focus-within {
+  border-color: var(--lc-color-green-500);
+}
+
+.lc-ct__search-icon {
+  flex-shrink: 0;
+  color: var(--lc-color-gray-500);
+}
+
+.lc-ct__search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: inherit;
+}
+
+.lc-ct__search-input::placeholder {
+  color: var(--lc-color-gray-500);
+}
+
+.lc-ct__summary {
+  flex-shrink: 0;
+  margin: 8px 0 12px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-sage-500);
+}
+
+/* --- View toggle ----------------------------------------------------------- */
+
+.lc-ct__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lc-ct__views {
+  display: inline-flex;
+  height: var(--lc-input-sm);
+  padding: 2px;
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 6px;
+  background: white;
+}
+
+.lc-ct__view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--lc-color-sage-500);
+  cursor: pointer;
+}
+
+.lc-ct__view-btn[aria-pressed='true'] {
+  background: var(--lc-color-green-100);
+  color: var(--lc-color-green-800);
+}
+
+.lc-ct__view-btn:focus-visible {
+  outline: 2px solid var(--lc-color-green-700);
+  outline-offset: 1px;
+}
+
+/* --- Cards ----------------------------------------------------------------- */
+
+/* The grid scrolls inside the page, like the table does, so the toolbar and pagination stay put. */
+.lc-ct__cards {
+  display: grid;
+  flex: 1 1 auto;
+  min-height: 0;
+  align-content: start;
+  /* Rows fit their card exactly. With the default auto rows, a grid shorter than its cards squeezes them, and the card's overflow: hidden then cuts the info off. */
+  grid-auto-rows: max-content;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lc-ct__card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--lc-color-gray-200);
+  border-radius: 8px;
+  background: var(--lc-color-green-50);
+}
+
+.lc-ct__card > .lc-thumb {
+  flex-shrink: 0;
+}
+
+.lc-ct__card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px;
+}
+
+/* Cards have room to grow, so long titles and SKUs wrap instead of being cut off with an ellipsis. */
+.lc-ct__card-body .lc-ct__title,
+.lc-ct__card-body .lc-ct__sub {
+  max-width: 100%;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.lc-ct__card-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.lc-ct__card--skeleton {
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+.lc-ct__card-photo {
+  height: 140px;
+  background: var(--lc-color-gray-200);
+}
+
+.lc-ct__card--skeleton .lc-dt__skeleton {
+  margin: 0 12px;
+}
+
+.lc-ct__cards-empty {
+  grid-column: 1 / -1;
+  padding: 24px 0;
+  font-size: 14px;
+  color: var(--lc-color-sage-500);
+  text-align: center;
+}
+
+/* --- Cells ----------------------------------------------------------------- */
+
+.lc-ct__cell {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--lc-color-stone-600);
+  text-align: left;
+}
+
+.lc-ct__cell--name {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: 12px;
+  min-width: 200px;
+}
+
+.lc-ct__cell--vendor {
+  flex: 0 0 180px;
+}
+
+.lc-ct__cell--price {
+  display: flex;
+  flex: 0 0 140px;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lc-ct__cell--stock {
+  flex: 0 0 120px;
+}
+
+.lc-ct__cell--status {
+  flex: 0 0 90px;
+}
+
+.lc-ct__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lc-ct__title,
+.lc-ct__text,
+.lc-ct__sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-ct__title {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  color: var(--lc-color-green-900);
+}
+
+.lc-ct__text {
+  font-size: 13px;
+  color: var(--lc-color-green-900);
+}
+
+.lc-ct__sub {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-sage-500);
+}
+
+.lc-ct__compare {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-sage-500);
+  text-decoration: line-through;
+}
+
+.lc-ct__out {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--lc-color-red-700);
+}
+
+.lc-ct__pill {
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.lc-ct__pill[data-status='active'] {
+  background: var(--lc-color-green-100);
+  color: var(--lc-color-green-800);
+}
+
+/* amber-600 alone is too light for 11px text on a yellow tint; darken it for contrast (as in InboxesTable). */
+.lc-ct__pill[data-status='draft'] {
+  background: color-mix(in srgb, var(--lc-color-amber-500) 18%, white);
+  color: color-mix(in srgb, var(--lc-color-amber-600) 65%, black);
+}
+
+.lc-ct__pill[data-status='archived'] {
+  background: var(--lc-color-gray-200);
+  color: var(--lc-color-stone-600);
+}

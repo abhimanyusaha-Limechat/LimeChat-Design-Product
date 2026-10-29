@@ -7,6 +7,37 @@ import { Button } from '../Button';
 import { Icon } from '../icons';
 import { useCopied } from './useCopied';
 
+/** A bordered label + switch for a page header, e.g. "Active" or "Auto-assign". */
+export function HeaderSwitch({
+  label,
+  checked,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (next: boolean) => void;
+}) {
+  const labelId = useId();
+  return (
+    <div className="lc-inbs__header-switch">
+      <span id={labelId} className="lc-inbs__label">{label}</span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-labelledby={labelId}
+        disabled={disabled}
+        className="lc-inbs__switch-track"
+        onClick={() => onChange(!checked)}
+      >
+        <span className="lc-inbs__switch-thumb" />
+      </button>
+    </div>
+  );
+}
+
 export function WidgetEditorActions({
   active,
   canToggle,
@@ -20,24 +51,10 @@ export function WidgetEditorActions({
   code: string;
   onActiveChange: (next: boolean) => void;
 }) {
-  const labelId = useId();
   const { copied, copy } = useCopied(code);
   return (
     <>
-      <div className="lc-inbs__header-switch">
-        <span id={labelId} className="lc-inbs__label">{active ? 'Active' : 'Inactive'}</span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={active}
-          aria-labelledby={labelId}
-          disabled={!canToggle}
-          className="lc-inbs__switch-track"
-          onClick={() => onActiveChange(!active)}
-        >
-          <span className="lc-inbs__switch-thumb" />
-        </button>
-      </div>
+      <HeaderSwitch label={active ? 'Active' : 'Inactive'} checked={active} disabled={!canToggle} onChange={onActiveChange} />
       <Button variant="outline" color="primary" size="sm" leftSection={<Icon name="copy" size={14} />} onClick={copy}>
         <span aria-live="polite">{copied ? 'Copied' : 'Copy widget code'}</span>
       </Button>
