@@ -393,6 +393,16 @@
 .lc-bt[data-variant='fields'] .lc-bt__cell--actions { flex-basis: 76px; gap: 12px; align-items: center; }
 /* Tags: switch + add-child "+" + menu. */
 .lc-bt[data-variant='tags'] .lc-bt__cell--actions { flex-basis: 104px; }
+/* Edit + Delete icons instead of the menu: one more 24px button (and gap) than the widths above. */
+.lc-bt[data-icon-actions] .lc-bt__cell--actions { flex-basis: 56px; }
+.lc-bt[data-icon-actions][data-variant='rules'] .lc-bt__cell--actions,
+.lc-bt[data-icon-actions][data-variant='tags'] .lc-bt__cell--actions,
+.lc-bt[data-icon-actions][data-variant='fields'] .lc-bt__cell--actions { flex-basis: 100px; }
+.lc-bt[data-icon-actions][data-variant='tags'] .lc-bt__cell--actions { flex-basis: 128px; }
+/* Rules also get a Clone icon: switch + Edit + Clone + Delete. */
+.lc-bt[data-icon-actions][data-variant='rules'] .lc-bt__cell--actions { flex-basis: 128px; }
+/* With Clone and Delete in a menu it's switch + Edit + ⋯. */
+.lc-bt[data-icon-actions][data-overflow-actions][data-variant='rules'] .lc-bt__cell--actions { flex-basis: 100px; }
 .lc-bt__action-slot { width: 24px; flex-shrink: 0; }
 .lc-bt__toggle {
   display: inline-flex;

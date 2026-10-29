@@ -7,6 +7,7 @@
  */
 import { Icon } from '../icons';
 import { ActionMenu } from '../Menu';
+import { RowActions } from '../RowActions';
 import {
   DataTable,
   DataTableEmpty,
@@ -35,6 +36,8 @@ export interface WebhooksTableProps {
   webhooks: WebhookRowData[];
   onEdit?: (row: WebhookRowData) => void;
   onDelete?: (row: WebhookRowData) => void;
+  /** Shows Edit and Delete icon buttons in each row instead of the ⋯ menu. */
+  iconActions?: boolean;
 }
 
 const STATUS_LABEL: Record<WebhookStatus, string> = {
@@ -42,7 +45,7 @@ const STATUS_LABEL: Record<WebhookStatus, string> = {
   failing: 'Failing — the last delivery didn’t go through',
 };
 
-export function WebhooksTable({ webhooks, onEdit, onDelete, loading = false }: WebhooksTableProps) {
+export function WebhooksTable({ webhooks, onEdit, onDelete, iconActions = false, loading = false }: WebhooksTableProps) {
   const { sorted, sort, toggle } = useTableSort(webhooks, (row, key: 'url' | 'status') =>
     key === 'status' ? Number(row.status === 'active') : row.url,
   );
@@ -78,14 +81,18 @@ export function WebhooksTable({ webhooks, onEdit, onDelete, loading = false }: W
                 </span>
               </div>
               <div role="cell" className="lc-ev__cell lc-ev__cell--actions">
-                <ActionMenu
-                  ariaLabel={`Actions for ${row.url}`}
-                  icon={<Icon name="dots-vertical" />}
-                  items={[
-                    { label: 'Edit', onClick: () => onEdit?.(row) },
-                    { label: 'Delete', danger: true, onClick: () => onDelete?.(row) },
-                  ]}
-                />
+                {iconActions ? (
+                  <RowActions name={row.url} onEdit={() => onEdit?.(row)} onDelete={() => onDelete?.(row)} />
+                ) : (
+                  <ActionMenu
+                    ariaLabel={`Actions for ${row.url}`}
+                    icon={<Icon name="dots-vertical" />}
+                    items={[
+                      { label: 'Edit', onClick: () => onEdit?.(row) },
+                      { label: 'Delete', danger: true, onClick: () => onDelete?.(row) },
+                    ]}
+                  />
+                )}
               </div>
             </DataTableRow>
           ))

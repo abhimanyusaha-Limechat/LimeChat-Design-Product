@@ -7,6 +7,7 @@ export type {
   InternalDurationKey,
   InboxDurationField,
 } from './InboxSettings';
+export { RadioRow, Row, SectionHeading } from './InboxSettingsSections';
 export type { InboxBusinessHours, BusinessHoursDay, BusinessHoursSlot } from './InboxBusinessHoursTab';
 export type { InboxConfiguration } from './InboxConfigurationTab';
 export type { InboxAgent, InboxCollaborators } from './InboxCollaboratorsTab';

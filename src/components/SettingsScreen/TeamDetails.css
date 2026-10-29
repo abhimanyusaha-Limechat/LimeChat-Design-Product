@@ -1,0 +1,136 @@
+/* TeamDetails — the Teams details panel's composition list (inside .lc-sp__detail-body). */
+
+.lc-td {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+/* Sections are split by a divider, whichever comes first. */
+.lc-td + .lc-td {
+  border-top: 1px solid var(--lc-sp-divider);
+}
+
+.lc-td--description {
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.lc-td__desc {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 16px;
+  overflow-wrap: anywhere;
+}
+
+.lc-td__desc[data-expanded] {
+  display: block;
+  overflow: visible;
+}
+
+.lc-td__more {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  color: var(--lc-sp-primary);
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lc-td__more:hover {
+    text-decoration: underline;
+  }
+}
+
+.lc-td__more:focus-visible {
+  outline: 2px solid var(--lc-sp-primary);
+  outline-offset: 2px;
+}
+
+.lc-td__heading {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--lc-sp-text-dimmed);
+}
+
+.lc-td__level {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lc-td__level-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.lc-td__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lc-td__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 0;
+}
+
+.lc-td__item + .lc-td__item {
+  border-top: 1px solid var(--lc-sp-divider);
+}
+
+/* The Agents table's avatar colours: gray fill, dark-gray initials. */
+.lc-avatar.lc-td__avatar {
+  --lc-avatar-light-bg: var(--lc-color-gray-200);
+  --lc-avatar-fg-accent: var(--lc-color-stone-600);
+}
+
+.lc-td__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.lc-td__name,
+.lc-td__email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-td__name {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.lc-td__email {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-sp-text-dimmed);
+}
+
+.lc-td__empty {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-sp-text-dimmed);
+}

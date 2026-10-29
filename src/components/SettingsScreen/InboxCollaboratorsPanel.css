@@ -1,0 +1,196 @@
+/* InboxCollaboratorsPanel — the inbox details panel's collaborators list (inside .lc-sp__detail-body). */
+
+.lc-icp {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+/* Heading + search stay pinned to the top of the panel's scrolling body while the list scrolls under them. */
+.lc-icp__sticky {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 0 0;
+  background: var(--lc-color-white);
+}
+
+.lc-icp__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lc-icp__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+/* The count as a small pill. */
+.lc-icp__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--lc-color-stone-150);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  color: var(--lc-sp-text-title);
+}
+
+/* The Agents table's avatar colours (.lc-bt__avatar): gray fill, dark-gray initials. */
+.lc-avatar.lc-icp__avatar {
+  --lc-avatar-light-bg: var(--lc-color-gray-200);
+  --lc-avatar-fg-accent: var(--lc-color-stone-600);
+}
+
+/* One option in the Add menu: avatar + name over email. The menu's own item hover applies. */
+/* The Add menu shows 6 agents (6 × 52px rows + 5 × 2px gaps) and scrolls for the rest. */
+.lc-icp__menu .lc-menu__items {
+  max-height: 322px;
+  overflow-y: auto;
+}
+
+.lc-icp__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.lc-icp__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--lc-sp-border);
+  border-radius: 6px;
+  background: var(--lc-color-white);
+  color: var(--lc-sp-text-dimmed);
+}
+
+.lc-icp__search:focus-within {
+  border-color: var(--lc-sp-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-sp-primary) 20%, transparent);
+}
+
+.lc-icp__search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--lc-sp-text-title);
+}
+
+.lc-icp__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lc-icp__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  /* Side padding + matching negative margin so the hover fill is wider than the content but the text stays aligned. */
+  margin: 0 -8px;
+  padding: 8px 8px;
+  border-radius: 8px;
+  transition: background-color 120ms ease;
+}
+
+.lc-icp__item:focus-within {
+  background: var(--lc-color-stone-100);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lc-icp__item:hover {
+    background: var(--lc-color-stone-100);
+  }
+}
+
+.lc-icp__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.lc-icp__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.lc-icp__sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-sp-text-dimmed);
+}
+
+.lc-icp__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--lc-sp-radius-2xs);
+  background: transparent;
+  color: var(--lc-sp-text-dimmed);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.lc-icp__remove:active {
+  transform: scale(0.95);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lc-icp__remove:hover {
+    background: var(--lc-color-stone-150);
+    color: var(--lc-sp-text-title);
+  }
+}
+
+.lc-icp__remove:focus-visible {
+  outline: 2px solid var(--lc-sp-primary);
+  outline-offset: 1px;
+}
+
+.lc-icp__empty {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-sp-text-dimmed);
+}

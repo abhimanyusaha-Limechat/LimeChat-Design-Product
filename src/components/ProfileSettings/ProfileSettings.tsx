@@ -173,7 +173,7 @@ function initials(name: string) {
 }
 
 /** Avatar preview + Upload / Remove. Rejects anything but JPG/PNG/WebP up to 2 MB. */
-function AvatarPicker({ name, src, onChange }: { name: string; src?: string; onChange: (file: File | null) => void }) {
+export function AvatarPicker({ name, src, onChange }: { name: string; src?: string; onChange: (file: File | null) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
 

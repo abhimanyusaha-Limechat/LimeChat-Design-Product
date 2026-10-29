@@ -9,19 +9,12 @@ type Field = [label: string, value: string | undefined];
 
 const yesNo = (v?: boolean) => (v === undefined ? undefined : v ? 'Yes' : 'No');
 
-export function inboxFields(row: InboxRowData): Field[] {
-  return [['Name', row.name], ['Channel', row.type], ['Identifier', row.detail], ['ID', row.id]];
-}
-
 /** Every tab but Agents, which has its own panel body (AgentDetails). */
 export function rowFields(tab: string, row: BotTemplateRow): Field[] {
   const common: Field[] = [['Name', row.name], ['Description', row.description || undefined]];
   switch (tab) {
     case 'custom-fields':
       return [...common, ['Type', row.kind], ['Mandatory', yesNo(row.mandatory)], ['Enabled', yesNo(row.enabled)]];
-    case 'automation-rules':
-    case 'sla-rules':
-      return [...common, ['Enabled', yesNo(row.enabled)]];
     case 'canned-responses':
       return [...common, ['Format', row.mediaType === 'image' ? 'Image' : 'Text']];
     case 'tags':
@@ -41,15 +34,15 @@ const AVATAR_STYLE = {
 } as CSSProperties;
 
 /** Profile image for the panel header — initials until a photo exists. */
-export function DetailsAvatar({ name }: { name: string }) {
+export function DetailsAvatar({ name, src }: { name: string; src?: string }) {
   return (
-    <Avatar size={32} alt={name} style={AVATAR_STYLE}>
+    <Avatar size={32} src={src} alt={name} style={AVATAR_STYLE}>
       {initials(name)}
     </Avatar>
   );
 }
 
-/** Channel icon for the panel header — the Inboxes table's icon and brand colour (.lc-ib__row-icon). */
+/** Channel icon — the Inboxes table's icon and brand colour (.lc-ib__row-icon). */
 export function InboxDetailsIcon({ type }: { type: InboxRowData['type'] }) {
   return <InboxIcon name={type} className="lc-ib__row-icon" data-type={type} />;
 }

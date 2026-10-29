@@ -227,25 +227,30 @@
   scrollbar-color: transparent transparent;
 }
 
-.lc-sp__content[data-scrolling='true'] {
+.lc-sp__content[data-scrolling='true'],
+.lc-sp__detail-body[data-scrolling='true'] {
   scrollbar-color: var(--lc-color-gray-250) transparent;
 }
 
-.lc-sp__content::-webkit-scrollbar {
+.lc-sp__content::-webkit-scrollbar,
+.lc-sp__detail-body::-webkit-scrollbar {
   width: 8px;
 }
 
-.lc-sp__content::-webkit-scrollbar-track {
+.lc-sp__content::-webkit-scrollbar-track,
+.lc-sp__detail-body::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.lc-sp__content::-webkit-scrollbar-thumb {
+.lc-sp__content::-webkit-scrollbar-thumb,
+.lc-sp__detail-body::-webkit-scrollbar-thumb {
   background: transparent;
   border-radius: 999px;
   transition: background 0.15s ease;
 }
 
-.lc-sp__content[data-scrolling='true']::-webkit-scrollbar-thumb {
+.lc-sp__content[data-scrolling='true']::-webkit-scrollbar-thumb,
+.lc-sp__detail-body[data-scrolling='true']::-webkit-scrollbar-thumb {
   background: var(--lc-color-gray-250);
 }
 
@@ -317,11 +322,11 @@
   justify-content: space-between;
   gap: 8px;
   flex-shrink: 0;
-  /* A card matching the detail list below: same inset, border and radius. */
+  /* The top of the panel's one card (header + body), split from the body by a divider. */
   margin: 8px 8px 0;
-  padding: 8px 12px;
+  padding: 12px 16px;
   border: 1px solid var(--lc-sp-divider);
-  border-radius: 12px;
+  border-radius: 12px 12px 0 0;
   background: var(--lc-color-white);
 }
 
@@ -329,7 +334,7 @@
 .lc-sp__detail-heading {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -340,6 +345,9 @@
 }
 
 .lc-sp__detail-subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 12px;
   line-height: 16px;
   color: var(--lc-sp-text-dimmed);
@@ -362,27 +370,33 @@
   line-height: 20px;
 }
 
+/* The bottom of the panel's one card. It fills the panel down to the same 8px inset as the
+   sides and scrolls inside when its content is taller. Content goes straight in as flat rows
+   split by dividers — never a card of its own. */
 .lc-sp__detail-body {
   flex: 1 1 0;
   min-height: 0;
-  padding: 8px;
+  margin: 0 8px 8px;
+  padding: 0 16px 12px;
+  border: 1px solid var(--lc-sp-divider);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  background: var(--lc-color-white);
   overflow-y: auto;
+  /* Thin scrollbar that fades in while scrolling, as in .lc-sp__content (see useScrollFade). */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
 }
 
-/* Bordered settings table, as in ProfileSettings (.lc-ps): rows split by
-   dividers — label above value, tighter padding for the 320px panel. */
+/* Label-above-value rows, as in ProfileSettings (.lc-ps), tighter for the 320px panel. */
 .lc-sp__detail-list {
   margin: 0;
-  border: 1px solid var(--lc-sp-divider);
-  border-radius: 12px;
-  background: var(--lc-color-white);
-  overflow: hidden;
 }
 
 .lc-sp__detail-list > div {
   display: grid;
   gap: 4px;
-  padding: 12px 16px;
+  padding: 12px 0;
 }
 
 .lc-sp__detail-list > div + div {
