@@ -500,6 +500,73 @@ describe('Automation rule edit page', () => {
   });
 });
 
+describe('Canned response edit page', () => {
+  async function openEdit(user: ReturnType<typeof userEvent.setup>, name = 'Greeting') {
+    render(<Harness product="helpdesk" initialTab="canned-responses" />);
+    await user.click(await screen.findByRole('button', { name: `Edit ${name}` }, { timeout: 2000 }));
+  }
+
+  it('shows the response as editable fields, and saves changes with Update', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+
+    expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('Greeting');
+    expect(screen.getByRole('textbox', { name: '/' })).toHaveValue('greeting');
+    expect(screen.getByRole('combobox', { name: 'Format' })).toHaveValue('text');
+    const message = screen.getByRole('textbox', { name: 'Message' });
+    expect(message).toHaveValue('Hi! Thanks for reaching out, how can I help today?');
+    const update = screen.getByRole('button', { name: 'Update' });
+    expect(update).toBeDisabled();
+
+    await user.clear(message);
+    // A text response with no message can't be saved.
+    expect(update).toBeDisabled();
+    await user.type(message, 'Hello there');
+    // The shortcut keeps only letters, numbers, "-" and "_".
+    await user.clear(screen.getByRole('textbox', { name: '/' }));
+    await user.type(screen.getByRole('textbox', { name: '/' }), 'Hi There!');
+    expect(screen.getByRole('textbox', { name: '/' })).toHaveValue('hithere');
+    expect(update).toBeEnabled();
+
+    await user.click(update);
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(await screen.findByText('Hello there', {}, { timeout: 2000 })).toBeInTheDocument();
+  });
+
+  it('asks for an image when the format is Image, and needs a shortcut to save', async () => {
+    const user = userEvent.setup();
+    await openEdit(user, 'Size guide');
+
+    expect(screen.getByRole('combobox', { name: 'Format' })).toHaveValue('image');
+    expect(screen.getByRole('img', { name: 'size-guide.png, no preview available' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Caption' })).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Format' }), 'text');
+    expect(screen.queryByLabelText('Choose an image')).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Message' })).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Format' }), 'image');
+    await user.clear(screen.getByRole('textbox', { name: '/' }));
+    expect(screen.getByRole('button', { name: 'Update' })).toBeDisabled();
+  });
+});
+
+describe('Canned response image', () => {
+  it('previews a chosen image, and removes it', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="canned-responses" />);
+    await user.click(await screen.findByRole('button', { name: 'Edit Size guide' }, { timeout: 2000 }));
+    const input = screen.getByLabelText('Choose an image', { selector: 'input' });
+
+    await user.upload(input, new File(['x'], 'chart.png', { type: 'image/png' }));
+    expect(await screen.findByRole('img', { name: 'Preview of chart.png' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Remove image' }));
+    expect(screen.getByRole('button', { name: /Choose an image/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Update' })).toBeDisabled();
+  });
+});
+
 describe('Team details panel', () => {
   it('shows the description and the agents at each of the three levels', async () => {
     const user = userEvent.setup();

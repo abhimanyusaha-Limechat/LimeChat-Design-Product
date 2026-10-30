@@ -436,3 +436,95 @@
     grid-row: 1;
   }
 }
+
+/* CannedEdit shares this page's cards. */
+
+.lc-ce__shortcut {
+  width: 220px;
+}
+
+.lc-ce__attach {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: stretch;
+}
+
+.lc-ce__drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 24px 16px;
+  border: 1px dashed var(--lc-color-gray-300);
+  border-radius: 8px;
+  background: white;
+  font: inherit;
+  color: var(--lc-color-green-900);
+  cursor: pointer;
+}
+
+.lc-ce__drop:hover {
+  border-color: var(--lc-color-green-500);
+}
+
+.lc-ce__drop:focus-visible {
+  outline: 2px solid var(--lc-color-green-500);
+  outline-offset: 2px;
+}
+
+.lc-ce__drop-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.lc-ce__picked {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.lc-ce__preview {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 120px;
+  overflow: hidden;
+  border: 1px solid var(--lc-color-gray-200);
+  border-radius: 8px;
+  background: white;
+  color: var(--lc-color-gray-400);
+}
+
+.lc-ce__preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.lc-ce__info {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.lc-ce__filename {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-ce__buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

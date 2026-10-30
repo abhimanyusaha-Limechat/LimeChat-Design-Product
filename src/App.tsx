@@ -33,6 +33,8 @@ import {
   USER_SETTINGS_COPY,
   USER_SETTINGS_TABS,
   DEMO_AGENTS,
+  DEMO_CANNED,
+  DEMO_CANNED_LIBRARY,
   DEMO_RULES,
   DEMO_RULE_LIBRARY,
   DEMO_SLA,
@@ -230,7 +232,7 @@ export function App() {
                         ...(inbox ? [{ label: DEMO_INBOXES.find((i) => i.id === inbox)?.name ?? inbox }] : []),
                         ...(agent ? [{ label: DEMO_AGENTS.find((a) => a.id === agent)?.name ?? agent }] : []),
                         ...(team ? [{ label: DEMO_TEAMS.find((t) => t.id === team)?.name ?? team }] : []),
-                        ...(rule ? [{ label: [...DEMO_RULES, ...DEMO_RULE_LIBRARY, ...DEMO_SLA, ...DEMO_SLA_LIBRARY].find((r) => r.id === rule)?.name ?? rule }] : []),
+                        ...(rule ? [{ label: [...DEMO_RULES, ...DEMO_RULE_LIBRARY, ...DEMO_SLA, ...DEMO_SLA_LIBRARY, ...DEMO_CANNED, ...DEMO_CANNED_LIBRARY].find((r) => r.id === rule)?.name ?? rule }] : []),
                         ...(changePlan ? [{ label: 'Change plan' }] : []),
                       ]
                     : page === 'knowledge-base'

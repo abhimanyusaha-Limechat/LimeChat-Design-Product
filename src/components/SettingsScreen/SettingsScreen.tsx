@@ -13,6 +13,7 @@ import { SettingsPage, type DetailPanel } from '../SettingsPage';
 import { DetailsAvatar, InboxDetailsIcon, SettingsDetails, rowFields } from './SettingsDetails';
 import { AgentDetails, type AgentPatch } from './AgentDetails';
 import { AgentEdit } from './AgentEdit';
+import { CannedEdit, cannedFor, isCannedComplete, type CannedResponse } from './CannedEdit';
 import { InboxCollaboratorsPanel } from './InboxCollaboratorsPanel';
 import { RuleDetails } from './RuleDetails';
 import { RuleEdit, isRuleComplete } from './RuleEdit';
@@ -141,6 +142,8 @@ interface TeamPatch extends Texted {
 
 /** A rule's edits: its name and description, and what it checks and does. */
 type RulePatch = Partial<AutomationRule> & Texted;
+/** A canned response's edits: its name, shortcut, format, and message or attachment. */
+type CannedPatch = Partial<CannedResponse> & Texted;
 /** An SLA policy's edits: its name and description, and what it matches, allows, reminds and escalates. */
 type SlaPatch = Partial<SlaPolicy> & Texted;
 
@@ -403,11 +406,18 @@ export function SettingsScreen({
   const teamEdits = useSavedEdits<TeamPatch>();
   const ruleEdits = useSavedEdits<RulePatch>();
   const slaEdits = useSavedEdits<SlaPatch>();
+  const cannedEdits = useSavedEdits<CannedPatch>();
   const ruleOf = (id: string) => ({ ...ruleFor(id), ...ruleEdits.saves[id] });
   const slaOf = (id: string) => ({ ...slaPolicyFor(id), ...slaEdits.saves[id] });
   /** The rows with their saved names and descriptions. */
   const withSavedText = (rows: BotTemplateRow[], saves: Record<string, Texted>) =>
     rows.map((r) => ({ ...r, name: saves[r.id]?.name ?? r.name, description: saves[r.id]?.description ?? r.description }));
+  /** The canned rows with their saved names, messages (the list shows them as the description) and formats. */
+  const withSavedCanned = (rows: BotTemplateRow[]) =>
+    rows.map((r) => {
+      const saved = cannedEdits.saves[r.id];
+      return saved ? { ...r, name: saved.name ?? r.name, description: saved.message ?? r.description, mediaType: saved.mediaType ?? r.mediaType } : r;
+    });
   const teamLevelsOf = (id: string) => teamEdits.saves[id]?.levels ?? DEMO_TEAM_LEVELS[id] ?? [];
   // The Inbox dropdown is shared by Agents and Custom fields.
   const [agentInbox, setAgentInbox] = useState('all');
@@ -452,7 +462,7 @@ export function SettingsScreen({
     agents: DEMO_AGENTS.map((a) => ({ ...a, ...agentEdits[a.id] })),
     teams: DEMO_TEAMS.map((t) => ({ ...t, name: teamEdits.saves[t.id]?.name ?? t.name, description: teamEdits.saves[t.id]?.description ?? t.description })),
     'automation-rules': withSavedText(withSwitches(listTab === 'library' ? DEMO_RULE_LIBRARY : DEMO_RULES), ruleEdits.saves),
-    'canned-responses': listTab === 'library' ? DEMO_CANNED_LIBRARY : DEMO_CANNED,
+    'canned-responses': withSavedCanned(listTab === 'library' ? DEMO_CANNED_LIBRARY : DEMO_CANNED),
     'sla-rules': withSavedText(withSwitches(listTab === 'library' ? DEMO_SLA_LIBRARY : (slaDraft ?? slaOrder)), slaEdits.saves),
     'custom-fields': withFieldMeta(withSwitches(listTab === 'contact' ? DEMO_CONTACT_FIELDS : DEMO_CONVERSATION_FIELDS)),
   };
@@ -571,8 +581,10 @@ export function SettingsScreen({
     settingsTab === tab && ruleId ? [...peopleRows[tab], ...rows].find((r) => r.id === ruleId) : undefined;
   const editedRule = editedRow('automation-rules', [...DEMO_RULES, ...DEMO_RULE_LIBRARY]);
   const editedSla = editedRow('sla-rules', [...DEMO_SLA, ...DEMO_SLA_LIBRARY]);
+  const editedCanned = editedRow('canned-responses', [...DEMO_CANNED, ...DEMO_CANNED_LIBRARY]);
   const ruleDraftPatch = editedRule && ruleEdits.draftFor(editedRule.id);
   const slaDraftPatch = editedSla && slaEdits.draftFor(editedSla.id);
+  const cannedDraftPatch = editedCanned && cannedEdits.draftFor(editedCanned.id);
   // What the edit pages show: the saved row with the unsaved edits on top. A rule's limit is always set, so clearing the box is a draft state.
   const draftedRule = editedRule && {
     maxExecutions: DEFAULT_MAX_EXECUTIONS,
@@ -587,12 +599,19 @@ export function SettingsScreen({
     ...slaOf(editedSla.id),
     ...slaDraftPatch,
   };
+  const draftedCanned = editedCanned && {
+    ...cannedFor(editedCanned),
+    ...cannedEdits.saves[editedCanned.id],
+    ...cannedDraftPatch,
+  };
+  const patchCanned = (patch: CannedPatch) => editedCanned && cannedEdits.patch(editedCanned.id, patch);
   const patchRule = (patch: RulePatch) => editedRule && ruleEdits.patch(editedRule.id, patch);
   const patchSla = (patch: SlaPatch) => editedSla && slaEdits.patch(editedSla.id, patch);
   // The page title and description are typed in place on the pages that have a draft.
-  const titled = draftedTeam ?? draftedRule ?? draftedSla;
-  const patchTitled = draftedTeam ? patchTeam : draftedRule ? patchRule : draftedSla ? patchSla : undefined;
-  const editedPolicy = editedRule ?? editedSla;
+  const titled = draftedTeam ?? draftedRule ?? draftedSla ?? draftedCanned;
+  const patchTitled = draftedTeam ? patchTeam : draftedRule ? patchRule : draftedSla ? patchSla : draftedCanned ? patchCanned : undefined;
+  // The row open on a Rules-style edit page (Automation rules, SLA rules or Canned responses).
+  const editedListRow = editedRule ?? editedSla ?? editedCanned;
   const selectedInbox = selectedId ? visibleInboxes.find((r) => r.id === selectedId) : undefined;
   const selectedRow = selectedId ? visibleCollaborators.find((r) => r.id === selectedId) : undefined;
   const selectedAgent = settingsTab === 'agents' ? selectedRow : undefined;
@@ -611,6 +630,7 @@ export function SettingsScreen({
   const openRule = (id: string) => {
     ruleEdits.discard();
     slaEdits.discard();
+    cannedEdits.discard();
     onRuleChange(id);
   };
   // Rows without an edit page yet keep the demo alert.
@@ -619,7 +639,7 @@ export function SettingsScreen({
       ? openAgent(row.id)
       : settingsTab === 'teams'
         ? openTeam(row.id)
-        : settingsTab === 'automation-rules' || settingsTab === 'sla-rules'
+        : settingsTab === 'automation-rules' || settingsTab === 'sla-rules' || settingsTab === 'canned-responses'
           ? openRule(row.id)
           : alert(`Edit template: ${row.name}`);
   const cloneRow = (row: BotTemplateRow) => alert(`Clone template: ${row.name}`);
@@ -635,12 +655,12 @@ export function SettingsScreen({
     fakeVerify();
   };
   const updatePolicy = () => {
-    if (!editedPolicy) return;
-    (editedRule ? ruleEdits : slaEdits).save(editedPolicy.id);
+    if (!editedListRow) return;
+    (editedRule ? ruleEdits : editedSla ? slaEdits : cannedEdits).save(editedListRow.id);
     fakeVerify();
   };
   const detailPanel: DetailPanel | undefined =
-    product !== 'helpdesk' || reorderingSla || editedInbox || editedAgent || editedTeam || editedPolicy
+    product !== 'helpdesk' || reorderingSla || editedInbox || editedAgent || editedTeam || editedListRow
       ? undefined
       : selectedInbox
         ? {
@@ -737,7 +757,7 @@ export function SettingsScreen({
               ? () => openAgent('')
               : editedTeam
                 ? () => openTeam('')
-                : editedPolicy
+                : editedListRow
                   ? () => openRule('')
                   : changePlan
               ? () => onChangePlanChange(false)
@@ -761,10 +781,10 @@ export function SettingsScreen({
       // The inbox edit page has no tutorial or docs page of its own.
       onTitleChange={patchTitled && ((name) => patchTitled({ name }))}
       onDescriptionChange={patchTitled && ((description) => patchTitled({ description }))}
-      onWatchVideo={editedInbox || editedAgent || editedTeam || editedPolicy ? undefined : () => alert(`Play tutorial video: ${copy.title}`)}
-      onViewDocs={editedInbox || editedAgent || editedTeam || editedPolicy ? undefined : () => alert(`Open docs: ${copy.title}`)}
+      onWatchVideo={editedInbox || editedAgent || editedTeam || editedListRow ? undefined : () => alert(`Play tutorial video: ${copy.title}`)}
+      onViewDocs={editedInbox || editedAgent || editedTeam || editedListRow ? undefined : () => alert(`Open docs: ${copy.title}`)}
       headerActions={
-        editedInbox || editedAgent || editedTeam || editedPolicy ? (
+        editedInbox || editedAgent || editedTeam || editedListRow ? (
           <>
             {editedInbox && settingsTab === 'widget' && (
               <WidgetEditorActions
@@ -787,9 +807,10 @@ export function SettingsScreen({
                 (!!editedAgent && !agentDraftPatch) ||
                 (!!draftedTeam && (!teamDraftPatch || !draftedTeam.name.trim())) ||
                 (!!draftedRule && (!ruleDraftPatch || !draftedRule.name.trim() || !isRuleComplete(draftedRule))) ||
-                (!!draftedSla && (!slaDraftPatch || !draftedSla.name.trim() || !isSlaComplete(draftedSla)))
+                (!!draftedSla && (!slaDraftPatch || !draftedSla.name.trim() || !isSlaComplete(draftedSla))) ||
+                (!!draftedCanned && (!cannedDraftPatch || !draftedCanned.name.trim() || !isCannedComplete(draftedCanned)))
               }
-              onClick={editedAgent ? updateAgent : editedTeam ? updateTeam : editedPolicy ? updatePolicy : fakeVerify}
+              onClick={editedAgent ? updateAgent : editedTeam ? updateTeam : editedListRow ? updatePolicy : fakeVerify}
             >
               Update
             </Button>
@@ -1002,6 +1023,8 @@ export function SettingsScreen({
         <RuleEdit key={ruleId} rule={draftedRule} onChange={patchRule} />
       ) : draftedSla ? (
         <SlaEdit key={ruleId} policy={draftedSla} onChange={patchSla} />
+      ) : draftedCanned ? (
+        <CannedEdit key={ruleId} response={draftedCanned} onChange={patchCanned} />
       ) : draftedTeam ? (
         <TeamEdit
           key={draftedTeam.id}
