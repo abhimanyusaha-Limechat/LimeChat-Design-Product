@@ -50,7 +50,7 @@
 .lc-te__card {
   border: 1px solid var(--lc-color-gray-200);
   border-radius: 8px;
-  background: var(--lc-color-green-50);
+  background: var(--lc-color-gray-100);
 }
 
 .lc-te__head {

@@ -1,7 +1,7 @@
 import { sidebarPresets, type SidebarProduct } from '../components/Sidebar/presets';
 import { SETTINGS_TABS_BY_PRODUCT } from '../components/SettingsScreen/settingsTabs';
 import { TICKETS } from '../data/ticketsDemo';
-import { DEMO_AGENTS, DEMO_INBOXES, DEMO_RULES, DEMO_RULE_LIBRARY, DEMO_SLA, DEMO_SLA_LIBRARY, DEMO_TEAMS, INTEGRATION_FORMS, KB_TABS } from '../data/settingsDemo';
+import { DEMO_AGENTS, DEMO_CANNED, DEMO_CANNED_LIBRARY, DEMO_INBOXES, DEMO_RULES, DEMO_RULE_LIBRARY, DEMO_SLA, DEMO_SLA_LIBRARY, DEMO_TEAMS, INTEGRATION_FORMS, KB_TABS } from '../data/settingsDemo';
 import { FLOW_ROWS } from '../data/flowsDemo';
 import type { BroadcastTab } from '../components/BroadcastHomePage';
 import type { FlowTab } from '../components/FlowsHomePage';
@@ -45,6 +45,7 @@ const DEFAULTS = { view: 'list', manageIndustries: false, integration: '', inbox
 const RULE_ROWS_BY_TAB: Record<string, { id: string }[]> = {
   'automation-rules': [...DEMO_RULES, ...DEMO_RULE_LIBRARY],
   'sla-rules': [...DEMO_SLA, ...DEMO_SLA_LIBRARY],
+  'canned-responses': [...DEMO_CANNED, ...DEMO_CANNED_LIBRARY],
 };
 
 const TEMPLATE_CHANNELS = ['whatsapp', 'sms', 'email'] satisfies TemplateChannel[];
