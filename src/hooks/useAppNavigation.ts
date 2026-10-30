@@ -58,7 +58,7 @@ export function pageOf({ product, selected, view, userSettings }: Screen): Page 
  */
 export function useAppNavigation() {
   const [screen, setScreen] = useState(() => parseHash(window.location.hash));
-  const { product, selected, tab, manageIndustries, integration, inbox, agent, team, changePlan, ticket, flow, userSettings } = screen;
+  const { product, selected, tab, manageIndustries, integration, inbox, agent, team, rule, changePlan, ticket, flow, userSettings } = screen;
   const flowKind = flowKindOf(product, selected);
   const page = pageOf(screen);
 
@@ -100,6 +100,8 @@ export function useAppNavigation() {
     agent,
     /** The team being edited (from the Teams tab); '' when the list shows. */
     team,
+    /** The automation rule or SLA policy being edited (from the Automation rules or SLA rules tab); '' when the list shows. */
+    rule,
     /** HelpDesk Billing's "Change plan" sub-view is open. */
     changePlan,
     ticketId: ticket,
@@ -117,7 +119,7 @@ export function useAppNavigation() {
     openUserSettings: (tab: UserSettingsTab) => update({ userSettings: tab }),
     setUserSettingsTab: (tab: UserSettingsTab) => update({ userSettings: tab }),
     /** Picking a tab, even the current one, also closes Manage industries, any partner form, inbox edit and Change plan. */
-    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '', inbox: '', agent: '', team: '', changePlan: false }),
+    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '', inbox: '', agent: '', team: '', rule: '', changePlan: false }),
     setManageIndustries: (open: boolean) => update({ manageIndustries: open }),
     /** Opens a partner's form on the Integration tab; '' goes back to the tile grid. */
     setIntegration: (id: string) => update({ integration: id }),
@@ -127,6 +129,8 @@ export function useAppNavigation() {
     setAgent: (id: string) => update({ agent: id }),
     /** Opens a team's edit page from the Teams tab; '' goes back to the list. */
     setTeam: (id: string) => update({ team: id }),
+    /** Opens a rule's or SLA policy's edit page; '' goes back to the list. */
+    setRule: (id: string) => update({ rule: id }),
     setChangePlan: (open: boolean) => update({ changePlan: open }),
     openTicket: (id: string) => update({ ticket: id }),
   };

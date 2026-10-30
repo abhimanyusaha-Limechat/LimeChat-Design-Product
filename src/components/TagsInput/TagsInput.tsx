@@ -36,6 +36,8 @@ export interface TagsInputProps {
   /** Allow adding a typed value that isn't in `data`. Default `false`. */
   creatable?: boolean;
   disabled?: boolean;
+  /** Names the box for assistive tech when it has no visible `label`. */
+  ariaLabel?: string;
   /** `stacked` (label above control, default) or `horizontal` (label left, control right). */
   layout?: 'stacked' | 'horizontal';
   className?: string;
@@ -52,6 +54,7 @@ export function TagsInput({
   onChange,
   creatable = false,
   disabled,
+  ariaLabel,
   layout = 'stacked',
   className,
 }: TagsInputProps) {
@@ -143,6 +146,7 @@ export function TagsInput({
             onFocus={() => setOpen(true)}
             onBlur={() => window.setTimeout(() => setOpen(false), 120)}
             onKeyDown={handleKeyDown}
+            aria-label={ariaLabel}
             role="combobox"
             aria-expanded={open}
             aria-autocomplete="list"

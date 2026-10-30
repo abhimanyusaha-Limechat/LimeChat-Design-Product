@@ -24,7 +24,7 @@ export function RuleDetails({ rule }: { rule: AutomationRule }) {
           <ul className="lc-sla__list lc-sla__conditions">
             {conditions.map((c) => (
               <li key={c.field} className="lc-sla__condition">
-                <span className="lc-sla__label">If {c.field} is</span>
+                <span className="lc-sla__label">If {c.field} is{c.not ? ' not' : ''}</span>
                 <Chips values={c.values} />
               </li>
             ))}

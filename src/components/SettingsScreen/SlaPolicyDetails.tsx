@@ -8,7 +8,7 @@ import type { SlaPolicy } from '../../data/slaPolicyDemo';
 import './SlaPolicyDetails.css';
 
 /** 61 → "1 h 1 min", 120 → "2 h", 30 → "30 min". One format for every time in the panel. */
-const duration = (total: number) => {
+export const duration = (total: number) => {
   const h = Math.floor(total / 60);
   const m = total % 60;
   return [h && `${h} h`, (m || !h) && `${m} min`].filter(Boolean).join(' ');
@@ -39,7 +39,8 @@ export function Chips({ values }: { values: string[] }) {
 }
 
 export function SlaPolicyDetails({ policy }: { policy: SlaPolicy }) {
-  const { conditions, targets, reminders, escalation } = policy;
+  const { conditions, targets, reminders } = policy;
+  const escalations = policy.escalations.filter((e) => e.steps.length > 0);
   return (
     <div className="lc-sla">
       <Section title="Conditions">
@@ -69,39 +70,44 @@ export function SlaPolicyDetails({ policy }: { policy: SlaPolicy }) {
           <ul className="lc-sla__list">
             {reminders.map((r) => (
               <li key={`${r.metric}-${r.to}`} className="lc-sla__sentence">
-                <strong>{r.metric}</strong> reminder sent to <strong>{r.to}</strong> {duration(r.minutesBefore)} before SLA breach
+                <strong>{r.metric}</strong> reminder sent to <strong>{r.to.join(', ')}</strong> {duration(r.minutesBefore)} before SLA breach
               </li>
             ))}
           </ul>
         </Section>
       )}
 
-      {escalation.steps.length > 0 && (
+      {escalations.length > 0 && (
         <Section title="Escalation">
-          <p className="lc-sla__label">
-            When <strong>{escalation.metric}</strong> SLA is <strong>Breached</strong>
-          </p>
-          <ol className="lc-sla__steps">
-            {escalation.steps.map((step, i) => (
-              <li key={i} className="lc-sla__step">
-                <span className="lc-sla__step-number" aria-hidden="true">
-                  {i + 1}
-                </span>
-                <span className="lc-sla__step-text">
-                  <span className="lc-sla__sr-only">Level {i + 1} escalation: </span>
-                  Notify <strong>{step.notify}</strong>
-                  <span className="lc-sla__label">
-                    {after(step.afterMinutes)}
-                    {step.assign && (
-                      <>
-                        , then assign <strong>{step.assign.to}</strong> {after(step.assign.afterMinutes)}
-                      </>
-                    )}
-                  </span>
-                </span>
-              </li>
-            ))}
-          </ol>
+          {escalations.map((escalation) => (
+            <div key={escalation.metric}>
+              <p className="lc-sla__label">
+                When <strong>{escalation.metric}</strong> SLA is <strong>Breached</strong>
+              </p>
+              <ol className="lc-sla__steps">
+                {escalation.steps.map(({ notify, assign }, i) => (
+                  <li key={i} className="lc-sla__step">
+                    <span className="lc-sla__step-number" aria-hidden="true">
+                      {i + 1}
+                    </span>
+                    <span className="lc-sla__step-text">
+                      <span className="lc-sla__sr-only">Level {i + 1} escalation: </span>
+                      {notify && (
+                        <>
+                          Notify <strong>{notify.to.join(', ')}</strong> <span className="lc-sla__label">{after(notify.afterMinutes)}</span>
+                        </>
+                      )}
+                      {assign && (
+                        <span className="lc-sla__label">
+                          {notify ? ', then assign' : 'Assign'} <strong>{assign.to.join(', ')}</strong> {after(assign.afterMinutes)}
+                        </span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
         </Section>
       )}
     </div>
