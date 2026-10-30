@@ -1,0 +1,438 @@
+/* RuleEdit — the Automation rules tab's edit page: Event, Conditions, Actions and the execution limit, as grey cards. */
+
+.lc-re {
+  /* The inbox settings' tokens, so its inputs and labels (reused for the SLA times) look the same here. */
+  --lc-inbs-border: var(--lc-color-gray-300);
+  --lc-inbs-divider: var(--lc-color-gray-200);
+  --lc-inbs-text-title: var(--lc-color-green-900);
+  --lc-inbs-text-dimmed: var(--lc-color-sage-500);
+  --lc-inbs-primary: var(--lc-color-green-700);
+  --lc-inbs-radius: 12px;
+  --lc-inbs-radius-sm: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 880px;
+  color: var(--lc-color-green-900);
+}
+
+.lc-re__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--lc-color-gray-50);
+}
+
+.lc-re__card--inline {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lc-re__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.lc-re__desc {
+  margin: -4px 0 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-gray-500);
+}
+
+.lc-re__hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-color-gray-500);
+}
+
+/* Every dropdown on the page is the same width. */
+.lc-re__control {
+  flex: none; /* a row that fills up wraps; it never squeezes the dropdowns */
+  width: 220px;
+  max-width: 100%;
+}
+
+.lc-re .lc-re__tags {
+  flex: 1 1 120px; /* small enough that the remove button stays on the row */
+  width: auto;
+  min-width: 0;
+}
+
+.lc-re__remove {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-top: 2px; /* centres it on the 32px controls */
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--lc-color-red-600);
+  cursor: pointer;
+}
+
+.lc-re__remove:hover {
+  background: color-mix(in srgb, var(--lc-color-red-600) 10%, transparent);
+}
+
+.lc-re__remove:focus-visible {
+  outline: 2px solid var(--lc-color-green-500);
+}
+
+.lc-re__number {
+  box-sizing: border-box;
+  width: 72px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 4px;
+  background: white;
+  font: inherit;
+  font-size: 13px;
+  color: var(--lc-color-green-900);
+}
+
+.lc-re__number:focus-visible {
+  outline: 2px solid var(--lc-color-green-500);
+  outline-offset: -1px;
+}
+
+/* SlaEdit shares this page's cards and rows. */
+
+.lc-re__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* The browser draws checkboxes blue unless told otherwise. */
+.lc-re__check input {
+  accent-color: var(--lc-inbs-primary);
+}
+
+/* The small grey words between controls ("if", "is", "approaches in"). */
+.lc-re__word {
+  font-size: 13px;
+  line-height: 32px;
+  color: var(--lc-color-gray-500);
+}
+
+/* "AND" between conditions: a rule with the word centred on it. */
+.lc-re__and {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 12px;
+  font-size: 12px;
+  color: var(--lc-color-gray-500);
+}
+
+.lc-re__and::before,
+.lc-re__and::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--lc-color-gray-200);
+}
+
+/* A reminder: its controls wrap inside the box while the remove button stays on the first line. */
+.lc-re__box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid var(--lc-color-gray-200);
+  border-radius: 8px;
+  background: white;
+}
+
+.lc-re__fields {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lc-re .lc-re__fields .lc-re__tags {
+  flex-basis: 180px;
+}
+
+/* Metrics: one tile per time, as many to a row as fit. */
+.lc-re__metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.lc-re__metric-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+}
+
+/* The time in words, at the right of a tile's header: "1 h 30 min". */
+.lc-re__total {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-inbs-text-dimmed);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A group of rows that sit close together (a condition and its AND, an escalation level). */
+.lc-re__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* An escalation: a header band for the metric, then one section per level, then the add button. */
+.lc-re__box--stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  container-type: inline-size;
+}
+
+.lc-re__esc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--lc-color-gray-200);
+  background: var(--lc-color-gray-50);
+}
+
+.lc-re__level {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--lc-color-gray-200);
+}
+
+.lc-re__level-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-re__level-head .lc-re__remove {
+  margin: 0 0 0 auto;
+}
+
+.lc-re__badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--lc-color-green-100);
+  color: var(--lc-color-green-800);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lc-re__level-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+/* Lines up under the title, past the badge. */
+.lc-re__level-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 28px;
+}
+
+.lc-re__esc-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 12px;
+}
+
+/* Notify and Assign ticket: checkbox | recipients | delay, in the same columns on every row. */
+.lc-re__recipients {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) 220px;
+  align-items: start;
+  gap: 8px 12px;
+}
+
+.lc-re__recipients > .lc-re__check {
+  min-height: 32px;
+  color: var(--lc-color-gray-500);
+}
+
+.lc-re__recipients[data-on] > .lc-re__check {
+  color: var(--lc-color-green-900);
+}
+
+.lc-re__recipients .lc-re__control {
+  width: 100%;
+}
+
+@container (max-width: 640px) {
+  .lc-re__recipients {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lc-re__level-body {
+    padding-left: 0;
+  }
+}
+
+/* A header band holds either the metric controls (escalation) or a title (reminder), with the remove button at the right. */
+.lc-re__esc-head .lc-re__remove {
+  margin: 0 0 0 auto;
+}
+
+.lc-re__esc-head .lc-re__level-title {
+  flex: 1;
+}
+
+/* A reminder: three labelled columns, the last one taking the rest. */
+.lc-re__reminder {
+  display: grid;
+  grid-template-columns: 220px 220px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 12px;
+}
+
+.lc-re__reminder .lc-re__control,
+.lc-re__reminder .lc-re__tags {
+  width: 100%;
+}
+
+/* Field labels above controls, dimmed like the inbox duration labels. */
+.lc-re .lc-select__label,
+.lc-re .lc-tags-input__label {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--lc-inbs-text-dimmed);
+}
+
+@container (max-width: 760px) {
+  .lc-re__reminder {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Conditions: if | field | is | values | remove, on one grid so every row lines up. */
+.lc-re__cond {
+  display: grid;
+  grid-template-columns: auto 220px auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 8px 12px;
+  padding: 12px;
+}
+
+/* A rule's condition has an operator dropdown where a policy has the word "is". */
+.lc-re__cond--op {
+  grid-template-columns: auto 220px 220px minmax(0, 1fr) auto;
+}
+
+.lc-re__cond .lc-re__control {
+  width: 100%;
+}
+
+.lc-re__cond .lc-re__remove {
+  margin: 2px 0 0;
+}
+
+.lc-re__cond-foot {
+  padding: 12px;
+}
+
+.lc-re__cond-empty {
+  padding: 12px 12px 0;
+}
+
+/* An AND already has a rule above it; the footer gets one too. */
+.lc-re__cond + .lc-re__cond-foot,
+.lc-re__and + .lc-re__cond-foot {
+  border-top: 1px solid var(--lc-color-gray-200);
+}
+
+/* Actions reuse the condition grid with a number where a condition has "if". */
+.lc-re__act {
+  grid-template-columns: auto 220px minmax(0, 1fr) auto;
+}
+
+.lc-re__act > .lc-re__badge {
+  margin-top: 6px;
+}
+
+.lc-re__act > .lc-re__remove {
+  grid-column: 4; /* stays in the last column when an action has no values box */
+}
+
+/* The rule in one sentence, above the cards. */
+.lc-re__summary {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--lc-color-green-50);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+/* A number with its unit after it ("10 times"). */
+.lc-re__unit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-inbs-text-dimmed);
+}
+
+@container (max-width: 700px) {
+  .lc-re__cond,
+  .lc-re__cond--op,
+  .lc-re__act {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .lc-re__cond > .lc-re__word,
+  .lc-re__cond > .lc-re__badge {
+    display: none;
+  }
+
+  .lc-re__cond > .lc-re__remove,
+  .lc-re__act > .lc-re__remove {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}

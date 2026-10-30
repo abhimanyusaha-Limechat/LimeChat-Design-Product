@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsScreen } from './SettingsScreen';
@@ -22,6 +22,7 @@ function Harness({
   const [inbox, setInbox] = useState('');
   const [agent, setAgent] = useState('');
   const [team, setTeam] = useState('');
+  const [rule, setRule] = useState('');
   const [changePlan, setChangePlan] = useState(false);
   return (
     <SettingsScreen
@@ -32,6 +33,7 @@ function Harness({
       inbox={inbox}
       agent={agent}
       team={team}
+      rule={rule}
       changePlan={changePlan}
       onTabChange={(id) => {
         setTab(id);
@@ -39,6 +41,7 @@ function Harness({
         setInbox('');
         setAgent('');
         setTeam('');
+        setRule('');
         setChangePlan(false);
       }}
       onManageIndustriesChange={onManageIndustriesChange}
@@ -46,6 +49,7 @@ function Harness({
       onInboxChange={setInbox}
       onAgentChange={setAgent}
       onTeamChange={setTeam}
+      onRuleChange={setRule}
       onChangePlanChange={setChangePlan}
     />
   );
@@ -309,6 +313,112 @@ describe('SLA rule details panel', () => {
   });
 });
 
+describe('SLA rule edit page', () => {
+  async function openEdit(user: ReturnType<typeof userEvent.setup>) {
+    render(<Harness product="helpdesk" initialTab="sla-rules" />);
+    await user.click(await screen.findByRole('button', { name: 'Edit First response – urgent' }, { timeout: 2000 }));
+  }
+  const metric = (name: string) => within(screen.getByRole('group', { name }));
+  const level = (escalation: number, n: number) => within(screen.getByRole('group', { name: `Escalation ${escalation} level ${n}` }));
+
+  it('shows the policy as editable fields, and saves changes with Update', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+
+    expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('First response – urgent');
+    expect(screen.getByRole('combobox', { name: 'Condition 1 field' })).toHaveValue('Inbox');
+    expect(metric('Next Response Time (NRT)').getByLabelText('Hours')).toHaveValue(2);
+    expect(level(1, 1).getByRole('checkbox', { name: 'Notify' })).toBeChecked();
+    expect(level(1, 1).getByRole('checkbox', { name: 'Assign ticket' })).not.toBeChecked();
+    expect(within(screen.getByRole('group', { name: 'Reminder 1' })).getByLabelText('Approaches in')).toHaveValue('30');
+    const update = screen.getByRole('button', { name: 'Update' });
+    expect(update).toBeDisabled();
+
+    const nrt = metric('Next Response Time (NRT)');
+    fireEvent.change(nrt.getByLabelText('Hours'), { target: { value: '1' } });
+    fireEvent.change(nrt.getByLabelText('Minutes'), { target: { value: '30' } });
+    await user.click(screen.getByRole('button', { name: 'Remove reminder 1' }));
+    await user.click(screen.getByRole('button', { name: 'Add one more level' }));
+    expect(screen.getByRole('group', { name: 'Escalation 1 level 3' })).toBeInTheDocument();
+    expect(update).toBeEnabled();
+
+    await user.click(update);
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await user.click(await screen.findByText('First response – urgent', {}, { timeout: 2000 }));
+    expect(within(screen.getByRole('region', { name: 'SLA Rule' })).getByText('1 h 30 min')).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Reminders' })).not.toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Escalation' })).getAllByRole('listitem')).toHaveLength(3);
+  });
+
+  it('never lets a metric time be zero', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+    const frt = metric('First Response Time (FRT)');
+
+    // 1 h 1 min: dropping the hour leaves 1 min, but dropping the minute too would leave nothing.
+    fireEvent.change(frt.getByLabelText('Hours'), { target: { value: '0' } });
+    fireEvent.change(frt.getByLabelText('Minutes'), { target: { value: '0' } });
+    expect(frt.getByLabelText('Hours')).toHaveValue(0);
+    expect(frt.getByLabelText('Minutes')).toHaveValue(1);
+  });
+
+  it('adds and removes conditions, and needs a value in each', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+    const update = screen.getByRole('button', { name: 'Update' });
+
+    expect(screen.getAllByRole('separator')).toHaveLength(2);
+    await user.click(screen.getByRole('button', { name: 'Add condition' }));
+    expect(screen.getByRole('combobox', { name: 'Condition 4 field' })).toBeInTheDocument();
+    expect(update).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Remove condition 4' }));
+    expect(update).toBeEnabled();
+  });
+
+  it('enables the recipients and delay only while Notify or Assign ticket is ticked, and remembers them', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+    const first = level(1, 1);
+    const recipients = () => screen.getByRole('combobox', { name: 'Level 1 assign recipients' });
+    const delay = () => screen.getByRole('combobox', { name: 'Level 1 assign delay' });
+
+    expect(recipients()).toBeDisabled();
+    expect(delay()).toBeDisabled();
+    await user.click(first.getByRole('checkbox', { name: 'Assign ticket' }));
+    expect(recipients()).toBeEnabled();
+    expect(delay()).toBeEnabled();
+
+    await user.selectOptions(delay(), '30');
+    await user.click(first.getByRole('checkbox', { name: 'Assign ticket to' }));
+    expect(recipients()).toBeDisabled();
+    expect(delay()).toBeDisabled();
+    await user.click(first.getByRole('checkbox', { name: 'Assign ticket' }));
+    expect(delay()).toHaveValue('30');
+  });
+
+  it('needs Notify or Assign ticket in every level', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+    const first = level(1, 1);
+
+    await user.click(first.getByRole('checkbox', { name: 'Notify' }));
+    expect(first.getByText('Pick Notify or Assign ticket for this level.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Update' })).toBeDisabled();
+  });
+
+  it('adds an escalation for another metric, and removes one', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+
+    expect(screen.getByRole('combobox', { name: 'Escalation 1 metric' })).toHaveValue('Next Response Time');
+    await user.click(screen.getByRole('button', { name: 'Add escalation' }));
+    expect(screen.getByRole('combobox', { name: 'Escalation 2 metric' })).toHaveValue('First Response Time');
+    await user.click(screen.getByRole('button', { name: 'Remove escalation 1' }));
+    expect(screen.getByRole('combobox', { name: 'Escalation 1 metric' })).toHaveValue('First Response Time');
+  });
+});
+
 describe('Automation rule details panel', () => {
   it('shows the event, conditions and actions', async () => {
     const user = userEvent.setup();
@@ -320,6 +430,73 @@ describe('Automation rule details panel', () => {
     const actions = within(screen.getByRole('region', { name: 'Actions' }));
     expect(actions.getByText('Assign Team')).toBeInTheDocument();
     expect(actions.getByText('Customer Support')).toBeInTheDocument();
+  });
+});
+
+describe('Automation rule edit page', () => {
+  async function openEdit(user: ReturnType<typeof userEvent.setup>) {
+    render(<Harness product="helpdesk" initialTab="automation-rules" />);
+    await user.click(await screen.findByRole('button', { name: 'Edit Auto-assign by inbox' }, { timeout: 2000 }));
+  }
+
+  it('shows the rule as editable fields, and saves changes with Update', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+
+    expect(screen.getByRole('textbox', { name: 'Title' })).toHaveValue('Auto-assign by inbox');
+    expect(screen.getByRole('combobox', { name: 'Event' })).toHaveValue('Conversation created');
+    expect(screen.getByRole('combobox', { name: 'Condition 1 field' })).toHaveValue('Inbox');
+    expect(screen.getByRole('combobox', { name: 'Action 1' })).toHaveValue('Assign Team');
+    expect(screen.getByRole('spinbutton')).toHaveValue(10);
+    expect(screen.getByText(/When Conversation created, if Inbox is Limechat \(189\) or Limechat \(189\) BB, then Assign Team \(Customer Support\)/)).toBeInTheDocument();
+    const update = screen.getByRole('button', { name: 'Update' });
+    expect(update).toBeDisabled();
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Event' }), 'Ticket overdue');
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Condition 1 operator' }), 'is not');
+    await user.click(screen.getByRole('button', { name: 'Add action' }));
+    // A blank action can't be saved.
+    expect(update).toBeDisabled();
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Action 2' }), 'Close Conversation');
+    expect(update).toBeEnabled();
+
+    await user.click(update);
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await user.click(await screen.findByText('Auto-assign by inbox', {}, { timeout: 2000 }));
+    expect(within(screen.getByRole('region', { name: 'Event' })).getByText('overdue')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Conditions' })).getByText('If Inbox is not')).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Actions' })).getByText('Close Conversation')).toBeInTheDocument();
+  });
+
+  it('adds and removes conditions, and needs a value in each', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+    const update = screen.getByRole('button', { name: 'Update' });
+
+    await user.click(screen.getByRole('button', { name: 'Add condition' }));
+    expect(screen.getByRole('combobox', { name: 'Condition 2 field' })).toBeInTheDocument();
+    // The new condition has no values yet.
+    expect(update).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Remove condition 2' }));
+    await user.click(screen.getByRole('button', { name: 'Remove condition 1' }));
+    expect(screen.getByText('No conditions. The rule runs every time.')).toBeInTheDocument();
+    expect(update).toBeEnabled();
+  });
+
+  it('needs a name and a limit to save', async () => {
+    const user = userEvent.setup();
+    await openEdit(user);
+    const update = screen.getByRole('button', { name: 'Update' });
+    const limit = screen.getByRole('spinbutton');
+
+    await user.clear(limit);
+    expect(update).toBeDisabled();
+    await user.type(limit, '25');
+    expect(update).toBeEnabled();
+
+    await user.clear(screen.getByRole('textbox', { name: 'Title' }));
+    expect(update).toBeDisabled();
   });
 });
 

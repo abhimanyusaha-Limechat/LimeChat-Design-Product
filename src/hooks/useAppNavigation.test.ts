@@ -161,6 +161,8 @@ describe('useAppNavigation', () => {
       ['#/helpdesk/settings?inbox=36000', { page: 'settings', tab: 'inboxes', inbox: '36000' }],
       ['#/helpdesk/settings?tab=widget&inbox=36000', { page: 'settings', tab: 'widget', inbox: '36000' }],
       ['#/helpdesk/settings?tab=agents&agent=c1', { page: 'settings', tab: 'agents', agent: 'c1' }],
+      ['#/helpdesk/settings?tab=automation-rules&rule=r1', { page: 'settings', tab: 'automation-rules', rule: 'r1' }],
+      ['#/helpdesk/settings?tab=sla-rules&rule=sla1', { page: 'settings', tab: 'sla-rules', rule: 'sla1' }],
       ['#/marketing/segments?user=profile', { page: 'user-settings', userSettingsTab: 'profile' }],
       ['#/helpdesk/tickets?user=account', { page: 'user-settings', userSettingsTab: 'account' }],
     ])('restores %s in one step', (hash, expected) => {
@@ -331,6 +333,9 @@ describe('useAppNavigation', () => {
       ['#/helpdesk/settings?inbox=nope', '#/helpdesk/settings', { inbox: '' }],
       ['#/helpdesk/settings?tab=agents&inbox=36000', '#/helpdesk/settings?tab=agents', { inbox: '' }],
       ['#/helpdesk/settings?tab=agents&agent=nope', '#/helpdesk/settings?tab=agents', { agent: '' }],
+      ['#/helpdesk/settings?tab=automation-rules&rule=nope', '#/helpdesk/settings?tab=automation-rules', { rule: '' }],
+      ['#/helpdesk/settings?tab=agents&rule=r1', '#/helpdesk/settings?tab=agents', { rule: '' }],
+      ['#/helpdesk/settings?tab=sla-rules&rule=r1', '#/helpdesk/settings?tab=sla-rules', { rule: '' }],
       ['#/helpdesk/settings?agent=c1', '#/helpdesk/settings', { agent: '' }],
       ['#/helpdesk/tickets?user=admin', '#/helpdesk/tickets', { page: 'tickets' }],
       ['#/helpdesk/settings?tab=agents&plans=1', '#/helpdesk/settings?tab=agents', { changePlan: false }],

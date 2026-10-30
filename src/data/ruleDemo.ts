@@ -3,11 +3,60 @@
 export interface AutomationRule {
   /** "When a <subject> is <state>". */
   event: { subject: string; state: string };
-  /** "If <field> is <values>"; every one has to match. */
-  conditions: { field: string; values: string[] }[];
+  /** "If <field> is <values>" ("is not" when `not`); every one has to match. */
+  conditions: { field: string; values: string[]; not?: boolean }[];
   /** Run in order. */
   actions: { name: string; values: string[] }[];
+  /** How many times the rule may run; `DEFAULT_MAX_EXECUTIONS` when unset. */
+  maxExecutions?: number;
 }
+
+export const DEFAULT_MAX_EXECUTIONS = 10;
+
+/** What the edit page offers for "When a <subject> is <state>". */
+export const RULE_EVENTS: AutomationRule['event'][] = [
+  { subject: 'Conversation', state: 'created' },
+  { subject: 'Conversation', state: 'opened' },
+  { subject: 'Conversation', state: 'resolved' },
+  { subject: 'Conversation', state: 'to bot' },
+  { subject: 'Message', state: 'created' },
+  { subject: 'Ticket', state: 'created' },
+  { subject: 'Ticket', state: 'idle' },
+  { subject: 'Ticket', state: 'overdue' },
+  { subject: 'CSAT rating', state: 'received' },
+];
+
+/** Each condition field, with the values it can match. ponytail: demo lists; real ones come from the API. */
+export const RULE_FIELDS: Record<string, string[]> = {
+  'Conversation label': ['VIP', 'Refund', 'Complaint', 'Order issue', 'Lead'],
+  Inbox: ['Limechat (189)', 'Limechat (189) BB', 'Nonucare Support'],
+  'Customer tier': ['Gold', 'Platinum', 'VIP'],
+  Priority: ['Low', 'Medium', 'High', 'Urgent'],
+  'Conversation status': ['Open', 'Pending', 'Resolved'],
+  Sender: ['Customer', 'Agent', 'Bot'],
+  Channel: ['WhatsApp', 'Instagram', 'Email', 'SMS'],
+  Assignee: ['Unassigned', 'Me', 'Anyone'],
+  'Business hours': ['Inside hours', 'Outside hours'],
+  Rating: ['1', '2', '3', '4', '5'],
+  'Message contains': ['refund', 'chargeback', 'cancel', 'late'],
+  'Replies in': ['3 days: none'],
+  'Messages from customer': ['First'],
+  'No update for': ['1 hour', '24 hours', '3 days'],
+  'Same customer within': ['1 hour', '24 hours'],
+};
+
+/** Each action, with the values it takes; an action with none runs as it is. */
+export const RULE_ACTIONS: Record<string, string[]> = {
+  'Assign Team': ['Customer Support', 'Escalations', 'Sales'],
+  'Assign Agent': ['Round robin', 'Least busy'],
+  'Add Tag': ['VIP', 'Channel', 'Refund'],
+  'Set Priority': ['Low', 'Medium', 'High', 'Urgent'],
+  'Send Message': ['Away message', 'Greeting'],
+  Notify: ['Team lead', 'Assignee'],
+  'Close Conversation': [],
+  'Reopen Conversation': [],
+  'Merge Tickets': [],
+};
 
 const rule = (
   event: [subject: string, state: string],
