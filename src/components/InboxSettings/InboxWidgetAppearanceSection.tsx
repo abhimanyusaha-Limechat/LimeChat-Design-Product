@@ -39,12 +39,15 @@ function shadesOf(hex: string): string[] {
   });
 }
 
-export function WidgetAppearanceSection({
+/** The primary colour row: a hex input plus ten generated shades to pick from. */
+export function PrimaryColourRow({
   value,
   onChange,
+  off = false,
 }: {
   value: InboxWidgetAppearance;
   onChange: (next: InboxWidgetAppearance) => void;
+  off?: boolean;
 }) {
   const hexId = useId();
   const set = (patch: Partial<InboxWidgetAppearance>) => onChange({ ...value, ...patch });
@@ -52,44 +55,59 @@ export function WidgetAppearanceSection({
   const shades = shadesOf(valid ? value.baseColor : '1B83AC');
   const primary = shades[value.shade - 1];
   return (
+    <Row label="Widget Primary Colour" description="Type a hex colour, then pick one of the shades generated from it." off={off}>
+      <div className="lc-inbs__color">
+        <div className="lc-inbs__color-top">
+          <span className="lc-inbs__color-swatch" style={{ background: primary }} aria-hidden="true" />
+          <label className="lc-inbs__hex" htmlFor={hexId}>
+            <span aria-hidden="true">#</span>
+            <input
+              id={hexId}
+              className="lc-inbs__hex-input"
+              maxLength={6}
+              value={value.baseColor}
+              disabled={off}
+              aria-invalid={!valid}
+              aria-label="Primary colour hex"
+              onChange={(e) => set({ baseColor: e.currentTarget.value.replace(/[^0-9a-f]/gi, '') })}
+            />
+          </label>
+        </div>
+        <div className="lc-inbs__shades" role="radiogroup" aria-label="Primary colour shades">
+          {shades.map((shade, i) => (
+            <button
+              key={i}
+              type="button"
+              role="radio"
+              aria-checked={value.shade === i + 1}
+              aria-label={`Shade ${i + 1}, ${shade}`}
+              className="lc-inbs__shade"
+              style={{ background: shade }}
+              disabled={off}
+              onClick={() => set({ shade: i + 1 })}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      </div>
+    </Row>
+  );
+}
+
+export function WidgetAppearanceSection({
+  value,
+  onChange,
+}: {
+  value: InboxWidgetAppearance;
+  onChange: (next: InboxWidgetAppearance) => void;
+}) {
+  const set = (patch: Partial<InboxWidgetAppearance>) => onChange({ ...value, ...patch });
+  return (
     <section className="lc-inbs__group" aria-label="Appearance">
       <SectionHeading title="Appearance" description="How the widget looks on your customer's site." />
       <div className="lc-inbs__table">
-        <Row label="Widget Primary Colour" description="Type a hex colour, then pick one of the shades generated from it.">
-          <div className="lc-inbs__color">
-            <div className="lc-inbs__color-top">
-              <span className="lc-inbs__color-swatch" style={{ background: primary }} aria-hidden="true" />
-              <label className="lc-inbs__hex" htmlFor={hexId}>
-                <span aria-hidden="true">#</span>
-                <input
-                  id={hexId}
-                  className="lc-inbs__hex-input"
-                  maxLength={6}
-                  value={value.baseColor}
-                  aria-invalid={!valid}
-                  aria-label="Primary colour hex"
-                  onChange={(e) => set({ baseColor: e.currentTarget.value.replace(/[^0-9a-f]/gi, '') })}
-                />
-              </label>
-            </div>
-            <div className="lc-inbs__shades" role="radiogroup" aria-label="Primary colour shades">
-              {shades.map((shade, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  role="radio"
-                  aria-checked={value.shade === i + 1}
-                  aria-label={`Shade ${i + 1}, ${shade}`}
-                  className="lc-inbs__shade"
-                  style={{ background: shade }}
-                  onClick={() => set({ shade: i + 1 })}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-          </div>
-        </Row>
+        <PrimaryColourRow value={value} onChange={onChange} />
         <Row label="Font" description="The typeface used inside the widget.">
           <NativeSelect
             size="sm"

@@ -31,7 +31,7 @@ import {
 } from '../DataTable';
 import './InboxesTable.css';
 
-export type InboxType = 'whatsapp' | 'email' | 'instagram' | 'sms' | 'facebook';
+export type InboxType = 'whatsapp' | 'email' | 'instagram' | 'sms' | 'facebook' | 'website';
 
 export interface InboxRowData {
   id: string;
@@ -51,6 +51,7 @@ const TYPE_ICON: Record<InboxType, InboxIconName> = {
   instagram: 'instagram',
   sms: 'sms',
   facebook: 'facebook',
+  website: 'website',
 };
 
 const FRAME_STYLE = { '--lc-avatar-radius': '8px' } as CSSProperties;
@@ -70,6 +71,7 @@ export const TYPE_LABEL: Record<InboxType, string> = {
   instagram: 'Instagram',
   sms: 'Sms',
   facebook: 'Facebook',
+  website: 'Website widget',
 };
 
 export interface InboxesTableProps {

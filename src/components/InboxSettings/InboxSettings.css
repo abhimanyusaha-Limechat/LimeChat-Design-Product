@@ -1615,3 +1615,97 @@
 .lc-inbs__code-str {
   color: #b4531f;
 }
+
+/* --- Page rules: page | widget | pop-up | remove ----------------------- */
+
+.lc-inbs__rule {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px 64px 28px;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 20px;
+  background: var(--lc-color-white);
+}
+
+.lc-inbs__rule--head {
+  padding-block: 10px;
+  background: var(--lc-color-stone-50);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lc-inbs-text-dimmed);
+}
+
+/* Widget and Pop-up columns: header and switch centred on the same line. */
+.lc-inbs__rule > .lc-inbs__switch-track {
+  justify-self: center;
+}
+
+.lc-inbs__rule--head > :nth-child(2),
+.lc-inbs__rule--head > :nth-child(3) {
+  text-align: center;
+}
+
+.lc-inbs__rule-page {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+
+.lc-inbs__rule-page > .lc-inbs__label,
+.lc-inbs__rule-note {
+  grid-column: 1 / -1;
+}
+
+.lc-inbs__rule-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--lc-inbs-text-dimmed);
+}
+
+.lc-inbs__rule-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: var(--lc-input-sm);
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--lc-color-gray-400);
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lc-inbs__rule-btn:hover {
+    background: var(--lc-color-gray-200);
+    color: var(--lc-color-green-900);
+  }
+}
+
+.lc-inbs__rule-btn:focus-visible {
+  outline: 2px solid var(--lc-inbs-primary);
+  color: var(--lc-color-green-900);
+}
+
+@container (max-width: 560px) {
+  .lc-inbs__rule {
+    grid-template-columns: minmax(0, 1fr) 64px 64px;
+  }
+
+  .lc-inbs__rule--head {
+    display: none;
+  }
+
+  .lc-inbs__rule-page {
+    grid-template-columns: 1fr;
+  }
+
+  .lc-inbs__rule-btn {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+}

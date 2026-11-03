@@ -33,6 +33,8 @@ import { WidgetCodeSection } from './InboxWidgetCodeSection';
 import { WidgetCardsSection, type InboxWidgetCards } from './InboxWidgetCardsSection';
 import { WidgetPreChatSection, type InboxWidgetPreChat } from './InboxWidgetPreChatSection';
 import { WidgetGeneralSection, type InboxWidgetGeneral } from './InboxWidgetGeneralSection';
+import { PageRulesSection, type InboxPageRules } from './InboxPageRulesSection';
+import { WebsiteWidgetAiSections, WebsiteWidgetSection, type InboxWebsiteWidget } from './InboxWebsiteWidgetTab';
 import { WidgetEcommerceSection, type InboxWidgetEcommerce } from './InboxWidgetEcommerceSection';
 import {
   DurationSection,
@@ -84,6 +86,10 @@ export interface InboxSettingsValues {
   widgetPreChat: InboxWidgetPreChat;
   /** The widget editor's Cards tab. */
   widgetCards: InboxWidgetCards;
+  /** A website widget inbox's Widget tab. */
+  websiteWidget: InboxWebsiteWidget;
+  /** A website widget inbox's Page rules. */
+  pageRules: InboxPageRules;
 }
 
 export interface InboxSettingsProps {
@@ -108,7 +114,12 @@ const TABS: TabDef[] = [
   { id: 'csat', label: 'CSAT' },
   { id: 'collaborators', label: 'Collaborators' },
   { id: 'configuration', label: 'Configuration' },
-  { id: 'whatsapp-widget', label: 'WhatsApp Widget' },
+  { id: 'whatsapp-widget', label: 'Widget' },
+];
+
+const WEBSITE_TABS: TabDef[] = [
+  { id: 'pre-chat-form', label: 'Pre chat form' },
+  { id: 'widget', label: 'Widget' },
 ];
 
 interface TabDef {
@@ -136,6 +147,7 @@ const DETAIL_LABEL: Record<InboxType, string> = {
   email: 'Email address',
   instagram: 'Handle',
   facebook: 'Page',
+  website: 'Website URL',
 };
 
 const DURATIONS: DurationRow<InboxDurationKey>[] = [
@@ -200,6 +212,33 @@ function WidgetPanel({ tab, props }: { tab: string; props: InboxSettingsProps })
     default:
       return <ComingSoon title={WIDGET_TABS.find((t) => t.id === tab)?.label ?? tab} />;
   }
+}
+
+/** A website widget inbox's Widget tab: basic settings, AI sections, per-device launchers, the pop-up and ecommerce. */
+function WebsiteWidgetPanel({ values, onChange }: InboxSettingsProps) {
+  return (
+    <>
+      <WebsiteWidgetSection
+        value={values.websiteWidget}
+        general={values.widgetGeneral}
+        appearance={values.widgetAppearance}
+        onChange={(websiteWidget) => onChange({ websiteWidget })}
+        onGeneralChange={(widgetGeneral) => onChange({ widgetGeneral })}
+        onAppearanceChange={(widgetAppearance) => onChange({ widgetAppearance })}
+      />
+      <ZIndexSection value={values.whatsappZIndex} onChange={(whatsappZIndex) => onChange({ whatsappZIndex })} />
+      <WebsiteWidgetAiSections value={values.websiteWidget} onChange={(websiteWidget) => onChange({ websiteWidget })} />
+      <WhatsAppWidgetTab website value={values.whatsappWidget} onChange={(whatsappWidget) => onChange({ whatsappWidget })} />
+      <PopupMessageSection value={values.whatsappPopup} onChange={(whatsappPopup) => onChange({ whatsappPopup })} />
+      <PageRulesSection
+        value={values.pageRules}
+        widgetOn={values.whatsappWidget.mobile.enabled || values.whatsappWidget.desktop.enabled}
+        popupOn={values.whatsappPopup.enabled}
+        onChange={(pageRules) => onChange({ pageRules })}
+      />
+      <WidgetEcommerceSection value={values.widgetEcommerce} onChange={(widgetEcommerce) => onChange({ widgetEcommerce })} />
+    </>
+  );
 }
 
 function GeneralTab({ type, detail, values, onChange, templates }: InboxSettingsProps) {
@@ -303,7 +342,14 @@ export function InboxSettings(props: InboxSettingsProps) {
   const [tab, setTab] = useState('general');
   // The widget is WhatsApp's chat button for websites, so other channels don't get the tab.
   const isWidget = props.variant === 'widget';
-  const tabs = isWidget ? WIDGET_TABS : props.type === 'whatsapp' ? TABS : TABS.filter((t) => t.id !== 'whatsapp-widget');
+  // A website widget inbox is configured through its pre chat form and widget rather than a channel connection.
+  const tabs = isWidget
+    ? WIDGET_TABS
+    : props.type === 'whatsapp'
+      ? TABS
+      : props.type === 'website'
+        ? [...TABS.filter((t) => t.id !== 'configuration' && t.id !== 'whatsapp-widget'), ...WEBSITE_TABS]
+        : TABS.filter((t) => t.id !== 'whatsapp-widget');
   const tabLabel = tabs.find((t) => t.id === tab)?.label;
 
   return (
@@ -352,6 +398,10 @@ export function InboxSettings(props: InboxSettingsProps) {
               onChange={(collaborators) => props.onChange({ collaborators })}
               onCreateAgent={props.onCreateAgent}
             />
+          ) : tab === 'pre-chat-form' ? (
+            <WidgetPanel tab="pre-chat-form" props={props} />
+          ) : tab === 'widget' ? (
+            <WebsiteWidgetPanel {...props} />
           ) : tab === 'configuration' ? (
             <ConfigurationTab value={props.values.configuration} />
           ) : tab === 'csat' ? (

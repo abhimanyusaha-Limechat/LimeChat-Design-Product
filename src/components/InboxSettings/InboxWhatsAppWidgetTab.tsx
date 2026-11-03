@@ -19,7 +19,7 @@ export type InboxWhatsAppWidget = Record<WidgetDevice, WhatsAppWidgetSettings>;
 
 export interface WhatsAppWidgetSettings {
   enabled: boolean;
-  type: 'icon' | 'button';
+  type: 'icon' | 'button' | 'embedded';
   position: 'left' | 'right';
   size: 'small' | 'medium' | 'large';
   /** Slide the widget out while the visitor scrolls, back in when they stop. */
@@ -43,6 +43,9 @@ const TYPES: Choice<WhatsAppWidgetSettings['type']>[] = [
   { value: 'button', label: 'Button' },
 ];
 
+/** A website widget can also be embedded in the page instead of floating over it. */
+const WEBSITE_TYPES: Choice<WhatsAppWidgetSettings['type']>[] = [...TYPES, { value: 'embedded', label: 'Embedded Only' }];
+
 const POSITIONS: Choice<WhatsAppWidgetSettings['position']>[] = [
   { value: 'left', label: 'Left' },
   { value: 'right', label: 'Right' },
@@ -57,10 +60,13 @@ const SIZES: Choice<WhatsAppWidgetSettings['size']>[] = [
 function WidgetSection({
   title,
   value,
+  website = false,
   onChange,
 }: {
   title: string;
   value: WhatsAppWidgetSettings;
+  /** A website widget inbox: offers the embedded type and has no WhatsApp logo. */
+  website?: boolean;
   onChange: (next: WhatsAppWidgetSettings) => void;
 }) {
   const off = !value.enabled;
@@ -79,8 +85,8 @@ function WidgetSection({
       <div className="lc-inbs__table">
         <RadioRow
           label="Widget type"
-          description="A round WhatsApp icon, or a button with a label."
-          choices={TYPES}
+          description={website ? 'A round icon, a button with a label, or embedded in the page.' : 'A round WhatsApp icon, or a button with a label.'}
+          choices={website ? WEBSITE_TYPES : TYPES}
           value={value.type}
           off={off}
           onChange={(type) => set({ type })}
@@ -132,7 +138,7 @@ function WidgetSection({
             kind="image"
             maxMb={1}
             value={value.icon}
-            fallbackThumb={WHATSAPP_THUMB}
+            fallbackThumb={website ? undefined : WHATSAPP_THUMB}
             off={off}
             onChange={(icon) => set({ icon })}
           />
@@ -146,16 +152,19 @@ function WidgetSection({
 export function WhatsAppWidgetDeviceSection({
   device,
   value,
+  website = false,
   onChange,
 }: {
   device: WidgetDevice;
+  website?: boolean;
   value: InboxWhatsAppWidget;
   onChange: (next: InboxWhatsAppWidget) => void;
 }) {
   const label = DEVICES.find((d) => d.device === device)?.label ?? device;
   return (
     <WidgetSection
-      title={`WhatsApp Widget for ${label}`}
+      title={`${website ? 'Website' : 'WhatsApp'} Widget for ${label}`}
+      website={website}
       value={value[device]}
       onChange={(next) => onChange({ ...value, [device]: next })}
     />
@@ -164,18 +173,15 @@ export function WhatsAppWidgetDeviceSection({
 
 export function WhatsAppWidgetTab({
   value,
+  website = false,
   onChange,
 }: {
   value: InboxWhatsAppWidget;
+  website?: boolean;
   onChange: (next: InboxWhatsAppWidget) => void;
 }) {
-  return DEVICES.map(({ device, label }) => (
-    <WidgetSection
-      key={device}
-      title={`WhatsApp Widget for ${label}`}
-      value={value[device]}
-      onChange={(next) => onChange({ ...value, [device]: next })}
-    />
+  return DEVICES.map(({ device }) => (
+    <WhatsAppWidgetDeviceSection key={device} device={device} website={website} value={value} onChange={onChange} />
   ));
 }
 

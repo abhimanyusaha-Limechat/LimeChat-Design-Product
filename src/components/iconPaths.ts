@@ -8,6 +8,14 @@ const MESSAGE_CIRCLE = [
   'M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1',
 ];
 
+const GLOBE = [
+  'M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0',
+  'M3.6 9h16.8',
+  'M3.6 15h16.8',
+  'M11.5 3a17 17 0 0 0 0 18',
+  'M12.5 3a17 17 0 0 1 0 18',
+];
+
 export const ICON_PATHS = {
   'alert-triangle': [
     'M12 9v4',
@@ -381,13 +389,9 @@ export const ICON_PATHS = {
     'M16 3.13a4 4 0 0 1 0 7.75',
     'M21 21v-2a4 4 0 0 0 -3 -3.85',
   ],
-  world: [
-    'M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0',
-    'M3.6 9h16.8',
-    'M3.6 15h16.8',
-    'M11.5 3a17 17 0 0 0 0 18',
-    'M12.5 3a17 17 0 0 1 0 18',
-  ],
+  world: GLOBE,
+  // Same globe as `world`; named for the Website widget inbox type, which call sites pass as the icon name.
+  website: GLOBE, // the Website widget inbox type, which call sites pass as the icon name
   whatsapp: [
     'M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9',
     'M9 10a0.5 .5 0 0 0 1 0v-1a0.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a0.5 .5 0 0 0 0 -1h-1a0.5 .5 0 0 0 0 1',
