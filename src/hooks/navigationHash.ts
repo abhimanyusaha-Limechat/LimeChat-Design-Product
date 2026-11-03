@@ -2,6 +2,7 @@ import { sidebarPresets, type SidebarProduct } from '../components/Sidebar/prese
 import { SETTINGS_TABS_BY_PRODUCT } from '../components/SettingsScreen/settingsTabs';
 import { TICKETS } from '../data/ticketsDemo';
 import { DEMO_AGENTS, DEMO_CANNED, DEMO_CANNED_LIBRARY, DEMO_INBOXES, DEMO_RULES, DEMO_RULE_LIBRARY, DEMO_SLA, DEMO_SLA_LIBRARY, DEMO_TEAMS, INTEGRATION_FORMS, KB_TABS } from '../data/settingsDemo';
+import { AGENTS } from '../data/agentsDemo';
 import { FLOW_ROWS } from '../data/flowsDemo';
 import type { BroadcastTab } from '../components/BroadcastHomePage';
 import type { FlowTab } from '../components/FlowsHomePage';
@@ -24,7 +25,7 @@ export type Screen = {
   integration: string;
   /** The inbox being edited, by id (from the Inboxes or Widget tab); '' when the list shows. */
   inbox: string;
-  /** The agent being edited, by id (from the Agents tab); '' when the list shows. */
+  /** The agent being edited, by id (Helpdesk Settings → Agents, or Automation → Agents); '' when the list shows. */
   agent: string;
   /** The team being edited, by id (from the Teams tab); '' when the list shows. */
   team: string;
@@ -124,7 +125,8 @@ export function toScreen(fields: { product: string; selected: string } & Partial
         : DEFAULTS.integration,
     inbox: onSettings && (tab === 'inboxes' || tab === 'widget') && DEMO_INBOXES.some((i) => i.id === fields.inbox) ? String(fields.inbox) : DEFAULTS.inbox,
     agent:
-      onSettings && product === 'helpdesk' && tab === 'agents' && DEMO_AGENTS.some((a) => a.id === fields.agent)
+      (onSettings && product === 'helpdesk' && tab === 'agents' && DEMO_AGENTS.some((a) => a.id === fields.agent)) ||
+      (product === 'automation' && selected === 'agents' && AGENTS.some((a) => a.id === fields.agent))
         ? String(fields.agent)
         : DEFAULTS.agent,
     team:
