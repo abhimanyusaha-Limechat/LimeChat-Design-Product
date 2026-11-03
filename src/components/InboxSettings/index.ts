@@ -21,3 +21,4 @@ export type { InboxPrefilledMessage } from './InboxPrefilledMessageSection';
 export type { InboxWidgetEcommerce, ProductImageRatio } from './InboxWidgetEcommerceSection';
 export { HeaderSwitch, WidgetEditorActions } from './InboxWidgetActions';
 export { WIDGET_EMBED_CODE } from './InboxWidgetCodeSection';
+export type { InboxPageRules, PageRule, PageRuleMatch } from './InboxPageRulesSection';

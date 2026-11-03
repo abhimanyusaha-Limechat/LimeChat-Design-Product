@@ -220,6 +220,11 @@
   --lc-ib-channel: #1877f2;
 }
 
+.lc-ib__row-icon[data-type='website'],
+.lc-ib__row-frame[data-channel='website'] {
+  --lc-ib-channel: #7c3aed;
+}
+
 .lc-avatar.lc-ib__row-frame {
   --lc-avatar-light-bg: color-mix(in srgb, var(--lc-ib-channel) var(--lc-ib-tint, 20%), transparent);
 }

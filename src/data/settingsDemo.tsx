@@ -493,7 +493,7 @@ export const inboxCreatedOn = (i: number) => {
 };
 
 // Weighted so WhatsApp (the primary channel) still dominates the list.
-export const INBOX_TYPES: InboxRowData['type'][] = ['whatsapp', 'whatsapp', 'facebook', 'email', 'instagram', 'sms'];
+export const INBOX_TYPES: InboxRowData['type'][] = ['whatsapp', 'whatsapp', 'facebook', 'email', 'instagram', 'sms', 'website'];
 
 const EVENT_PHONES = ['+91-6205127441', '+91-9876543210', '+91-8123456789', '+91-7012345678'];
 
@@ -504,6 +504,7 @@ const inboxDetail = (type: InboxRowData['type'], name: string, i: number) => {
     case 'email': return `support@${slug}.com`;
     case 'instagram': return `@${slug}`;
     case 'facebook': return `facebook.com/${slug}`;
+    case 'website': return `www.${slug}.com`;
     default: return EVENT_PHONES[i % EVENT_PHONES.length];
   }
 };

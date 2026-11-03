@@ -847,7 +847,7 @@ describe('SettingsScreen inbox edit', () => {
     expect(csatReminder.getByRole('spinbutton', { name: 'Hours' })).toHaveValue(1);
 
     expect(screen.queryByRole('complementary', { name: 'Mobile preview' })).not.toBeInTheDocument();
-    await user.click(screen.getByRole('tab', { name: 'WhatsApp Widget' }));
+    await user.click(screen.getByRole('tab', { name: 'Widget' }));
     expect(screen.getByRole('complementary', { name: 'Mobile preview' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Preview on desktop' }));
     expect(screen.getByRole('dialog', { name: 'Desktop preview' })).toBeInTheDocument();
