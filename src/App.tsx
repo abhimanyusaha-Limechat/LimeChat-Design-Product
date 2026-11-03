@@ -371,7 +371,7 @@ export function App() {
           {page === 'broadcast-list' && <BroadcastScreen />}
           {page === 'flows-list' && <FlowsScreen />}
           {page === 'bot-flows-list' && <BotFlowsScreen />}
-          {page === 'agents' && <AgentsScreen />}
+          {page === 'agents' && <AgentsScreen agentId={agent} onAgentChange={setAgent} />}
           {page === 'segments' && <SegmentsScreen />}
           {page === 'templates' && <TemplatesScreen />}
           {page === 'knowledge-base' && <KnowledgeBaseScreen />}

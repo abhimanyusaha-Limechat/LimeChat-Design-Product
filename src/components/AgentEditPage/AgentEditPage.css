@@ -1,0 +1,150 @@
+/* AgentEditPage — the agent's Prompts / Tasks reuse InboxSettings' tabs, sections and rows (`lc-inbs__*`); this adds the prompt editor, guardrail rows and task chips. */
+
+.lc-aep__saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 4px;
+  background: var(--lc-color-gray-100);
+  color: var(--lc-color-stone-600);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.lc-aep__error {
+  margin: 0;
+  color: var(--lc-color-red-600);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* --- Prompt editor --------------------------------------------------------- */
+
+.lc-aep__editor {
+  border: 1px solid var(--lc-color-gray-300);
+  border-radius: 6px;
+  background: var(--lc-color-white);
+}
+
+.lc-aep__editor:focus-within {
+  border-color: var(--lc-color-green-700);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-color-green-700) 20%, transparent);
+}
+
+.lc-aep__editor:has([aria-invalid]) {
+  border-color: var(--lc-color-red-600);
+}
+
+.lc-aep__textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  resize: vertical;
+}
+
+.lc-aep__textarea:focus {
+  outline: none;
+}
+
+.lc-aep__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-top: 1px solid var(--lc-color-gray-200);
+}
+
+.lc-aep__fmt,
+.lc-aep__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.lc-aep__fmt {
+  width: 28px;
+  height: 28px;
+  color: var(--lc-color-stone-600);
+}
+
+.lc-aep__fmt:hover,
+.lc-aep__remove:hover {
+  background: var(--lc-color-gray-100);
+}
+
+.lc-aep__fmt:focus-visible,
+.lc-aep__remove:focus-visible {
+  outline: 2px solid var(--lc-color-green-500);
+  outline-offset: 2px;
+}
+
+.lc-aep__fmt--bold {
+  font-weight: 700;
+}
+
+.lc-aep__fmt--italic {
+  font-style: italic;
+}
+
+.lc-aep__fmt--strikethrough {
+  text-decoration: line-through;
+}
+
+.lc-aep__sep {
+  width: 1px;
+  height: 16px;
+  margin: 0 4px;
+  background: var(--lc-color-gray-300);
+}
+
+.lc-aep__count {
+  margin-left: auto;
+  color: var(--lc-color-sage-500);
+  font-size: 12px;
+}
+
+/* --- Guardrails ------------------------------------------------------------ */
+
+.lc-aep__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lc-aep__guardrail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-aep__remove {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  color: var(--lc-color-red-600);
+}
+
+.lc-aep__add {
+  align-self: flex-start;
+}
+
+/* Fills the row, like the guardrail boxes (TagsInput is 320px by default). */
+.lc-inbs .lc-aep__tags {
+  width: 100%;
+}
