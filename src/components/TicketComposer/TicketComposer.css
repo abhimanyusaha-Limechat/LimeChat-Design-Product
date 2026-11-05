@@ -68,10 +68,14 @@
   height: 80px;
   border-radius: 8px;
   background: var(--lc-color-gray-100);
+  box-shadow: inset 0 0 0 1px var(--lc-tc-border);
   transition: box-shadow 150ms ease;
 }
 .lc-ticket-composer__attachment-tile:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 0 0 1px var(--lc-tc-border), 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.lc-ticket-composer__attachment-preview:active {
+  transform: scale(0.97); /* instant press feedback */
 }
 .lc-ticket-composer__attachment-preview {
   display: block;
@@ -123,10 +127,48 @@
   border-radius: inherit;
   object-fit: cover;
 }
-.lc-ticket-composer__attachment-tile > svg {
-  width: 24px;
-  height: 24px;
+.lc-ticket-composer__attachment-file {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-end;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  padding: 8px 10px;
   color: var(--lc-tc-dimmed);
+}
+.lc-ticket-composer__attachment-tile[data-multi] .lc-ticket-composer__attachment-file {
+  padding: 6px 8px; /* the 60px tiles have less room */
+}
+.lc-ticket-composer__attachment-ext {
+  align-self: center;
+  margin-top: auto; /* badge + size centre together above the name */
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--lc-color-white);
+  box-shadow: inset 0 0 0 1px var(--lc-tc-border);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 19px;
+  letter-spacing: 0.04em;
+  color: var(--lc-color-green-900);
+}
+.lc-ticket-composer__attachment-name {
+  max-width: 100%;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--lc-color-green-900);
+}
+.lc-ticket-composer__attachment-size {
+  margin-bottom: auto;
+  text-align: center;
+  font-size: 10px;
+  line-height: 12px;
 }
 .lc-ticket-composer__attachment-bin {
   position: absolute;
@@ -148,11 +190,17 @@
   transition: opacity 150ms ease, background-color 150ms ease;
 }
 .lc-ticket-composer__attachment-tile:hover .lc-ticket-composer__attachment-bin,
+.lc-ticket-composer__attachment-tile:focus-within .lc-ticket-composer__attachment-bin,
 .lc-ticket-composer__attachment-bin:focus-visible {
   opacity: 1;
 }
 .lc-ticket-composer__attachment-bin:hover {
   background: var(--lc-color-gray-100);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-ticket-composer__attachment-preview:active {
+    transform: none;
+  }
 }
 .lc-ticket-composer__attachment-bin svg {
   width: 12px;
@@ -524,6 +572,24 @@
   background: transparent;
 }
 .lc-ticket-composer__format .lc-ticket-composer__icon-btn:hover {
+  background: var(--lc-color-white);
+}
+.lc-ticket-composer__ai-option {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--lc-tc-dimmed);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.lc-ticket-composer__ai-option:hover {
   background: var(--lc-color-white);
 }
 .lc-ticket-composer__format-toggle {

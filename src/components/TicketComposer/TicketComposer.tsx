@@ -15,6 +15,7 @@ import { Button } from '../Button';
 import { Modal } from '../Modal';
 import type { TicketChannel } from '../TicketListItem';
 import { AttachmentTiles } from './AttachmentTiles';
+import { AiImproveToolbar, type AiImproveStyle } from './AiImproveToolbar';
 import { FormattingToolbar } from './FormattingToolbar';
 import { MODE_CONFIG, ModeTabs, type TicketComposerMode } from './ModeTabs';
 import { useFileDrop } from './useFileDrop';
@@ -52,8 +53,8 @@ export interface TicketComposerProps {
   onMic?: () => void;
   onEmoji?: () => void;
   onSend?: () => void;
-  /** Rewrites the draft with AI; the button is disabled while the box is empty. */
-  onAiImprove?: () => void;
+  /** Rewrites the draft with AI in the chosen style; the button is disabled while the box is empty. */
+  onAiImprove?: (style: AiImproveStyle) => void;
   /** Replies the drawer offers; opened by the Canned responses button or by typing "/". */
   cannedResponses?: CannedResponseOption[];
   /** Where the reply goes; decides which formatting markers the toolbar writes (none for Instagram and SMS). */
@@ -98,11 +99,16 @@ export function TicketComposer({
   const [drawer, setDrawer] = useState<'canned' | 'templates' | null>(null);
   const drawerOpen = drawer !== null;
   const [activeIndex, setActiveIndex] = useState(0);
-  const [formatOpen, setFormatOpen] = useState(false);
+  // The formatting and AI rows are exclusive: opening one closes the other.
+  const [openRow, setOpenRow] = useState<'format' | 'ai' | null>(null);
+  const formatOpen = openRow === 'format';
+  const aiOpen = openRow === 'ai' && value.trim() !== '';
+  const toggleRow = (row: 'format' | 'ai') => setOpenRow((current) => (current === row ? null : row));
   const canFormat = !isNote && supportsFormatting(channel);
   const history = useTextHistory(value, onChange);
 
   const formatToggleRef = useRef<HTMLButtonElement>(null);
+  const aiToggleRef = useRef<HTMLButtonElement>(null);
 
   const format = (kind: TextFormat) => {
     const box = textareaRef.current;
@@ -323,6 +329,16 @@ export function TicketComposer({
         />
       )}
 
+      <AiImproveToolbar
+        open={aiOpen}
+        toggleRef={aiToggleRef}
+        containerRef={rootRef}
+        onSelect={(style) => {
+          onAiImprove?.(style);
+          setOpenRow(null);
+        }}
+      />
+
       <div className="lc-ticket-composer__options">
         <div className="lc-ticket-composer__start">
           <ModeTabs mode={mode} onModeChange={onModeChange} size={tabSize} />
@@ -334,7 +350,8 @@ export function TicketComposer({
               aria-label="Formatting options"
               title="Formatting options"
               aria-pressed={formatOpen}
-              onClick={() => setFormatOpen((open) => !open)}
+              disabled={value.trim() === ''}
+              onClick={() => toggleRow('format')}
             >
               Aa
             </button>
@@ -344,11 +361,13 @@ export function TicketComposer({
           </button>
           <button
             type="button"
+            ref={aiToggleRef}
             className="lc-ticket-composer__icon-btn"
             aria-label="Improve with AI"
             title="Improve with AI"
+            aria-pressed={aiOpen}
             disabled={value.trim() === ''}
-            onClick={onAiImprove}
+            onClick={() => toggleRow('ai')}
           >
             <Icon name="sparkle" />
           </button>
@@ -372,7 +391,7 @@ export function TicketComposer({
                 aria-pressed={drawer === 'canned'}
                 onClick={() => openDrawer('canned')}
               >
-                <Icon name="bolt" />
+                <Icon name="message-circle" />
               </button>
             )}
             {!isNote && (
