@@ -3,8 +3,9 @@
  * another. It stays mounted so it can animate shut (`data-open` drives the collapse in the CSS), and its
  * formatting pill is shifted so its middle sits over the Aa button.
  */
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import type { RefObject } from 'react';
 import { Icon } from '../icons';
+import { useCentredPill } from './useCentredPill';
 import { TEXT_FORMATS, type TextFormat } from './textFormat';
 
 interface FormattingToolbarProps {
@@ -24,24 +25,7 @@ interface FormattingToolbarProps {
 const keepFocus = (e: React.MouseEvent) => e.preventDefault();
 
 export function FormattingToolbar({ open, toggleRef, containerRef, canUndo, canRedo, onUndo, onRedo, onFormat }: FormattingToolbarProps) {
-  const rowRef = useRef<HTMLDivElement>(null);
-  const pillRef = useRef<HTMLDivElement>(null);
-  const [left, setLeft] = useState(0);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const measure = () => {
-      const toggle = toggleRef.current?.getBoundingClientRect();
-      const row = rowRef.current?.getBoundingClientRect();
-      const pill = pillRef.current?.offsetWidth ?? 0;
-      if (toggle && row) setLeft(Math.max(0, toggle.left + toggle.width / 2 - pill / 2 - row.left));
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(container);
-    return () => ro.disconnect();
-  }, [containerRef, toggleRef]);
+  const { rowRef, pillRef, left } = useCentredPill(toggleRef, containerRef);
 
   return (
     <div className="lc-ticket-composer__format-collapse" data-open={open || undefined}>

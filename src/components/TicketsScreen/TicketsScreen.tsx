@@ -300,7 +300,7 @@ export function TicketsScreen() {
               onSend={() => patch({ draft: '' })}
               onMic={() => alert('Record voice note')}
               onEmoji={() => alert('Insert emoji')}
-              onAiImprove={() => alert('Improve with AI')}
+              onAiImprove={(style) => alert(`Improve with AI: ${style}`)}
             />
           ) : emailAction ? (
             <EmailForwardComposer
