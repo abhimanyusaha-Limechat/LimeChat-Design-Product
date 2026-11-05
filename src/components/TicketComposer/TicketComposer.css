@@ -12,7 +12,9 @@
   --lc-tc-warning: var(--lc-color-amber-500);
   --lc-tc-warning-light: #FAEFDB;
 
+  position: relative; /* anchors the canned responses drawer */
   box-sizing: border-box;
+  min-height: 110px; /* default height; the input row takes the spare room and the box grows with its content */
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -40,7 +42,16 @@
 }
 
 .lc-ticket-composer__input-row {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: flex-start; /* text starts at the top of the taller box */
+  gap: 16px;
   width: 100%;
+}
+.lc-ticket-composer__input-row .lc-ticket-composer__textarea {
+  flex: 1;
+  min-width: 0;
 }
 
 .lc-ticket-composer__attachments {
@@ -193,30 +204,49 @@
   width: 100%;
 }
 
+.lc-ticket-composer__start {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-ticket-composer__start .lc-ticket-composer__icon-btn {
+  width: auto;
+  min-width: 32px;
+  height: 32px; /* matches the sm segmented control they sit beside */
+  padding: 0 4px;
+}
+
 .lc-ticket-composer__tabs {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--tc-seg-pad);
   width: fit-content;
-  padding: 3px;
-  background: #F5F5F5;
-  border: 1px solid #E3E5E1;
+  padding: var(--tc-seg-pad);
+  background: #FAFAFA;
   border-radius: 4px;
+  /* Segmented control sizes from the design system; overall control heights 24/32/40/48/56 (item height = control - 2 * padding). */
+  --tc-seg-pad: 2px;
+  --tc-seg-h: 28px;
+  --tc-seg-px: 16px;
+  --tc-seg-fs: 14px;
+  --tc-seg-lh: 20px;
 }
-/* Single sliding pill behind the tab labels — animates position/size instead of
-   each button popping its own background in and out, so switching modes reads
-   as one continuous movement rather than three independent state changes. */
+.lc-ticket-composer__tabs[data-size='xs'] { --tc-seg-h: 20px; --tc-seg-px: 12px; --tc-seg-fs: 12px; --tc-seg-lh: 16px; }
+.lc-ticket-composer__tabs[data-size='md'] { --tc-seg-h: 36px; --tc-seg-px: 20px; --tc-seg-fs: 16px; --tc-seg-lh: 24px; }
+.lc-ticket-composer__tabs[data-size='lg'] { --tc-seg-pad: 4px; --tc-seg-h: 40px; --tc-seg-px: 24px; --tc-seg-fs: 18px; --tc-seg-lh: 28px; }
+.lc-ticket-composer__tabs[data-size='xl'] { --tc-seg-pad: 4px; --tc-seg-h: 48px; --tc-seg-px: 32px; --tc-seg-fs: 20px; --tc-seg-lh: 32px; }
+/* Pill behind the active tab. Its box is driven from JS on every resize frame of
+   the label reveal below, so it stays glued to the tab without its own easing. */
 .lc-ticket-composer__tab-indicator {
   position: absolute;
-  top: 3px;
+  top: var(--tc-seg-pad);
   left: 0;
-  height: 28px;
+  height: var(--tc-seg-h);
   background: var(--lc-color-white);
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1), width 200ms cubic-bezier(0.23, 1, 0.32, 1),
-    background-color 150ms ease;
 }
 .lc-ticket-composer__tab {
   position: relative;
@@ -224,15 +254,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 28px;
-  padding: 0 16px;
+  gap: 0;
+  height: var(--tc-seg-h);
+  padding: 0 var(--tc-seg-px);
   border: none;
   border-radius: 4px;
   background: transparent;
   font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--tc-seg-fs);
+  line-height: var(--tc-seg-lh);
+  font-weight: 400;
   color: var(--lc-tc-dimmed);
   cursor: pointer;
   transition: color 150ms ease;
@@ -241,10 +272,33 @@
   width: 14px;
   height: 14px;
 }
+/* Label collapses to icon-only when inactive: grid 0fr -> 1fr animates the width. */
+.lc-ticket-composer__tab-label {
+  display: grid;
+  grid-template-columns: 0fr;
+  opacity: 0;
+  transition: grid-template-columns 200ms cubic-bezier(0.23, 1, 0.32, 1), opacity 150ms ease-out;
+}
+.lc-ticket-composer__tab-label > span {
+  min-width: 0;
+  overflow: hidden;
+  padding-left: 6px;
+  white-space: nowrap;
+}
+.lc-ticket-composer__tab[data-active] .lc-ticket-composer__tab-label {
+  grid-template-columns: 1fr;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-ticket-composer__tab-label {
+    transition: none;
+  }
+}
 .lc-ticket-composer__tab:not([data-active]):hover {
   color: var(--lc-tc-title);
 }
 .lc-ticket-composer__tab[data-active] {
+  font-weight: 600;
   color: var(--lc-tc-title);
 }
 
@@ -275,6 +329,39 @@
   font-weight: 400;
 }
 
+.lc-ticket-composer__slash-hint {
+  position: absolute;
+  top: 6px; /* the textarea's top padding */
+  left: 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-tc-dimmed);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.lc-ticket-composer__slash-hint span {
+  margin-right: 4px; /* clears the caret sitting right after the "/" */
+  visibility: hidden; /* only reserves the room the typed "/" takes */
+}
+.lc-ticket-composer__hint {
+  position: absolute;
+  top: 0;
+  height: 32px; /* the textarea's one-line height, so the hint sits on its first line */
+  left: 3px; /* leaves the blinking caret, at the textarea's left edge, clear of the first letter */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-tc-dimmed);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.lc-ticket-composer__hint .lc-btn {
+  pointer-events: auto;
+}
+
 .lc-ticket-composer__icons {
   display: flex;
   align-items: center;
@@ -296,6 +383,157 @@
 }
 .lc-ticket-composer__icon-btn:hover {
   background: var(--lc-color-gray-100);
+}
+/* Dragging files over the composer: the box becomes a dashed dropzone that covers the content. */
+.lc-ticket-composer__dropzone {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  background: var(--lc-tc-primary-light);
+  border: 2px dashed var(--lc-tc-primary);
+  border-radius: 8px;
+  color: var(--lc-tc-title);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  pointer-events: none; /* the composer underneath keeps receiving the drag events */
+  transition: opacity 150ms ease-out, transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+.lc-ticket-composer__dropzone svg {
+  color: var(--lc-tc-primary);
+}
+.lc-ticket-composer__dropzone-hint {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--lc-tc-dimmed);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-ticket-composer__dropzone {
+    transition: opacity 150ms ease-out;
+  }
+}
+
+/* Toast-style notice above the box, like Slack's "too many files" banner. */
+.lc-ticket-composer__notice {
+  position: absolute;
+  left: 12px;
+  bottom: calc(100% + 8px);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px 8px 12px;
+  background: var(--lc-color-green-900, #2B3620);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: #FFFFFF;
+  font-size: 14px;
+  line-height: 20px;
+  transition: opacity 150ms ease-out, transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.lc-ticket-composer__notice button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.lc-ticket-composer__notice button:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-ticket-composer__notice {
+    transition: opacity 150ms ease-out;
+  }
+}
+
+/* Opens and closes the formatting row: a grid track animates 0fr <-> 1fr, so the composer grows with it
+   instead of jumping. The negative margin cancels the composer's 8px gap while it is shut. */
+.lc-ticket-composer__format-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: -8px;
+  opacity: 0;
+  visibility: hidden; /* out of the tab order once closed; flips after the close finishes */
+  transition: grid-template-rows 180ms cubic-bezier(0.23, 1, 0.32, 1), margin-top 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 120ms ease-out, visibility 0s linear 180ms;
+}
+.lc-ticket-composer__format-collapse[data-open] {
+  grid-template-rows: 1fr;
+  margin-top: 0;
+  opacity: 1;
+  visibility: visible;
+  transition: grid-template-rows 180ms cubic-bezier(0.23, 1, 0.32, 1), margin-top 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 150ms ease-out, visibility 0s;
+}
+.lc-ticket-composer__format-clip {
+  min-height: 0;
+  overflow: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-ticket-composer__format-collapse,
+  .lc-ticket-composer__format-collapse[data-open] {
+    transition: opacity 150ms ease-out, visibility 0s linear 150ms;
+  }
+  .lc-ticket-composer__format-collapse[data-open] {
+    transition: opacity 150ms ease-out, visibility 0s;
+  }
+}
+.lc-ticket-composer__format-row {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* formatting pill, then undo / redo as a separate pill */
+  width: 100%;
+}
+.lc-ticket-composer__format {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: var(--lc-color-gray-100);
+  border-radius: 4px;
+}
+.lc-ticket-composer__icon-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.lc-ticket-composer__icon-btn:disabled:hover {
+  background: transparent;
+}
+.lc-ticket-composer__format .lc-ticket-composer__icon-btn:hover {
+  background: var(--lc-color-white);
+}
+.lc-ticket-composer__format-toggle {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+}
+.lc-ticket-composer__icon-btn[aria-pressed='true'] {
+  background: var(--lc-tc-primary-light);
+  color: var(--lc-tc-title);
 }
 .lc-ticket-composer__icon-btn svg {
   width: 16px;
