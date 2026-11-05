@@ -16,7 +16,8 @@ import { TicketComposer, type TicketComposerMode } from '../TicketComposer';
 import { EmailMessage, EmailComposerBar, EmailForwardComposer, type EmailRecipientField } from '../EmailMessage';
 import { TicketDetailsPanel } from '../TicketDetailsPanel';
 import { ConversationMessageRow, type MessageMenuAction } from './ConversationMessageRow';
-import { INBOX_NAMES } from '../../data/settingsDemo';
+import { DEMO_CANNED, INBOX_NAMES } from '../../data/settingsDemo';
+import { DEMO_TEMPLATES } from '../../data/templatesDemo';
 import {
   CONVERSATIONS,
   EMAIL_THREADS,
@@ -26,6 +27,24 @@ import {
   type ConversationEntry,
   type TicketRowData,
 } from '../../data/ticketsDemo';
+
+// ponytail: the demo has no pictures, so an image response attaches an empty file named after it.
+const imageFileName = (name: string) => `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.png`;
+
+// Only approved templates can be sent. The list's serial is padded to the five digits the drawer shows.
+const TEMPLATE_OPTIONS = DEMO_TEMPLATES.filter((t) => t.status === 'active').map((t) => ({
+  name: t.name,
+  code: t.displayId.padStart(5, '0'),
+  message: t.preview,
+  ...(t.type === 'image' && { attachment: imageFileName(t.name) }),
+}));
+
+// An image response has no stored caption in the demo, so the list description previews it.
+const CANNED_OPTIONS = DEMO_CANNED.map((r) => ({
+  name: r.name,
+  message: r.description,
+  ...(r.mediaType === 'image' && { attachment: imageFileName(r.name) }),
+}));
 
 /** Whether `ticket` matches `search` by customer name, message or ticket number. An empty search matches all. */
 export function ticketMatches(ticket: TicketRowData, search: string): boolean {
@@ -270,6 +289,10 @@ export function TicketsScreen() {
         composer={
           !isEmail ? (
             <TicketComposer
+              tabSize="sm"
+              channel={ticket.channel}
+              cannedResponses={CANNED_OPTIONS}
+              templates={TEMPLATE_OPTIONS}
               mode={session.composerMode}
               onModeChange={(composerMode) => patch({ composerMode })}
               value={session.draft}
@@ -277,6 +300,7 @@ export function TicketsScreen() {
               onSend={() => patch({ draft: '' })}
               onMic={() => alert('Record voice note')}
               onEmoji={() => alert('Insert emoji')}
+              onAiImprove={() => alert('Improve with AI')}
             />
           ) : emailAction ? (
             <EmailForwardComposer
