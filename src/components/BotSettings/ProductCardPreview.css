@@ -1,0 +1,445 @@
+/**
+ * ProductCardPreview — Widget 2.0 product card layouts (Figma "Agentic Bot
+ * Builder" · Product card preview A/B/C/D).
+ *
+ * One block, four `data-layout` values. Shared anatomy (image furniture,
+ * rating, price row, tag pills, buttons) is written once; each layout only
+ * overrides the geometry that actually differs.
+ */
+
+.lc-pcard {
+  /* Tints that have no shared token yet — all from the design system's
+     product-card scale, kept local to this block. */
+  --lc-pcard-tint: #f1f7e9;        /* background/primary/light */
+  --lc-pcard-tint-text: var(--lc-color-green-800);
+  --lc-pcard-filled: var(--lc-color-green-500);
+  --lc-pcard-image: var(--lc-color-gray-100);
+  --lc-pcard-thumb: #f3f4f3;       /* background/gray/light */
+  --lc-pcard-scrim: #1f1f1f;       /* gray/100 */
+  --lc-pcard-title: var(--lc-color-green-900);
+  --lc-pcard-dimmed: var(--lc-color-sage-500);
+  --lc-pcard-float-shadow: 0 2px 1.5px rgba(0, 0, 0, 0.14);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: clip;
+  border-radius: 16px;
+  background: var(--lc-color-white);
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+}
+
+.lc-pcard[data-layout='compact-tile'] { width: 200px; }
+.lc-pcard[data-layout='wide-row'] { width: 343px; flex-direction: row; align-items: stretch; }
+.lc-pcard[data-layout='immersive-poster'] { width: 296px; }
+.lc-pcard[data-layout='editorial'] { width: 343px; gap: 10px; padding: 16px; }
+
+/* --- Image area and rail ------------------------------------------------ */
+
+.lc-pcard__image {
+  position: relative;
+  width: 100%;
+  flex-shrink: 0;
+  background: var(--lc-pcard-image);
+  overflow: clip;
+}
+
+.lc-pcard[data-layout='compact-tile'] .lc-pcard__image { height: 200px; }
+
+.lc-pcard[data-layout='immersive-poster'] .lc-pcard__image {
+  height: 308px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.lc-pcard__photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lc-pcard__rail {
+  position: relative;
+  width: 136px;
+  flex-shrink: 0;
+  align-self: stretch;
+  background: var(--lc-pcard-image);
+  overflow: clip;
+}
+
+/* --- Floating furniture over the image ---------------------------------- */
+
+.lc-pcard__ribbon {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--lc-color-white);
+  filter: drop-shadow(var(--lc-pcard-float-shadow));
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--lc-pcard-title);
+  white-space: nowrap;
+}
+
+/* Editorial's ribbon sits in the content, tinted rather than floating. */
+.lc-pcard__ribbon--inline {
+  position: static;
+  flex-shrink: 0;
+  background: var(--lc-pcard-tint);
+  color: var(--lc-pcard-tint-text);
+  filter: none;
+}
+
+.lc-pcard__round {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 32px;
+  background: var(--lc-color-white);
+  filter: drop-shadow(var(--lc-pcard-float-shadow));
+}
+
+.lc-pcard__round img { display: block; }
+
+.lc-pcard__round--cart { top: 12px; right: 12px; }
+
+.lc-pcard__round--prev,
+.lc-pcard__round--next {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.lc-pcard__round--prev { left: 8px; }
+.lc-pcard__round--next { right: 8px; }
+
+/* Wide row and Editorial carry the cart inside the content column. */
+.lc-pcard__round--cart-inline { position: static; flex-shrink: 0; }
+
+/* --- Carousel dots ------------------------------------------------------ */
+
+.lc-pcard__dots {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 32px;
+}
+
+.lc-pcard__dots[data-style='pill'] {
+  bottom: 12px;
+  padding: 6px 8px;
+}
+
+.lc-pcard__dots[data-style='bare'] { top: 20px; }
+
+.lc-pcard__dots-backdrop {
+  position: absolute;
+  inset: 0;
+  border-radius: 32px;
+  background: var(--lc-pcard-scrim);
+  opacity: 0.35;
+}
+
+.lc-pcard__dot {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 32px;
+  background: var(--lc-color-white);
+}
+
+.lc-pcard__dot--active { width: 16px; }
+
+/* --- Gradient scrim (Immersive poster) ---------------------------------- */
+
+.lc-pcard__scrim {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 40px 16px 16px;
+}
+
+.lc-pcard__scrim::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.85));
+}
+
+.lc-pcard__scrim > * { position: relative; }
+
+.lc-pcard__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+/* --- Content column ----------------------------------------------------- */
+
+.lc-pcard__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  overflow: clip;
+}
+
+.lc-pcard[data-layout='wide-row'] .lc-pcard__content {
+  flex: 1 0 0;
+  min-width: 0;
+  width: auto;
+}
+
+.lc-pcard__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+/* --- Text --------------------------------------------------------------- */
+
+.lc-pcard__title {
+  margin: 0;
+  min-width: 0;
+  flex: 1 1 auto;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 700;
+  color: var(--lc-pcard-title);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.lc-pcard__title--lg { font-size: 20px; line-height: 24px; width: 100%; }
+.lc-pcard__title--on-image { color: var(--lc-color-white); width: 100%; }
+
+.lc-pcard__desc {
+  margin: 0;
+  width: 100%;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-pcard-dimmed);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.lc-pcard__rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.lc-pcard__rating img { display: block; flex-shrink: 0; }
+
+.lc-pcard__rating-value {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--lc-pcard-title);
+}
+
+.lc-pcard__rating-count {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-pcard-dimmed);
+}
+
+.lc-pcard__scrim .lc-pcard__rating-value { color: var(--lc-color-white); }
+.lc-pcard__scrim .lc-pcard__rating-count { color: var(--lc-color-white); opacity: 0.8; }
+
+/* --- Price -------------------------------------------------------------- */
+
+.lc-pcard__price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.lc-pcard__price {
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 700;
+  color: var(--lc-pcard-title);
+  white-space: nowrap;
+}
+
+.lc-pcard__mrp {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--lc-pcard-dimmed);
+  text-decoration: line-through;
+  white-space: nowrap;
+}
+
+.lc-pcard__scrim .lc-pcard__price { color: var(--lc-color-white); }
+.lc-pcard__scrim .lc-pcard__mrp { color: var(--lc-color-white); opacity: 0.7; }
+
+/* --- Tag pills ---------------------------------------------------------- */
+
+.lc-pcard__tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  overflow: clip;
+}
+
+.lc-pcard__tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--lc-pcard-tint);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: var(--lc-pcard-tint-text);
+  white-space: nowrap;
+}
+
+/* Attribute pills truncate; the trailing +N pill always keeps its place. */
+.lc-pcard__tag:not([data-count]) {
+  min-width: 0;
+  max-width: 104px;
+  display: block;
+  padding: 4px 8px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lc-pcard[data-layout='compact-tile'] .lc-pcard__tag:not([data-count]) { max-width: 59px; }
+
+.lc-pcard__tag[data-count] { min-width: 37px; }
+
+/* On the scrim the pill becomes a 20% white wash with white text. */
+.lc-pcard__tag[data-on-image] {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--lc-color-white);
+}
+
+/* --- Editorial thumbnails ----------------------------------------------- */
+
+.lc-pcard__thumbs {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.lc-pcard__thumb {
+  position: relative;
+  flex: 1 0 0;
+  min-width: 0;
+  height: 70px;
+  border-radius: 8px;
+  background: var(--lc-pcard-thumb);
+  overflow: clip;
+}
+
+.lc-pcard__thumb[data-more] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ::after, not ::before, so the wash sits over the photo rather than under it. */
+.lc-pcard__thumb[data-more]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--lc-pcard-scrim);
+  opacity: 0.55;
+}
+
+.lc-pcard__thumb-more {
+  position: relative;
+  z-index: 2;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 700;
+  color: var(--lc-color-white);
+}
+
+.lc-pcard__divider {
+  width: 100%;
+  height: 1px;
+  flex-shrink: 0;
+  background: var(--lc-color-gray-200);
+}
+
+/* --- Buttons ------------------------------------------------------------ */
+
+.lc-pcard__buttons {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  padding-top: 4px;
+}
+
+.lc-pcard__buttons[data-layout='stacked'] { flex-direction: column; align-items: stretch; }
+.lc-pcard__buttons[data-layout='side-by-side'] { flex-direction: row; align-items: center; }
+.lc-pcard__buttons[data-layout='side-by-side'] .lc-pcard__button { flex: 1 0 0; min-width: 0; }
+
+.lc-pcard__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lc-pcard__button[data-variant='filled'] {
+  background: var(--lc-pcard-filled);
+  color: var(--lc-color-white);
+}
+
+.lc-pcard__button[data-variant='outline'] {
+  background: transparent;
+  border-color: var(--lc-pcard-filled);
+  color: var(--lc-pcard-filled);
+}

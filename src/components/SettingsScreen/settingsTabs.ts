@@ -85,7 +85,7 @@ export const SETTINGS_COPY: Record<string, { title: string; description: string 
   },
   'bot-settings': {
     title: 'Bot settings',
-    description: 'Configure how your bot behaves across conversations.',
+    description: 'Configure how this bot answers, replies and behaves.',
   },
   'bot-inbox-mapping': {
     title: 'Bot Inbox mapping',

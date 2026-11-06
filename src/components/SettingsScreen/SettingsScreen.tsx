@@ -39,6 +39,7 @@ import {
   type CsatRatingScale,
   type CsatTimeDelay,
 } from '../BotCsatSettings';
+import { BotSettings, DEFAULT_BOT_SETTINGS, type BotSettingsValues } from '../BotSettings';
 import { TicketAssignmentSettings, type AssignmentStrategy } from '../TicketAssignmentSettings';
 import { IntegrationsHomePage } from '../IntegrationsHomePage';
 import { IntegrationSettings } from '../IntegrationSettings';
@@ -508,6 +509,20 @@ export function SettingsScreen({
     'Sales Bot': ['Limechat (189)'],
   });
   const [savingBotInboxMap, setSavingBotInboxMap] = useState(false);
+
+  // Bot settings → Product cards. `savedBotSettings` is the last committed copy,
+  // so Save only lights up once something has actually changed.
+  const [botSettings, setBotSettings] = useState<BotSettingsValues>(DEFAULT_BOT_SETTINGS);
+  const [savedBotSettings, setSavedBotSettings] = useState<BotSettingsValues>(DEFAULT_BOT_SETTINGS);
+  const [savingBotSettings, setSavingBotSettings] = useState(false);
+  const botSettingsDirty = JSON.stringify(botSettings) !== JSON.stringify(savedBotSettings);
+  const saveBotSettings = () => {
+    setSavingBotSettings(true);
+    window.setTimeout(() => {
+      setSavedBotSettings(botSettings);
+      setSavingBotSettings(false);
+    }, 700);
+  };
   const [savingHelpdeskSettings, setSavingHelpdeskSettings] = useState(false);
 
   const [dsMaskMessagePii, setDsMaskMessagePii] = useState(true);
@@ -795,7 +810,7 @@ export function SettingsScreen({
               ? `You are on ${CURRENT_PLAN_TIER.name} at $${CURRENT_PLAN_TIER.pricePerMonth}/month. Prices are in USD. Recurring and usage-based charges bill every 30 days.`
               : copy.description
       }
-      contentPadding={changePlan ? '48px 72px 72px' : settingsTab === 'custom-fields' ? 20 : undefined}
+      contentPadding={changePlan ? '48px 72px 72px' : settingsTab === 'bot-settings' ? 0 : settingsTab === 'custom-fields' ? 20 : undefined}
       detailPanel={detailPanel}
       // The inbox edit page has no tutorial or docs page of its own.
       onTitleChange={patchTitled && ((name) => patchTitled({ name }))}
@@ -849,6 +864,18 @@ export function SettingsScreen({
               {industryTab === 'use-cases' ? 'Use cases' : 'Industries'}
             </Button>
           </>
+        ) : settingsTab === 'bot-settings' ? (
+          <Button
+            variant="filled"
+            color="primary"
+            size="sm"
+            style={{ width: 100 }}
+            loading={savingBotSettings}
+            disabled={!botSettingsDirty}
+            onClick={saveBotSettings}
+          >
+            Save
+          </Button>
         ) : settingsTab === 'bot-templates' ? (
           <>
             <Button variant="default" size="sm" onClick={() => onManageIndustriesChange(true)}>
@@ -1129,6 +1156,8 @@ export function SettingsScreen({
             setAssignOfflineIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
           }
         />
+      ) : settingsTab === 'bot-settings' ? (
+        <BotSettings values={botSettings} onChange={setBotSettings} />
       ) : settingsTab === 'bot-csat' ? (
         <BotCsatSettings
           enabled={csatEnabled}
