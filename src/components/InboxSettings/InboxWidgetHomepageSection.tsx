@@ -19,6 +19,8 @@ export interface HomepageButton {
 }
 
 export interface InboxWidgetHomepage {
+  /** Master switch: off dims the whole Homescreen tab. */
+  enabled: boolean;
   heading: string;
   tagline: string;
   multiChannel: boolean;
@@ -44,18 +46,24 @@ export function WidgetHomepageSection({
   const setButton = (index: number, patch: Partial<HomepageButton>) =>
     set({ buttons: value.buttons.map((b, i) => (i === index ? { ...b, ...patch } : b)) });
   const nextInbox = INBOX_OPTIONS.find((name) => !value.inboxes.includes(name));
-  const inboxesOff = !value.multiChannel;
-  const buttonsOff = !value.customButtons;
+  const homeOff = !value.enabled;
+  const inboxesOff = homeOff || !value.multiChannel;
+  const buttonsOff = homeOff || !value.customButtons;
   return (
     <>
       <section className="lc-inbs__group" aria-label="Homepage">
-        <SectionHeading title="Homepage" description="This is the first screen a customer will see when they click on the Website widget." />
+        <SectionHeading
+          title="Homepage"
+          description="This is the first screen a customer will see when they click on the Website widget."
+          toggle={{ checked: value.enabled, onChange: (enabled) => set({ enabled }) }}
+        />
         <div className="lc-inbs__table">
           <TextRow
             label="Welcome heading"
             description="The large greeting at the top of the widget."
             placeholder="Hello & Welcome"
             value={value.heading}
+            off={homeOff}
             onChange={(heading) => set({ heading })}
           />
           <TextRow
@@ -63,12 +71,14 @@ export function WidgetHomepageSection({
             description="A short line under the heading."
             placeholder="Our team is available to assist you round the clock"
             value={value.tagline}
+            off={homeOff}
             onChange={(tagline) => set({ tagline })}
           />
           <SwitchRow
             label="Agent offline Status"
             description="Show customers when no agent is online."
             checked={value.agentOfflineStatus}
+            off={homeOff}
             onChange={(agentOfflineStatus) => set({ agentOfflineStatus })}
           />
         </div>
@@ -164,15 +174,18 @@ export function WidgetHomepageSection({
                   <span className="lc-inbs__field-label">Link</span>
                   <input className="lc-inbs__input" type="url" placeholder="Insert link" value={button.link} disabled={buttonsOff} onChange={(e) => setButton(i, { link: e.currentTarget.value })} />
                 </label>
-                <MediaPicker
-                  label={`icon for button ${i + 1}`}
-                  placeholder="Icon"
-                  kind="image"
-                  maxMb={1}
-                  value={button.icon}
-                  off={buttonsOff}
-                  onChange={(icon) => setButton(i, { icon })}
-                />
+                <div className="lc-inbs__field">
+                  <span className="lc-inbs__field-label">Icon</span>
+                  <MediaPicker
+                    label={`icon for button ${i + 1}`}
+                    placeholder="Icon"
+                    kind="image"
+                    maxMb={1}
+                    value={button.icon}
+                    off={buttonsOff}
+                    onChange={(icon) => setButton(i, { icon })}
+                  />
+                </div>
               </div>
             </div>
           ))}

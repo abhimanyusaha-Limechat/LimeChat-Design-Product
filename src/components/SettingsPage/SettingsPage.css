@@ -256,6 +256,8 @@
   width: 100%;
   padding: 16px;
   overflow-y: auto;
+  /* Reserve the scrollbar's width so short tabs don't sit wider than long ones. */
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
 }

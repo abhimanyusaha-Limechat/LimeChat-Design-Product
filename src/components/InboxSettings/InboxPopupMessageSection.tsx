@@ -44,8 +44,18 @@ const TYPES: Choice<PopupSettings['type']>[] = [
 
 const DELAYS: SelectItem[] = [0, 3, 5, 10, 15, 30, 60].map((s) => ({ value: String(s), label: `${s} Secs` }));
 
-export function PopupMessageSection({ value, onChange }: { value: InboxPopupMessage; onChange: (next: InboxPopupMessage) => void }) {
-  const [device, setDevice] = useState<WidgetDevice>('desktop');
+/** Pass `device` to pin the section to one device (the widget editor's Mobile and Desktop tabs); otherwise it shows its own device tabs. */
+export function PopupMessageSection({
+  value,
+  device: pinned,
+  onChange,
+}: {
+  value: InboxPopupMessage;
+  device?: WidgetDevice;
+  onChange: (next: InboxPopupMessage) => void;
+}) {
+  const [picked, setDevice] = useState<WidgetDevice>('desktop');
+  const device = pinned ?? picked;
   const off = !value.enabled;
   const popup = value[device];
   const set = (patch: Partial<PopupSettings>) => onChange({ ...value, [device]: { ...popup, ...patch } });
@@ -56,21 +66,23 @@ export function PopupMessageSection({ value, onChange }: { value: InboxPopupMess
         description="Makes the widget more noticeable to new visitors. It appears next to the widget on your website."
         toggle={{ checked: value.enabled, onChange: (enabled) => onChange({ ...value, enabled }) }}
       />
-      <div className="lc-inbs__tabs" role="tablist" aria-label="Pop-up device">
-        {TABS.map((d) => (
-          <button
-            key={d.device}
-            type="button"
-            role="tab"
-            aria-selected={d.device === device}
-            className="lc-inbs__tab"
-            data-active={d.device === device || undefined}
-            onClick={() => setDevice(d.device)}
-          >
-            {d.label}
-          </button>
-        ))}
-      </div>
+      {!pinned && (
+        <div className="lc-inbs__tabs" role="tablist" aria-label="Pop-up device">
+          {TABS.map((d) => (
+            <button
+              key={d.device}
+              type="button"
+              role="tab"
+              aria-selected={d.device === device}
+              className="lc-inbs__tab"
+              data-active={d.device === device || undefined}
+              onClick={() => setDevice(d.device)}
+            >
+              {d.label}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="lc-inbs__table" role="tabpanel" aria-label={TABS.find((d) => d.device === device)?.label}>
         <RadioRow
           label="Pop-up position"

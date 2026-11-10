@@ -37,8 +37,8 @@ export function WidgetGeneralSection({
       <SectionHeading title="Widget details" description="The bot customers chat with, and what the widget's input area offers." />
       <div className="lc-inbs__table">
         <TextRow
-          label="Website Widget Bot Name"
-          description="The name customers see on the bot's messages."
+          label="Widget Name"
+          description="The name customers see on the widget."
           placeholder="Bot101"
           value={value.botName}
           onChange={(botName) => set({ botName })}
