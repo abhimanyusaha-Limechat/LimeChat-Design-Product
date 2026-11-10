@@ -1,6 +1,5 @@
 /** Body of the Settings details panel: a label/value list for the selected row. */
 import type { CSSProperties } from 'react';
-import { InboxIcon, type InboxRowData } from '../InboxesTable';
 import type { BotTemplateRow } from '../BotTemplatesTable';
 import { Avatar } from '../Avatar';
 import { initials } from '../AccountPicker/AccountPicker';
@@ -40,11 +39,6 @@ export function DetailsAvatar({ name, src }: { name: string; src?: string }) {
       {initials(name)}
     </Avatar>
   );
-}
-
-/** Channel icon — the Inboxes table's icon and brand colour (.lc-ib__row-icon). */
-export function InboxDetailsIcon({ type }: { type: InboxRowData['type'] }) {
-  return <InboxIcon name={type} className="lc-ib__row-icon" data-type={type} />;
 }
 
 export function SettingsDetails({ fields }: { fields: Field[] }) {

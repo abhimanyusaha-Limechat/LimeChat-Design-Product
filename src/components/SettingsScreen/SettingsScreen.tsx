@@ -10,7 +10,7 @@ import { useDemoLoading } from '../../hooks/useDemoLoading';
 import { canMove, flattenTree, keyboardTarget, moveTag, type DropTarget } from './tagTree';
 import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsPage, type DetailPanel } from '../SettingsPage';
-import { DetailsAvatar, InboxDetailsIcon, SettingsDetails, rowFields } from './SettingsDetails';
+import { DetailsAvatar, SettingsDetails, rowFields } from './SettingsDetails';
 import { AgentDetails, type AgentPatch } from './AgentDetails';
 import { AgentEdit } from './AgentEdit';
 import { CannedEdit, cannedFor, isCannedComplete, type CannedResponse } from './CannedEdit';
@@ -232,6 +232,7 @@ const inboxDefaults = (name: string): InboxSettingsValues => ({
   whatsappZIndex: 1000,
   widgetAppearance: { baseColor: '1B83AC', shade: 7, font: 'Lato', icon: null, logo: null },
   widgetHomepage: {
+    enabled: true,
     heading: 'Hello & Welcome',
     tagline: 'Our team is available to assist you round the clock',
     multiChannel: true,
@@ -263,14 +264,7 @@ const inboxDefaults = (name: string): InboxSettingsValues => ({
     aiNotice: false,
   },
   widgetPreChat: { enabled: true, message: '', name: false, email: false, phone: false },
-  widgetCards: {
-    template: 'compact',
-    elements: { description: true, sellingPrice: true, mrp: true, discount: true, rating: true, reviewCount: true, tagPills: true, ribbonBadge: true },
-    buttonCount: 2,
-    buttonStyle: 'primary-outline',
-    buttonLayout: 'stacked',
-  },
-  widgetGeneral: { botName: 'Bot101', inbox: 'Website widget', filePicker: false, emojiPicker: false, restartButton: false, showUnread: false },
+  widgetGeneral: { botName: 'WhatsApp Bot', inbox: 'Website widget', filePicker: false, emojiPicker: false, restartButton: false, showUnread: false },
   widgetEcommerce: { imageRatio: '1:1', storeType: 'None', extractTitle: true, messagePrefix: 'Know more about' },
   // Demo: the first 20 agents are on every inbox; the rest show up in the Add menu.
   collaborators: Object.fromEntries(DEMO_COLLABORATORS.slice(0, 20).map((c) => [c.id, { onlyAssignManually: false }])),
@@ -570,6 +564,7 @@ export function SettingsScreen({
   const whatsappWidgets = visibleInboxes.filter((row) => row.type === 'whatsapp');
   // ponytail: demo statuses until widgets have a real one — shows each card state.
   // ponytail: demo kinds too — the second card shows a web widget.
+  const widgetNameById = Object.fromEntries(Object.entries(inboxEdits).map(([id, v]) => [id, v.widgetGeneral.botName]));
   const widgetKindById: Record<string, WidgetKind> = whatsappWidgets[1] ? { [whatsappWidgets[1].id]: 'web' } : {};
   const demoWidgetStatusById: Record<string, WidgetStatus> = Object.fromEntries(
     whatsappWidgets.flatMap((row, i): [string, WidgetStatus][] => (i === 2 ? [[row.id, 'inactive']] : i === 3 ? [[row.id, 'disabled']] : i === 4 ? [[row.id, 'error']] : [])),
@@ -751,7 +746,7 @@ export function SettingsScreen({
           : integration
             ? (integration.form.title ?? integration.partner.name)
             : editedInbox
-              ? editedInbox.name
+              ? (settingsTab === 'widget' && editedInboxValues?.widgetGeneral.botName) || editedInbox.name
               : editedAgent
                 ? editedAgent.name
                 : titled
@@ -764,7 +759,7 @@ export function SettingsScreen({
         integration ? (
           <span className="lc-is-title-icon">{integration.partner.icon}</span>
         ) : (
-          editedInbox ? <InboxDetailsIcon type={editedInbox.type} /> : editedAgent && <DetailsAvatar name={editedAgent.name} src={editedAgent.avatar} />
+          editedAgent && !editedInbox && <DetailsAvatar name={editedAgent.name} src={editedAgent.avatar} />
         )
       }
       onBack={
@@ -1179,6 +1174,7 @@ export function SettingsScreen({
           widgets={whatsappWidgets}
           statusById={widgetStatusById}
           kindById={widgetKindById}
+          nameById={widgetNameById}
           selectedId={selectedId}
           onSelect={rowSelectable ? (row) => selectRowId(row.id) : undefined}
           onEdit={(row) => onInboxChange(row.id)}

@@ -36,6 +36,8 @@ export interface WidgetCardsProps {
   statusById?: Record<string, WidgetStatus>;
   /** Kind per widget id; a widget missing here is WhatsApp. */
   kindById?: Record<string, WidgetKind>;
+  /** The widget's own (editable) name by row id; the kind label shows until one is set. */
+  nameById?: Record<string, string>;
   selectedId?: string;
   onSelect?: (row: InboxRowData) => void;
   onEdit?: (row: InboxRowData) => void;
@@ -45,7 +47,7 @@ export interface WidgetCardsProps {
 
 const SKELETON_COUNT = 3;
 
-export function WidgetCards({ loading = false, widgets, statusById, kindById, selectedId, onSelect, onEdit, onDelete, onCreate }: WidgetCardsProps) {
+export function WidgetCards({ loading = false, widgets, statusById, kindById, nameById, selectedId, onSelect, onEdit, onDelete, onCreate }: WidgetCardsProps) {
   return (
     <ul className="lc-wc" aria-label="Widgets" aria-busy={loading || undefined} data-anchor="widget-cards">
       {!loading && (
@@ -89,7 +91,7 @@ export function WidgetCards({ loading = false, widgets, statusById, kindById, se
                   </span>
                 </span>
                 <span className="lc-wc__info">
-                  <span className="lc-wc__kind">{KIND_LABEL[kind]}</span>
+                  <span className="lc-wc__kind">{nameById?.[row.id] || KIND_LABEL[kind]}</span>
                   <span className="lc-wc__name-line">
                     <img className="lc-wc__inbox-icon" src={inboxGlyph} alt="" />
                     <span className="lc-wc__name">{row.name}</span>
