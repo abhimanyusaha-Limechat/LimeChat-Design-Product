@@ -61,12 +61,15 @@ function WidgetSection({
   title,
   value,
   website = false,
+  compact = false,
   onChange,
 }: {
   title: string;
   value: WhatsAppWidgetSettings;
   /** A website widget inbox: offers the embedded type and has no WhatsApp logo. */
   website?: boolean;
+  /** Onboarding keeps only the position and margins; the rest is editable once the widget exists. */
+  compact?: boolean;
   onChange: (next: WhatsAppWidgetSettings) => void;
 }) {
   const off = !value.enabled;
@@ -83,6 +86,7 @@ function WidgetSection({
         toggle={{ checked: value.enabled, onChange: (enabled) => set({ enabled }) }}
       />
       <div className="lc-inbs__table">
+        {!compact && (
         <RadioRow
           label="Widget type"
           description={website ? 'A round icon, a button with a label, or embedded in the page.' : 'A round WhatsApp icon, or a button with a label.'}
@@ -91,6 +95,7 @@ function WidgetSection({
           off={off}
           onChange={(type) => set({ type })}
         />
+        )}
         <RadioRow
           label="Widget position"
           description="The bottom corner of the screen the widget sits in."
@@ -99,6 +104,8 @@ function WidgetSection({
           off={off}
           onChange={(position) => set({ position })}
         />
+        {!compact && (
+          <>
         <RadioRow
           label="Widget size"
           description="How large the widget appears on the page."
@@ -114,6 +121,8 @@ function WidgetSection({
           off={off}
           onChange={(disappearOnScroll) => set({ disappearOnScroll })}
         />
+          </>
+        )}
         <Row label="Margin" description="Distance from the screen's edges, in pixels." off={off}>
           <div className="lc-inbs__duration lc-inbs__duration--pair" role="group" aria-label="Margin">
             {margins.map(({ key, label }) => (
@@ -131,6 +140,7 @@ function WidgetSection({
             ))}
           </div>
         </Row>
+        {!compact && (
         <Row label="Widget icon" description="PNG, JPG, WebP or SVG, up to 1 MB." off={off}>
           <MediaPicker
             label="widget icon"
@@ -143,6 +153,7 @@ function WidgetSection({
             onChange={(icon) => set({ icon })}
           />
         </Row>
+        )}
       </div>
     </section>
   );
@@ -153,10 +164,12 @@ export function WhatsAppWidgetDeviceSection({
   device,
   value,
   website = false,
+  compact = false,
   onChange,
 }: {
   device: WidgetDevice;
   website?: boolean;
+  compact?: boolean;
   value: InboxWhatsAppWidget;
   onChange: (next: InboxWhatsAppWidget) => void;
 }) {
@@ -165,6 +178,7 @@ export function WhatsAppWidgetDeviceSection({
     <WidgetSection
       title={`${website ? 'Website' : 'WhatsApp'} Widget for ${label}`}
       website={website}
+      compact={compact}
       value={value[device]}
       onChange={(next) => onChange({ ...value, [device]: next })}
     />

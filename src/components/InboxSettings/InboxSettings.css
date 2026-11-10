@@ -15,6 +15,26 @@
   --lc-inbs-radius-sm: 6px;
 }
 
+.lc-inbs__header-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--lc-inbs-border);
+  border-radius: 6px;
+  background: var(--lc-color-white);
+  white-space: nowrap;
+}
+
+.lc-inbs__header-switch .lc-inbs__label {
+  color: var(--lc-color-stone-600);
+}
+
+.lc-inbs__header-switch:has([aria-checked='true']) .lc-inbs__label {
+  color: var(--lc-inbs-primary);
+}
+
 .lc-inbs {
   display: flex;
   flex-direction: column;
@@ -83,6 +103,21 @@
 .lc-inbs__tab:focus-visible {
   outline: 2px solid var(--lc-color-green-500);
   outline-offset: 2px;
+}
+
+.lc-inbs__steps-footer {
+  /* A full-width bar pinned to the bottom of the scrolling settings content; the negative
+     offsets cancel its 16px padding so it sits flush with the edges. */
+  position: sticky;
+  bottom: -16px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 -16px -16px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--lc-color-gray-200);
+  background: var(--lc-color-white);
 }
 
 .lc-inbs__panel {
@@ -861,15 +896,13 @@
 }
 
 .lc-inbs-preview {
-  /* Bezel + screen. Shrinks in short windows so the phone, button and copy card (106px more)
-     all fit in the scroll area instead of being cut off at the bottom. */
+  /* Bezel + screen. Shrinks in short windows so the phone, button and copy card
+     fit in the scroll area instead of being cut off at the bottom. */
   --lc-inbs-phone-h: clamp(420px, calc(100vh - 260px), 640px);
-  --lc-inbs-preview-h: calc(var(--lc-inbs-phone-h) + 106px); /* + 12px gap each for the 24px preview button and the copy card (2-line hint + padding) */
 
-  /* Holds the phone at the vertical middle of the scroll area (a sticky `top` % is of its
-     height) while the settings scroll past; no transform, so it stops cleanly at the form's end. */
+  /* Pinned to the top of the scroll area so the preview never scrolls with the settings. */
   position: sticky;
-  top: max(0px, calc(50% - var(--lc-inbs-preview-h) / 2));
+  top: 0;
   flex: 1 1 0;
   min-width: 0;
   display: flex;
@@ -878,9 +911,12 @@
   gap: 12px;
 }
 
-/* Without the copy card only the 24px preview button (+ 12px gap) sits under the phone. */
-.lc-inbs-preview[data-no-code] {
-  --lc-inbs-preview-h: calc(var(--lc-inbs-phone-h) + 36px);
+.lc-inbs-preview__title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--lc-color-sage-500);
 }
 
 .lc-inbs-preview *,

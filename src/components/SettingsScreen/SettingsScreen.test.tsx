@@ -889,4 +889,23 @@ describe('SettingsScreen inbox edit', () => {
     await user.click(screen.getByRole('button', { name: 'Back' }));
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(SETTINGS_COPY.inboxes.title);
   });
+  it('creates a widget through the onboarding stepper', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="helpdesk" initialTab="widget" />);
+    await user.click(await screen.findByRole('button', { name: 'Create a Widget' }));
+    const steps = within(screen.getByRole('list', { name: 'Widget setup' }));
+    expect(steps.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+      '1General',
+      '2Appearance',
+      '3Position',
+      '4Home page',
+      '5Copy code',
+    ]);
+    // A widget needs a name before moving on.
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    await user.type(screen.getByRole('textbox', { name: 'Widget Name' }), 'Store bot');
+    for (let i = 0; i < 4; i++) await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(screen.getByRole('button', { name: 'Create widget' }));
+    expect(await screen.findByRole('button', { name: 'Edit Store bot' })).toBeInTheDocument();
+  });
 });

@@ -15,6 +15,8 @@
 import { useId, useState } from 'react';
 import type { InboxType } from '../InboxesTable';
 import type { SelectItem } from '../Select';
+import { Button } from '../Button';
+import { Stepper } from '../Stepper';
 import { BusinessHoursTab, type InboxBusinessHours } from './InboxBusinessHoursTab';
 import { ConfigurationTab, type InboxConfiguration } from './InboxConfigurationTab';
 import { CollaboratorsTab, type InboxAgent, type InboxCollaborators } from './InboxCollaboratorsTab';
@@ -100,6 +102,11 @@ export interface InboxSettingsProps {
   onCreateAgent: (agent: { name: string; email: string; role: string }) => string;
   /** 'widget' is the Widget tab's editor: the same inbox, with the widget's own tabs. Defaults to 'inbox'. */
   variant?: 'inbox' | 'widget';
+  /** Creating a widget from scratch: the widget editor's sections as a stepper with Back / Next instead of tabs. */
+  onboarding?: {
+    onFinish: () => void;
+    onCancel: () => void;
+  };
 }
 
 const TABS: TabDef[] = [
@@ -129,6 +136,15 @@ const WIDGET_TABS: TabDef[] = [
   { id: 'mobile', label: 'Mobile' },
   { id: 'desktop', label: 'Desktop' },
   { id: 'code', label: 'Code' },
+];
+
+/** The steps of creating a widget; each reuses the editor's sections. */
+const ONBOARDING_STEPS: TabDef[] = [
+  { id: 'general', label: 'General' },
+  { id: 'appearance', label: 'Appearance' },
+  { id: 'position', label: 'Position' },
+  { id: 'homepage', label: 'Home page' },
+  { id: 'code', label: 'Copy code' },
 ];
 
 const DETAIL_LABEL: Record<InboxType, string> = {
@@ -164,20 +180,36 @@ function ComingSoon({ title }: { title: string }) {
 
 /** The widget editor's panels; each reuses the WhatsApp widget sections where one fits. */
 function WidgetPanel({ tab, props }: { tab: string; props: InboxSettingsProps }) {
-  const { values, onChange } = props;
+  const { values, onChange, onboarding } = props;
   switch (tab) {
     case 'general':
       return (
         <>
-          <WidgetGeneralSection value={values.widgetGeneral} onChange={(widgetGeneral) => onChange({ widgetGeneral })} />
-          <WebsiteWidgetAiSections value={values.websiteWidget} onChange={(websiteWidget) => onChange({ websiteWidget })} />
+          <WidgetGeneralSection value={values.widgetGeneral} compact={!!onboarding} onChange={(widgetGeneral) => onChange({ widgetGeneral })} />
+          {/* Onboarding stays minimal; the AI sections are editable once the widget exists. */}
+          {!onboarding && <WebsiteWidgetAiSections value={values.websiteWidget} onChange={(websiteWidget) => onChange({ websiteWidget })} />}
         </>
       );
     case 'appearance':
       return (
         <>
           <WidgetAppearanceSection value={values.widgetAppearance} onChange={(widgetAppearance) => onChange({ widgetAppearance })} />
-          <ZIndexSection value={values.whatsappZIndex} onChange={(whatsappZIndex) => onChange({ whatsappZIndex })} />
+          {!onboarding && <ZIndexSection value={values.whatsappZIndex} onChange={(whatsappZIndex) => onChange({ whatsappZIndex })} />}
+        </>
+      );
+    case 'position':
+      return (
+        <>
+          <WhatsAppWidgetDeviceSection device="mobile" compact={!!onboarding} value={values.whatsappWidget} onChange={(whatsappWidget) => onChange({ whatsappWidget })} />
+          <WhatsAppWidgetDeviceSection device="desktop" compact={!!onboarding} value={values.whatsappWidget} onChange={(whatsappWidget) => onChange({ whatsappWidget })} />
+          {!onboarding && <ZIndexSection value={values.whatsappZIndex} onChange={(whatsappZIndex) => onChange({ whatsappZIndex })} />}
+        </>
+      );
+    case 'homepage':
+      return (
+        <>
+          <WidgetHomepageSection compact={!!onboarding} value={values.widgetHomepage} onChange={(widgetHomepage) => onChange({ widgetHomepage })} />
+          <WidgetPreChatSection value={values.widgetPreChat} onChange={(widgetPreChat) => onChange({ widgetPreChat })} />
         </>
       );
     case 'homescreen':
@@ -339,7 +371,10 @@ export function InboxSettings(props: InboxSettingsProps) {
   // The widget is WhatsApp's chat button for websites, so other channels don't get the tab.
   const isWidget = props.variant === 'widget';
   // A website widget inbox is configured through its pre chat form and widget rather than a channel connection.
-  const tabs = isWidget
+  const onboarding = isWidget ? props.onboarding : undefined;
+  const tabs = onboarding
+    ? ONBOARDING_STEPS
+    : isWidget
     ? WIDGET_TABS
     : props.type === 'whatsapp'
       ? TABS
@@ -347,11 +382,19 @@ export function InboxSettings(props: InboxSettingsProps) {
         ? [...TABS.filter((t) => t.id !== 'configuration' && t.id !== 'whatsapp-widget'), ...WEBSITE_TABS]
         : TABS.filter((t) => t.id !== 'whatsapp-widget');
   const tabLabel = tabs.find((t) => t.id === tab)?.label;
+  const stepIndex = tabs.findIndex((t) => t.id === tab);
+  const isLastStep = stepIndex === tabs.length - 1;
+  // A widget needs a name before the rest of the setup makes sense.
+  const canAdvance = tab !== 'general' || props.values.widgetGeneral.botName.trim() !== '';
 
   return (
+    <>
     <div className="lc-inbs-shell">
       <div className="lc-inbs">
         <div className="lc-inbs__tabbar">
+          {onboarding ? (
+            <Stepper label="Widget setup" steps={tabs} current={stepIndex} onStepClick={(i) => setTab(tabs[i].id)} />
+          ) : (
           <div className="lc-inbs__tabs" role="tablist" aria-label="Inbox settings">
             {tabs.map((t) => (
               <button
@@ -367,8 +410,9 @@ export function InboxSettings(props: InboxSettingsProps) {
               </button>
             ))}
           </div>
+          )}
         </div>
-        <div className="lc-inbs__panel" role="tabpanel" aria-label={tabLabel}>
+        <div className="lc-inbs__panel" role={onboarding ? 'group' : 'tabpanel'} aria-label={tabLabel}>
           {isWidget ? (
             <WidgetPanel tab={tab} props={props} />
           ) : tab === 'general' ? (
@@ -426,6 +470,23 @@ export function InboxSettings(props: InboxSettingsProps) {
         />
       )}
     </div>
+    {onboarding && (
+      <div className="lc-inbs__steps-footer">
+        <Button variant="default" size="sm" onClick={stepIndex === 0 ? onboarding.onCancel : () => setTab(tabs[stepIndex - 1].id)}>
+          {stepIndex === 0 ? 'Cancel' : 'Back'}
+        </Button>
+        <Button
+          variant="filled"
+          color="primary"
+          size="sm"
+          disabled={!canAdvance}
+          onClick={isLastStep ? onboarding.onFinish : () => setTab(tabs[stepIndex + 1].id)}
+        >
+          {isLastStep ? 'Create widget' : 'Next'}
+        </Button>
+      </div>
+    )}
+    </>
   );
 }
 

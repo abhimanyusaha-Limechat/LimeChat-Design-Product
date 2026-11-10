@@ -23,7 +23,7 @@ import { SlaPolicyDetails } from './SlaPolicyDetails';
 import { TeamDetails } from './TeamDetails';
 import { TeamEdit } from './TeamEdit';
 import { CatalogTable } from '../CatalogTable';
-import { InboxChannelIcon, InboxesTable } from '../InboxesTable';
+import { InboxChannelIcon, InboxesTable, type InboxRowData } from '../InboxesTable';
 import { WidgetCards, type WidgetKind, type WidgetStatus } from '../WidgetCards';
 import { InboxSettings, type InboxAgent, type InboxSettingsValues, type PopupSettings, type WhatsAppWidgetSettings, HeaderSwitch, WidgetEditorActions, WIDGET_EMBED_CODE } from '../InboxSettings';
 import { EventsTable } from '../EventsTable';
@@ -388,7 +388,22 @@ export function SettingsScreen({
   // Agents created from an inbox's Collaborators tab; they join the account's roster.
   const [createdAgents, setCreatedAgents] = useState<InboxAgent[]>([]);
   const [inboxEdits, setInboxEdits] = useState<Record<string, InboxSettingsValues>>({});
-  const editedInbox = inboxId ? DEMO_INBOXES.find((row) => row.id === inboxId) : undefined;
+  // Widget onboarding: the new widget's settings while it's being set up, then the widgets it created.
+  const [newWidget, setNewWidget] = useState<InboxSettingsValues | null>(null);
+  const [createdWidgets, setCreatedWidgets] = useState<InboxRowData[]>([]);
+  const creatingWidget = settingsTab === 'widget' && newWidget !== null && !inboxId;
+  const startWidgetOnboarding = () => {
+    const defaults = inboxDefaults('');
+    setNewWidget({ ...defaults, widgetGeneral: { ...defaults.widgetGeneral, botName: '' } });
+  };
+  const finishWidgetOnboarding = () => {
+    if (!newWidget) return;
+    const id = `new-widget-${createdWidgets.length + 1}`;
+    setInboxEdits((prev) => ({ ...prev, [id]: newWidget }));
+    setCreatedWidgets((prev) => [...prev, { id, name: newWidget.widgetGeneral.botName.trim(), type: 'whatsapp', detail: 'Website widget' }]);
+    setNewWidget(null);
+  };
+  const editedInbox = inboxId ? [...DEMO_INBOXES, ...createdWidgets].find((row) => row.id === inboxId) : undefined;
   const inboxValuesOf = (row: { id: string; name: string }) => inboxEdits[row.id] ?? inboxDefaults(row.name);
   const editedInboxValues = editedInbox && inboxValuesOf(editedInbox);
   const visibleInboxes = DEMO_INBOXES.filter(
@@ -561,11 +576,14 @@ export function SettingsScreen({
   const [csatDelay, setCsatDelay] = useState<CsatTimeDelay>({ hours: 0, minutes: 0, seconds: 15 });
   const [csatReminderDelay, setCsatReminderDelay] = useState<CsatTimeDelay>({ hours: 0, minutes: 0, seconds: 20 });
 
-  const whatsappWidgets = visibleInboxes.filter((row) => row.type === 'whatsapp');
+  const whatsappWidgets = [...visibleInboxes.filter((row) => row.type === 'whatsapp'), ...createdWidgets];
   // ponytail: demo statuses until widgets have a real one — shows each card state.
   // ponytail: demo kinds too — the second card shows a web widget.
   const widgetNameById = Object.fromEntries(Object.entries(inboxEdits).map(([id, v]) => [id, v.widgetGeneral.botName]));
-  const widgetKindById: Record<string, WidgetKind> = whatsappWidgets[1] ? { [whatsappWidgets[1].id]: 'web' } : {};
+  const widgetKindById: Record<string, WidgetKind> = {
+    ...(whatsappWidgets[1] ? { [whatsappWidgets[1].id]: 'web' } : {}),
+    ...Object.fromEntries(createdWidgets.map((row) => [row.id, 'web' as const])),
+  };
   const demoWidgetStatusById: Record<string, WidgetStatus> = Object.fromEntries(
     whatsappWidgets.flatMap((row, i): [string, WidgetStatus][] => (i === 2 ? [[row.id, 'inactive']] : i === 3 ? [[row.id, 'disabled']] : i === 4 ? [[row.id, 'error']] : [])),
   );
@@ -674,7 +692,7 @@ export function SettingsScreen({
     fakeVerify();
   };
   const detailPanel: DetailPanel | undefined =
-    product !== 'helpdesk' || reorderingSla || editedInbox || editedAgent || editedTeam || editedListRow
+    product !== 'helpdesk' || reorderingSla || creatingWidget || editedInbox || editedAgent || editedTeam || editedListRow
       ? undefined
       : selectedInbox
         ? {
@@ -741,7 +759,9 @@ export function SettingsScreen({
       activeTab={settingsTab}
       onTabChange={onTabChange}
       title={
-        manageIndustries
+        creatingWidget
+          ? 'Create a widget'
+          : manageIndustries
           ? 'Manage industries'
           : integration
             ? (integration.form.title ?? integration.partner.name)
@@ -763,7 +783,9 @@ export function SettingsScreen({
         )
       }
       onBack={
-        integration
+        creatingWidget
+          ? () => setNewWidget(null)
+          : integration
           ? () => onIntegrationChange('')
           : editedInbox
             ? () => onInboxChange('')
@@ -778,7 +800,9 @@ export function SettingsScreen({
               : undefined
       }
       description={
-        manageIndustries
+        creatingWidget
+          ? undefined
+          : manageIndustries
           ? SETTINGS_COPY.variable.description
           : integration
             ? integration.form.description
@@ -795,10 +819,10 @@ export function SettingsScreen({
       // The inbox edit page has no tutorial or docs page of its own.
       onTitleChange={patchTitled && ((name) => patchTitled({ name }))}
       onDescriptionChange={patchTitled && ((description) => patchTitled({ description }))}
-      onWatchVideo={editedInbox || editedAgent || editedTeam || editedListRow ? undefined : () => alert(`Play tutorial video: ${copy.title}`)}
-      onViewDocs={editedInbox || editedAgent || editedTeam || editedListRow ? undefined : () => alert(`Open docs: ${copy.title}`)}
+      onWatchVideo={creatingWidget || editedInbox || editedAgent || editedTeam || editedListRow ? undefined : () => alert(`Play tutorial video: ${copy.title}`)}
+      onViewDocs={creatingWidget || editedInbox || editedAgent || editedTeam || editedListRow ? undefined : () => alert(`Open docs: ${copy.title}`)}
       headerActions={
-        editedInbox || editedAgent || editedTeam || editedListRow ? (
+        creatingWidget ? undefined : editedInbox || editedAgent || editedTeam || editedListRow ? (
           <>
             {editedInbox && settingsTab === 'widget' && (
               <WidgetEditorActions
@@ -917,7 +941,7 @@ export function SettingsScreen({
             color="primary"
             size="sm"
             leftSection={<PlusIcon />}
-            onClick={() => alert(`New ${HELPDESK_ADD_CTA[settingsTab].toLowerCase()}`)}
+            onClick={settingsTab === 'widget' ? startWidgetOnboarding : () => alert(`New ${HELPDESK_ADD_CTA[settingsTab].toLowerCase()}`)}
           >
             {HELPDESK_ADD_CTA[settingsTab]}
           </Button>
@@ -1044,6 +1068,18 @@ export function SettingsScreen({
           key={draftedTeam.id}
           levels={draftedTeam.levels}
           onChange={(levels) => patchTeam({ levels })}
+        />
+      ) : creatingWidget && newWidget ? (
+        <InboxSettings
+          variant="widget"
+          type="whatsapp"
+          detail=""
+          templates={REMINDER_TEMPLATES}
+          agents={[...INBOX_AGENTS, ...createdAgents]}
+          onCreateAgent={() => ''}
+          values={newWidget}
+          onChange={(patch) => setNewWidget({ ...newWidget, ...patch })}
+          onboarding={{ onFinish: finishWidgetOnboarding, onCancel: () => setNewWidget(null) }}
         />
       ) : editedInbox && editedInboxValues ? (
         <InboxSettings
@@ -1179,7 +1215,7 @@ export function SettingsScreen({
           onSelect={rowSelectable ? (row) => selectRowId(row.id) : undefined}
           onEdit={(row) => onInboxChange(row.id)}
           onDelete={(row) => alert(`Delete widget: ${row.name}`)}
-          onCreate={() => alert('Create a widget')}
+          onCreate={startWidgetOnboarding}
         />
       ) : settingsTab === 'inboxes' ? (
         <InboxesTable

@@ -112,6 +112,7 @@ export function WidgetPreview({
   const desktop = widgets.desktop;
   return (
     <aside className="lc-inbs-preview" data-no-code={!showCode || undefined} aria-label="Mobile preview">
+      <h3 className="lc-inbs-preview__title">Previewing mobile</h3>
       <div className="lc-inbs-preview__phone" aria-hidden="true">
         <div className="lc-inbs-preview__screen">
           <Site />
