@@ -1,0 +1,106 @@
+/* A row of joined cells: the open step is tinted green, finished steps get a green check,
+   later steps are grey and disabled. */
+.lc-stepper {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.lc-stepper__item {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 104px;
+}
+
+/* Neighbouring cells share one border line. */
+.lc-stepper__item + .lc-stepper__item {
+  margin-left: -1px;
+}
+
+.lc-stepper__step {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 32px;
+  appearance: none;
+  border: 1px solid var(--lc-color-gray-300);
+  background: var(--lc-color-white);
+  padding: 0 10px;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.lc-stepper__item:first-child .lc-stepper__step {
+  border-radius: 8px 0 0 8px;
+}
+
+.lc-stepper__item:last-child .lc-stepper__step {
+  border-radius: 0 8px 8px 0;
+}
+
+.lc-stepper__step:disabled {
+  cursor: default;
+}
+
+.lc-stepper__step:focus-visible {
+  position: relative;
+  z-index: 2;
+  outline: 2px solid var(--lc-color-green-500);
+  outline-offset: -2px;
+}
+
+.lc-stepper__item[data-state='current'] .lc-stepper__step {
+  position: relative;
+  z-index: 1;
+  border-color: var(--lc-color-green-200);
+  background: var(--lc-color-green-100);
+}
+
+.lc-stepper__marker {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--lc-color-gray-400);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--lc-color-white);
+  transition: background-color 150ms ease;
+}
+
+.lc-stepper__item[data-state='current'] .lc-stepper__marker,
+.lc-stepper__item[data-state='done'] .lc-stepper__marker {
+  background: var(--lc-color-green-500);
+}
+
+.lc-stepper__label {
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  color: var(--lc-color-sage-500);
+}
+
+.lc-stepper__item[data-state='current'] .lc-stepper__label {
+  font-weight: 700;
+  color: var(--lc-color-green-700);
+}
+
+.lc-stepper__item[data-state='done'] .lc-stepper__label {
+  color: var(--lc-color-green-900);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-stepper__step,
+  .lc-stepper__marker {
+    transition: none;
+  }
+}

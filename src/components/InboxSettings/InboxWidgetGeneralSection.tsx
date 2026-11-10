@@ -27,9 +27,12 @@ const ELEMENTS: { key: 'filePicker' | 'emojiPicker' | 'restartButton'; label: st
 export function WidgetGeneralSection({
   value,
   onChange,
+  compact = false,
 }: {
   value: InboxWidgetGeneral;
   onChange: (next: InboxWidgetGeneral) => void;
+  /** Onboarding asks for just the name and inbox; the rest is editable once the widget exists. */
+  compact?: boolean;
 }) {
   const set = (patch: Partial<InboxWidgetGeneral>) => onChange({ ...value, ...patch });
   return (
@@ -39,7 +42,7 @@ export function WidgetGeneralSection({
         <TextRow
           label="Widget Name"
           description="The name customers see on the widget."
-          placeholder="Bot101"
+          placeholder="e.g. Support chat"
           value={value.botName}
           onChange={(botName) => set({ botName })}
         />
@@ -53,6 +56,8 @@ export function WidgetGeneralSection({
             onChange={(e) => set({ inbox: e.currentTarget.value })}
           />
         </Row>
+        {!compact && (
+          <>
         <Row label="Input Field elements to enable" description="Choose what appears in the widget's message box.">
           <div className="lc-inbs__checks lc-inbs__checks--stack" role="group" aria-label="Input Field elements to enable">
             {ELEMENTS.map(({ key, label, help }) => (
@@ -72,6 +77,8 @@ export function WidgetGeneralSection({
           checked={value.showUnread}
           onChange={(showUnread) => set({ showUnread })}
         />
+          </>
+        )}
       </div>
     </section>
   );

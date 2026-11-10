@@ -38,9 +38,12 @@ const INBOX_OPTIONS = ['Whatsapp_Customer_support', 'Email_Customer_support', 'I
 export function WidgetHomepageSection({
   value,
   onChange,
+  compact = false,
 }: {
   value: InboxWidgetHomepage;
   onChange: (next: InboxWidgetHomepage) => void;
+  /** Onboarding asks for just the welcome text; the rest is editable once the widget exists. */
+  compact?: boolean;
 }) {
   const set = (patch: Partial<InboxWidgetHomepage>) => onChange({ ...value, ...patch });
   const setButton = (index: number, patch: Partial<HomepageButton>) =>
@@ -74,6 +77,7 @@ export function WidgetHomepageSection({
             off={homeOff}
             onChange={(tagline) => set({ tagline })}
           />
+          {!compact && (
           <SwitchRow
             label="Agent offline Status"
             description="Show customers when no agent is online."
@@ -81,9 +85,12 @@ export function WidgetHomepageSection({
             off={homeOff}
             onChange={(agentOfflineStatus) => set({ agentOfflineStatus })}
           />
+          )}
         </div>
       </section>
 
+      {!compact && (
+        <>
       <section className="lc-inbs__group" aria-label="Multi-Channel support">
         <SectionHeading
           title="Multi-Channel support"
@@ -201,6 +208,8 @@ export function WidgetHomepageSection({
           Add button
         </Button>
       </section>
+        </>
+      )}
     </>
   );
 }
