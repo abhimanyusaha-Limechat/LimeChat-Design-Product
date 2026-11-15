@@ -26,12 +26,14 @@ import { ActionMenu } from '../Menu';
 import { Avatar, AvatarGroup } from '../Avatar';
 import './TicketListItem.css';
 
-export type TicketChannel = 'whatsapp' | 'email' | 'instagram' | 'sms';
+export type TicketChannel = 'whatsapp' | 'email' | 'instagram' | 'facebook' | 'widget' | 'sms';
 
-const CHANNEL_ICON: Record<TicketChannel, TicketIconName> = {
+export const CHANNEL_ICON: Record<TicketChannel, TicketIconName> = {
   whatsapp: 'whatsapp',
   email: 'email',
   instagram: 'instagram',
+  facebook: 'facebook',
+  widget: 'world',
   sms: 'sms',
 };
 

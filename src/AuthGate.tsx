@@ -15,6 +15,9 @@ const appUrl = new URL(import.meta.env.BASE_URL, window.location.origin).href;
 
 /** Shows the app only to signed-in users; everyone else gets the sign-in page. */
 export function AuthGate({ children }: { children: ReactNode }) {
+  // PROTOTYPE HACK: skip Clerk entirely (no key, no provider). Remove this line to restore auth.
+  return <>{children}</>;
+  // eslint-disable-next-line no-unreachable
   if (!publishableKey) {
     return <p style={{ padding: 24 }}>Missing VITE_CLERK_PUBLISHABLE_KEY — add it to .env and restart the dev server.</p>;
   }

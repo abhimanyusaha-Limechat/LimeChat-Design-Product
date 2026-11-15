@@ -574,6 +574,9 @@
   box-shadow: 0 7px 3.5px rgba(0, 0, 0, 0.04), 0 10px 7.5px rgba(0, 0, 0, 0.1),
     0 1px 1.5px rgba(0, 0, 0, 0.05);
 }
+.lc-email-forward__card[data-mode='note'] {
+  background: #FCF9F3; /* same yellow tint as the reply box's private note */
+}
 .lc-email-forward[data-maximized] .lc-email-forward__card {
   flex: 1 0 0;
   min-height: 0;

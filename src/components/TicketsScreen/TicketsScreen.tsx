@@ -36,6 +36,7 @@ const TEMPLATE_OPTIONS = DEMO_TEMPLATES.filter((t) => t.status === 'active').map
   name: t.name,
   code: t.displayId.padStart(5, '0'),
   message: t.preview,
+  params: t.params,
   ...(t.type === 'image' && { attachment: imageFileName(t.name) }),
 }));
 
@@ -147,7 +148,7 @@ export function TicketsScreen() {
       ...s,
       recipients: { ...s.recipients, [action]: { ...s.recipients[action], [field]: edit(s.recipients[action][field]) } },
     }));
-  const closeEmailComposer = () => patch({ draft: '', emailAction: null });
+  const closeEmailComposer = () => patch({ draft: '', emailAction: null, composerMode: 'reply' });
 
   const isShowcase = ticket.id === 't-showcase';
   const isEmail = ticket.channel === 'email';
@@ -293,11 +294,15 @@ export function TicketsScreen() {
               channel={ticket.channel}
               cannedResponses={CANNED_OPTIONS}
               templates={TEMPLATE_OPTIONS}
+              windowOpen={ticket.windowOpen}
+              windowClosedAgo={ticket.windowClosedAgo}
+              contactOptedIn={ticket.contactOptedIn}
+              lockReason={ticket.lockReason}
               mode={session.composerMode}
               onModeChange={(composerMode) => patch({ composerMode })}
               value={session.draft}
               onChange={(draft) => patch({ draft })}
-              onSend={() => patch({ draft: '' })}
+              onSend={(sentFrom) => sentFrom !== 'template' && patch({ draft: '' })}
               onMic={() => alert('Record voice note')}
               onEmoji={() => alert('Insert emoji')}
               onAiImprove={(style) => alert(`Improve with AI: ${style}`)}
@@ -310,6 +315,8 @@ export function TicketsScreen() {
               onRemoveRecipient={(field, email) =>
                 editRecipients(emailAction, field, (list) => list.filter((e) => e !== email))
               }
+              composerMode={session.composerMode === 'note' ? 'note' : 'reply'}
+              onComposerModeChange={(composerMode) => patch({ composerMode })}
               value={session.draft}
               onChange={(draft) => patch({ draft })}
               onToggleAi={() => alert('Toggle AI assist')}

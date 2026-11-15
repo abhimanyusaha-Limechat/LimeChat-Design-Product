@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/react';
+// PROTOTYPE HACK: import { useAuth } from '@clerk/react';
 import { parseHash, toHash } from '../hooks/navigationHash';
 import {
   addComment,
@@ -26,7 +26,8 @@ interface Loaded {
 
 /** The current Screen's open Comments, and the writes on them. Refetches after every write. */
 export function useComments() {
-  const { getToken } = useAuth();
+  // PROTOTYPE HACK: no ClerkProvider, so useAuth() would throw. Stub getToken; restore `useAuth()` to revert.
+  const getToken = async () => null as string | null;
   // Declared before the fetch effect, so the first fetch already has a token.
   useEffect(() => setTokenGetter(() => getToken()), [getToken]);
 

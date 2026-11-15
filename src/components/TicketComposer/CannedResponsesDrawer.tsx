@@ -15,6 +15,8 @@ export interface CannedResponseOption {
   message: string;
   /** File name of an image response; picking it attaches the image instead of filling the box. */
   attachment?: string;
+  /** Names of the fields a template needs filled in before it can be sent. */
+  params?: string[];
 }
 
 interface CannedResponsesDrawerProps {

@@ -16,7 +16,7 @@
 import { forwardRef, useId, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Menu } from '../Menu';
-import { TicketIcon, TicketRowCheckbox, type TicketChannel } from '../TicketListItem';
+import { CHANNEL_ICON, TicketIcon, TicketRowCheckbox, type TicketChannel } from '../TicketListItem';
 import './TicketsSection.css';
 import { iconProps } from '../iconProps';
 import { ChevronDownIcon, CheckIcon } from '../icons';
@@ -248,7 +248,7 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
                 items={filteredInboxOptions.map((name) => ({
                   key: name,
                   label: name,
-                  icon: <TicketIcon name={inboxIconType((inboxOptions ?? []).indexOf(name))} />,
+                  icon: <TicketIcon name={CHANNEL_ICON[inboxIconType((inboxOptions ?? []).indexOf(name))]} />,
                   selected: selectedInboxes.includes(name),
                   trailingIcon: selectedInboxes.includes(name) ? <CheckIcon /> : undefined,
                   onClick: () => toggleInbox(name),

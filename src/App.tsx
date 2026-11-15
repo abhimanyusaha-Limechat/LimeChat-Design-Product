@@ -1,6 +1,6 @@
 /** Demo harness for the reusable components. Not part of the published components. */
 import { useState } from 'react';
-import { useClerk } from '@clerk/react';
+// PROTOTYPE HACK: import { useClerk } from '@clerk/react';
 import { Sidebar } from './components/Sidebar';
 import { sidebarPresets, type SidebarProduct } from './components/Sidebar/presets';
 import { isCanvasPage, useAppNavigation } from './hooks/useAppNavigation';
@@ -65,7 +65,8 @@ const TOP_NAV_BY_PRODUCT = {
 } as const;
 
 export function App() {
-  const { signOut } = useClerk();
+  // PROTOTYPE HACK: no ClerkProvider, so useClerk() would throw. Stub signOut; restore `useClerk()` to revert.
+  const signOut = async () => {};
   const nav = useAppNavigation();
   const { product, selected, page, tab, manageIndustries, integration, inbox, agent, team, rule, changePlan, userSettingsTab, ticketId, flowKind, flowId } = nav;
   const { switchProduct, leaveCanvas, setTab, setManageIndustries, setIntegration, setInbox, setAgent, setTeam, setRule, setChangePlan, setUserSettingsTab } = nav;

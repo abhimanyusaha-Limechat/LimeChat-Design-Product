@@ -1,11 +1,14 @@
 /**
- * The Reply / Private note segmented control. The active tab shows its label and the other collapses to
- * its icon; a white pill behind them follows the active tab's box on every frame of that resize.
+ * The Reply / Template / Private note segmented control. Labels are always visible; in a narrow composer
+ * they collapse to icons (see the container query in the CSS). A white pill behind the tabs follows the
+ * active tab's box.
  */
 import { useLayoutEffect, useRef, useState, type ReactElement } from 'react';
 import { iconProps } from '../iconProps';
+import { Icon } from '../icons';
+import type { ComposerMode } from './channelConfig';
 
-export type TicketComposerMode = 'reply' | 'note';
+export type TicketComposerMode = ComposerMode;
 
 const ReplyIcon = () => (
   <svg {...iconProps()}>
@@ -21,20 +24,26 @@ const LockIcon = () => (
   </svg>
 );
 
-export const MODE_CONFIG: Record<TicketComposerMode, { label: string; placeholder: string; Icon: () => ReactElement }> = {
-  reply: { label: 'Reply', placeholder: "Type a message, press '/' for canned responses, or choose from templates", Icon: ReplyIcon },
-  note: { label: 'Private note', placeholder: 'Type in a private note visible only to team members', Icon: LockIcon },
+export const MODE_CONFIG: Record<
+  TicketComposerMode,
+  { label: string; sendLabel: string; placeholder: string; Icon: () => ReactElement }
+> = {
+  reply: { label: 'Reply', sendLabel: 'Reply', placeholder: "Type a message... ('/' for canned responses)", Icon: ReplyIcon },
+  template: { label: 'Template', sendLabel: 'Send', placeholder: 'Search templates', Icon: () => <Icon name="layout" /> },
+  note: { label: 'Private note', sendLabel: 'Create', placeholder: 'Visible only to your team. Type @ to mention.', Icon: LockIcon },
 };
-const MODES = Object.keys(MODE_CONFIG) as TicketComposerMode[];
 
 interface ModeTabsProps {
   mode: TicketComposerMode;
-  onModeChange?: (mode: TicketComposerMode) => void;
+  /** The tabs to show, in order. Hidden tabs are not rendered, so the arrow keys skip them. */
+  modes: TicketComposerMode[];
+  /** `viaKeyboard` is true when an arrow / Home / End key made the change. */
+  onModeChange?: (mode: TicketComposerMode, viaKeyboard?: boolean) => void;
   /** Control heights 24 / 32 / 40 / 48 / 56 px. */
   size: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
-export function ModeTabs({ mode, onModeChange, size }: ModeTabsProps) {
+export function ModeTabs({ mode, modes, onModeChange, size }: ModeTabsProps) {
   const tabRefs = useRef<Partial<Record<TicketComposerMode, HTMLButtonElement>>>({});
   const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
 
@@ -48,14 +57,15 @@ export function ModeTabs({ mode, onModeChange, size }: ModeTabsProps) {
     // of every tab's resize instead of easing on its own.
     Object.values(tabRefs.current).forEach((tab) => ro.observe(tab));
     return () => ro.disconnect();
-  }, [mode]);
+  }, [mode, modes]);
 
-  // Two tabs: either arrow flips to the other one; Home/End jump to the ends.
+  // Arrows move to the neighbouring visible tab and wrap; Home/End jump to the ends.
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
     e.preventDefault();
-    const nextMode = MODES[e.key === 'Home' ? 0 : e.key === 'End' ? 1 : 1 - index];
-    onModeChange?.(nextMode);
+    const step = e.key === 'ArrowRight' ? 1 : -1;
+    const nextMode = modes[e.key === 'Home' ? 0 : e.key === 'End' ? modes.length - 1 : (index + step + modes.length) % modes.length];
+    onModeChange?.(nextMode, true);
     tabRefs.current[nextMode]?.focus();
   };
 
@@ -68,7 +78,7 @@ export function ModeTabs({ mode, onModeChange, size }: ModeTabsProps) {
           aria-hidden="true"
         />
       )}
-      {MODES.map((m, index) => {
+      {modes.map((m, index) => {
         const { label, Icon: ModeIcon } = MODE_CONFIG[m];
         return (
           <button
@@ -91,7 +101,7 @@ export function ModeTabs({ mode, onModeChange, size }: ModeTabsProps) {
           >
             <ModeIcon />
             <span className="lc-ticket-composer__tab-label" aria-hidden="true">
-              <span>{label}</span>
+              {label}
             </span>
           </button>
         );

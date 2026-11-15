@@ -42,6 +42,8 @@ export interface TemplateRowData {
   type: TemplateType;
   /** Truncated body preview shown under the name. */
   preview: string;
+  /** Names of the `{}` fields in the body, in order; the reply box asks for each before sending. */
+  params?: string[];
   category: string;
   /** Linked inbox/business account, shown under the category. */
   businessTag?: string;

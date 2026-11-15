@@ -26,6 +26,10 @@ import { forwardRef, useEffect, useState, type HTMLAttributes, type KeyboardEven
 import { createPortal } from 'react-dom';
 import { Button } from '../Button';
 import { Icon, TrashIcon } from '../icons';
+import { CharCounter } from '../TicketComposer/CharCounter';
+import { CHANNEL_CONFIG, NOTE_LIMIT, type ComposerMode } from '../TicketComposer/channelConfig';
+import { ModeTabs } from '../TicketComposer/ModeTabs';
+import '../TicketComposer/TicketComposer.css'; // the tabs, tools strip and footer share its styles
 import './EmailMessage.css';
 
 function iconProps(size = 24) {
@@ -186,6 +190,9 @@ export interface EmailForwardComposerProps extends Omit<HTMLAttributes<HTMLDivEl
   onSend?: () => void;
   sendLabel?: string;
   sendDisabled?: boolean;
+  /** Reply or Private note. The tabs show only while replying and when `onComposerModeChange` is set. */
+  composerMode?: Extract<ComposerMode, 'reply' | 'note'>;
+  onComposerModeChange?: (mode: ComposerMode) => void;
   defaultMaximized?: boolean;
 }
 
@@ -200,7 +207,7 @@ export const EmailForwardComposer = forwardRef<HTMLDivElement, EmailForwardCompo
       onRemoveRecipient,
       value,
       onChange,
-      placeholder = 'Write a message...',
+      placeholder: replyPlaceholder = 'Write a message...',
       quotedText,
       onToggleAi,
       aiActive = false,
@@ -208,6 +215,8 @@ export const EmailForwardComposer = forwardRef<HTMLDivElement, EmailForwardCompo
       onSend,
       sendLabel,
       sendDisabled,
+      composerMode = 'reply',
+      onComposerModeChange,
       defaultMaximized = false,
       className,
       ...rest
@@ -215,6 +224,9 @@ export const EmailForwardComposer = forwardRef<HTMLDivElement, EmailForwardCompo
     ref,
   ) {
     const isForward = mode === 'forward';
+    const isNote = !isForward && composerMode === 'note';
+    const placeholder = isNote ? 'Visible only to your team. Type @ to mention.' : replyPlaceholder;
+    const limit = isNote ? NOTE_LIMIT : CHANNEL_CONFIG.email.limit;
     const [editingAddresses, setEditingAddresses] = useState(isForward && to.length === 0);
     const [maximized, setMaximized] = useState(defaultMaximized);
     const [showQuoted, setShowQuoted] = useState(false);
@@ -257,8 +269,8 @@ export const EmailForwardComposer = forwardRef<HTMLDivElement, EmailForwardCompo
           </div>
         </div>
 
-        <div className="lc-email-forward__card">
-          {editingAddresses ? (
+        <div className="lc-email-forward__card" data-mode={isNote ? 'note' : undefined}>
+          {isNote ? null : editingAddresses ? (
             <div className="lc-email-forward__address-editor">
               {isForward && <RecipientRow field="to" emails={to} onAdd={onAddRecipient} onRemove={onRemoveRecipient} />}
               <RecipientRow field="cc" emails={cc} onAdd={onAddRecipient} onRemove={onRemoveRecipient} />
@@ -309,10 +321,11 @@ export const EmailForwardComposer = forwardRef<HTMLDivElement, EmailForwardCompo
               onFocus={() => (!isForward || to.length > 0) && setEditingAddresses(false)}
               placeholder={placeholder}
               rows={6}
+              maxLength={limit}
             />
           </div>
 
-          {quotedText && (
+          {quotedText && !isNote && (
             <>
               <button
                 type="button"
@@ -325,32 +338,40 @@ export const EmailForwardComposer = forwardRef<HTMLDivElement, EmailForwardCompo
             </>
           )}
 
-          <div className="lc-email-reply__toolbar">
-            <div className="lc-email-reply__toolbar-buttons">
+          <div className="lc-ticket-composer__tools-row">
+            <div className="lc-ticket-composer__tools" role="toolbar" aria-label="Tools">
               {TOOLBAR_ICONS.map((Icon, i) => (
                 // eslint-disable-next-line react/no-array-index-key
-                <button key={i} type="button" className="lc-email-reply__icon-btn">
+                <button key={i} type="button" className="lc-ticket-composer__icon-btn">
                   <Icon />
                 </button>
               ))}
               <button
                 type="button"
-                className="lc-email-reply__ai-btn"
-                data-active={aiActive}
+                className="lc-ticket-composer__icon-btn"
+                aria-label="AI assist"
+                title="AI assist"
+                aria-pressed={aiActive}
+                disabled={value.trim() === ''}
                 onClick={onToggleAi}
               >
                 <WandIcon />
-                AI
               </button>
             </div>
-            <div className="lc-email-reply__send-group">
+            <CharCounter length={value.length} limit={limit} />
+          </div>
+
+          <div className="lc-ticket-composer__footer">
+            {!isForward && onComposerModeChange ? (
+              <ModeTabs mode={composerMode} modes={['reply', 'note']} onModeChange={onComposerModeChange} size="sm" />
+            ) : (
               <button type="button" className="lc-email-reply__icon-btn" onClick={onDelete} aria-label="Delete draft">
                 <TrashIcon />
               </button>
-              <Button size="sm" onClick={onSend} disabled={sendDisabled}>
-                {sendLabel ?? (isForward ? 'Forward' : 'Reply')}
-              </Button>
-            </div>
+            )}
+            <Button size="sm" color={isNote ? 'yellow' : 'primary'} onClick={onSend} disabled={sendDisabled}>
+              {sendLabel ?? (isNote ? 'Create' : isForward ? 'Forward' : 'Reply')}
+            </Button>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { type TicketChannel } from '../components/TicketListItem';
+import { type LockReason } from '../components/TicketComposer/channelConfig';
 import { type ComponentProps, type ReactNode } from 'react';
 import { MessageBubble } from '../components/MessageBubble';
 import { CrmTicketCreate, type TicketDetailsField, type TicketDetailsSection } from '../components/TicketDetailsPanel';
@@ -16,6 +17,11 @@ export interface TicketRowData {
   message: string;
   assignee?: string;
   unreadCount?: number;
+  /** Composer states for design review; the defaults are an open window and an opted-in contact. */
+  windowOpen?: boolean;
+  windowClosedAgo?: string;
+  contactOptedIn?: boolean;
+  lockReason?: LockReason;
 }
 
 export interface ConversationEntry {
@@ -435,6 +441,12 @@ export const TICKETS: TicketRowData[] = [
   { id: 't-12', ticketId: '100241', channel: 'email', user: 'Vikram Singh', timestamp: '6 hours ago', message: 'Invoice copy needed for reimbursement, please advise.', assignee: 'Jane' },
   { id: 't-13', ticketId: '100242', channel: 'instagram', user: 'thefitnessjourney', timestamp: '8 hours ago', message: 'Do you ship internationally to Singapore?', unreadCount: 2 },
   { id: 't-14', ticketId: '100243', channel: 'sms', user: 'Neha Kapoor', timestamp: '1 day ago', message: 'Thanks, the replacement arrived today!', assignee: 'Marcus' },
+  { id: 't-15', ticketId: '100245', channel: 'facebook', user: 'Meera Joshi', timestamp: '2 days ago', message: 'Is the festive gift box still available?', assignee: 'Jane' },
+  { id: 't-16', ticketId: '100246', channel: 'widget', user: 'Website visitor', timestamp: '3 days ago', message: 'Can someone help me pick a size?', assignee: 'Marcus' },
+  { id: 't-17', ticketId: '100247', channel: 'whatsapp', user: 'Ishaan Gupta', timestamp: '2 days ago', message: 'Window closed: only a private note can be left.', assignee: 'Jane', windowOpen: false, windowClosedAgo: '2 days ago' },
+  { id: 't-18', ticketId: '100248', channel: 'whatsapp', user: 'Ananya Das', timestamp: '3 days ago', message: 'Billing restricted: replies are paused.', assignee: 'Marcus', lockReason: 'billing' },
+  { id: 't-19', ticketId: '100249', channel: 'widget', user: 'Rohit Sharma', timestamp: '4 days ago', message: 'Voicebot is handling this conversation.', lockReason: 'voicebot' },
+  { id: 't-20', ticketId: '100250', channel: 'whatsapp', user: 'Kavya Reddy', timestamp: '5 days ago', message: 'Contact opted out: no templates.', assignee: 'Jane', contactOptedIn: false },
   {
     id: 't-showcase',
     ticketId: '100244',

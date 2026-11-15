@@ -14,6 +14,7 @@ export const DEMO_TEMPLATES: TemplateRowData[] = [
   },
   {
     id: 'tpl-2',
+    params: ['Name', 'Delivery date', 'Order ID', 'Items'],
     displayId: '9687',
     name: 'med_shipping2',
     status: 'active',
@@ -38,6 +39,7 @@ export const DEMO_TEMPLATES: TemplateRowData[] = [
   },
   {
     id: 'tpl-4',
+    params: ['Name', 'Delivery date', 'Order ID', 'Items'],
     displayId: '9685',
     name: 'med_shipping2',
     status: 'active',
@@ -74,6 +76,7 @@ export const DEMO_TEMPLATES: TemplateRowData[] = [
   },
   {
     id: 'tpl-7',
+    params: ['Order ID'],
     displayId: '9680',
     name: 'order_confirmation',
     status: 'active',
@@ -96,6 +99,7 @@ export const DEMO_TEMPLATES: TemplateRowData[] = [
   },
   {
     id: 'tpl-9',
+    params: ['OTP'],
     displayId: '9678',
     name: 'otp_verification',
     status: 'active',
@@ -152,6 +156,7 @@ export const DEMO_TEMPLATES: TemplateRowData[] = [
   },
   {
     id: 'tpl-14',
+    params: ['Delivery date'],
     displayId: '9665',
     name: 'delivery_delay_notice',
     status: 'active',

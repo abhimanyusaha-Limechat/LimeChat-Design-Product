@@ -17,7 +17,7 @@ import { forwardRef, type HTMLAttributes } from 'react';
 import { Avatar } from '../Avatar';
 import { Button } from '../Button';
 import { ActionMenu, Menu } from '../Menu';
-import { TicketIcon, type TicketChannel } from '../TicketListItem';
+import { CHANNEL_ICON, TicketIcon, type TicketChannel } from '../TicketListItem';
 import './ConversationTopBar.css';
 import { iconProps } from '../iconProps';
 import { Icon, ChevronDownIcon } from '../icons';
@@ -87,7 +87,7 @@ export const ConversationTopBar = forwardRef<HTMLDivElement, ConversationTopBarP
       <div className="lc-conv-top__identity">
         {channel ? (
           <span className="lc-conv-top__channel-icon">
-            <TicketIcon name={channel} />
+            <TicketIcon name={CHANNEL_ICON[channel]} />
           </span>
         ) : (
           <Avatar src={avatarSrc} alt={name} size={36} radius="xs">
