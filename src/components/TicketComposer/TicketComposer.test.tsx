@@ -1,6 +1,6 @@
 import { useState, type ComponentProps } from 'react';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TicketComposer } from './TicketComposer';
 import type { ComposerMode } from './channelConfig';
@@ -244,9 +244,9 @@ describe('TicketComposer text formatting', () => {
 });
 
 describe('TicketComposer tabs and locked states', () => {
-  it('offers Reply, Template and Private note on WhatsApp', () => {
+  it('offers Reply, Private note and Template on WhatsApp', () => {
     render(<Harness />);
-    expect(tabNames()).toEqual(['Reply', 'Template', 'Private note']);
+    expect(tabNames()).toEqual(['Reply', 'Private note', 'Template']);
   });
 
   it('drops Template for a channel without templates and for an opted-out contact', () => {
@@ -257,19 +257,49 @@ describe('TicketComposer tabs and locked states', () => {
     expect(tabNames()).toEqual(['Reply', 'Private note']);
   });
 
-  it('moves between tabs with the arrow keys and wraps', async () => {
+  it('puts the tabs, tools and Send in one bottom bar', () => {
+    const { container } = render(<Harness />);
+    const bars = container.querySelectorAll('.lc-ticket-composer__bar');
+    expect(bars).toHaveLength(1);
+    const bar = bars[0];
+    expect(bar).toContainElement(screen.getByRole('tablist'));
+    expect(bar).toContainElement(screen.getByRole('toolbar', { name: 'Tools' }));
+    expect(bar).toContainElement(screen.getByRole('button', { name: 'Record voice note' }));
+  });
+
+  it('shows no tools in the Template tab', async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    await user.click(screen.getByRole('tab', { name: 'Template' }));
+    expect(screen.queryByRole('toolbar')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Attach file' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Send' })).toBeInTheDocument();
+  });
+
+  it('moves between tabs with the arrow keys in visual order and wraps', async () => {
     const user = userEvent.setup();
     render(<Harness />);
     screen.getByRole('tab', { name: 'Reply' }).focus();
     await user.keyboard('{ArrowRight}');
-    expect(screen.getByRole('tab', { name: 'Template' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'Private note' })).toHaveAttribute('aria-selected', 'true');
     await user.keyboard('{ArrowRight}{ArrowRight}');
+    expect(screen.getByRole('tab', { name: 'Reply' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('skips a hidden Template tab with the arrow keys', async () => {
+    const user = userEvent.setup();
+    render(<Harness channel="instagram" />);
+    screen.getByRole('tab', { name: 'Reply' }).focus();
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByRole('tab', { name: 'Private note' })).toHaveAttribute('aria-selected', 'true');
+    await user.keyboard('{ArrowRight}');
     expect(screen.getByRole('tab', { name: 'Reply' })).toHaveAttribute('aria-selected', 'true');
   });
 
   it('forces a private note with a banner once the reply window closed', () => {
     render(<Harness windowOpen={false} windowClosedAgo="2 days ago" />);
-    expect(tabNames()).toEqual(['Private note']);
+    expect(screen.queryByRole('tablist')).toBeNull();
+    expect(screen.getByText('Private note')).toHaveClass('lc-ticket-composer__mode-label');
     expect(screen.getByRole('status')).toHaveTextContent('Reply window closed 2 days ago. You can only leave a private note.');
     expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'Visible only to your team. Type @ to mention.');
     expect(screen.queryByRole('button', { name: 'Canned responses' })).toBeNull();
@@ -278,12 +308,12 @@ describe('TicketComposer tabs and locked states', () => {
 
   it('ignores the reply window on a channel that has none', () => {
     render(<Harness channel="widget" windowOpen={false} />);
-    expect(tabNames()).toEqual(['Reply', 'Template', 'Private note']);
+    expect(tabNames()).toEqual(['Reply', 'Private note', 'Template']);
   });
 
   it('locks to a private note for billing and voicebot', () => {
     const { unmount } = render(<Harness lockReason="billing" />);
-    expect(tabNames()).toEqual(['Private note']);
+    expect(screen.queryByRole('tab')).toBeNull();
     expect(screen.getByRole('status')).toHaveTextContent('billing');
     unmount();
     render(<Harness lockReason="voicebot" />);
@@ -345,8 +375,8 @@ describe('TicketComposer sending', () => {
 
     await user.click(screen.getByRole('tab', { name: 'Template' }));
     expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Attach file' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Improve with AI' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Attach file' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Improve with AI' })).toBeNull();
 
     await user.type(screen.getByRole('searchbox'), 'shipping{Enter}');
     expect(screen.getByRole('button', { name: 'Send' })).toBeDisabled();
@@ -399,5 +429,44 @@ describe('TicketComposer counter', () => {
     render(<Harness channel="sms" />);
     await user.click(screen.getByRole('tab', { name: 'Private note' }));
     expect(screen.getByRole('textbox')).toHaveAttribute('maxlength', '10000');
+  });
+});
+
+describe('TicketComposer tooltips', () => {
+  it('explains a tab on hover and on keyboard focus', async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    await user.hover(screen.getByRole('tab', { name: 'Private note' }));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Private note: only your team can see this');
+    await user.unhover(screen.getByRole('tab', { name: 'Private note' }));
+    await act(async () => screen.getByRole('tab', { name: 'Reply' }).focus());
+    expect(await screen.findByText('Reply to the customer')).toBeInTheDocument();
+  });
+
+  it('says why Send is disabled, and what it does once enabled', async () => {
+    const user = userEvent.setup();
+    render(<Harness channel="sms" />);
+    const send = screen.getByRole('button', { name: 'Reply' });
+    expect(send).toBeDisabled();
+    await user.hover(send);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Type a message or attach a file to send');
+    await user.unhover(send);
+    await user.type(screen.getByRole('textbox'), 'hi');
+    await user.hover(send);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Send the reply (Enter, Shift+Enter for a new line)');
+  });
+
+  it('shows the attach limits', async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    await user.hover(screen.getByRole('button', { name: 'Attach file' }));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Attach files (0/5, max 16 MB each)');
+  });
+
+  it('explains the locked-mode label', async () => {
+    const user = userEvent.setup();
+    render(<Harness windowOpen={false} />);
+    await user.hover(screen.getByText('Private note'));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Reply window closed. You can only leave a private note.');
   });
 });

@@ -18,26 +18,34 @@
   position: relative; /* anchors the canned responses drawer */
   container: tc / inline-size; /* narrow-width rules key off the composer's own width */
   box-sizing: border-box;
-  min-height: 110px; /* default height; the input row takes the spare room and the box grows with its content */
+  min-height: 88px; /* default height; the input row takes the spare room and the box grows with its content */
   display: flex;
   flex-direction: column;
   gap: 8px;
   width: 100%;
-  padding: 12px;
+  padding: 13px; /* 12px + the 1px border */
   background: var(--lc-color-white);
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   border-radius: 8px;
   /* Matches .lc-email-composer-bar's elevation, so the reply and email composers read consistently. */
   box-shadow: 0 7px 3.5px rgba(0, 0, 0, 0.04), 0 10px 7.5px rgba(0, 0, 0, 0.1), 0 1px 1.5px rgba(0, 0, 0, 0.05);
   font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  transition: background-color 150ms ease, border-color 150ms ease;
+  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
 .lc-ticket-composer[data-mode='note'] {
   background: #FCF9F3;
-  border-color: var(--lc-tc-warning);
+  border-color: transparent;
 }
+/* focus: no border colour, the ring alone signals focus (keeps the base elevation shadow) */
 .lc-ticket-composer[data-focused]:not([data-mode='note']) {
-  border-color: var(--lc-tc-primary);
+  border-color: transparent;
+  box-shadow: 0 7px 3.5px rgba(0, 0, 0, 0.04), 0 10px 7.5px rgba(0, 0, 0, 0.1), 0 1px 1.5px rgba(0, 0, 0, 0.05),
+    0 0 0 3px color-mix(in srgb, var(--lc-tc-primary) 25%, transparent);
+}
+.lc-ticket-composer[data-mode='note'][data-focused] {
+  border-color: transparent;
+  box-shadow: 0 7px 3.5px rgba(0, 0, 0, 0.04), 0 10px 7.5px rgba(0, 0, 0, 0.1), 0 1px 1.5px rgba(0, 0, 0, 0.05),
+    0 0 0 3px color-mix(in srgb, var(--lc-tc-warning) 25%, transparent);
 }
 .lc-ticket-composer *,
 .lc-ticket-composer *::before,
@@ -248,13 +256,46 @@
   background: #CFD1CD;
 }
 
-/* Quiet tools strip: icon buttons on the left, the counter on the right. */
-.lc-ticket-composer__tools-row {
+/* One bottom row: tabs, divider, tools, counter, Send. */
+.lc-ticket-composer__bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
   min-height: 32px; /* the Aa strip swaps in without changing the height */
+}
+.lc-ticket-composer__bar > :last-child {
+  margin-left: auto; /* Send stays far right when there are no tools (Template tab) */
+}
+.lc-ticket-composer__bar .lc-ticket-composer__tools {
+  flex: 1;
+  min-width: 0;
+}
+.lc-ticket-composer__bar .lc-btn__label {
+  /* Lato (as hosted by Google Fonts) only ships 400/700/900 — 500/600 silently
+     fall back to 400 with no visible change, so 400 is used directly here. */
+  font-weight: 400;
+}
+.lc-ticket-composer__divider {
+  width: 1px;
+  height: 20px;
+  background: var(--lc-tc-border);
+  flex-shrink: 0;
+}
+/* A locked ticket has one mode left: a label, not a tab. */
+.lc-ticket-composer__mode-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--lc-tc-title);
+}
+.lc-ticket-composer__mode-label svg {
+  width: 14px;
+  height: 14px;
 }
 .lc-ticket-composer__tools {
   display: flex;
@@ -263,20 +304,6 @@
 }
 .lc-ticket-composer__more {
   display: none; /* only in a narrow composer */
-}
-
-/* Send on the right, the mode tabs on the left. */
-.lc-ticket-composer__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  width: 100%;
-}
-.lc-ticket-composer__footer .lc-btn__label {
-  /* Lato (as hosted by Google Fonts) only ships 400/700/900 — 500/600 silently
-     fall back to 400 with no visible change, so 400 is used directly here. */
-  font-weight: 400;
 }
 
 /* Why only a private note is left: closed reply window, billing, voicebot. */
@@ -625,8 +652,17 @@
   background: var(--lc-color-gray-100);
 }
 
-/* Narrow composer (container query, not viewport): tabs become icons, emoji / Aa / "/" fold into the "+" menu,
-   and the counter waits for the limit. Send and attach stay put. */
+/* Mid-width composer (container query, not viewport): emoji / Aa / "/" fold into the "+" menu. */
+@container tc (max-width: 640px) {
+  .lc-tooltip-anchor:has(> .lc-ticket-composer__collapsible),
+  .lc-ticket-composer__collapsible {
+    display: none;
+  }
+  .lc-ticket-composer__more {
+    display: inline-flex;
+  }
+}
+/* Narrow composer: tabs become icons and the counter waits for the limit. Send and attach stay put. */
 @container tc (max-width: 420px) {
   .lc-ticket-composer__tab {
     padding: 0 12px;
@@ -637,13 +673,15 @@
   .lc-ticket-composer__tab-label {
     display: none;
   }
-  .lc-ticket-composer__collapsible {
+  .lc-tooltip-anchor:has(> .lc-ticket-composer__counter:not([data-level='limit'])),
+  .lc-ticket-composer__counter:not([data-level='limit']) {
     display: none;
   }
-  .lc-ticket-composer__more {
-    display: inline-flex;
-  }
-  .lc-ticket-composer__counter:not([data-level='limit']) {
+}
+/* The Aa strip needs the whole row, so it takes the tabs place. */
+@container tc (max-width: 560px) {
+  .lc-ticket-composer__bar[data-format-open] .lc-ticket-composer__tabs,
+  .lc-ticket-composer__bar[data-format-open] .lc-ticket-composer__divider {
     display: none;
   }
 }

@@ -47,5 +47,5 @@ export const isLocked = ({ config, windowOpen, lockReason }: ModeContext) =>
 /** The tabs to show, in order. A locked ticket only takes notes; an opted-out contact gets no templates. */
 export function availableModes(ctx: ModeContext): ComposerMode[] {
   if (isLocked(ctx)) return ['note'];
-  return ctx.config.templates && ctx.contactOptedIn ? ['reply', 'template', 'note'] : ['reply', 'note'];
+  return ctx.config.templates && ctx.contactOptedIn ? ['reply', 'note', 'template'] : ['reply', 'note'];
 }

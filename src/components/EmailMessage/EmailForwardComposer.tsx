@@ -26,6 +26,7 @@ import { forwardRef, useEffect, useState, type HTMLAttributes, type KeyboardEven
 import { createPortal } from 'react-dom';
 import { Button } from '../Button';
 import { Icon, TrashIcon } from '../icons';
+import { Tooltip } from '../Tooltip';
 import { CharCounter } from '../TicketComposer/CharCounter';
 import { CHANNEL_CONFIG, NOTE_LIMIT, type ComposerMode } from '../TicketComposer/channelConfig';
 import { ModeTabs } from '../TicketComposer/ModeTabs';
@@ -110,7 +111,15 @@ const MinimizeIcon = () => (
   </svg>
 );
 
-const TOOLBAR_ICONS = [BoldIcon, ItalicIcon, HighlightIcon, LinkIcon, RedoIcon, RepeatIcon, ListIcon, PaperclipIcon];
+const RICH_TOOLS = [
+  { label: 'Bold', hint: 'Make text bold', Icon: BoldIcon },
+  { label: 'Italic', hint: 'Make text italic', Icon: ItalicIcon },
+  { label: 'Highlight', hint: 'Highlight text', Icon: HighlightIcon },
+  { label: 'Link', hint: 'Add a link', Icon: LinkIcon },
+  { label: 'Redo', hint: 'Redo the last undone change', Icon: RedoIcon },
+  { label: 'Repeat', hint: 'Repeat the last action', Icon: RepeatIcon },
+  { label: 'List', hint: 'Start a bulleted list', Icon: ListIcon },
+];
 
 export type EmailRecipientField = 'to' | 'cc' | 'bcc';
 
@@ -250,22 +259,26 @@ export const EmailForwardComposer = forwardRef<HTMLDivElement, EmailForwardCompo
         <div className="lc-email-forward__title-row">
           <span className="lc-email-forward__title">{isForward ? 'Forwarding to' : 'Replying to'}</span>
           <div className="lc-email-forward__title-actions">
-            <button
-              type="button"
-              className="lc-email-forward__title-icon-btn"
-              aria-label={maximized ? 'Minimize composer' : 'Maximize composer'}
-              onClick={() => setMaximized((v) => !v)}
-            >
-              {maximized ? <MinimizeIcon /> : <MaximizeIcon />}
-            </button>
-            <button
-              type="button"
-              className="lc-email-forward__title-icon-btn"
-              aria-label="Delete draft"
-              onClick={onDelete}
-            >
-              <TrashIcon size={16} />
-            </button>
+            <Tooltip label={maximized ? 'Back to the small composer (Esc)' : 'Open the composer full screen'}>
+              <button
+                type="button"
+                className="lc-email-forward__title-icon-btn"
+                aria-label={maximized ? 'Minimize composer' : 'Maximize composer'}
+                onClick={() => setMaximized((v) => !v)}
+              >
+                {maximized ? <MinimizeIcon /> : <MaximizeIcon />}
+              </button>
+            </Tooltip>
+            <Tooltip label="Delete this draft">
+              <button
+                type="button"
+                className="lc-email-forward__title-icon-btn"
+                aria-label="Delete draft"
+                onClick={onDelete}
+              >
+                <TrashIcon size={16} />
+              </button>
+            </Tooltip>
           </div>
         </div>
 
@@ -338,40 +351,64 @@ export const EmailForwardComposer = forwardRef<HTMLDivElement, EmailForwardCompo
             </>
           )}
 
-          <div className="lc-ticket-composer__tools-row">
-            <div className="lc-ticket-composer__tools" role="toolbar" aria-label="Tools">
-              {TOOLBAR_ICONS.map((Icon, i) => (
-                // eslint-disable-next-line react/no-array-index-key
-                <button key={i} type="button" className="lc-ticket-composer__icon-btn">
-                  <Icon />
+          <div className="lc-email-forward__rich" role="toolbar" aria-label="Text formatting">
+            {RICH_TOOLS.map(({ label, hint, Icon: ToolIcon }) => (
+              <Tooltip key={label} label={hint}>
+                <button type="button" className="lc-ticket-composer__icon-btn" aria-label={label}>
+                  <ToolIcon />
                 </button>
-              ))}
-              <button
-                type="button"
-                className="lc-ticket-composer__icon-btn"
-                aria-label="AI assist"
-                title="AI assist"
-                aria-pressed={aiActive}
-                disabled={value.trim() === ''}
-                onClick={onToggleAi}
-              >
-                <WandIcon />
-              </button>
-            </div>
-            <CharCounter length={value.length} limit={limit} />
+              </Tooltip>
+            ))}
           </div>
 
-          <div className="lc-ticket-composer__footer">
+          <div className="lc-ticket-composer__bar">
             {!isForward && onComposerModeChange ? (
               <ModeTabs mode={composerMode} modes={['reply', 'note']} onModeChange={onComposerModeChange} size="sm" />
             ) : (
-              <button type="button" className="lc-email-reply__icon-btn" onClick={onDelete} aria-label="Delete draft">
-                <TrashIcon />
-              </button>
+              <Tooltip label="Delete this draft">
+                <button type="button" className="lc-email-reply__icon-btn" onClick={onDelete} aria-label="Delete draft">
+                  <TrashIcon />
+                </button>
+              </Tooltip>
             )}
-            <Button size="sm" color={isNote ? 'yellow' : 'primary'} onClick={onSend} disabled={sendDisabled}>
-              {sendLabel ?? (isNote ? 'Create' : isForward ? 'Forward' : 'Reply')}
-            </Button>
+            <span className="lc-ticket-composer__divider" aria-hidden="true" />
+            <div className="lc-ticket-composer__tools" role="toolbar" aria-label="Tools">
+              <Tooltip label={value.trim() === '' ? 'AI assist: write a message first' : 'Improve your message with AI'}>
+                <button
+                  type="button"
+                  className="lc-ticket-composer__icon-btn"
+                  aria-label="AI assist"
+                  aria-pressed={aiActive}
+                  disabled={value.trim() === ''}
+                  onClick={onToggleAi}
+                >
+                  <WandIcon />
+                </button>
+              </Tooltip>
+              <Tooltip label="Attach files">
+                <button type="button" className="lc-ticket-composer__icon-btn" aria-label="Attach file">
+                  <PaperclipIcon />
+                </button>
+              </Tooltip>
+            </div>
+            <CharCounter length={value.length} limit={limit} />
+            <Tooltip
+              label={
+                sendDisabled
+                  ? isForward && to.length === 0
+                    ? 'Add a recipient to forward'
+                    : 'Write a message to send'
+                  : isNote
+                    ? 'Create the private note'
+                    : isForward
+                      ? 'Forward this email'
+                      : 'Send the reply'
+              }
+            >
+              <Button size="sm" color={isNote ? 'yellow' : 'primary'} onClick={onSend} disabled={sendDisabled}>
+                {sendLabel ?? (isNote ? 'Create' : isForward ? 'Forward' : 'Reply')}
+              </Button>
+            </Tooltip>
           </div>
         </div>
       </div>

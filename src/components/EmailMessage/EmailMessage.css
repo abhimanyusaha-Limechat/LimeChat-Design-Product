@@ -400,17 +400,6 @@
   color: var(--lc-email-dimmed);
 }
 
-.lc-email-reply__toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-.lc-email-reply__toolbar-buttons {
-  display: flex;
-  align-items: center;
-  gap: 0;
-}
 .lc-email-reply__icon-btn {
   display: flex;
   align-items: center;
@@ -429,40 +418,6 @@
 }
 .lc-email-reply__icon-btn:hover {
   background: var(--lc-email-gray-light-bg);
-}
-.lc-email-reply__ai-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 16px;
-  margin-left: 8px;
-  border: none;
-  border-radius: 4px;
-  background: var(--lc-email-badge-bg);
-  color: var(--lc-email-primary);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.lc-email-reply__ai-btn svg {
-  width: 16px;
-  height: 16px;
-}
-.lc-email-reply__ai-btn[data-active='true'] {
-  filter: brightness(0.97);
-}
-.lc-email-reply__send-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.lc-email-reply__send-group .lc-email-reply__icon-btn {
-  width: 24px;
-  height: 24px;
-}
-.lc-email-reply__send-group .lc-email-reply__icon-btn svg {
-  width: 16px;
-  height: 16px;
 }
 
 /* --- EmailComposerBar ------------------------------------------------------ */
@@ -687,4 +642,12 @@
 .lc-email-forward-overlay .lc-email-forward {
   width: 100%;
   max-width: 1248px;
+}
+
+/* Always-open rich text row above the bottom bar; wraps instead of overflowing. */
+.lc-email-forward__rich {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
 }

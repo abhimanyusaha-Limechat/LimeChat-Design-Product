@@ -14,6 +14,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Button } from '../Button';
 import { ActionMenu, Menu } from '../Menu';
 import { Modal } from '../Modal';
+import { Tooltip } from '../Tooltip';
 import type { TicketChannel } from '../TicketListItem';
 import { AttachmentTiles } from './AttachmentTiles';
 import { CharCounter } from './CharCounter';
@@ -230,6 +231,18 @@ export function TicketComposer({
   // An empty reply box on a voice channel offers the mic where Send would be.
   const showMic = config.voice && mode === 'reply' && value === '' && attachments.length === 0;
 
+  const sendHint = showMic
+    ? 'Record a voice note'
+    : canSend
+      ? `${inTemplate ? 'Send the template message' : isNote ? 'Create the private note' : 'Send the reply'}${inTemplate ? '' : ' (Enter, Shift+Enter for a new line)'}`
+      : inTemplate
+        ? picked === null
+          ? 'Pick a template to send'
+          : 'Fill in all template fields to send'
+        : value.length > limit
+          ? `Message is over the ${limit} character limit`
+          : 'Type a message or attach a file to send';
+
   const handleSend = () => {
     onSend?.(mode);
     if (inTemplate) {
@@ -442,8 +455,10 @@ export function TicketComposer({
         style={{ display: 'none' }}
       />
 
-      <div className="lc-ticket-composer__tools-row">
-        {formatShown ? (
+      <div className="lc-ticket-composer__bar" data-format-open={formatShown || undefined}>
+        <ModeTabs mode={mode} modes={modes} onModeChange={changeMode} size={tabSize} lockHint={lockText} />
+        {!inTemplate && <span className="lc-ticket-composer__divider" aria-hidden="true" />}
+        {inTemplate ? null : formatShown ? (
           <FormattingToolbar
             canUndo={history.canUndo}
             canRedo={history.canRedo}
@@ -455,21 +470,24 @@ export function TicketComposer({
         ) : (
           <div className="lc-ticket-composer__tools" role="toolbar" aria-label="Tools">
             {showEmoji && (
-              <button type="button" className="lc-ticket-composer__icon-btn lc-ticket-composer__collapsible" aria-label="Insert emoji" title="Insert emoji" onClick={onEmoji}>
-                <Icon name="mood-smile" />
-              </button>
+              <Tooltip label="Insert emoji">
+                <button type="button" className="lc-ticket-composer__icon-btn lc-ticket-composer__collapsible" aria-label="Insert emoji" onClick={onEmoji}>
+                  <Icon name="mood-smile" />
+                </button>
+              </Tooltip>
             )}
             {canFormat && (
-              <button
-                type="button"
-                className="lc-ticket-composer__icon-btn lc-ticket-composer__format-toggle lc-ticket-composer__collapsible"
-                aria-label="Formatting options"
-                title="Formatting options"
-                disabled={!hasDraft}
-                onClick={() => toggleFormat(true)}
-              >
-                Aa
-              </button>
+              <Tooltip label={hasDraft ? 'Formatting options: bold, italic, strikethrough, monospace' : 'Formatting options: write a message first'}>
+                <button
+                  type="button"
+                  className="lc-ticket-composer__icon-btn lc-ticket-composer__format-toggle lc-ticket-composer__collapsible"
+                  aria-label="Formatting options"
+                  disabled={!hasDraft}
+                  onClick={() => toggleFormat(true)}
+                >
+                  Aa
+                </button>
+              </Tooltip>
             )}
             {moreItems.length > 0 && (
               <span className="lc-ticket-composer__more">
@@ -489,62 +507,63 @@ export function TicketComposer({
               width={160}
               items={AI_STYLES.map(({ style, label }) => ({ key: style, label, onClick: () => onAiImprove?.(style) }))}
               trigger={({ ref, onClick, open }) => (
-                <button
-                  type="button"
-                  ref={ref}
-                  className="lc-ticket-composer__icon-btn"
-                  aria-label="Improve with AI"
-                  title="Improve with AI"
-                  aria-haspopup="menu"
-                  aria-expanded={open}
-                  disabled={!hasDraft || inTemplate}
-                  onClick={onClick}
-                >
-                  <Icon name="sparkle" />
-                </button>
+                <Tooltip disabled={open} label={hasDraft ? 'Improve your message with AI' : 'Improve with AI: write a message first'}>
+                  <button
+                    type="button"
+                    ref={ref}
+                    className="lc-ticket-composer__icon-btn"
+                    aria-label="Improve with AI"
+                    aria-haspopup="menu"
+                    aria-expanded={open}
+                    disabled={!hasDraft}
+                    onClick={onClick}
+                  >
+                    <Icon name="sparkle" />
+                  </button>
+                </Tooltip>
               )}
             />
-            <button
-              type="button"
-              className="lc-ticket-composer__icon-btn"
-              aria-label="Attach file"
-              title={full ? `${MAX_ATTACHMENTS}/${MAX_ATTACHMENTS} files attached` : `Attach file (${attachments.length}/${MAX_ATTACHMENTS})`}
-              disabled={full || inTemplate}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Icon name="paperclip" />
-            </button>
-            {showCanned && (
+            <Tooltip label={full ? `${MAX_ATTACHMENTS}/${MAX_ATTACHMENTS} files attached. Remove one to add more` : `Attach files (${attachments.length}/${MAX_ATTACHMENTS}, max ${MAX_FILE_BYTES / 1024 / 1024} MB each)`}>
               <button
                 type="button"
-                className="lc-ticket-composer__icon-btn lc-ticket-composer__collapsible"
-                aria-label="Canned responses"
-                title="Canned responses ( / )"
-                aria-haspopup="listbox"
-                aria-pressed={drawer === 'canned'}
-                onClick={openCanned}
+                className="lc-ticket-composer__icon-btn"
+                aria-label="Attach file"
+                disabled={full}
+                onClick={() => fileInputRef.current?.click()}
               >
-                <Icon name="slash" />
+                <Icon name="paperclip" />
               </button>
+            </Tooltip>
+            {showCanned && (
+              <Tooltip label="Insert a canned response (or type /)">
+                <button
+                  type="button"
+                  className="lc-ticket-composer__icon-btn lc-ticket-composer__collapsible"
+                  aria-label="Canned responses"
+                  aria-haspopup="listbox"
+                  aria-pressed={drawer === 'canned'}
+                  onClick={openCanned}
+                >
+                  <Icon name="slash" />
+                </button>
+              </Tooltip>
             )}
           </div>
         )}
 
         {!inTemplate && <CharCounter length={value.length} limit={limit} />}
-      </div>
-
-      <div className="lc-ticket-composer__footer">
-        <ModeTabs mode={mode} modes={modes} onModeChange={changeMode} size={tabSize} />
-        <Button
-          variant="filled"
-          color={isNote ? 'yellow' : 'primary'}
-          size="sm"
-          aria-label={showMic ? 'Record voice note' : undefined}
-          disabled={!showMic && !canSend}
-          onClick={showMic ? onMic : handleSend}
-        >
-          {showMic ? <MicIcon /> : MODE_CONFIG[mode].sendLabel}
-        </Button>
+        <Tooltip label={sendHint}>
+          <Button
+            variant="filled"
+            color={isNote ? 'yellow' : 'primary'}
+            size="sm"
+            aria-label={showMic ? 'Record voice note' : undefined}
+            disabled={!showMic && !canSend}
+            onClick={showMic ? onMic : handleSend}
+          >
+            {showMic ? <MicIcon /> : MODE_CONFIG[mode].sendLabel}
+          </Button>
+        </Tooltip>
       </div>
     </div>
 

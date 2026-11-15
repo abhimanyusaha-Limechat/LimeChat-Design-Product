@@ -21,23 +21,26 @@ const [draft, setDraft] = useState('');
 />
 ```
 
-Layout, top to bottom: editor, attachments, a quiet tools strip (emoji, Aa,
-AI, attach, `/`) with the counter on the right, then a footer with the mode
-tabs on the left and Send on the right (the only filled element).
+Layout, top to bottom: editor, attachments, then one bottom bar: mode tabs, a
+divider, the tools (emoji, Aa, AI, attach, `/`), the counter and Send on the
+right (the only filled element). The Template tab shows no tools.
 
-- **Tabs**: `Reply`, `Template`, `Private note`. Template shows only when the
+- **Tabs**: `Reply`, `Private note`, `Template`. Template shows only when the
   channel has templates and the contact opted in. Send reads `Reply` /
   `Send` / `Create`; the mic replaces it on voice channels while the box is empty.
 - **Template tab**: the box becomes a search field over `templates`; picking one
   shows its `params` as fields, and Send stays disabled until all are filled.
 - **Locked**: a closed reply window (WhatsApp 24h, Facebook / Instagram 7d),
   `lockReason="billing"` or `"voicebot"` hides Reply and Template, forces
-  Private note and shows a banner.
+  Private note and shows a banner; the tabs become a static `Private note` label.
 - **Channels**: limits, formatting, voice and emoji per channel live in
   `channelConfig.ts`. Private notes always allow 10000 characters. The counter
   appears at 80% of the limit.
 - **Keys**: Enter sends, Shift+Enter adds a line, an open canned / template list
   takes Enter, Esc closes pickers and the Aa strip.
-- **Narrow** (container under 420px): tabs become icons, emoji / Aa / `/` fold
-  into a `+` menu.
+- **Narrow** (container under 640px): emoji / Aa / `/` fold into a `+` menu.
+  Under 420px the tabs also become icons. Under 560px the open Aa strip hides the tabs.
+- **Email** (`EmailMessage/EmailForwardComposer`): no Aa toggle. The formatting row
+  (bold, italic, highlight, link, list, redo, repeat) is always open above the bar,
+  also in a private note. It wraps on narrow widths. Attach and AI stay in the bar.
 - Files: at most 5, 16 MB each.

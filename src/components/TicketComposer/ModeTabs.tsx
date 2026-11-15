@@ -1,11 +1,12 @@
 /**
- * The Reply / Template / Private note segmented control. Labels are always visible; in a narrow composer
+ * The Reply / Private note / Template segmented control. Labels are always visible; in a narrow composer
  * they collapse to icons (see the container query in the CSS). A white pill behind the tabs follows the
  * active tab's box.
  */
 import { useLayoutEffect, useRef, useState, type ReactElement } from 'react';
 import { iconProps } from '../iconProps';
 import { Icon } from '../icons';
+import { Tooltip } from '../Tooltip';
 import type { ComposerMode } from './channelConfig';
 
 export type TicketComposerMode = ComposerMode;
@@ -26,11 +27,11 @@ const LockIcon = () => (
 
 export const MODE_CONFIG: Record<
   TicketComposerMode,
-  { label: string; sendLabel: string; placeholder: string; Icon: () => ReactElement }
+  { label: string; hint: string; sendLabel: string; placeholder: string; Icon: () => ReactElement }
 > = {
-  reply: { label: 'Reply', sendLabel: 'Reply', placeholder: "Type a message... ('/' for canned responses)", Icon: ReplyIcon },
-  template: { label: 'Template', sendLabel: 'Send', placeholder: 'Search templates', Icon: () => <Icon name="layout" /> },
-  note: { label: 'Private note', sendLabel: 'Create', placeholder: 'Visible only to your team. Type @ to mention.', Icon: LockIcon },
+  reply: { label: 'Reply', hint: 'Reply to the customer', sendLabel: 'Reply', placeholder: "Type a message... ('/' for canned responses)", Icon: ReplyIcon },
+  template: { label: 'Template', hint: 'Send a pre-approved template message', sendLabel: 'Send', placeholder: 'Search templates', Icon: () => <Icon name="layout" /> },
+  note: { label: 'Private note', hint: 'Private note: only your team can see this', sendLabel: 'Create', placeholder: 'Visible only to your team. Type @ to mention.', Icon: LockIcon },
 };
 
 interface ModeTabsProps {
@@ -41,9 +42,11 @@ interface ModeTabsProps {
   onModeChange?: (mode: TicketComposerMode, viaKeyboard?: boolean) => void;
   /** Control heights 24 / 32 / 40 / 48 / 56 px. */
   size: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  /** Why only a note is left (locked ticket); shown as a tooltip on the static label. */
+  lockHint?: string | null;
 }
 
-export function ModeTabs({ mode, modes, onModeChange, size }: ModeTabsProps) {
+export function ModeTabs({ mode, modes, onModeChange, size, lockHint }: ModeTabsProps) {
   const tabRefs = useRef<Partial<Record<TicketComposerMode, HTMLButtonElement>>>({});
   const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
 
@@ -69,6 +72,19 @@ export function ModeTabs({ mode, modes, onModeChange, size }: ModeTabsProps) {
     tabRefs.current[nextMode]?.focus();
   };
 
+  // One mode left (locked ticket): a static label, not a one-tab tablist.
+  if (modes.length === 1) {
+    const { label, Icon: ModeIcon } = MODE_CONFIG[modes[0]];
+    return (
+      <Tooltip label={lockHint ?? MODE_CONFIG[modes[0]].hint}>
+        <span className="lc-ticket-composer__mode-label">
+          <ModeIcon />
+          {label}
+        </span>
+      </Tooltip>
+    );
+  }
+
   return (
     <div className="lc-ticket-composer__tabs" role="tablist" data-size={size}>
       {indicator && (
@@ -79,10 +95,10 @@ export function ModeTabs({ mode, modes, onModeChange, size }: ModeTabsProps) {
         />
       )}
       {modes.map((m, index) => {
-        const { label, Icon: ModeIcon } = MODE_CONFIG[m];
+        const { label, hint, Icon: ModeIcon } = MODE_CONFIG[m];
         return (
+          <Tooltip key={m} label={hint}>
           <button
-            key={m}
             ref={(el) => {
               if (el) tabRefs.current[m] = el;
               else delete tabRefs.current[m];
@@ -90,7 +106,6 @@ export function ModeTabs({ mode, modes, onModeChange, size }: ModeTabsProps) {
             type="button"
             role="tab"
             aria-label={label}
-            title={label}
             aria-selected={mode === m}
             tabIndex={mode === m ? 0 : -1}
             className="lc-ticket-composer__tab"
@@ -104,6 +119,7 @@ export function ModeTabs({ mode, modes, onModeChange, size }: ModeTabsProps) {
               {label}
             </span>
           </button>
+          </Tooltip>
         );
       })}
     </div>
