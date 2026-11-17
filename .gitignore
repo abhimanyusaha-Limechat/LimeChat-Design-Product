@@ -5,3 +5,6 @@ graphify-out
 
 .env
 .env.local
+
+# macOS
+.DS_Store
