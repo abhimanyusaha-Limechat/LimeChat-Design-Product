@@ -2,18 +2,18 @@
 
 .lc-re {
   /* The inbox settings' tokens, so its inputs and labels (reused for the SLA times) look the same here. */
-  --lc-inbs-border: var(--lc-color-gray-300);
-  --lc-inbs-divider: var(--lc-color-gray-200);
-  --lc-inbs-text-title: var(--lc-color-green-900);
-  --lc-inbs-text-dimmed: var(--lc-color-sage-500);
-  --lc-inbs-primary: var(--lc-color-green-700);
+  --lc-inbs-border: var(--v3-grey-400);
+  --lc-inbs-divider: var(--v3-grey-300);
+  --lc-inbs-text-title: var(--v3-text-dark);
+  --lc-inbs-text-dimmed: var(--v3-text-light);
+  --lc-inbs-primary: var(--v3-green-primary-600);
   --lc-inbs-radius: 12px;
   --lc-inbs-radius-sm: 6px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   max-width: 880px;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-re__card {
@@ -23,7 +23,7 @@
   gap: 8px;
   padding: 12px 16px;
   border-radius: 8px;
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
 }
 
 .lc-re__card--inline {
@@ -43,14 +43,14 @@
   margin: -4px 0 4px;
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 
 .lc-re__hint {
   margin: 0;
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 
 /* Every dropdown on the page is the same width. */
@@ -78,16 +78,16 @@
   border: none;
   border-radius: 4px;
   background: transparent;
-  color: var(--lc-color-red-600);
+  color: var(--v3-warning-red-medium);
   cursor: pointer;
 }
 
 .lc-re__remove:hover {
-  background: color-mix(in srgb, var(--lc-color-red-600) 10%, transparent);
+  background: color-mix(in srgb, var(--v3-warning-red-medium) 10%, transparent);
 }
 
 .lc-re__remove:focus-visible {
-  outline: 2px solid var(--lc-color-green-500);
+  outline: 2px solid var(--v3-green-primary);
 }
 
 .lc-re__number {
@@ -95,16 +95,16 @@
   width: 72px;
   height: 32px;
   padding: 0 8px;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--v3-grey-400);
   border-radius: 4px;
   background: white;
   font: inherit;
   font-size: 13px;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-re__number:focus-visible {
-  outline: 2px solid var(--lc-color-green-500);
+  outline: 2px solid var(--v3-green-primary);
   outline-offset: -1px;
 }
 
@@ -127,7 +127,7 @@
 .lc-re__word {
   font-size: 13px;
   line-height: 32px;
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 
 /* "AND" between conditions: a rule with the word centred on it. */
@@ -139,14 +139,14 @@
   width: 100%;
   padding: 0 12px;
   font-size: 12px;
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 
 .lc-re__and::before,
 .lc-re__and::after {
   content: '';
   flex: 1;
-  border-top: 1px solid var(--lc-color-gray-200);
+  border-top: 1px solid var(--v3-grey-300);
 }
 
 /* A reminder: its controls wrap inside the box while the remove button stays on the first line. */
@@ -157,7 +157,7 @@
   width: 100%;
   box-sizing: border-box;
   padding: 12px;
-  border: 1px solid var(--lc-color-gray-200);
+  border: 1px solid var(--v3-grey-300);
   border-radius: 8px;
   background: white;
 }
@@ -221,8 +221,8 @@
   align-items: center;
   gap: 8px;
   padding: 12px;
-  border-bottom: 1px solid var(--lc-color-gray-200);
-  background: var(--lc-color-gray-50);
+  border-bottom: 1px solid var(--v3-grey-300);
+  background: var(--v3-input-default-body);
 }
 
 .lc-re__level {
@@ -230,7 +230,7 @@
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  border-bottom: 1px solid var(--lc-color-gray-200);
+  border-bottom: 1px solid var(--v3-grey-300);
 }
 
 .lc-re__level-head {
@@ -251,8 +251,8 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--lc-color-green-100);
-  color: var(--lc-color-green-800);
+  background: var(--v3-green-primary-000);
+  color: var(--v3-green-primary-600);
   font-size: 12px;
   font-weight: 700;
 }
@@ -290,11 +290,11 @@
 
 .lc-re__recipients > .lc-re__check {
   min-height: 32px;
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 
 .lc-re__recipients[data-on] > .lc-re__check {
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-re__recipients .lc-re__control {
@@ -382,7 +382,7 @@
 /* An AND already has a rule above it; the footer gets one too. */
 .lc-re__cond + .lc-re__cond-foot,
 .lc-re__and + .lc-re__cond-foot {
-  border-top: 1px solid var(--lc-color-gray-200);
+  border-top: 1px solid var(--v3-grey-300);
 }
 
 /* Actions reuse the condition grid with a number where a condition has "if". */
@@ -403,7 +403,7 @@
   margin: 0;
   padding: 12px 16px;
   border-radius: 8px;
-  background: var(--lc-color-green-50);
+  background: var(--v3-primary-extra-light);
   font-size: 13px;
   line-height: 20px;
 }
@@ -456,20 +456,20 @@
   align-items: center;
   gap: 4px;
   padding: 24px 16px;
-  border: 1px dashed var(--lc-color-gray-300);
+  border: 1px dashed var(--v3-grey-400);
   border-radius: 8px;
   background: white;
   font: inherit;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
   cursor: pointer;
 }
 
 .lc-ce__drop:hover {
-  border-color: var(--lc-color-green-500);
+  border-color: var(--v3-green-primary);
 }
 
 .lc-ce__drop:focus-visible {
-  outline: 2px solid var(--lc-color-green-500);
+  outline: 2px solid var(--v3-green-primary);
   outline-offset: 2px;
 }
 
@@ -493,10 +493,10 @@
   width: 160px;
   height: 120px;
   overflow: hidden;
-  border: 1px solid var(--lc-color-gray-200);
+  border: 1px solid var(--v3-grey-300);
   border-radius: 8px;
   background: white;
-  color: var(--lc-color-gray-400);
+  color: var(--v3-grey-500);
 }
 
 .lc-ce__preview img {

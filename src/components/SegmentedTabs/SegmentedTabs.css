@@ -1,0 +1,37 @@
+/* SegmentedTabs — the pill tab bar from Bot settings → Product cards. */
+
+.lc-segtabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 4px;
+  background: var(--v3-input-default-body);
+}
+
+.lc-segtabs__tab {
+  padding: 6px 16px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--v3-grey-600);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.lc-segtabs__tab[data-active='true'] {
+  background: var(--v3-white);
+  color: var(--v3-text-dark);
+  font-weight: 600;
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.1),
+    0 1px 1.5px rgba(0, 0, 0, 0.05);
+}
+
+.lc-segtabs__tab:focus-visible {
+  outline: 2px solid var(--v3-green-primary);
+  outline-offset: 2px;
+}

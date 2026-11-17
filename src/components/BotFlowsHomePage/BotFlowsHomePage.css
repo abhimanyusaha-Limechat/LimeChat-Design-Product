@@ -7,14 +7,14 @@
  */
 
 .lc-bf {
-  --lc-bf-border: var(--lc-color-gray-300);
-  --lc-bf-text-title: var(--lc-color-green-900);
-  --lc-bf-text-dimmed: var(--lc-color-sage-500);
-  --lc-bf-secondary-dark: var(--lc-color-stone-600);
-  --lc-bf-text-light: var(--lc-color-sage-500);
-  --lc-bf-text-placeholder: var(--lc-color-gray-500);
-  --lc-bf-primary: var(--lc-color-green-500);
-  --lc-bf-bg: var(--lc-color-stone-25);
+  --lc-bf-border: var(--v3-grey-400);
+  --lc-bf-text-title: var(--v3-text-dark);
+  --lc-bf-text-dimmed: var(--v3-text-light);
+  --lc-bf-secondary-dark: var(--v3-grey-700);
+  --lc-bf-text-light: var(--v3-text-light);
+  --lc-bf-text-placeholder: var(--v3-grey-600);
+  --lc-bf-primary: var(--v3-green-primary);
+  --lc-bf-bg: var(--v3-bg-yellow);
   --lc-bf-radius: 4px;
   --lc-bf-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --lc-bf-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
@@ -228,7 +228,7 @@
   padding: 2px;
   border: none;
   border-radius: 999px;
-  background: var(--lc-color-gray-300);
+  background: var(--v3-grey-400);
   cursor: pointer;
   transition: background-color 150ms ease;
 }
@@ -249,7 +249,7 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   transform: translateX(0);
   transition: transform 150ms ease;

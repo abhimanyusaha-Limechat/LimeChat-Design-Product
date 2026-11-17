@@ -7,7 +7,7 @@
   justify-content: space-between;
   align-items: start;
   gap: 32px;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 /* Expanding a level can make the page scroll; keep the scrollbar's space reserved so the levels don't change width. */
@@ -35,7 +35,7 @@
   bottom: 0;
   left: 50%;
   height: 24px;
-  border-left: 1px dashed var(--lc-color-gray-300);
+  border-left: 1px dashed var(--v3-grey-400);
 }
 
 .lc-te__row[data-dragging] {
@@ -48,9 +48,9 @@
 }
 
 .lc-te__card {
-  border: 1px solid var(--lc-color-gray-200);
+  border: 1px solid var(--v3-grey-300);
   border-radius: 8px;
-  background: var(--lc-color-gray-100);
+  background: var(--v3-grey-200);
 }
 
 .lc-te__head {
@@ -73,7 +73,7 @@
   border: none;
   border-radius: 4px;
   background: transparent;
-  color: var(--lc-color-gray-400);
+  color: var(--v3-grey-500);
   cursor: grab;
   touch-action: none; /* a touch drag moves the level instead of scrolling the page */
 }
@@ -86,20 +86,20 @@
 }
 
 .lc-te__grip:focus-visible {
-  outline: 2px solid var(--lc-color-green-500);
-  color: var(--lc-color-green-900);
+  outline: 2px solid var(--v3-green-primary);
+  color: var(--v3-text-dark);
 }
 
 .lc-te__row[data-dragging] .lc-te__grip {
   cursor: grabbing;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-te__badge {
   padding: 4px 10px;
   border-radius: 6px;
-  background: var(--lc-color-green-100);
-  color: var(--lc-color-green-500);
+  background: var(--v3-green-primary-000);
+  color: var(--v3-green-primary);
   font-size: 13px;
   font-weight: 700;
   line-height: 20px;
@@ -107,7 +107,7 @@
 }
 
 .lc-te__count {
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
   font-size: 13px;
 }
 
@@ -127,16 +127,16 @@
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
   cursor: pointer;
 }
 
 .lc-te__icon-btn:hover {
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-te__icon-btn:focus-visible {
-  outline: 2px solid var(--lc-color-green-500);
+  outline: 2px solid var(--v3-green-primary);
 }
 
 .lc-te__chevron svg {
@@ -162,7 +162,7 @@
 
 .lc-te__members {
   padding: 0 16px 8px;
-  border-top: 1px solid var(--lc-color-gray-200);
+  border-top: 1px solid var(--v3-grey-300);
 }
 
 .lc-te__list {
@@ -180,13 +180,13 @@
 }
 
 .lc-te__item + .lc-te__item {
-  border-top: 1px solid var(--lc-color-gray-200);
+  border-top: 1px solid var(--v3-grey-300);
 }
 
 /* The Agents table's avatar colours: gray fill, dark-gray initials. */
 .lc-avatar.lc-te__avatar {
-  --lc-avatar-light-bg: var(--lc-color-gray-200);
-  --lc-avatar-fg-accent: var(--lc-color-stone-600);
+  --lc-avatar-light-bg: var(--v3-grey-300);
+  --lc-avatar-fg-accent: var(--v3-grey-700);
 }
 
 .lc-te__text {
@@ -212,15 +212,15 @@
 .lc-te__email {
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 .lc-te__role {
   flex: none;
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--lc-color-gray-200);
-  color: var(--lc-color-stone-600);
+  background: var(--v3-grey-300);
+  color: var(--v3-grey-700);
   font-size: 12px;
   line-height: 16px;
 }
@@ -230,7 +230,7 @@
   margin: 0;
   padding: 16px 0 4px;
   font-size: 13px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 .lc-te__menu-empty {
@@ -250,14 +250,14 @@
   height: 32px;
   margin-bottom: 4px;
   padding: 0 10px;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--v3-grey-400);
   border-radius: 6px;
-  background: var(--lc-color-white);
-  color: var(--lc-color-sage-500);
+  background: var(--v3-white);
+  color: var(--v3-text-light);
 }
 
 .lc-te__search:focus-within {
-  border-color: var(--lc-color-green-500);
+  border-color: var(--v3-green-primary);
 }
 
 .lc-te__search-input {
@@ -268,7 +268,7 @@
   background: transparent;
   font-family: inherit;
   font-size: 14px;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-te__option {
@@ -315,5 +315,5 @@
 }
 
 .lc-te__status[data-kind='error'] {
-  color: var(--lc-color-red-600);
+  color: var(--v3-warning-red-medium);
 }

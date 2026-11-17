@@ -2,9 +2,9 @@
  * SelectUserSegmentModal — LimeChat design system (Figma node 258:13354).
  */
 .lc-segment-modal {
-  --lc-segment-green: var(--lc-color-green-500);
-  --lc-segment-green-soft: var(--lc-color-green-75);
-  --lc-segment-red: var(--lc-color-red-600);
+  --lc-segment-green: var(--v3-green-primary);
+  --lc-segment-green-soft: var(--v3-green-primary-000);
+  --lc-segment-red: var(--v3-warning-red-medium);
   --lc-segment-red-soft: var(--lc-color-red-50);
   height: 607px;
 }
@@ -97,7 +97,7 @@
 }
 .lc-segment-modal__body:hover,
 .lc-segment-modal__body:focus-within {
-  scrollbar-color: var(--lc-color-gray-300) transparent;
+  scrollbar-color: var(--v3-grey-400) transparent;
 }
 .lc-segment-modal__body::-webkit-scrollbar {
   width: 6px;
@@ -111,7 +111,7 @@
 }
 .lc-segment-modal__body:hover::-webkit-scrollbar-thumb,
 .lc-segment-modal__body:focus-within::-webkit-scrollbar-thumb {
-  background: var(--lc-color-gray-300);
+  background: var(--v3-grey-400);
 }
 .lc-segment-modal__row {
   display: grid;
@@ -122,10 +122,10 @@
   transition: background-color 120ms ease;
 }
 .lc-segment-modal__row + .lc-segment-modal__row {
-  border-top: 1px solid var(--lc-color-gray-150);
+  border-top: 1px solid var(--v3-grey-300);
 }
 .lc-segment-modal__body .lc-segment-modal__row:hover {
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
 }
 .lc-segment-modal__body .lc-segment-modal__row[data-choice='include']:hover {
   background: var(--lc-segment-green-soft-hover, #E5F7CF);
@@ -135,13 +135,13 @@
 }
 .lc-segment-modal__row--head {
   padding: 8px 20px 8px 16px;
-  background: var(--lc-color-blue-50);
+  background: var(--v3-secondary-light);
   font-size: 10px;
   font-weight: 400;
   line-height: 12.5px;
   text-transform: none;
   letter-spacing: 0;
-  color: var(--lc-color-blue-900);
+  color: var(--v3-secondary-dark);
 }
 .lc-segment-modal__row[data-choice='include'] {
   background: var(--lc-segment-green-soft);
@@ -228,10 +228,10 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border: 1px solid var(--lc-color-amber-500);
+  border: 1px solid var(--v3-warning-yellow-dark);
   border-radius: 4px;
   background: #FCF9F3;
-  color: var(--lc-color-amber-600);
+  color: var(--v3-warning-yellow-dark);
   font-size: 12px;
   font-weight: 500;
 }

@@ -28,8 +28,8 @@
   max-width: 240px;
   aspect-ratio: 1;
   overflow: hidden;
-  background: var(--lc-color-green-50);
-  border: 1px solid var(--lc-color-gray-200);
+  background: var(--v3-primary-extra-light);
+  border: 1px solid var(--v3-grey-300);
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(3, 3, 3, 0.2), 0 2px 2px rgba(255, 255, 255, 0.12), 0 0 2px rgba(250, 250, 250, 0.14);
   transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
@@ -38,14 +38,14 @@
 /* Hover lifts the card and tints its border; selected keeps its own green. */
 .lc-wc__card:hover:not(.lc-wc__card--skeleton, .lc-wc__card--create),
 .lc-wc__card:focus-within:not(.lc-wc__card--skeleton, .lc-wc__card--create) {
-  border-color: var(--lc-color-green-500);
+  border-color: var(--v3-green-primary);
   box-shadow: 0 6px 16px rgba(58, 52, 29, 0.14), 0 1px 3px rgba(3, 3, 3, 0.2);
   transform: translateY(-2px);
 }
 
 .lc-wc__card[data-selected] {
-  background: var(--lc-color-green-100);
-  border-color: var(--lc-color-green-500);
+  background: var(--v3-green-primary-000);
+  border-color: var(--v3-green-primary);
 }
 
 .lc-wc__card--skeleton {
@@ -54,14 +54,14 @@
 
 .lc-wc__card--create {
   background: transparent;
-  border: 1px dashed var(--lc-color-gray-400);
+  border: 1px dashed var(--v3-grey-500);
   box-shadow: none;
 }
 
 .lc-wc__card--create:hover,
 .lc-wc__card--create:focus-within {
-  background: var(--lc-color-green-50);
-  border-color: var(--lc-color-green-500);
+  background: var(--v3-primary-extra-light);
+  border-color: var(--v3-green-primary);
   box-shadow: 0 6px 16px rgba(58, 52, 29, 0.1);
   transform: translateY(-2px);
 }
@@ -70,12 +70,12 @@
 .lc-wc__card--create:focus-within .lc-wc__avatar--create {
   transition: background-color 150ms ease, border-color 150ms ease;
   background: white;
-  border-color: var(--lc-color-green-500);
+  border-color: var(--v3-green-primary);
 }
 
 .lc-wc__card--create:hover .lc-wc__create-label,
 .lc-wc__card--create:focus-within .lc-wc__create-label {
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 /* The whole card is one button, so the click target is the full 240×240. */
@@ -97,7 +97,7 @@
 }
 
 .lc-wc__main:focus-visible {
-  outline: 2px solid var(--lc-color-green-500);
+  outline: 2px solid var(--v3-green-primary);
   outline-offset: -2px;
 }
 
@@ -114,7 +114,7 @@
   /* Same 54px outer size as the WhatsApp avatar, with the smaller plus centred. */
   padding: 13px;
   background: transparent;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--v3-grey-400);
   filter: none;
 }
 
@@ -124,7 +124,7 @@
   justify-content: center;
   width: 39px;
   height: 39px;
-  color: var(--lc-color-green-500);
+  color: var(--v3-green-primary);
 }
 
 .lc-wc__plus {
@@ -145,7 +145,7 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 20px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 .lc-wc__name-line {
@@ -169,7 +169,7 @@
   font-size: 14px;
   font-weight: 700;
   line-height: 22px;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -178,7 +178,7 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 20px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 .lc-wc__status {
@@ -190,11 +190,11 @@
   gap: 3px;
   padding: 1px 6px;
   background: white;
-  border: 1px solid var(--lc-color-gray-200);
+  border: 1px solid var(--v3-grey-300);
   border-radius: 6px;
   font-size: 12px;
   line-height: 18px;
-  color: var(--lc-color-green-500);
+  color: var(--v3-green-primary);
   pointer-events: none;
 }
 
@@ -235,16 +235,16 @@
   background: none;
   border: 0;
   border-radius: 4px;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
   cursor: pointer;
 }
 
 .lc-wc__action:hover {
-  background: var(--lc-color-gray-200);
+  background: var(--v3-grey-300);
 }
 
 .lc-wc__action:focus-visible {
-  outline: 2px solid var(--lc-color-green-500);
+  outline: 2px solid var(--v3-green-primary);
   outline-offset: -2px;
 }
 
@@ -263,11 +263,11 @@
 /* Inactive: the widget is off, so its chip goes grey. Disabled: unavailable, so the whole card dims. */
 .lc-wc__card[data-status='inactive'] .lc-wc__status,
 .lc-wc__card[data-status='disabled'] .lc-wc__status {
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 
 .lc-wc__card[data-status='disabled'] {
-  background: var(--lc-color-gray-100);
+  background: var(--v3-grey-200);
   box-shadow: none;
 }
 
@@ -282,7 +282,7 @@
 }
 
 .lc-wc__card[data-status='disabled']:hover {
-  border-color: var(--lc-color-gray-200);
+  border-color: var(--v3-grey-300);
   box-shadow: none;
   transform: none;
 }

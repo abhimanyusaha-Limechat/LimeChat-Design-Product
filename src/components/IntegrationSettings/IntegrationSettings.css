@@ -6,11 +6,11 @@
  */
 
 .lc-is {
-  --lc-is-border: var(--lc-color-gray-300);
-  --lc-is-divider: var(--lc-color-gray-200);
-  --lc-is-text-title: var(--lc-color-green-900);
-  --lc-is-text-dimmed: var(--lc-color-sage-500);
-  --lc-is-primary: var(--lc-color-green-700);
+  --lc-is-border: var(--v3-grey-400);
+  --lc-is-divider: var(--v3-grey-300);
+  --lc-is-text-title: var(--v3-text-dark);
+  --lc-is-text-dimmed: var(--v3-text-light);
+  --lc-is-primary: var(--v3-green-primary-600);
   --lc-is-required: #E5484D;
   --lc-is-radius: 12px;
   --lc-is-radius-sm: 6px;
@@ -33,9 +33,9 @@
 /* --- Status header: connection state + the submit button ---------------- */
 
 .lc-is__status {
-  --lc-is-status-bg: var(--lc-color-gray-100);
-  --lc-is-status-text: var(--lc-color-stone-600);
-  --lc-is-status-dot: var(--lc-color-gray-400);
+  --lc-is-status-bg: var(--v3-grey-200);
+  --lc-is-status-text: var(--v3-grey-700);
+  --lc-is-status-dot: var(--v3-grey-500);
 
   display: flex;
   align-items: center;
@@ -50,21 +50,21 @@
 }
 
 .lc-is__status[data-status='verifying'] {
-  --lc-is-status-bg: color-mix(in srgb, var(--lc-color-amber-500) 14%, white);
-  --lc-is-status-text: var(--lc-color-amber-600);
-  --lc-is-status-dot: var(--lc-color-amber-500);
+  --lc-is-status-bg: color-mix(in srgb, var(--v3-warning-yellow-dark) 14%, white);
+  --lc-is-status-text: var(--v3-warning-yellow-dark);
+  --lc-is-status-dot: var(--v3-warning-yellow-dark);
 }
 
 .lc-is__status[data-status='connected'] {
-  --lc-is-status-bg: var(--lc-color-green-50);
+  --lc-is-status-bg: var(--v3-primary-extra-light);
   --lc-is-status-text: var(--lc-is-primary);
-  --lc-is-status-dot: var(--lc-color-green-500);
+  --lc-is-status-dot: var(--v3-green-primary);
 }
 
 .lc-is__status[data-status='error'] {
   --lc-is-status-bg: var(--lc-color-red-50);
-  --lc-is-status-text: var(--lc-color-red-700);
-  --lc-is-status-dot: var(--lc-color-red-500);
+  --lc-is-status-text: var(--v3-warning-red-medium);
+  --lc-is-status-dot: var(--v3-warning-red-medium);
 }
 
 .lc-is__status-pill {
@@ -73,7 +73,7 @@
   gap: 6px;
   padding: 2px 10px;
   border-radius: 999px;
-  background: var(--lc-color-white); /* reads against the tinted card */
+  background: var(--v3-white); /* reads against the tinted card */
   font-size: 16px;
   font-weight: 700;
   line-height: 24px;
@@ -96,7 +96,7 @@
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: var(--lc-color-gray-300);
+  background: var(--v3-grey-400);
   cursor: pointer;
   transition: background-color 150ms ease;
 }
@@ -126,7 +126,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   transition: transform 150ms ease;
 }
@@ -173,12 +173,12 @@
   width: 50%;
   border: 1px solid var(--lc-is-divider);
   border-radius: var(--lc-is-radius);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   overflow: hidden;
 }
 
 .lc-is__table[data-disabled] {
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
 }
 
 .lc-is__table[data-disabled] .lc-is__row-label {
@@ -186,7 +186,7 @@
 }
 
 .lc-is__help:disabled {
-  color: var(--lc-color-gray-400);
+  color: var(--v3-grey-500);
   cursor: not-allowed;
   text-decoration: none;
 }
@@ -266,7 +266,7 @@
   padding: 0 12px;
   border: 1px solid var(--lc-is-border);
   border-radius: var(--lc-is-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -275,12 +275,12 @@
 }
 
 .lc-is__input::placeholder {
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 
 .lc-is__input:disabled {
-  background: var(--lc-color-gray-100);
-  color: var(--lc-color-gray-500);
+  background: var(--v3-grey-200);
+  color: var(--v3-grey-600);
   cursor: not-allowed;
 }
 

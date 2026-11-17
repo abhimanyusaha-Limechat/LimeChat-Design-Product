@@ -24,13 +24,13 @@
 }
 
 .lc-sap__check:has(input:disabled) {
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
   cursor: not-allowed;
 }
 
 .lc-sap__warn {
   display: inline-flex;
-  color: var(--lc-color-amber-500);
+  color: var(--v3-warning-yellow-dark);
 }
 
 .lc-sap__warn:focus-visible {

@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DEMO_TEMPLATES } from '../../data/templatesDemo';
 import { BroadcastScreen, KnowledgeBaseScreen, TemplatesScreen, templateMatches } from '.';
@@ -89,5 +89,30 @@ describe('KnowledgeBaseScreen', () => {
     await user.type(screen.getByPlaceholderText('Search for Doc'), 'return');
     expect(screen.getByText('Return policy.pdf')).toBeInTheDocument();
     expect(screen.queryByText('Product catalogue.pdf')).not.toBeInTheDocument();
+  });
+
+  it('opens the change history as a read-only log', async () => {
+    const user = userEvent.setup();
+    open('#/automation/knowledge-base?tab=manage');
+    render(<KnowledgeBaseScreen />);
+
+    expect(screen.queryByRole('dialog', { name: 'History' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'More knowledge base actions' }));
+    await user.click(screen.getByRole('menuitem', { name: 'See history' }));
+
+    const panel = screen.getByRole('dialog', { name: 'History' });
+    // Nothing is published here, so there is no draft to sit above the log.
+    expect(within(panel).queryByRole('region', { name: 'Current version' })).not.toBeInTheDocument();
+
+    // Each entry says who did what, and no entry is a control.
+    expect(within(panel).getAllByRole('listitem')).toHaveLength(12);
+    expect(within(panel).getByText(/added Support scripts\.md/)).toBeInTheDocument();
+    expect(within(panel).getByText(/removed Size guide\.html/)).toBeInTheDocument();
+    expect(within(panel).queryByText('View')).not.toBeInTheDocument();
+    expect(within(panel).queryByRole('button', { name: /^Download/ })).not.toBeInTheDocument();
+    expect(within(panel).queryByRole('button', { name: /^View the version/ })).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Close history' }));
+    expect(screen.queryByRole('dialog', { name: 'History' })).not.toBeInTheDocument();
   });
 });

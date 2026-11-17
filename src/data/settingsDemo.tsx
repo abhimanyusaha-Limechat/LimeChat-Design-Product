@@ -6,6 +6,7 @@ import { type EventRowData } from '../components/EventsTable';
 import { type WebhookRowData } from '../components/WebhooksTable';
 import { type OptOutUserRowData } from '../components/OptOutUsersTable';
 import { type BotTemplateRow } from '../components/BotTemplatesTable';
+import { type HistoryEntry } from '../components/PublishHistoryPanel';
 import { type BillingPlan, type PlanFeature, type PlanTier } from '../components/BillingSettings';
 import { PAST_DATES } from './demoHelpers';
 
@@ -830,6 +831,26 @@ export const DEMO_KB_FILES: Record<string, BotTemplateRow[]> = {
     { id: 'custom2', name: 'Escalation rules', description: 'Added by Isha Kapoor', type: 'task', usecases: [], industries: [], scope: 'account', dataType: '8 KB' },
   ],
 };
+
+/**
+ * Every change to the knowledge base, newest first. Not a publish history: a source is live the
+ * moment it is added, so there is no draft to sit above this list, no version numbers and
+ * nothing to restore. Each entry says who did what, and the names match DEMO_KB_FILES above.
+ */
+export const KB_HISTORY: HistoryEntry[] = [
+  { id: 'kb12', publishedAt: '2:45 pm, 3rd Aug 26', author: 'Arjun Mehta', detail: 'added Support scripts.md' },
+  { id: 'kb11', publishedAt: '11:50 am, 3rd Aug 26', author: 'Priya Sharma', detail: 'removed Size guide.html' },
+  { id: 'kb10', publishedAt: '9:10 am, 3rd Aug 26', author: 'Arjun Mehta', detail: 'added Delivery partners.csv' },
+  { id: 'kb9', publishedAt: '4:05 pm, 1st Aug 26', author: 'Rajeev Sanyal', detail: 'changed the scrape frequency on nestkart.in to Daily' },
+  { id: 'kb8', publishedAt: '11:20 am, 1st Aug 26', author: 'Priya Sharma', detail: 're-uploaded Pricing sheet.xlsx' },
+  { id: 'kb7', publishedAt: '4:10 pm, 28th Jul 26', author: 'Neha Kapoor', detail: 'added Festive offers 2026.pptx' },
+  { id: 'kb6', publishedAt: '9:35 am, 25th Jul 26', author: 'Arjun Mehta', detail: 'added help.shopsphere.com/shipping' },
+  { id: 'kb5', publishedAt: '3:00 pm, 20th Jul 26', author: 'Vikram Patel', detail: 'removed an outdated returns page' },
+  { id: 'kb4', publishedAt: '10:15 am, 15th Jul 26', author: 'Ananya Desai', detail: 're-uploaded Warranty terms.pdf' },
+  { id: 'kb3', publishedAt: '1:50 pm, 10th Jul 26', author: 'Karthik Iyer', detail: 'added Onboarding handbook.md' },
+  { id: 'kb2', publishedAt: '8:30 am, 5th Jul 26', author: 'Sanya Reddy', detail: 'added Store locations.json' },
+  { id: 'kb1', publishedAt: '5:00 pm, 30th Jun 26', author: 'Rohan Gupta', detail: 'added Return policy.pdf' },
+];
 
 DEMO_KB_FILES.domain = DEMO_KB_FILES.url;
 

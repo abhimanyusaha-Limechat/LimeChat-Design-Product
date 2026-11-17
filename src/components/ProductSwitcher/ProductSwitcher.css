@@ -4,17 +4,17 @@
  * A popover of product tiles with a top caret and a "Products by LimeChat" footer.
  *
  * Tokens:
- *   popover  bg var(--lc-color-white) · border/gray/light var(--lc-color-gray-300) · radius/2xs 4px · p padding/2xs 4px
+ *   popover  bg var(--v3-white) · border/gray/light var(--v3-grey-400) · radius/2xs 4px · p padding/2xs 4px
  *            shadow  0 1px 1.5px #0000000D, 0 20px 12.5px #0000001A, 0 10px 5px #0000000A
- *   tile     p padding/sm 12px · gap padding/xs 8px · radius/2xs 4px · label Lato 10/12.5 text/title var(--lc-color-green-900)
- *            selected bg ~green/green-1 var(--lc-color-green-100) · hover bg ~gray/gray-0 var(--lc-color-stone-100) (matches TopNavBar hover)
- *   footer   border-top var(--lc-color-gray-300) · py 6px · 10/12.5 text/title
+ *   tile     p padding/sm 12px · gap padding/xs 8px · radius/2xs 4px · label Lato 10/12.5 text/title var(--v3-text-dark)
+ *            selected bg ~green/green-1 var(--v3-green-primary-000) · hover bg ~gray/gray-0 var(--v3-grey-200) (matches TopNavBar hover)
+ *   footer   border-top var(--v3-grey-400) · py 6px · 10/12.5 text/title
  */
 .lc-product-switcher {
-  --lc-ps-fg: var(--lc-color-green-900);
-  --lc-ps-border: var(--lc-color-gray-300);
-  --lc-ps-selected-bg: var(--lc-color-green-100);
-  --lc-ps-hover-bg: var(--lc-color-stone-100);
+  --lc-ps-fg: var(--v3-text-dark);
+  --lc-ps-border: var(--v3-grey-400);
+  --lc-ps-selected-bg: var(--v3-green-primary-000);
+  --lc-ps-hover-bg: var(--v3-grey-200);
   --lc-ps-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
 
@@ -26,7 +26,7 @@
   padding: 4px;
   border: 1px solid var(--lc-ps-border);
   border-radius: 4px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow:
     0 1px 1.5px rgba(0, 0, 0, 0.05),
     0 20px 12.5px rgba(0, 0, 0, 0.1),
@@ -46,7 +46,7 @@
   width: 14px;
   height: 14px;
   transform: translateX(-50%) rotate(45deg);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   border-left: 1px solid var(--lc-ps-border);
   border-top: 1px solid var(--lc-ps-border);
   border-top-left-radius: 3px;
@@ -66,7 +66,7 @@
   padding: 12px;
   border: 0;
   border-radius: 4px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   color: var(--lc-ps-fg);
   font-family: inherit;
   font-size: 10px;
@@ -87,7 +87,7 @@
   background: var(--lc-ps-selected-bg);
 }
 .lc-product-switcher__tile:focus-visible {
-  outline: 2px solid var(--lc-color-green-500);
+  outline: 2px solid var(--v3-green-primary);
   outline-offset: -2px;
 }
 

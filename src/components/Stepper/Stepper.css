@@ -28,8 +28,8 @@
   gap: 8px;
   height: 32px;
   appearance: none;
-  border: 1px solid var(--lc-color-gray-300);
-  background: var(--lc-color-white);
+  border: 1px solid var(--v3-grey-400);
+  background: var(--v3-white);
   padding: 0 10px;
   font: inherit;
   cursor: pointer;
@@ -51,15 +51,15 @@
 .lc-stepper__step:focus-visible {
   position: relative;
   z-index: 2;
-  outline: 2px solid var(--lc-color-green-500);
+  outline: 2px solid var(--v3-green-primary);
   outline-offset: -2px;
 }
 
 .lc-stepper__item[data-state='current'] .lc-stepper__step {
   position: relative;
   z-index: 1;
-  border-color: var(--lc-color-green-200);
-  background: var(--lc-color-green-100);
+  border-color: var(--v3-green-primary-200);
+  background: var(--v3-green-primary-000);
 }
 
 .lc-stepper__marker {
@@ -69,33 +69,33 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--lc-color-gray-400);
+  background: var(--v3-grey-500);
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
-  color: var(--lc-color-white);
+  color: var(--v3-white);
   transition: background-color 150ms ease;
 }
 
 .lc-stepper__item[data-state='current'] .lc-stepper__marker,
 .lc-stepper__item[data-state='done'] .lc-stepper__marker {
-  background: var(--lc-color-green-500);
+  background: var(--v3-green-primary);
 }
 
 .lc-stepper__label {
   font-size: 12px;
   line-height: 16px;
   white-space: nowrap;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 .lc-stepper__item[data-state='current'] .lc-stepper__label {
   font-weight: 700;
-  color: var(--lc-color-green-700);
+  color: var(--v3-green-primary-600);
 }
 
 .lc-stepper__item[data-state='done'] .lc-stepper__label {
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 @media (prefers-reduced-motion: reduce) {

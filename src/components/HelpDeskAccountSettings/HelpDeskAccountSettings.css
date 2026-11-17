@@ -7,13 +7,13 @@
  */
 
 .lc-hda {
-  --lc-hda-border: var(--lc-color-gray-300);
-  --lc-hda-divider: var(--lc-color-gray-200);
-  --lc-hda-text-title: var(--lc-color-green-900);
-  --lc-hda-text-dimmed: var(--lc-color-sage-500);
-  --lc-hda-primary: var(--lc-color-green-700);
+  --lc-hda-border: var(--v3-grey-400);
+  --lc-hda-divider: var(--v3-grey-300);
+  --lc-hda-text-title: var(--v3-text-dark);
+  --lc-hda-text-dimmed: var(--v3-text-light);
+  --lc-hda-primary: var(--v3-green-primary-600);
   --lc-hda-required: #E5484D;
-  --lc-hda-bg-subtle: var(--lc-color-stone-50);
+  --lc-hda-bg-subtle: var(--v3-input-default-body);
   --lc-hda-radius: 12px;
   --lc-hda-radius-sm: 6px;
   --lc-hda-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -38,7 +38,7 @@
   flex-direction: column;
   border: 1px solid var(--lc-hda-divider);
   border-radius: var(--lc-hda-radius);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   overflow: hidden;
   transition: opacity 220ms var(--lc-hda-ease-out), transform 220ms var(--lc-hda-ease-out);
 
@@ -224,7 +224,7 @@
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: var(--lc-color-gray-300);
+  background: var(--v3-grey-400);
   cursor: pointer;
   transition: background-color 150ms ease;
 }
@@ -240,7 +240,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   transition: transform 150ms ease;
 }
@@ -262,7 +262,7 @@
   padding: 0 12px;
   border: 1px solid var(--lc-hda-border);
   border-radius: var(--lc-hda-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -271,7 +271,7 @@
 }
 
 .lc-hda__input::placeholder {
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 
 .lc-hda__input:focus-visible {
@@ -292,7 +292,7 @@
   padding: 0 32px 0 12px;
   border: 1px solid var(--lc-hda-border);
   border-radius: var(--lc-hda-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -325,7 +325,7 @@
   padding: 6px 10px;
   border: 1px solid var(--lc-hda-border);
   border-radius: var(--lc-hda-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 
 .lc-hda__file-type-option {

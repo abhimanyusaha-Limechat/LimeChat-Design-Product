@@ -4,7 +4,7 @@
  */
 .lc-inspector {
   --lc-inspector-surface: #0f1419;
-  --lc-inspector-on-surface: var(--lc-color-white);
+  --lc-inspector-on-surface: var(--v3-white);
   --lc-inspector-hover: rgb(255 255 255 / 10%);
   --lc-inspector-on-fill: rgb(255 255 255 / 14%);
   --lc-inspector-on-fill-hover: rgb(255 255 255 / 20%);
@@ -20,7 +20,7 @@
 
 /* Overlay lives outside .lc-inspector, so it declares its own layer colors. */
 .lc-inspector__overlay {
-  --lc-inspector-padding: color-mix(in srgb, var(--lc-color-green-500) 30%, transparent);
+  --lc-inspector-padding: color-mix(in srgb, var(--v3-green-primary) 30%, transparent);
   --lc-inspector-gap: color-mix(in srgb, var(--lc-color-blue-600) 40%, transparent);
   --lc-inspector-gap-tint: color-mix(in srgb, var(--lc-color-blue-600) 10%, transparent);
   --lc-inspector-text: color-mix(in srgb, var(--lc-color-amber-500) 28%, transparent);
@@ -164,7 +164,7 @@
 
 .lc-inspector__main:focus-visible,
 .lc-inspector__tool:focus-visible {
-  outline: 2px solid var(--lc-color-white);
+  outline: 2px solid var(--v3-white);
   outline-offset: 1px;
 }
 
@@ -584,7 +584,7 @@
 }
 
 .lc-inspector__outline[data-pinned] {
-  border: 2px solid var(--lc-color-green-700);
+  border: 2px solid var(--v3-green-primary-600);
 }
 
 .lc-inspector__padding,
@@ -636,7 +636,7 @@
   padding: 1px 4px;
   border-radius: 4px;
   background: var(--lc-color-green-800);
-  color: var(--lc-color-white);
+  color: var(--v3-white);
   /* A white ring separates the chip from dark page areas. */
   box-shadow: 0 0 0 1px rgb(255 255 255 / 85%);
   font-size: 10px;
@@ -660,8 +660,8 @@
   gap: 6px;
   padding: 2px 6px;
   border-radius: 4px;
-  background: var(--lc-color-green-900);
-  color: var(--lc-color-white);
+  background: var(--v3-text-dark);
+  color: var(--v3-white);
   /* Lifts it off the page so it doesn't read as part of the content beneath. */
   box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
   font-size: 12px;
@@ -689,7 +689,7 @@
 }
 
 .lc-inspector__label[data-off-scale] .lc-inspector__label-meta {
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 
 /* The keyboard hint takes its own line, so it never squeezes the values. A
@@ -706,7 +706,7 @@
 }
 
 .lc-inspector__label[data-off-scale] .lc-inspector__label-hint {
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 
 /* Screen-reader-only announcements. */

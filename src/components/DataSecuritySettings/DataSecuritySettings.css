@@ -8,12 +8,12 @@
  */
 
 .lc-dss {
-  --lc-dss-border: var(--lc-color-gray-300);
-  --lc-dss-divider: var(--lc-color-gray-200);
-  --lc-dss-text-title: var(--lc-color-green-900);
-  --lc-dss-text-dimmed: var(--lc-color-sage-500);
-  --lc-dss-primary: var(--lc-color-green-700);
-  --lc-dss-bg-subtle: var(--lc-color-stone-50);
+  --lc-dss-border: var(--v3-grey-400);
+  --lc-dss-divider: var(--v3-grey-300);
+  --lc-dss-text-title: var(--v3-text-dark);
+  --lc-dss-text-dimmed: var(--v3-text-light);
+  --lc-dss-primary: var(--v3-green-primary-600);
+  --lc-dss-bg-subtle: var(--v3-input-default-body);
   --lc-dss-radius: 12px;
   --lc-dss-radius-sm: 6px;
   --lc-dss-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -129,7 +129,7 @@
   flex-direction: column;
   border: 1px solid var(--lc-dss-divider);
   border-radius: var(--lc-dss-radius);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   overflow: hidden;
   transition: opacity 220ms var(--lc-dss-ease-out), transform 220ms var(--lc-dss-ease-out);
 
@@ -201,7 +201,7 @@
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: var(--lc-color-gray-300);
+  background: var(--v3-grey-400);
   transition: background-color 150ms ease;
 }
 
@@ -219,7 +219,7 @@
 
 /* The card's switch keeps the brighter primary green it had before. */
 .lc-dss__header-switch[data-checked='true'] {
-  background: var(--lc-color-green-500);
+  background: var(--v3-green-primary);
 }
 
 .lc-dss__switch-thumb {
@@ -229,7 +229,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   transition: transform 150ms ease;
 }
@@ -259,7 +259,7 @@
   padding: 0 12px;
   border: 1px solid var(--lc-dss-border);
   border-radius: var(--lc-dss-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -299,7 +299,7 @@
   white-space: nowrap;
   font-size: 14px;
   font-weight: 600;
-  color: var(--lc-color-red-600);
+  color: var(--v3-warning-red-medium);
 }
 
 .lc-dss__profanity-match {
@@ -330,7 +330,7 @@
 
 .lc-dss__profanity-match button[data-active='true'] {
   background: var(--lc-dss-primary);
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 
 .lc-dss__profanity-remove {

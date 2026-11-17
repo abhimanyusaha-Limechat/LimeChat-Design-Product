@@ -6,11 +6,11 @@
 
 .lc-inbs,
 .lc-inbs__header-switch {
-  --lc-inbs-border: var(--lc-color-gray-300);
-  --lc-inbs-divider: var(--lc-color-gray-200);
-  --lc-inbs-text-title: var(--lc-color-green-900);
-  --lc-inbs-text-dimmed: var(--lc-color-sage-500);
-  --lc-inbs-primary: var(--lc-color-green-700);
+  --lc-inbs-border: var(--v3-grey-400);
+  --lc-inbs-divider: var(--v3-grey-300);
+  --lc-inbs-text-title: var(--v3-text-dark);
+  --lc-inbs-text-dimmed: var(--v3-text-light);
+  --lc-inbs-primary: var(--v3-green-primary-600);
   --lc-inbs-radius: 12px;
   --lc-inbs-radius-sm: 6px;
 }
@@ -23,12 +23,12 @@
   padding: 0 10px;
   border: 1px solid var(--lc-inbs-border);
   border-radius: 6px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   white-space: nowrap;
 }
 
 .lc-inbs__header-switch .lc-inbs__label {
-  color: var(--lc-color-stone-600);
+  color: var(--v3-grey-700);
 }
 
 .lc-inbs__header-switch:has([aria-checked='true']) .lc-inbs__label {
@@ -64,7 +64,7 @@
   z-index: 2;
   margin: -16px 0 -24px;
   padding: 16px 0 24px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 
 .lc-inbs__tabs {
@@ -73,7 +73,7 @@
   overflow-x: auto;
   scrollbar-width: none;
   padding: 2px;
-  background: var(--lc-color-gray-100);
+  background: var(--v3-grey-200);
   border-radius: 6px;
 }
 
@@ -88,20 +88,20 @@
   font: inherit;
   font-size: 14px;
   line-height: 20px;
-  color: var(--lc-color-stone-600);
+  color: var(--v3-grey-700);
   cursor: pointer;
   transition: background-color 150ms ease, color 150ms ease;
 }
 
 .lc-inbs__tab[data-active] {
   background: white;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
   font-weight: 700;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
 }
 
 .lc-inbs__tab:focus-visible {
-  outline: 2px solid var(--lc-color-green-500);
+  outline: 2px solid var(--v3-green-primary);
   outline-offset: 2px;
 }
 
@@ -116,8 +116,8 @@
   gap: 12px;
   margin: 0 -16px -16px;
   padding: 12px 16px;
-  border-top: 1px solid var(--lc-color-gray-200);
-  background: var(--lc-color-white);
+  border-top: 1px solid var(--v3-grey-300);
+  background: var(--v3-white);
 }
 
 .lc-inbs__panel {
@@ -170,7 +170,7 @@
   font-size: 11px;
   font-weight: 700;
   line-height: 16px;
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 
 /* --- Switch (in a section heading) ------------------------------------- */
@@ -183,7 +183,7 @@
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: var(--lc-color-gray-300);
+  background: var(--v3-grey-400);
   cursor: pointer;
   transition: background-color 150ms ease;
 }
@@ -199,7 +199,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   transition: transform 150ms ease;
 }
@@ -226,7 +226,7 @@
   flex-direction: column;
   border: 1px solid var(--lc-inbs-divider);
   border-radius: var(--lc-inbs-radius);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   overflow: hidden;
 }
 
@@ -303,7 +303,7 @@
   padding: 0 12px;
   border: 1px solid var(--lc-inbs-border);
   border-radius: var(--lc-inbs-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -318,7 +318,7 @@
 }
 
 .lc-inbs__input:read-only {
-  background: var(--lc-color-stone-50);
+  background: var(--v3-input-default-body);
   color: var(--lc-inbs-text-dimmed);
 }
 
@@ -373,8 +373,8 @@
   padding: 0 12px;
   border: 1px solid var(--lc-inbs-border);
   border-radius: var(--lc-inbs-radius-sm);
-  background: var(--lc-color-white);
-  color: var(--lc-color-gray-500);
+  background: var(--v3-white);
+  color: var(--v3-grey-600);
 }
 
 .lc-inbs__search:focus-within {
@@ -424,7 +424,7 @@
   min-width: 0;
   font-size: 14px;
   line-height: 20px;
-  color: var(--lc-color-stone-600);
+  color: var(--v3-grey-700);
 }
 
 .lc-inbs__th {
@@ -439,8 +439,8 @@
 }
 
 .lc-inbs .lc-inbs__avatar {
-  --lc-avatar-light-bg: var(--lc-color-gray-200);
-  --lc-avatar-fg-accent: var(--lc-color-stone-600);
+  --lc-avatar-light-bg: var(--v3-grey-300);
+  --lc-avatar-fg-accent: var(--v3-grey-700);
 }
 
 .lc-inbs__col--name {
@@ -492,7 +492,7 @@
 }
 
 .lc-inbs__agent-name[data-incomplete] {
-  color: var(--lc-color-red-600);
+  color: var(--v3-warning-red-medium);
 }
 
 .lc-inbs__agent-flag {
@@ -502,7 +502,7 @@
   gap: 4px;
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-red-600);
+  color: var(--v3-warning-red-medium);
 }
 
 .lc-inbs__agent-email {
@@ -527,11 +527,11 @@
   margin-left: 6px;
   padding: 0 8px;
   border-radius: 999px;
-  background: var(--lc-color-gray-100);
+  background: var(--v3-grey-200);
   font-size: 12px;
   font-weight: 700;
   line-height: 18px;
-  color: var(--lc-color-stone-600);
+  color: var(--v3-grey-700);
 }
 
 /* Inset like the section headings, so titles line up with the table's row content. */
@@ -561,15 +561,15 @@
   margin-top: 24px;
   padding: 8px 8px 8px 16px;
   border-radius: 8px;
-  background: var(--lc-color-green-900);
+  background: var(--v3-text-dark);
   font-size: 14px;
   line-height: 20px;
-  color: var(--lc-color-white);
+  color: var(--v3-white);
   box-shadow: 0 4px 12px rgba(16, 24, 40, 0.2);
 }
 
 .lc-inbs__undo .lc-btn {
-  color: var(--lc-color-white);
+  color: var(--v3-white);
   text-decoration: underline;
 }
 
@@ -704,7 +704,7 @@
   margin: 0;
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-red-700);
+  color: var(--v3-warning-red-medium);
 }
 
 /* --- WhatsApp widget ------------------------------------------------- */
@@ -725,7 +725,7 @@
   height: 48px;
   border-radius: var(--lc-inbs-radius-sm);
   object-fit: contain;
-  background: var(--lc-color-stone-50);
+  background: var(--v3-input-default-body);
 }
 
 .lc-inbs__media-thumb--empty {
@@ -737,7 +737,7 @@
 .lc-inbs__media-thumb--whatsapp {
   display: grid;
   place-items: center;
-  color: var(--lc-color-white);
+  color: var(--v3-white);
   background: var(--lc-inbs-whatsapp);
 }
 
@@ -916,7 +916,7 @@
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 .lc-inbs-preview *,
@@ -935,9 +935,9 @@
   width: 100%;
   max-width: 440px;
   padding: 12px;
-  border: 1px solid var(--lc-color-green-200);
+  border: 1px solid var(--v3-green-primary-200);
   border-radius: 12px;
-  background: var(--lc-color-green-100);
+  background: var(--v3-green-primary-000);
 }
 
 .lc-inbs-preview__hint {
@@ -946,7 +946,7 @@
   margin: 0;
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
   /* Never more than two lines, so the preview's height (and its centring) stays put. */
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -962,14 +962,14 @@
   margin: 0;
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 .lc-inbs-preview__phone {
   width: 240px;
   padding: 10px;
   border-radius: 36px;
-  background: var(--lc-color-green-900);
+  background: var(--v3-text-dark);
   box-shadow: 0 12px 32px rgba(16, 24, 40, 0.18);
 }
 
@@ -981,7 +981,7 @@
   height: calc(var(--lc-inbs-phone-h) - 20px);
   overflow: hidden;
   border-radius: 26px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 
 /* Stand-in website: grey blocks only. */
@@ -995,7 +995,7 @@
 .lc-inbs-preview__site span {
   display: block;
   border-radius: 6px;
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
 }
 
 .lc-inbs-preview__bar {
@@ -1103,7 +1103,7 @@
 .lc-inbs-preview__logo--whatsapp {
   display: grid;
   place-items: center;
-  color: var(--lc-color-white);
+  color: var(--v3-white);
   background: var(--lc-inbs-whatsapp);
 }
 
@@ -1124,7 +1124,7 @@
   font-size: calc(var(--size) * 0.3);
   font-weight: 700;
   white-space: nowrap;
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 
 .lc-inbs-preview__button .lc-inbs-preview__logo {
@@ -1137,11 +1137,11 @@
   width: calc(256px * var(--s));
   overflow: hidden;
   border-radius: calc(17px * var(--s));
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: 0 4px 16px rgba(16, 24, 40, 0.16);
   font-size: calc(17px * var(--s));
   line-height: calc(22px * var(--s));
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-inbs-preview__media {
@@ -1183,7 +1183,7 @@
   background: var(--lc-inbs-whatsapp);
   font-weight: 700;
   text-align: center;
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 
 /* --- Desktop preview modal ------------------------------------------- */
@@ -1192,7 +1192,7 @@
   --lc-inbs-whatsapp: #25d366; /* WhatsApp brand green */
 
   overflow: hidden;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--v3-grey-400);
   border-radius: 12px;
 }
 
@@ -1202,14 +1202,14 @@
   gap: 6px;
   height: 36px;
   padding: 0 12px;
-  background: var(--lc-color-gray-100);
+  background: var(--v3-grey-200);
 }
 
 .lc-inbs-browser__bar > span {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--lc-color-gray-300);
+  background: var(--v3-grey-400);
 }
 
 .lc-inbs-browser__address {
@@ -1217,7 +1217,7 @@
   height: 20px;
   margin-left: 12px;
   border-radius: 10px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 
 .lc-inbs-browser__screen {
@@ -1226,14 +1226,14 @@
   position: relative;
   height: 440px;
   overflow: hidden;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 
 .lc-inbs-browser__note {
   margin: 12px 0 0;
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 /* No room beside the settings: drop the preview rather than squeeze the form. */
@@ -1278,8 +1278,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--lc-color-gray-100);
-  border: 1px solid var(--lc-color-gray-300);
+  background: var(--v3-grey-200);
+  border: 1px solid var(--v3-grey-400);
   border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
@@ -1363,7 +1363,7 @@
 }
 
 .lc-inbs__hex:has([aria-invalid='true']) {
-  border-color: var(--lc-color-red-700);
+  border-color: var(--v3-warning-red-medium);
 }
 
 .lc-inbs__shades {
@@ -1403,9 +1403,9 @@
 
 .lc-inbs__code-panel {
   overflow: hidden;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--v3-grey-400);
   border-radius: 8px;
-  background: var(--lc-color-gray-50, #fafafa);
+  background: var(--v3-input-default-body, #fafafa);
 }
 
 .lc-inbs__code-bar {
@@ -1413,14 +1413,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 8px 8px 16px;
-  border-bottom: 1px solid var(--lc-color-gray-200);
+  border-bottom: 1px solid var(--v3-grey-300);
 }
 
 .lc-inbs__code-lang {
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: var(--lc-color-stone-600);
+  color: var(--v3-grey-700);
 }
 
 .lc-inbs__code {
@@ -1452,12 +1452,12 @@
   gap: 12px;
   align-items: center;
   padding: 12px 20px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 
 .lc-inbs__rule--head {
   padding-block: 10px;
-  background: var(--lc-color-stone-50);
+  background: var(--v3-input-default-body);
   font-size: 12px;
   font-weight: 600;
   color: var(--lc-inbs-text-dimmed);
@@ -1503,20 +1503,20 @@
   border: none;
   border-radius: 4px;
   background: transparent;
-  color: var(--lc-color-gray-400);
+  color: var(--v3-grey-500);
   cursor: pointer;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .lc-inbs__rule-btn:hover {
-    background: var(--lc-color-gray-200);
-    color: var(--lc-color-green-900);
+    background: var(--v3-grey-300);
+    color: var(--v3-text-dark);
   }
 }
 
 .lc-inbs__rule-btn:focus-visible {
   outline: 2px solid var(--lc-inbs-primary);
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 @container (max-width: 560px) {

@@ -32,7 +32,7 @@
   box-sizing: border-box;
   background: #FFFFFF;
   border-radius: 4px;
-  color: var(--lc-color-sage-500, #808975);
+  color: var(--v3-text-light, #808975);
   font-size: 14px;
   line-height: 20px;
   cursor: pointer;
@@ -50,7 +50,7 @@
   border-right: 1px solid #E3E5E1;
   overflow: hidden;
   font-weight: 600;
-  color: var(--lc-color-green-900, #3C492C);
+  color: var(--v3-text-dark, #3C492C);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -59,7 +59,7 @@
   font-size: 12px;
   font-weight: 400;
   font-variant-numeric: tabular-nums;
-  color: var(--lc-color-sage-500, #808975);
+  color: var(--v3-text-light, #808975);
 }
 .lc-canned-drawer__match {
   padding: 0;
@@ -80,7 +80,7 @@
   padding: 8px;
   background: #FFFFFF;
   border-radius: 4px;
-  color: var(--lc-color-sage-500, #808975);
+  color: var(--v3-text-light, #808975);
   font-size: 14px;
   line-height: 20px;
 }

@@ -4,7 +4,7 @@
   margin: 4px 0 0;
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-red-600);
+  color: var(--v3-warning-red-medium);
 }
 
 /* AvatarPicker's photo stroke reads this ProfileSettings token. */
@@ -48,7 +48,7 @@
   padding: 0 6px 0 10px;
   border: 1px solid var(--lc-inbs-primary);
   border-radius: 16px;
-  background: var(--lc-color-green-50);
+  background: var(--v3-primary-extra-light);
   color: var(--lc-inbs-primary);
   font-size: 13px;
   font-weight: 700;

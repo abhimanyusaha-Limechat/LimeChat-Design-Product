@@ -12,7 +12,7 @@
   border: none;
   background: transparent;
   border-radius: 4px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
   cursor: pointer;
   transition: background-color 120ms ease, color 120ms ease, transform 140ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -20,8 +20,8 @@
   transform: scale(0.92);
 }
 .lc-menu__trigger:hover {
-  background: var(--lc-color-stone-150);
-  color: var(--lc-color-green-900);
+  background: var(--v3-grey-300);
+  color: var(--v3-text-dark);
 }
 .lc-menu__trigger svg {
   width: 16px;
@@ -68,7 +68,7 @@
   font-family: inherit;
   font-size: 13px;
   line-height: 16px;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
   text-align: left;
   cursor: pointer;
   transition: background-color 120ms ease, transform 120ms ease;
@@ -85,19 +85,19 @@
 }
 
 .lc-menu__item--danger {
-  color: var(--lc-color-red-700);
+  color: var(--v3-warning-red-medium);
 }
 .lc-menu__item--danger:hover:not(:disabled) {
   background: #FCF3F3;
 }
 
 .lc-menu__item--selected {
-  background: color-mix(in srgb, var(--lc-color-green-700) 10%, white);
-  color: var(--lc-color-green-700);
+  background: color-mix(in srgb, var(--v3-green-primary-600) 10%, white);
+  color: var(--v3-green-primary-600);
   font-weight: 600;
 }
 .lc-menu__item--selected:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--lc-color-green-700) 16%, white);
+  background: color-mix(in srgb, var(--v3-green-primary-600) 16%, white);
 }
 
 .lc-menu__item-label {
@@ -119,6 +119,6 @@
   display: block;
 }
 .lc-menu__item-icon--trailing {
-  color: var(--lc-color-green-700);
+  color: var(--v3-green-primary-600);
   opacity: 1;
 }

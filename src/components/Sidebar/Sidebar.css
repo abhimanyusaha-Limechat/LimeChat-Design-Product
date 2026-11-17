@@ -3,10 +3,10 @@
  *
  * Design tokens mirror "LimeChat Design System — V3" (Figma node 8773:1123):
  *  - rail width ....... 64px
- *  - rail fill ........ background/primary/filled-hover  var(--lc-color-green-700)
- *  - selected fill .... ~green/green-8                   var(--lc-color-green-800)
- *  - icon / logo ...... ~green/green-0                   var(--lc-color-green-25)
- *  - avatar fallback .. text/dimmed                      var(--lc-color-sage-500)
+ *  - rail fill ........ background/primary/filled-hover  var(--v3-green-primary-600)
+ *  - selected fill .... ~green/green-8                   var(--v3-green-primary-600)
+ *  - icon / logo ...... ~green/green-0                   var(--v3-primary-extra-light)
+ *  - avatar fallback .. text/dimmed                      var(--v3-text-light)
  *  - control radius ... radius/2xs                       4px
  *  - padding .......... top 12px · bottom/x 20px/8px
  *  - horizontal pad ... padding/xs                       8px
@@ -15,13 +15,13 @@
  */
 .lc-sidebar {
   --lc-sidebar-width: 64px;
-  --lc-sidebar-bg: var(--lc-color-green-700);
-  --lc-sidebar-item-selected-bg: var(--lc-color-green-800);
+  --lc-sidebar-bg: var(--v3-green-primary-600);
+  --lc-sidebar-item-selected-bg: var(--v3-green-primary-600);
   --lc-sidebar-item-hover-bg: rgba(255, 255, 255, 0.1);
-  --lc-sidebar-fg: var(--lc-color-green-25);
+  --lc-sidebar-fg: var(--v3-primary-extra-light);
   /* Idle (unselected) nav/footer icon stroke — ~green/green-2. */
-  --lc-sidebar-icon-idle: var(--lc-color-green-200);
-  --lc-sidebar-avatar-bg: var(--lc-color-sage-500);
+  --lc-sidebar-icon-idle: var(--v3-green-primary-200);
+  --lc-sidebar-avatar-bg: var(--v3-text-light);
   --lc-sidebar-radius: 4px;
   --lc-sidebar-pad-y: 20px;
   --lc-sidebar-pad-top: 12px;
@@ -171,7 +171,7 @@
   min-width: 188px;
   padding: 6px;
   border-radius: 8px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow:
     0 1px 1.5px rgba(0, 0, 0, 0.05),
     0 20px 12.5px rgba(0, 0, 0, 0.1),
@@ -197,14 +197,14 @@
   font-family: inherit;
   font-size: 13px;
   line-height: 16px;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
   text-align: left;
   cursor: pointer;
   transition: background-color 120ms ease, transform 120ms ease;
 }
 
 .lc-sidebar__profile-menu-item:hover {
-  background: var(--lc-color-stone-100);
+  background: var(--v3-grey-200);
 }
 
 .lc-sidebar__profile-menu-item:active {

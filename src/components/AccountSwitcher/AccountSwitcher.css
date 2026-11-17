@@ -4,24 +4,24 @@
  * Panel: current-account header · search · scrollable account list · pagination.
  *
  * Tokens:
- *   panel   bg var(--lc-color-white) · border/gray/light var(--lc-color-gray-300) · radius/2xs 4px · p padding/sm 12px
+ *   panel   bg var(--v3-white) · border/gray/light var(--v3-grey-400) · radius/2xs 4px · p padding/sm 12px
  *           shadow  0 1px 1.5px #0000000D, 0 20px 12.5px #0000001A, 0 10px 5px #0000000A · w 280
- *   header  border-bottom var(--lc-color-gray-300) · pb padding/xs 8px · gap 12px
- *           name  Heading/h6  16/20 bold  text/title var(--lc-color-green-900)
- *           id    Text SemiBold/xs  12/16  text/dimmed var(--lc-color-sage-500)
+ *   header  border-bottom var(--v3-grey-400) · pb padding/xs 8px · gap 12px
+ *           name  Heading/h6  16/20 bold  text/title var(--v3-text-dark)
+ *           id    Text SemiBold/xs  12/16  text/dimmed var(--v3-text-light)
  *   row     gap 12px · p padding/xs 8px · radius/3xs 2px
- *           name  Heading/h7  12/16 bold  text/default var(--lc-color-green-900)
- *           id    Text SemiBold/xs  12/16  text/dimmed var(--lc-color-sage-500)
- *           hover bg gray/10 var(--lc-color-gray-50) · selected bg ~green/green-0 var(--lc-color-green-25)
- *   pager   icon 20px (border var(--lc-color-gray-300), radius 4) · active 24px var(--lc-color-green-500) / var(--lc-color-white)
+ *           name  Heading/h7  12/16 bold  text/default var(--v3-text-dark)
+ *           id    Text SemiBold/xs  12/16  text/dimmed var(--v3-text-light)
+ *           hover bg gray/10 var(--v3-input-default-body) · selected bg ~green/green-0 var(--v3-primary-extra-light)
+ *   pager   icon 20px (border var(--v3-grey-400), radius 4) · active 24px var(--v3-green-primary) / var(--v3-white)
  */
 .lc-account-switcher {
-  --lc-as-border: var(--lc-color-gray-300);
-  --lc-as-title: var(--lc-color-green-900);
-  --lc-as-dimmed: var(--lc-color-sage-500);
-  --lc-as-hover-bg: var(--lc-color-gray-50);
-  --lc-as-selected-bg: var(--lc-color-green-25);
-  --lc-as-accent: var(--lc-color-green-500);
+  --lc-as-border: var(--v3-grey-400);
+  --lc-as-title: var(--v3-text-dark);
+  --lc-as-dimmed: var(--v3-text-light);
+  --lc-as-hover-bg: var(--v3-input-default-body);
+  --lc-as-selected-bg: var(--v3-primary-extra-light);
+  --lc-as-accent: var(--v3-green-primary);
   --lc-as-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
 
@@ -34,7 +34,7 @@
   padding: 12px;
   border: 1px solid var(--lc-as-border);
   border-radius: 8px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow:
     0 1px 1.5px rgba(0, 0, 0, 0.05),
     0 20px 12.5px rgba(0, 0, 0, 0.1),
@@ -98,14 +98,14 @@
   padding: 0 12px 0 34px;
   border: 1px solid var(--lc-as-border);
   border-radius: 4px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
   color: var(--lc-as-title);
 }
 .lc-account-switcher__search input::placeholder {
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 .lc-account-switcher__search input:focus-visible {
   outline: none;
@@ -129,7 +129,7 @@
 .lc-account-switcher__list:hover,
 .lc-account-switcher__list:focus-within {
   scrollbar-width: thin;
-  scrollbar-color: var(--lc-color-gray-300) transparent;
+  scrollbar-color: var(--v3-grey-400) transparent;
 }
 .lc-account-switcher__list::-webkit-scrollbar {
   width: 0;
@@ -140,7 +140,7 @@
   width: 6px;
 }
 .lc-account-switcher__list::-webkit-scrollbar-thumb {
-  background: var(--lc-color-gray-300);
+  background: var(--v3-grey-400);
   border-radius: 3px;
 }
 
@@ -209,16 +209,16 @@
   padding: 0;
   border: 1px solid var(--lc-as-border);
   border-radius: 4px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   color: var(--lc-as-title);
   cursor: pointer;
 }
 .lc-account-switcher__pager-btn:disabled {
-  color: var(--lc-color-gray-400);
+  color: var(--v3-grey-500);
   cursor: not-allowed;
 }
 .lc-account-switcher__pager-btn:not(:disabled):hover {
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
 }
 .lc-account-switcher__pager-btn svg {
   width: 12px;
@@ -234,7 +234,7 @@
   padding: 0 4px;
   border: 1px solid var(--lc-as-border);
   border-radius: 4px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   color: var(--lc-as-title);
   font-family: inherit;
   font-size: 12px;
@@ -246,7 +246,7 @@
   height: 24px;
   border-color: var(--lc-as-accent);
   background: var(--lc-as-accent);
-  color: var(--lc-color-white);
+  color: var(--v3-white);
   font-size: 14px;
   font-weight: 700;
 }

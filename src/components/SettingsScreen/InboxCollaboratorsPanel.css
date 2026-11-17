@@ -16,7 +16,7 @@
   flex-direction: column;
   gap: 12px;
   padding: 12px 0 0;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 
 .lc-icp__head {
@@ -45,7 +45,7 @@
   height: 20px;
   padding: 0 6px;
   border-radius: 999px;
-  background: var(--lc-color-stone-150);
+  background: var(--v3-grey-300);
   font-size: 12px;
   font-weight: 700;
   line-height: 16px;
@@ -54,8 +54,8 @@
 
 /* The Agents table's avatar colours (.lc-bt__avatar): gray fill, dark-gray initials. */
 .lc-avatar.lc-icp__avatar {
-  --lc-avatar-light-bg: var(--lc-color-gray-200);
-  --lc-avatar-fg-accent: var(--lc-color-stone-600);
+  --lc-avatar-light-bg: var(--v3-grey-300);
+  --lc-avatar-fg-accent: var(--v3-grey-700);
 }
 
 /* One option in the Add menu: avatar + name over email. The menu's own item hover applies. */
@@ -80,7 +80,7 @@
   padding: 0 10px;
   border: 1px solid var(--lc-sp-border);
   border-radius: 6px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   color: var(--lc-sp-text-dimmed);
 }
 
@@ -122,12 +122,12 @@
 }
 
 .lc-icp__item:focus-within {
-  background: var(--lc-color-stone-100);
+  background: var(--v3-grey-200);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .lc-icp__item:hover {
-    background: var(--lc-color-stone-100);
+    background: var(--v3-grey-200);
   }
 }
 
@@ -178,7 +178,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .lc-icp__remove:hover {
-    background: var(--lc-color-stone-150);
+    background: var(--v3-grey-300);
     color: var(--lc-sp-text-title);
   }
 }

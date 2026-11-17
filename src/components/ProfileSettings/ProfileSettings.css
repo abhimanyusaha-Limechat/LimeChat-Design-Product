@@ -8,12 +8,12 @@
  */
 
 .lc-ps {
-  --lc-ps-border: var(--lc-color-gray-300);
-  --lc-ps-divider: var(--lc-color-gray-200);
-  --lc-ps-text-title: var(--lc-color-green-900);
-  --lc-ps-text-dimmed: var(--lc-color-sage-500);
-  --lc-ps-primary: var(--lc-color-green-700);
-  --lc-ps-bg-subtle: var(--lc-color-stone-50);
+  --lc-ps-border: var(--v3-grey-400);
+  --lc-ps-divider: var(--v3-grey-300);
+  --lc-ps-text-title: var(--v3-text-dark);
+  --lc-ps-text-dimmed: var(--v3-text-light);
+  --lc-ps-primary: var(--v3-green-primary-600);
+  --lc-ps-bg-subtle: var(--v3-input-default-body);
   --lc-ps-radius: 12px;
   --lc-ps-radius-sm: 6px;
   --lc-ps-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -27,7 +27,7 @@
   flex-shrink: 0;
   border: 1px solid var(--lc-ps-divider);
   border-radius: var(--lc-ps-radius);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   overflow: hidden;
   color: var(--lc-ps-text-title);
   /* the row layout responds to *this component's* width, not the viewport's —
@@ -95,11 +95,11 @@
 }
 
 .lc-ps__section-heading:hover {
-  background: var(--lc-color-stone-50);
+  background: var(--v3-input-default-body);
 }
 
 .lc-ps__section-heading:hover .lc-ps__section-chevron {
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-ps__section-heading::-webkit-details-marker {
@@ -107,7 +107,7 @@
 }
 
 .lc-ps__section-heading:focus-visible {
-  outline: 2px solid var(--lc-color-green-700);
+  outline: 2px solid var(--v3-green-primary-600);
   outline-offset: 2px;
 }
 
@@ -122,7 +122,7 @@
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
   transition: transform 150ms ease, color 120ms ease;
 }
 
@@ -141,14 +141,14 @@
   font-size: 16px;
   font-weight: 700;
   line-height: 20px;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-ps__section-desc {
   margin: 0;
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 /* --- Rows: label+description left, control right ------------------- */
@@ -210,7 +210,7 @@
   padding: 0 12px;
   border: 1px solid var(--lc-ps-border);
   border-radius: var(--lc-ps-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -269,7 +269,7 @@
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: var(--lc-color-gray-300);
+  background: var(--v3-grey-400);
   cursor: pointer;
   transition: background-color 150ms ease;
 }
@@ -285,7 +285,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   transition: transform 150ms ease;
 }
@@ -326,7 +326,7 @@
   margin: 0;
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-red-700);
+  color: var(--v3-warning-red-medium);
 }
 
 /* read-only value with an inline action (Copy) inside the same box */

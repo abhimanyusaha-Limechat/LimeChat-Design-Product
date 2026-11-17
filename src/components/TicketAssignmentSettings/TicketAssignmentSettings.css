@@ -6,12 +6,12 @@
  */
 
 .lc-ta {
-  --lc-ta-border: var(--lc-color-gray-300);
-  --lc-ta-divider: var(--lc-color-gray-200);
-  --lc-ta-text-title: var(--lc-color-green-900);
-  --lc-ta-text-dimmed: var(--lc-color-sage-500);
-  --lc-ta-primary: var(--lc-color-green-700);
-  --lc-ta-panel-bg: var(--lc-color-stone-50);
+  --lc-ta-border: var(--v3-grey-400);
+  --lc-ta-divider: var(--v3-grey-300);
+  --lc-ta-text-title: var(--v3-text-dark);
+  --lc-ta-text-dimmed: var(--v3-text-light);
+  --lc-ta-primary: var(--v3-green-primary-600);
+  --lc-ta-panel-bg: var(--v3-input-default-body);
   --lc-ta-radius: 12px;
   --lc-ta-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
@@ -125,7 +125,7 @@
   height: 18px;
   border: 1.5px solid var(--lc-ta-border);
   border-radius: 50%;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   transition: border-color 120ms ease;
 }
 
@@ -182,7 +182,7 @@
   padding: 12px;
   border: 1px solid var(--lc-ta-border);
   border-radius: 8px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   font-family: inherit;
   text-align: left;
   color: var(--lc-ta-text-title);
@@ -207,12 +207,12 @@
   font-size: 13px;
   font-weight: 600;
   line-height: 16px;
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 
-.lc-ta__card[data-type='whatsapp'] .lc-ta__card-channel { color: var(--lc-color-green-500); }
+.lc-ta__card[data-type='whatsapp'] .lc-ta__card-channel { color: var(--v3-green-primary); }
 .lc-ta__card[data-type='email'] .lc-ta__card-channel { color: #f08c00; }
-.lc-ta__card[data-type='facebook'] .lc-ta__card-channel { color: var(--lc-color-blue-600); }
+.lc-ta__card[data-type='facebook'] .lc-ta__card-channel { color: var(--v3-blue-dark); }
 
 .lc-ta__card-name {
   font-size: 15px;

@@ -68,7 +68,7 @@
   max-width: 100%;
   padding: 2px 8px;
   border-radius: 6px;
-  background: var(--lc-color-green-50);
+  background: var(--v3-primary-extra-light);
   color: var(--lc-sp-primary);
   font-size: 12px;
   font-weight: 700;
@@ -146,8 +146,8 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: var(--lc-color-gray-200);
-  color: var(--lc-color-stone-600);
+  background: var(--v3-grey-300);
+  color: var(--v3-grey-700);
   font-size: 12px;
   font-weight: 700;
   line-height: 16px;
