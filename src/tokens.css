@@ -11,6 +11,17 @@
  * component needs to change.
  */
 :root {
+  /* Row lift — one recipe, two weights, for list rows that read as cards (the publish history
+     panel, the knowledge-base file list). Mixed from the text-dark green rather than black so
+     it sits in the same family as the green strokes beside it; a neutral grey shadow reads
+     dirty next to them. Not a Figma elevation style: see --v3-elevation-1dp for that. */
+  --lc-lift:
+    0 6px 16px -4px rgba(60, 73, 44, 0.2),
+    0 2px 6px -2px rgba(60, 73, 44, 0.12);
+  --lc-lift-soft:
+    0 4px 10px -4px rgba(60, 73, 44, 0.16),
+    0 1px 3px -1px rgba(60, 73, 44, 0.1);
+
   /* Input heights — every single-line field (input, select, search box) uses one
      of these. Default is sm. Textareas grow with content and are exempt. */
   --lc-input-xs: 24px;

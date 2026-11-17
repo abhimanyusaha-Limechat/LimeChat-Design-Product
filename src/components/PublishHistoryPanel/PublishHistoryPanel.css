@@ -1,0 +1,425 @@
+/* PublishHistoryPanel — Figma node 4630:28023. Floats over the right of the page, clear of the
+   page header; the agent page's own content keeps scrolling behind it.
+
+   Two parts. The Current card is the agent as it stands — never published, so no timestamp and
+   no version number — and is lifted off the panel to say so. Under it, the publishes are drawn
+   as a timeline: a dotted rail with a node per publish, so nine entries read as a history
+   rather than nine look-alike cards. The rail lives in the item's left padding, outside the
+   row, so no hover or selected tint ever paints over it. */
+
+.lc-phist {
+  position: fixed;
+  top: 150px;
+  right: 28px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 320px;
+  max-height: calc(100vh - 180px);
+  padding: var(--v3-padding-xs);
+  border: 1px solid var(--v3-grey-300);
+  border-radius: var(--v3-radius-xs);
+  background: var(--v3-white);
+  box-shadow: var(--v3-elevation-1dp);
+  overflow: hidden;
+
+  /* Shared with the knowledge-base file list; the recipe lives in tokens.css. */
+  --lc-phist-lift: var(--lc-lift);
+  --lc-phist-lift-soft: var(--lc-lift-soft);
+}
+
+.lc-phist:focus {
+  outline: none;
+}
+
+/* --- Header ---------------------------------------------------------------- */
+
+.lc-phist__header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--v3-spacing-xs);
+  margin-bottom: var(--v3-space-12);
+  padding: var(--v3-padding-2xs) var(--v3-padding-xs) var(--v3-padding-sm);
+  border-bottom: 1px solid var(--v3-grey-300);
+}
+
+.lc-phist__title {
+  flex: 1;
+  margin: 0;
+  color: var(--v3-text-dark);
+  font-size: var(--v3-h5-size);
+  font-weight: var(--v3-h5-weight);
+  line-height: var(--v3-h5-line);
+}
+
+.lc-phist__info {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--v3-text-gray-default);
+}
+
+.lc-phist__close {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--v3-radius-2xs);
+  background: transparent;
+  color: var(--v3-gray-80);
+  cursor: pointer;
+}
+
+.lc-phist__close:hover {
+  background: var(--v3-gray-20);
+}
+
+.lc-phist__close:focus-visible {
+  outline: 2px solid var(--v3-green-primary);
+  outline-offset: 2px;
+}
+
+/* --- The Current card ------------------------------------------------------ */
+
+/* Lifted off the panel and tinted, because it is not one of the rows below: it is the agent as
+   it stands, with edits that have not been published. */
+.lc-phist__current {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: var(--v3-space-4);
+  margin-bottom: var(--v3-space-16);
+  padding: var(--v3-padding-xs);
+  border: 1px solid var(--v3-border-primary-light);
+  border-radius: var(--v3-radius-xs);
+  background: var(--v3-white);
+  box-shadow: var(--lc-phist-lift);
+}
+
+.lc-phist__current-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 20px;
+}
+
+/* V3's .Tag Pill (5213:13546), described in Figma as a non-interactive pill: tint plus dark
+   text, never a fill with white text. That is the system's own answer to "it looks like a
+   button", so the status uses it as specified rather than an invented label. */
+.lc-phist__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v3-space-4);
+  padding: var(--v3-padding-2xs) var(--v3-padding-xs);
+  border-radius: var(--v3-radius-xs);
+  background: var(--v3-background-primary-light);
+  color: var(--v3-text-primary-dark);
+  font-size: var(--v3-text-semibold-xs-size);
+  font-weight: var(--v3-text-semibold-xs-weight);
+  line-height: var(--v3-text-semibold-xs-line);
+}
+
+.lc-phist__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--v3-green-primary);
+  animation: lc-phist-pulse 2s ease-in-out infinite;
+}
+
+/* A slow breath, not a blink — enough to read as live without pulling the eye off the list. */
+@keyframes lc-phist-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.45;
+    transform: scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-phist__dot {
+    animation: none;
+  }
+}
+
+/* --- Published, as a timeline ---------------------------------------------- */
+
+/* Uppercase so the heading reads as a divider between the Current card and the history,
+   rather than as another line of content. No tracking: V3 has no letter-spacing variable to
+   reach for, and every text style in the design binds zero. */
+.lc-phist__section {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 var(--v3-space-4);
+  padding: 0 var(--v3-padding-xs);
+  color: var(--v3-text-gray-default);
+  font-size: var(--v3-h7-size);
+  font-weight: var(--v3-h7-weight);
+  line-height: var(--v3-h7-line);
+  text-transform: uppercase;
+}
+
+.lc-phist__count {
+  color: var(--v3-grey-500);
+  font-weight: var(--v3-h6-m-weight);
+}
+
+/* The only thing that scrolls. The header, the Current card and the Published heading stay
+   where they are, so the panel never loses its frame when the history is long.
+   The 4px inset (cancelled by the negative margin, so rows keep their width) leaves the row
+   hover shadow somewhere to fall: a scroll container clips both axes. */
+.lc-phist__list {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  margin: 0 -4px;
+  padding: 0 4px;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.lc-phist__item {
+  position: relative;
+  padding-left: 22px;
+}
+
+/* The rail, dotted so it reads as a thread between publishes rather than a divider.
+   Clipped to the first and last node so it never runs past the history. */
+.lc-phist__item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 10.75px;
+  width: 0;
+  border-left: 1.5px dotted var(--v3-grey-400);
+}
+
+.lc-phist__item:first-child::before {
+  top: 20px;
+}
+
+.lc-phist__item:last-child::before {
+  bottom: calc(100% - 20px);
+}
+
+/* The node: hollow by default, filled green for whichever version is being viewed, so the rail
+   answers "where am I?" on its own. */
+.lc-phist__item::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 7px;
+  box-sizing: border-box;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--v3-grey-500);
+  border-radius: 50%;
+  background: var(--v3-white);
+}
+
+.lc-phist__item[data-selected]::after {
+  border-color: var(--v3-green-primary);
+  background: var(--v3-green-primary);
+}
+
+/* --- Version rows ---------------------------------------------------------- */
+
+.lc-phist__row {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--v3-space-4);
+  box-sizing: border-box;
+  padding: var(--v3-padding-xs);
+  border: 1px solid transparent;
+  border-radius: var(--v3-radius-xs);
+  transition: box-shadow 120ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-phist__row {
+    transition: none;
+  }
+}
+
+/* Fills the row behind its content; the text above sets `pointer-events: none` so clicks land
+   here, while the download button opts back in. */
+.lc-phist__select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  padding: 0;
+  border: none;
+  border-radius: var(--v3-radius-xs);
+  background: transparent;
+  cursor: pointer;
+}
+
+.lc-phist__select:focus-visible {
+  outline: 2px solid var(--v3-green-primary);
+  outline-offset: -2px;
+}
+
+.lc-phist__when,
+.lc-phist__author {
+  position: relative;
+  pointer-events: none;
+}
+
+/* Hovering lifts a row — no tint, so the list keeps one background and the lift means the same
+   thing here as it does on the Current card. Only where a row does something when clicked: a
+   read-only log that lifts under the pointer is promising a click it will not honour. */
+.lc-phist__list[data-interactive] .lc-phist__row:hover,
+.lc-phist__list[data-interactive] .lc-phist__row:focus-within {
+  background: var(--v3-white);
+  box-shadow: var(--lc-phist-lift-soft);
+}
+
+/* What the author did, after their name. Lighter than the name so the person still reads first. */
+.lc-phist__detail {
+  color: var(--v3-text-gray-default);
+  font-weight: var(--v3-body-b2-weight);
+}
+
+/* A log's rows carry a sentence rather than a name, and 320px is not enough for every one of
+   them. Let those wrap: a truncated "removed Size gu…" tells you less than a second line costs. */
+.lc-phist__list:not([data-interactive]) .lc-phist__name {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.lc-phist__when {
+  display: flex;
+  align-items: baseline;
+  gap: var(--v3-spacing-xs);
+}
+
+.lc-phist__date {
+  color: var(--v3-text-dark);
+  font-size: var(--v3-h5-size);
+  font-weight: var(--v3-h5-weight);
+  line-height: var(--v3-h5-line);
+}
+
+/* The publish's own number, where it has one. Quiet: the date is what you scan by. No
+   tracking: V3 binds Letter_spacing/0 px on every text style, so the lowercase "v" sits as
+   close to the digit as Lato's own metrics put it. */
+.lc-phist__version {
+  margin-left: auto;
+  color: var(--v3-text-gray-default);
+  font-size: var(--v3-h6-size);
+  font-weight: var(--v3-h6-m-weight);
+  line-height: var(--v3-h6-line);
+  white-space: nowrap;
+}
+
+.lc-phist__author {
+  display: flex;
+  align-items: center;
+  gap: var(--v3-spacing-xs);
+  min-height: 24px;
+}
+
+/* The design uses a neutral avatar here, not Avatar's tinted default — hence the override. */
+.lc-phist .lc-phist__avatar {
+  flex-shrink: 0;
+  background: var(--v3-grey-300);
+  color: var(--v3-grey-700);
+  font-size: var(--v3-h6-size);
+  font-weight: 700;
+}
+
+.lc-phist__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--v3-text-dimmed);
+  font-size: var(--v3-h6-size);
+  font-weight: var(--v3-h6-m-weight);
+  line-height: var(--v3-h6-line);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Download is always there; View fades in beside it. `justify-content: flex-end` keeps the
+   download icons in one column whether or not View is showing. */
+.lc-phist__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--v3-space-4);
+  pointer-events: auto;
+}
+
+/* The hover cue for a row that is already clickable: a word, not a button. It is aria-hidden
+   and lets clicks through to the row, and fades rather than appearing, so nothing shifts. */
+.lc-phist__view {
+  color: var(--v3-text-primary-dark);
+  font-size: var(--v3-h7-size);
+  font-weight: var(--v3-h7-weight);
+  line-height: var(--v3-h7-line);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-out;
+}
+
+.lc-phist__row:hover .lc-phist__view,
+.lc-phist__row:focus-within .lc-phist__view {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-phist__view {
+    transition: none;
+  }
+}
+
+.lc-phist__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--v3-radius-2xs);
+  background: transparent;
+  color: var(--v3-grey-600);
+  cursor: pointer;
+}
+
+.lc-phist__icon-btn:hover {
+  color: var(--v3-green-primary-600);
+}
+
+.lc-phist__icon-btn:focus-visible {
+  outline: 2px solid var(--v3-green-primary);
+  outline-offset: 2px;
+}
+
+/* The version currently on screen. Declared last, and matching :hover and :focus-within too,
+   so the selected tint is not overridden by the hover lift above. */
+.lc-phist__item[data-selected] .lc-phist__row,
+.lc-phist__item[data-selected] .lc-phist__row:hover,
+.lc-phist__item[data-selected] .lc-phist__row:focus-within {
+  border-color: var(--v3-border-primary-light);
+  background: var(--v3-green-primary-000);
+  box-shadow: var(--lc-phist-lift-soft);
+}

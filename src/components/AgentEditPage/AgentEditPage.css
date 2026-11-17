@@ -1,40 +1,539 @@
-/* AgentEditPage — the agent's Prompts / Tasks reuse InboxSettings' tabs, sections and rows (`lc-inbs__*`); this adds the prompt editor, guardrail rows and task chips. */
+/* AgentEditPage — Automation → Agents → Customise (Figma node 2956:5789).
+   The page card, header and back arrow come from SettingsPage (`lc-sp__*`); this file owns the
+   tab row, the two-column General tab, its blocks and the Prompt/Instruction card. */
 
-.lc-aep__saved {
+/* `.lc-sp__content` aligns its children to the start, so the page has to claim the width. */
+.lc-aep {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+/* --- Tabs ------------------------------------------------------------------ */
+
+/* Segmented pills (SegmentedTabs) on the left, the Active switch on the right. No rule under it.
+   Pinned to the top of the scroll port, so the content passes behind it; the opaque background
+   is what hides that content, and the z-index keeps it above the sticky prompt card. */
+.lc-aep__tabbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--v3-white);
+}
+
+/* In the tab row the switch is plain text + toggle, without the header's box. */
+.lc-aep__tabbar .lc-inbs__header-switch {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+/* --- General tab layout ----------------------------------------------------- */
+
+.lc-aep__cols {
+  display: flex;
+  align-items: flex-start;
+  gap: 56px;
+}
+
+/* The design fixes the left column at 787px and lets the prompt card take the rest. */
+.lc-aep__main {
+  display: flex;
+  flex: 0 1 787px;
+  flex-direction: column;
+  gap: 32px;
+  min-width: 0;
+}
+
+.lc-aep__section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 16px;
+}
+
+.lc-aep__head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Once a block has content, its AI shortcut sits opposite the title. */
+.lc-aep__head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.lc-aep__head-title {
+  margin: 0;
+  color: var(--v3-text-dark);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.lc-aep__head-desc {
+  margin: 0;
+  color: var(--v3-text-light);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.lc-aep__field {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lc-aep__rule {
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--v3-grey-400);
+}
+
+/* --- Inputs ----------------------------------------------------------------- */
+
+.lc-aep__add-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.lc-aep__input {
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--v3-grey-400);
+  border-radius: 4px;
+  background: var(--v3-input-default-body);
+  color: var(--v3-text-dark);
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.lc-aep__input::placeholder {
+  color: var(--v3-text-light);
+}
+
+.lc-aep__input:focus {
+  border-color: var(--v3-primary);
+  outline: none;
+}
+
+.lc-aep__enter {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 44px;
+  border: 1px solid var(--v3-grey-400);
+  border-radius: 4px;
+  background: var(--v3-white);
+  color: var(--v3-text-dark);
+  cursor: pointer;
+}
+
+.lc-aep__enter:hover:not(:disabled) {
+  border-color: var(--v3-primary);
+  color: var(--v3-primary);
+}
+
+.lc-aep__enter:disabled {
+  color: var(--v3-grey-500);
+  cursor: not-allowed;
+}
+
+.lc-aep__enter:focus-visible {
+  outline: 2px solid var(--v3-primary);
+  outline-offset: 2px;
+}
+
+/* --- Empty states with the AI shortcut -------------------------------------- */
+
+.lc-aep__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 12px;
+  border-radius: 8px;
+}
+
+.lc-aep__empty[data-tone='dashed'] {
+  border: 1px dashed var(--v3-grey-400);
+  background: var(--v3-grey-200);
+}
+
+.lc-aep__empty[data-tone='soft'] {
+  gap: 12px;
+  border: 1px solid var(--v3-grey-300);
+  background: var(--v3-primary-extra-light);
+}
+
+.lc-aep__empty-text {
+  margin: 0;
+  color: var(--v3-text-light);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  text-align: center;
+}
+
+.lc-aep__ai-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  height: 24px;
-  padding: 0 8px;
+  height: 28px;
+  padding: 4px 8px;
+  border: 1px solid var(--v3-gradient-ai-start);
   border-radius: 4px;
-  background: var(--lc-color-gray-100);
-  color: var(--lc-color-stone-600);
-  font-size: 12px;
-  white-space: nowrap;
+  background: var(--v3-white);
+  color: var(--v3-gradient-ai-start);
+  cursor: pointer;
 }
+
+.lc-aep__ai-btn:focus-visible {
+  outline: 2px solid var(--v3-primary);
+  outline-offset: 2px;
+}
+
+/* V3's Gradient/AI; falls back to its first stop where the browser can't paint text. */
+.lc-aep__ai-label {
+  background-image: var(--v3-gradient-ai);
+  background-clip: text;
+  color: var(--v3-gradient-ai-start);
+  font-size: var(--v3-h6-size);
+  font-weight: var(--v3-h6-m-weight);
+  line-height: var(--v3-h6-line);
+}
+
+@supports (-webkit-background-clip: text) {
+  .lc-aep__ai-label {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* --- Filled state: the panel that holds saved triggers or guardrails --------- */
+
+/* No fill — the chips and guardrail rows carry their own colour; this is grouping only. */
+.lc-aep__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 12px;
+  border: 1px solid var(--v3-grey-300);
+  border-radius: 8px;
+}
+
+.lc-aep__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lc-aep__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 4px 8px;
+  border: 1px solid var(--v3-green-primary-200);
+  border-radius: 4px;
+  background: var(--v3-green-primary-000);
+  color: var(--v3-primary-dark);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.lc-aep__chip-x {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--v3-primary-dark);
+  cursor: pointer;
+}
+
+.lc-aep__chip-x:hover {
+  color: var(--v3-warning-red-medium);
+}
+
+.lc-aep__chip-x:focus-visible {
+  outline: 2px solid var(--v3-primary);
+  outline-offset: 2px;
+}
+
+/* --- Guardrails ------------------------------------------------------------- */
+
+.lc-aep__guardrail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lc-aep__guardrail-box {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 36px;
+  padding: 6px 8px;
+  border: 1px solid var(--v3-grey-400);
+  border-radius: 4px;
+  background: var(--v3-white);
+}
+
+.lc-aep__guardrail-box:focus-within {
+  border-color: var(--v3-primary);
+}
+
+.lc-aep__guardrail-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--v3-text-dark);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.lc-aep__guardrail-input:focus {
+  outline: none;
+}
+
+.lc-aep__guardrail-ai {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--v3-primary);
+  cursor: pointer;
+}
+
+.lc-aep__guardrail-ai:focus-visible {
+  outline: 2px solid var(--v3-primary);
+  outline-offset: 2px;
+}
+
+.lc-aep__remove {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--v3-warning-red-medium);
+  cursor: pointer;
+}
+
+.lc-aep__remove:hover {
+  color: var(--v3-warning-red-medium);
+}
+
+.lc-aep__remove:focus-visible {
+  outline: 2px solid var(--v3-primary);
+  outline-offset: 2px;
+}
+
+/* Right-aligned, clearing the delete column so it lines up with the inputs' edge. */
+.lc-aep__panel-foot {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 36px;
+}
+
+.lc-aep__add-guardrail {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--v3-grey-600);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 20px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.lc-aep__add-guardrail:hover {
+  color: var(--v3-primary-dark);
+}
+
+.lc-aep__add-guardrail:focus-visible {
+  outline: 2px solid var(--v3-primary);
+  outline-offset: 2px;
+}
+
+.lc-aep__add {
+  align-self: flex-start;
+}
+
+/* --- Prompt / Instruction card ---------------------------------------------- */
+
+/* Stays put while the left column scrolls; `.lc-sp__content` is the scroll port, and
+   `.lc-aep__cols` aligns to flex-start so the card is free to stick rather than stretch. */
+.lc-aep__prompt {
+  position: sticky;
+  /* Clears the pinned tab row: its 40px plus the 24px gap below it. */
+  top: 64px;
+  display: flex;
+  flex: 1 1 360px;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  max-height: calc(100vh - 275px);
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--v3-secondary-light);
+  overflow: auto;
+}
+
+.lc-aep__prompt-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lc-aep__prompt-title {
+  margin: 0;
+  color: var(--v3-text-dark);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.lc-aep__prompt-edit {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--v3-text-dark);
+  cursor: pointer;
+}
+
+.lc-aep__prompt-edit:hover {
+  color: var(--v3-primary);
+}
+
+.lc-aep__prompt-edit:focus-visible {
+  outline: 2px solid var(--v3-primary);
+  outline-offset: 2px;
+}
+
+.lc-aep__prompt-body {
+  margin: 0;
+  color: var(--v3-text-light);
+  font-size: 14px;
+  line-height: 22px;
+  white-space: pre-wrap;
+}
+
+.lc-aep__prompt-body[data-empty] {
+  font-style: italic;
+}
+
+/* --- Header overflow -------------------------------------------------------- */
+
+.lc-aep__kebab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--v3-grey-800);
+  cursor: pointer;
+}
+
+.lc-aep__kebab:hover {
+  background: var(--v3-grey-200);
+}
+
+.lc-aep__kebab:focus-visible {
+  outline: 2px solid var(--v3-primary);
+  outline-offset: 2px;
+}
+
+/* --- Tasks tab -------------------------------------------------------------- */
+
+.lc-aep__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 16px;
+  color: var(--v3-text-light);
+  font-size: 14px;
+  text-align: center;
+}
+
+.lc-aep__placeholder-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--v3-grey-500);
+}
+
+/* --- Prompt editor ---------------------------------------------------------- */
 
 .lc-aep__error {
   margin: 0;
-  color: var(--lc-color-red-600);
+  /* V3 defines text/error/default but exposes no value; keep the old palette for now. */
+  color: var(--v3-warning-red-medium);
   font-size: 12px;
   line-height: 16px;
 }
 
-/* --- Prompt editor --------------------------------------------------------- */
-
 .lc-aep__editor {
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--v3-grey-400);
   border-radius: 6px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 
 .lc-aep__editor:focus-within {
-  border-color: var(--lc-color-green-700);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-color-green-700) 20%, transparent);
+  border-color: var(--v3-primary-dark);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--v3-primary-dark) 20%, transparent);
 }
 
 .lc-aep__editor:has([aria-invalid]) {
-  border-color: var(--lc-color-red-600);
+  border-color: var(--v3-warning-red-medium);
 }
 
 .lc-aep__textarea {
@@ -61,36 +560,30 @@
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  border-top: 1px solid var(--lc-color-gray-200);
+  border-top: 1px solid var(--v3-grey-300);
 }
 
-.lc-aep__fmt,
-.lc-aep__remove {
+.lc-aep__fmt {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: none;
   border-radius: 4px;
   background: transparent;
+  color: var(--v3-grey-800);
   font: inherit;
   cursor: pointer;
 }
 
-.lc-aep__fmt {
-  width: 28px;
-  height: 28px;
-  color: var(--lc-color-stone-600);
+.lc-aep__fmt:hover {
+  background: var(--v3-grey-200);
 }
 
-.lc-aep__fmt:hover,
-.lc-aep__remove:hover {
-  background: var(--lc-color-gray-100);
-}
-
-.lc-aep__fmt:focus-visible,
-.lc-aep__remove:focus-visible {
-  outline: 2px solid var(--lc-color-green-500);
+.lc-aep__fmt:focus-visible {
+  outline: 2px solid var(--v3-primary);
   outline-offset: 2px;
 }
 
@@ -110,41 +603,212 @@
   width: 1px;
   height: 16px;
   margin: 0 4px;
-  background: var(--lc-color-gray-300);
+  background: var(--v3-grey-400);
 }
 
 .lc-aep__count {
   margin-left: auto;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
   font-size: 12px;
 }
 
-/* --- Guardrails ------------------------------------------------------------ */
+/* --- Narrow screens --------------------------------------------------------- */
 
-.lc-aep__stack {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+@media (max-width: 1180px) {
+  .lc-aep__cols {
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .lc-aep__prompt {
+    flex: 1 1 100%;
+    max-height: none;
+  }
 }
 
-.lc-aep__guardrail {
+/* --- Read-only view of an older publish ------------------------------------ */
+
+.lc-aep__none {
+  margin: 0;
+  color: var(--v3-text-light);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 22px;
+}
+
+.lc-aep__guardrail-static {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--v3-grey-400);
+  border-radius: 4px;
+  background: var(--v3-white);
+  color: var(--v3-text-dark);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+/* --- Version banner --------------------------------------------------------- */
+
+/* Centred over the content area — the 30px nudge clears the product rail. */
+.lc-aep__banner {
+  position: fixed;
+  bottom: 24px;
+  left: calc(50% + 30px);
+  z-index: 25;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--v3-padding-sm);
+  box-sizing: border-box;
+  width: 660px;
+  max-width: calc(100vw - 120px);
+  padding: var(--v3-padding-sm);
+  border: 1px solid var(--v3-grey-400);
+  border-radius: var(--v3-radius-xs);
+  background: var(--v3-white);
+  box-shadow: var(--v3-elevation-1dp);
+  transform: translateX(-50%);
+}
+
+.lc-aep__banner-icon {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--v3-green-primary-600);
+}
+
+.lc-aep__banner-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--v3-space-4);
+  min-width: 0;
+}
+
+/* The padding keeps the title row clear of the close button pinned in the corner above it. */
+.lc-aep__banner-head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--v3-spacing-xs);
+  margin: 0;
+  padding-right: 32px;
+  min-width: 0;
 }
 
-.lc-aep__remove {
+.lc-aep__banner-title {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  color: var(--lc-color-red-600);
+  color: var(--v3-text-dark);
+  font-size: var(--v3-h5-size);
+  font-weight: var(--v3-h5-weight);
+  line-height: var(--v3-h5-line);
 }
 
-.lc-aep__add {
-  align-self: flex-start;
+/* Separates what you are looking at from who published it, without a second line. */
+.lc-aep__banner-rule {
+  flex-shrink: 0;
+  width: 1px;
+  height: 14px;
+  background: var(--v3-grey-400);
 }
 
-/* Fills the row, like the guardrail boxes (TagsInput is 320px by default). */
-.lc-inbs .lc-aep__tags {
-  width: 100%;
+.lc-aep__banner-meta {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--v3-text-light);
+  font-size: var(--v3-h6-size);
+  font-weight: var(--v3-h6-m-weight);
+  line-height: var(--v3-h6-line);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The instruction keeps its own line, so nothing has to share the width with it. */
+.lc-aep__banner-note {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--v3-text-light);
+  font-size: var(--v3-h6-size);
+  font-weight: var(--v3-h6-m-weight);
+  line-height: var(--v3-h6-line);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Both ways out of the preview, on a row of their own. The close button is pinned to the
+   corner above, so the actions sit a full line clear of it rather than under its elbow. */
+.lc-aep__banner-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--v3-space-8);
+  margin-top: var(--v3-space-8);
+}
+
+.lc-aep__banner-close {
+  position: absolute;
+  top: var(--v3-padding-sm);
+  right: var(--v3-padding-sm);
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--v3-text-light);
+  cursor: pointer;
+}
+
+.lc-aep__banner-close:hover {
+  background: var(--v3-grey-200);
+  color: var(--v3-text-dark);
+}
+
+.lc-aep__banner-close:focus-visible {
+  outline: 2px solid var(--v3-green-primary);
+  outline-offset: 2px;
+}
+
+/* --- Version loader --------------------------------------------------------- */
+
+/* Takes the tab content's place while a publish is pulled back in: the Container row from
+   Figma (2798:2173) — the animated mark beside the message — centred in the page. */
+.lc-aep__loader {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v3-space-4);
+  min-height: 360px;
+  padding: 32px 16px;
+}
+
+/* While a version loads the tab panel holds nothing else, so the page stretches to the content
+   card and the loader sits in the middle of it rather than near the top. 360px above is the
+   floor for a short viewport. */
+.lc-aep[data-loading],
+.lc-aep[data-loading] .lc-aep__tabpanel {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.lc-aep__loader-mark {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+}
+
+/* H5_M — Medium 14/22. */
+.lc-aep__loader-text {
+  margin: 0;
+  color: var(--v3-text-dark);
+  font-size: var(--v3-h5-size);
+  font-weight: var(--v3-h5-m-weight);
+  line-height: var(--v3-h5-line);
 }
