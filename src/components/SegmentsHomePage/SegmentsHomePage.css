@@ -7,14 +7,14 @@
  */
 
 .lc-sg {
-  --lc-sg-border: var(--lc-color-gray-300);
-  --lc-sg-text-title: var(--lc-color-green-900);
-  --lc-sg-text-dimmed: var(--lc-color-sage-500);
-  --lc-sg-secondary-dark: var(--lc-color-stone-600);
-  --lc-sg-text-light: var(--lc-color-sage-500);
-  --lc-sg-text-placeholder: var(--lc-color-gray-500);
-  --lc-sg-primary: var(--lc-color-green-500);
-  --lc-sg-bg: var(--lc-color-stone-25);
+  --lc-sg-border: var(--v3-grey-400);
+  --lc-sg-text-title: var(--v3-text-dark);
+  --lc-sg-text-dimmed: var(--v3-text-light);
+  --lc-sg-secondary-dark: var(--v3-grey-700);
+  --lc-sg-text-light: var(--v3-text-light);
+  --lc-sg-text-placeholder: var(--v3-grey-600);
+  --lc-sg-primary: var(--v3-green-primary);
+  --lc-sg-bg: var(--v3-bg-yellow);
   --lc-sg-radius: 4px;
   --lc-sg-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --lc-sg-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
@@ -268,7 +268,7 @@
 }
 
 .lc-sg__action-btn:hover {
-  background: var(--lc-color-stone-150);
+  background: var(--v3-grey-300);
   color: var(--lc-sg-text-title);
 }
 

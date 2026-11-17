@@ -27,9 +27,9 @@ export function rowFields(tab: string, row: BotTemplateRow): Field[] {
 const AVATAR_STYLE = {
   '--lc-avatar-radius': '8px',
   '--lc-avatar-font': '10px',
-  '--lc-avatar-light-bg': 'var(--lc-color-gray-150)',
-  '--lc-avatar-fg-accent': 'var(--lc-color-green-700)',
-  borderColor: 'var(--lc-color-white)',
+  '--lc-avatar-light-bg': 'var(--v3-grey-300)',
+  '--lc-avatar-fg-accent': 'var(--v3-green-primary-600)',
+  borderColor: 'var(--v3-white)',
 } as CSSProperties;
 
 /** Profile image for the panel header — initials until a photo exists. */

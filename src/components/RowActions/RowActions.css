@@ -16,7 +16,7 @@
   border: none;
   border-radius: 4px;
   background: transparent;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
   cursor: pointer;
   transition: background-color 120ms ease, color 120ms ease, transform 140ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -28,18 +28,18 @@
 /* Touch screens fire :hover on tap and leave it stuck, so hover styles are for real pointers only. */
 @media (hover: hover) and (pointer: fine) {
   .lc-row-actions__btn:hover {
-    background: var(--lc-color-stone-150);
-    color: var(--lc-color-green-900);
+    background: var(--v3-grey-300);
+    color: var(--v3-text-dark);
   }
 
   .lc-row-actions__btn[data-danger]:hover {
-    background: color-mix(in srgb, var(--lc-color-red-600) 10%, transparent);
-    color: var(--lc-color-red-600);
+    background: color-mix(in srgb, var(--v3-warning-red-medium) 10%, transparent);
+    color: var(--v3-warning-red-medium);
   }
 }
 
 .lc-row-actions__btn:focus-visible {
-  outline: 2px solid var(--lc-color-green-700);
+  outline: 2px solid var(--v3-green-primary-600);
   outline-offset: 1px;
 }
 

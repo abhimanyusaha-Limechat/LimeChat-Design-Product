@@ -1,0 +1,190 @@
+/**
+ * LimeChat Design System : V3 — tokens, straight from the Figma library.
+ *
+ * Source: the "LimeChat Design System : V3" team library (libraryKey `lk-6650eea6…`),
+ * subscribed to the Agentic Bot Builder file (227uT4D7lyVcrNBErlKQEG). Every value here was
+ * read back from Figma with `get_variable_defs` — none is invented, and none is "the nearest
+ * approved step". The variable name after each token is its path in Figma, so a value can
+ * always be traced back.
+ *
+ * These are the tokens to build with. Reach for `tokens.css` only for a colour listed at the
+ * foot of this file as not yet covered by V3.
+ *
+ * Migration: every component now builds from these tokens. See the note at the foot of this
+ * file for the one colour V3 does not cover, and for the status-palette shift.
+ */
+:root {
+  /* --- Primary ------------------------------------------------------------ */
+  --v3-green-primary: #6bac1b; /* Green Primary */
+  --v3-green-primary-000: #e5f7cf; /* Green Primary/000 */
+  --v3-green-primary-200: #b6ea76; /* Green Primary/200 */
+  --v3-green-primary-400: #86d822; /* Green Primary/400 */
+  --v3-green-primary-600: #508014; /* Green Primary/600 */
+  --v3-primary: #6bac1b; /* Colors/Primary/Primary_Primary */
+  --v3-primary-dark: #508014; /* Colors/Primary/Primary_Dark */
+  --v3-primary-extra-light: #fafdf6; /* Colors/Primary/Primary_Extra_light */
+
+  /* --- Secondary ---------------------------------------------------------- */
+  --v3-secondary-light: #f3fafd; /* Colors/Secondary/Secondary_Light */
+
+  /* --- Text --------------------------------------------------------------- */
+  --v3-text-dark: #3c492c; /* Colors/Text/Text_Dark, Text/Dark */
+  --v3-text-light: #808975; /* Colors/Text/Text_Light */
+
+  /* --- Neutrals ----------------------------------------------------------- */
+  --v3-white: #ffffff; /* Neutral/White */
+  --v3-grey-200: #f5f5f5; /* Colors/Greys/Grey 200 */
+  --v3-grey-300: #f0f0f0; /* Colors/Greys/Grey 300 */
+  --v3-grey-400: #d9d9d9; /* Colors/Greys/Grey 400 */
+  --v3-grey-500: #bfbfbf; /* Neutral/Grey500 */
+  --v3-grey-600: #8c8c8c; /* Neutral/Grey600 */
+  --v3-grey-800: #434343; /* Neutral/Gray800 */
+
+  /* --- Warning ------------------------------------------------------------ */
+  --v3-warning-red-medium: #ff7e61; /* Warning/Red Medium */
+
+  /* --- Input field -------------------------------------------------------- */
+  --v3-input-default-body: #fafafa; /* Input Field/Default/Body */
+  --v3-input-default-stroke: #d9d9d9; /* Input Field/Default/Stroke 1 */
+  --v3-input-default-text: #808975; /* Input Field/Default/Main Text */
+  --v3-input-filled-body: #ffffff; /* Input Field/Filled/Body */
+  --v3-input-filled-stroke: #d9d9d9; /* Input Field/Filled/Stroke 1 */
+  --v3-input-filled-text: #3c492c; /* Input Field/Filled/Main Text */
+
+  /* --- Outline button (non-destructive) ----------------------------------- */
+  --v3-button-outline-body: #ffffff; /* Buttons/Non-Destructive/Outline/Default/Body */
+  --v3-button-outline-stroke: #d9d9d9; /* Buttons/Non-Destructive/Outline/Default/Stroke */
+
+  /* --- Dropdown ----------------------------------------------------------- */
+  --v3-dropdown-body: #ffffff; /* Dropdown/Outline/Default/Body */
+  --v3-dropdown-stroke: #d9d9d9; /* Dropdown/Outline/Default/Stroke */
+  --v3-dropdown-text: #508014; /* Dropdown/Outline/Default/Typography */
+  --v3-dropdown-icon: #508014; /* Dropdown/Outline/Default/Icon */
+
+  /* --- Status & accent (harvested from frames that bind them) -------------- */
+  --v3-grey-100: #fafafa; /* Colours/Neutral/Grey 100 */
+  --v3-grey-700: #595959; /* Neutral/Grey700 */
+  --v3-primary-light: #e5f7cf; /* Colors/Primary/Primary_Light */
+  --v3-secondary-dark: #125b78; /* Colors/Secondary/Secondary_Dark */
+  --v3-blue-dark: #1b83ac; /* Colours/Blue/Blue Dark, Blue Secondary */
+  --v3-warning-yellow-dark: #f08700; /* Warning/Yellow Dark, Colours/Warning/Yellow 100 */
+  --v3-warning-yellow-light: #ffe898; /* Warning/Yellow Light */
+  --v3-bg-green: #fafdf6; /* Bg/Green */
+  --v3-bg-yellow: #faf9f5; /* Bg/Yellow */
+  --v3-whatsapp: #25d366; /* Colours/WhatsApp/WhatsApp 3 */
+  --v3-extra-purple: #9270ca; /* Extra/Purple */
+
+  /* --- Semantic Tokens collection (the names V3 wants us on long term) ----- */
+  --v3-text-dimmed: #808975; /* text/dimmed */
+  --v3-text-gray-default: #8c8c8c; /* text/gray/default */
+  --v3-text-primary-dark: #34540d; /* text/primary/dark */
+  --v3-background-primary-filled: #6bac1b; /* background/primary/filled */
+  --v3-background-primary-light: #f1f7e9; /* background/primary/light */
+  --v3-border-primary-light: #e5f7cf; /* border/primary/light */
+  --v3-border-gray-default: #d9d9d9; /* border/gray/default */
+  --v3-gray-20: #f5f5f5; /* gray/20 */
+  --v3-gray-80: #434343; /* gray/80 */
+  --v3-radius-2xs: 4px; /* radius/2xs */
+  --v3-radius-xs: 8px; /* radius/xs */
+  --v3-padding-2xs: 4px; /* padding/2xs */
+  --v3-padding-xs: 8px; /* padding/xs */
+  --v3-padding-sm: 12px; /* padding/sm */
+  --v3-spacing-xs: 8px; /* spacing/xs */
+  /* Elevation/1dp */
+  --v3-elevation-1dp:
+    0 1px 3px 0 rgba(3, 3, 3, 0.2),
+    0 2px 2px 0 rgba(255, 255, 255, 0.12),
+    0 0 2px 0 rgba(250, 250, 250, 0.14);
+
+  /* --- Spacing (Numerics) ------------------------------------------------- */
+  --v3-space-0: 0px;
+  --v3-space-1: 1px;
+  --v3-space-4: 4px;
+  --v3-space-8: 8px;
+  --v3-space-12: 12px;
+  --v3-space-16: 16px;
+  --v3-space-32: 32px;
+
+  /* --- Typography --------------------------------------------------------- */
+  --v3-font-family: Lato; /* Font_family/Name */
+
+  /* Title/H2 — Bold 20/28 */
+  --v3-h2-size: 20px;
+  --v3-h2-line: 28px;
+  --v3-h2-weight: 700;
+
+  /* Title/H4 — Bold 16/24 */
+  --v3-h4-size: 16px;
+  --v3-h4-line: 24px;
+  --v3-h4-weight: 700;
+
+  /* H4_M — Medium 16/24 */
+  --v3-h4-m-weight: 500;
+
+  /* Title/H5 — Bold 14/22 */
+  --v3-h5-size: 14px;
+  --v3-h5-line: 22px;
+  --v3-h5-weight: 700;
+
+  /* H5_M — Medium 14/22 */
+  --v3-h5-m-weight: 500;
+
+  /* Title/H6 — Bold 12/20 */
+  --v3-h6-size: 12px;
+  --v3-h6-line: 20px;
+  --v3-h6-weight: 700;
+
+  /* H6_M — Medium 12/20 */
+  --v3-h6-m-weight: 500;
+
+  /* Body/B2 and Subtitle/S2 — Regular 14/22 */
+  --v3-body-b2-size: 14px;
+  --v3-body-b2-line: 22px;
+  --v3-body-b2-weight: 400;
+
+  /* Heading/h7 — Bold 12/16. Read from the Version History panel (4630:28023). */
+  --v3-h7-size: 12px;
+  --v3-h7-line: 16px;
+  --v3-h7-weight: 700;
+
+  /* Text SemiBold/xs — SemiBold 12/16. The Tag Pill's type. */
+  --v3-text-semibold-xs-size: 12px;
+  --v3-text-semibold-xs-line: 16px;
+  --v3-text-semibold-xs-weight: 600;
+
+  /* Letter_spacing/0 px — the system sets tracking to zero on every text style, as a bound
+     variable rather than by omission. Do not add tracking to V3 type. */
+  --v3-letter-spacing: 0;
+
+  /* Button/Small — Bold 12/20, uppercase at the call site */
+  --v3-button-small-size: 12px;
+  --v3-button-small-line: 20px;
+  --v3-button-small-weight: 700;
+
+  /* --- Radius ------------------------------------------------------------- */
+  --v3-radius-4: 4px;
+  --v3-radius-8: 8px;
+
+  /* --- Gradients ---------------------------------------------------------- */
+  /* Gradient/AI — Figma returns no value for gradient variables, so the stops are read off
+     the AI buttons in the Agentic Bot Prompt frames (2956:5817, 2956:5828). */
+  --v3-gradient-ai: linear-gradient(128deg, #67aa25 1.69%, #298b94 101.95%);
+  --v3-gradient-ai-start: #67aa25;
+}
+
+/**
+ * Migration complete, with one exception: `--lc-color-red-50` (#f9e2e2, the soft red
+ * background behind error chips and destructive buttons). V3 has no equivalent — its only red
+ * is Warning/Red Medium — so those eight usages still read from `tokens.css`.
+ *
+ * Note on the status palette: V3's values differ from the old ones, so this was a deliberate
+ * visual change signed off by Kishan, not a like-for-like swap:
+ *   error   #da1b21 / #e5484d -> #ff7e61   warning #c68610 / #e8a325 -> #f08700
+ *   info    #097ba3 -> #1b83ac             deep info #003b56 -> #125b78
+ *   green-200 #cdf0a2 -> #b6ea76           green-800 #34540d -> #508014
+ * Error text consequently sits at 2.50:1 on white, below the 4.5:1 WCAG AA needs for body
+ * text. If V3 later exposes a value for its `text/error/*` semantic tokens, that is the fix.
+ *
+ * The Inspector keeps generating `--lc-color-*` on purpose: it parses `tokens.css` to offer
+ * the old palette as swatches.
+ */

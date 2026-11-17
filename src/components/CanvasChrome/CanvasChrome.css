@@ -5,37 +5,37 @@
  * panel (left) and status bar (bottom-left).
  *
  * Tokens:
- *   pill      bg var(--lc-color-white) · radius/xs 8px · shadow 0 1px 1px #0000001A, 0 1px 1.5px #0000000D
- *   flow pill border border/primary/default var(--lc-color-green-500) · h 43 · px padding/xs 8 · py 6
- *             title  Heading/h5  14/18 bold  text/title  var(--lc-color-green-900)
- *             sub    Text/xxs    10/12.5     text/dimmed  var(--lc-color-sage-500)
- *   badge     bg background/primary/light-hover var(--lc-color-green-75) · border var(--lc-color-green-500) · radius/2xs 4
- *             Text Uppercase/xxs  10/12 semibold  text/primary/default var(--lc-color-green-500)
+ *   pill      bg var(--v3-white) · radius/xs 8px · shadow 0 1px 1px #0000001A, 0 1px 1.5px #0000000D
+ *   flow pill border border/primary/default var(--v3-green-primary) · h 43 · px padding/xs 8 · py 6
+ *             title  Heading/h5  14/18 bold  text/title  var(--v3-text-dark)
+ *             sub    Text/xxs    10/12.5     text/dimmed  var(--v3-text-light)
+ *   badge     bg background/primary/light-hover var(--v3-green-primary-000) · border var(--v3-green-primary) · radius/2xs 4
+ *             Text Uppercase/xxs  10/12 semibold  text/primary/default var(--v3-green-primary)
  *   actions   h 44 · pl padding/sm 12 · pr padding/xs 8
- *   saving    Text/sm 14/20  text/disabled var(--lc-color-gray-400) · loader 24
+ *   saving    Text/sm 14/20  text/disabled var(--v3-grey-500) · loader 24
  *   status    pill h 40 · p 8 · radius 5 · shadow 0 1px 3px #0303033... (elevation)
- *             zoom  Text/Medium 14/22  var(--lc-color-sage-500) · divider var(--lc-color-gray-150)
+ *             zoom  Text/Medium 14/22  var(--v3-text-light) · divider var(--v3-grey-300)
  *   toolbar   panel px padding/xs 8 · py 12 · gap padding/sm 12 · radius/xs 8
- *             divider gray/30 var(--lc-color-gray-150)
- *   icon btn  transparent → text/dimmed var(--lc-color-sage-500), hover bg var(--lc-color-stone-100) / text var(--lc-color-green-900)
- *             light       → bg var(--lc-color-green-75), text var(--lc-color-green-500)   (active tool)
- *             filled      → bg background/primary/filled var(--lc-color-green-500), text var(--lc-color-white)
+ *             divider gray/30 var(--v3-grey-300)
+ *   icon btn  transparent → text/dimmed var(--v3-text-light), hover bg var(--v3-grey-200) / text var(--v3-text-dark)
+ *             light       → bg var(--v3-green-primary-000), text var(--v3-green-primary)   (active tool)
+ *             filled      → bg background/primary/filled var(--v3-green-primary), text var(--v3-white)
  */
 .lc-canvas {
-  --lc-canvas-fg: var(--lc-color-green-900);
-  --lc-canvas-dimmed: var(--lc-color-sage-500);
-  --lc-canvas-accent: var(--lc-color-green-500);
-  --lc-canvas-accent-hover: var(--lc-color-green-700);
+  --lc-canvas-fg: var(--v3-text-dark);
+  --lc-canvas-dimmed: var(--v3-text-light);
+  --lc-canvas-accent: var(--v3-green-primary);
+  --lc-canvas-accent-hover: var(--v3-green-primary-600);
   /* design-system Button light/primary: background/primary/light + …/light-hover */
-  --lc-canvas-accent-light: var(--lc-color-green-50);
-  --lc-canvas-accent-light-hover: var(--lc-color-green-75);
+  --lc-canvas-accent-light: var(--v3-primary-extra-light);
+  --lc-canvas-accent-light-hover: var(--v3-green-primary-000);
   /* badge fill — background/primary/light-hover */
-  --lc-canvas-accent-soft: var(--lc-color-green-75);
-  --lc-canvas-hover-bg: var(--lc-color-stone-100);
+  --lc-canvas-accent-soft: var(--v3-green-primary-000);
+  --lc-canvas-hover-bg: var(--v3-grey-200);
   /* idle (unselected) icon-button glyph — a lighter grey than text/dimmed */
-  --lc-canvas-icon-idle: var(--lc-color-gray-500); /* #8c8c8c */
-  --lc-canvas-divider: var(--lc-color-gray-150);
-  --lc-canvas-disabled: var(--lc-color-gray-400);
+  --lc-canvas-icon-idle: var(--v3-grey-600); /* #8c8c8c */
+  --lc-canvas-divider: var(--v3-grey-300);
+  --lc-canvas-disabled: var(--v3-grey-500);
   --lc-canvas-pill-radius: 8px;
   --lc-canvas-pill-shadow: 0 1px 1px rgba(0, 0, 0, 0.1), 0 1px 1.5px rgba(0, 0, 0, 0.05);
   /* strong custom easings — built-ins are too weak for entrances */
@@ -119,7 +119,7 @@
   border: 2px solid transparent;
   border-radius: var(--lc-canvas-pill-radius);
   background:
-    linear-gradient(var(--lc-color-white), var(--lc-color-white)) padding-box,
+    linear-gradient(var(--v3-white), var(--v3-white)) padding-box,
     linear-gradient(
         45deg,
         var(--lc-canvas-flow-edge) 0%,
@@ -136,7 +136,7 @@
 }
 /* warm yellow tone — stroke follows the "Scheduled" badge (Broadcast) */
 .lc-canvas__flow[data-tone='warning'] {
-  --lc-canvas-flow-edge: var(--lc-color-amber-600);
+  --lc-canvas-flow-edge: var(--v3-warning-yellow-dark);
   --lc-canvas-flow-mid: #F2CF8C;
 }
 .lc-canvas__flow[data-tone='warning'][data-active='false'] {
@@ -183,7 +183,7 @@
   line-height: 12px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--lc-color-white);
+  color: var(--v3-white);
   /* soften the active ↔ inactive swap driven by the Flow-details switch */
   transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
 }
@@ -194,9 +194,9 @@
 }
 /* warm yellow tone (e.g. Broadcast "Scheduled") — design-system yellow/warning family */
 .lc-canvas__flow-badge[data-tone='warning'] {
-  border-color: var(--lc-color-amber-500);
+  border-color: var(--v3-warning-yellow-dark);
   background: #FAEFDB;
-  color: var(--lc-color-amber-600);
+  color: var(--v3-warning-yellow-dark);
 }
 
 /* --- Broadcast audience + schedule summary (Figma node 10863:6513) ---- */
@@ -207,7 +207,7 @@
   height: 48px;
   padding: 4px;
   border-radius: var(--lc-canvas-pill-radius);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: var(--lc-canvas-pill-shadow);
 }
 .lc-canvas__meta-divider {
@@ -251,7 +251,7 @@
   width: 30px;
   height: 30px;
   border-radius: var(--lc-canvas-pill-radius);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   color: var(--lc-canvas-fg);
 }
 .lc-canvas__meta-icon .lc-canvas__icon {
@@ -314,7 +314,7 @@
   left: 150px;
   width: 12px;
   height: 12px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.04);
   transform: translate(-50%, -50%) rotate(45deg);
 }
@@ -324,7 +324,7 @@
   gap: 12px;
   padding: 8px;
   border-radius: var(--lc-canvas-pill-radius);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
   white-space: normal;
 }
@@ -362,7 +362,7 @@
 .lc-canvas__segments-chip--excluded {
   /* red/secondary — matches design-system red (Button color="red") */
   background: var(--lc-color-red-50);
-  color: var(--lc-color-red-600);
+  color: var(--v3-warning-red-medium);
 }
 .lc-canvas__segments-row {
   display: flex;
@@ -387,7 +387,7 @@
 }
 .lc-canvas__segments-number[data-tone='excluded'] {
   background: var(--lc-color-red-50);
-  color: var(--lc-color-red-600);
+  color: var(--v3-warning-red-medium);
 }
 .lc-canvas__segments-name {
   display: -webkit-box;
@@ -424,7 +424,7 @@
   margin: 4px -10px 0;
   padding: 8px 10px;
   border-radius: 4px;
-  background: var(--lc-color-green-50);
+  background: var(--v3-primary-extra-light);
   font-size: 14px;
   font-weight: 700;
   line-height: 22px;
@@ -497,7 +497,7 @@
   flex-shrink: 0;
   width: 20px;
   height: 20px;
-  color: var(--lc-color-blue-900);
+  color: var(--v3-secondary-dark);
   margin-top: 2px;
 }
 .lc-canvas__segments-notice p {
@@ -507,7 +507,7 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 20px;
-  color: var(--lc-color-blue-900);
+  color: var(--v3-secondary-dark);
 }
 
 .lc-canvas__nav-right {
@@ -536,7 +536,7 @@
   height: 48px;
   padding: 2px 8px 2px 12px;
   border-radius: var(--lc-canvas-pill-radius);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: var(--lc-canvas-pill-shadow);
 }
 .lc-canvas__date-range {
@@ -616,7 +616,7 @@
   min-width: 168px;
   padding: 6px;
   border-radius: 8px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   /* design-system popover elevation — matches the account / product switchers */
   box-shadow:
     0 1px 1.5px rgba(0, 0, 0, 0.05),
@@ -734,7 +734,7 @@
   gap: 8px;
   padding: 8px;
   border-radius: var(--lc-canvas-pill-radius);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 .lc-canvas__toolbar-list {
   display: flex;
@@ -766,7 +766,7 @@
 .lc-canvas__pill,
 .lc-canvas__minimap {
   border-radius: 5px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow:
     0 1px 3px rgba(3, 3, 3, 0.2),
     0 2px 2px rgba(255, 255, 255, 0.12),
@@ -840,12 +840,12 @@
 .lc-canvas__minimap-paper {
   position: absolute;
   border-radius: 4px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 .lc-canvas__minimap-node {
   position: absolute;
   border-radius: 4px;
-  background: var(--lc-color-gray-300);
+  background: var(--v3-grey-400);
 }
 
 /* --- Canvas search bar (Figma node 125:18398) ------------------- */
@@ -865,7 +865,7 @@
   width: 240px;
   padding: 8px 12px;
   border-radius: 8px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow:
     0 7px 7px -5px rgba(0, 0, 0, 0.04),
     0 10px 15px -5px rgba(0, 0, 0, 0.1),
@@ -886,13 +886,13 @@
   align-items: center;
   gap: 8px;
   padding: 6px 12px 6px 0;
-  border-bottom: 1px solid var(--lc-color-gray-300);
+  border-bottom: 1px solid var(--v3-grey-400);
 }
 .lc-canvas__searchbar-field .lc-canvas__icon {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 .lc-canvas__searchbar input {
   flex: 1 1 0;
@@ -907,7 +907,7 @@
   outline: none;
 }
 .lc-canvas__searchbar input::placeholder {
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 .lc-canvas__searchbar input::-webkit-search-cancel-button {
   appearance: none;
@@ -931,7 +931,7 @@
               − zoom bar(40) − inset(12) − gap(12) */
   max-height: calc(100vh - 187px);
   border-radius: 8px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow:
     0 1px 1.5px rgba(0, 0, 0, 0.05),
     0 20px 12.5px rgba(0, 0, 0, 0.1),
@@ -966,14 +966,14 @@
   padding: 0 12px 0 34px;
   border: 1px solid var(--lc-canvas-divider);
   border-radius: 8px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   font-family: inherit;
   font-size: 13px;
   line-height: 20px;
   color: var(--lc-canvas-fg);
 }
 .lc-canvas__palette-search input::placeholder {
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 .lc-canvas__palette-search input:focus-visible {
   outline: none;
@@ -1212,7 +1212,7 @@
 .lc-canvas__icon-btn[data-variant='filled'] {
   border-radius: 8px;
   background: var(--lc-canvas-accent);
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 .lc-canvas__icon-btn[data-variant='filled']:hover {
   background: var(--lc-canvas-accent-hover);

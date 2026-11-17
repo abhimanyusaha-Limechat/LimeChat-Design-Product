@@ -12,9 +12,9 @@
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--v3-grey-400);
   border-radius: 8px;
-  background: var(--lc-color-stone-50);
+  background: var(--v3-input-default-body);
 }
 
 .lc-publish-confirm__section-header {
@@ -28,11 +28,11 @@
   align-items: center;
   padding: 2px 10px;
   border-radius: 999px;
-  background: var(--lc-color-gray-125);
+  background: var(--v3-grey-300);
   font-size: 11px;
   line-height: 16px;
   font-weight: 700;
-  color: var(--lc-color-sage-600);
+  color: var(--v3-grey-700);
   text-transform: uppercase;
   letter-spacing: 0.2px;
 }
@@ -49,13 +49,13 @@
   font-size: 12px;
   line-height: 16px;
   font-weight: 700;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
   cursor: pointer;
   transition: color 150ms ease;
 }
 
 .lc-publish-confirm__edit:hover {
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
   text-decoration: underline;
 }
 
@@ -75,7 +75,7 @@
   font-size: 16px;
   line-height: 20px;
   font-weight: 700;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 /* --- Rolling number (audience count) -------------------------------------- */
@@ -120,7 +120,7 @@
 .lc-publish-confirm__desc {
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 .lc-publish-confirm__segments {
@@ -174,7 +174,7 @@
 .lc-publish-confirm__segment-name {
   flex: 1;
   min-width: 0;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -183,7 +183,7 @@
 .lc-publish-confirm__segment-count {
   flex-shrink: 0;
   font-weight: 600;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-publish-confirm__note {

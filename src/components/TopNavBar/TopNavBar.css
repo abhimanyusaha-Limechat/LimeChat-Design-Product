@@ -3,25 +3,25 @@
  *
  * Design tokens mirror "LimeChat Design System — V3" (Figma node 8847:4018):
  *  - bar height ........ 56px
- *  - bar fill .......... background/default            var(--lc-color-white)
- *  - bottom border ..... border/gray/light            var(--lc-color-gray-300)
+ *  - bar fill .......... background/default            var(--v3-white)
+ *  - bottom border ..... border/gray/light            var(--v3-grey-400)
  *  - control radius .... radius/2xs                    4px
- *  - crumb text ........ text/dimmed var(--lc-color-sage-500) / current text/default var(--lc-color-green-900)
- *  - company avatar .... ~green/green-2 var(--lc-color-green-200) · ~green/green-6-anchor var(--lc-color-green-500)
+ *  - crumb text ........ text/dimmed var(--v3-text-light) / current text/default var(--v3-text-dark)
+ *  - company avatar .... ~green/green-2 var(--v3-green-primary-200) · ~green/green-6-anchor var(--v3-green-primary)
  *  - shadow ............ 0 1px 1px rgba(0,0,0,.05)
  */
 .lc-topnav {
   --lc-topnav-height: 56px;
-  --lc-topnav-bg: var(--lc-color-white);
-  --lc-topnav-border: var(--lc-color-gray-300);
+  --lc-topnav-bg: var(--v3-white);
+  --lc-topnav-border: var(--v3-grey-400);
   --lc-topnav-radius: 4px;
-  --lc-topnav-fg: var(--lc-color-green-900);
-  --lc-topnav-fg-dimmed: var(--lc-color-sage-500);
+  --lc-topnav-fg: var(--v3-text-dark);
+  --lc-topnav-fg-dimmed: var(--v3-text-light);
   --lc-topnav-fg-muted: #595959;
-  --lc-topnav-separator: var(--lc-color-gray-400);
-  --lc-topnav-avatar-bg: var(--lc-color-green-200);
-  --lc-topnav-avatar-fg: var(--lc-color-green-500);
-  --lc-topnav-hover-bg: var(--lc-color-stone-100);
+  --lc-topnav-separator: var(--v3-grey-500);
+  --lc-topnav-avatar-bg: var(--v3-green-primary-200);
+  --lc-topnav-avatar-fg: var(--v3-green-primary);
+  --lc-topnav-hover-bg: var(--v3-grey-200);
   /* Account chip hover — one notch up the grey palette from the shared hover fill. */
   --lc-topnav-account-hover-bg: #E3E5E1;
   --lc-topnav-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
@@ -178,7 +178,7 @@ button.lc-topnav__crumb-link--copyable:hover {
 }
 .lc-topnav__crumb-link--copied,
 .lc-topnav__crumb-link--copied:hover {
-  color: var(--lc-topnav-avatar-fg); /* primary green var(--lc-color-green-500) */
+  color: var(--lc-topnav-avatar-fg); /* primary green var(--v3-green-primary) */
 }
 
 .lc-topnav__separator {
@@ -332,8 +332,8 @@ button.lc-topnav__crumb-link--copyable:hover {
 
 /* The shared <Avatar>, tinted to the account chip's green-2 chip look. */
 .lc-topnav__account-avatar {
-  --lc-avatar-light-bg: var(--lc-topnav-avatar-bg); /* var(--lc-color-green-200) */
-  --lc-avatar-fg-accent: var(--lc-topnav-avatar-fg); /* var(--lc-color-green-500) */
+  --lc-avatar-light-bg: var(--lc-topnav-avatar-bg); /* var(--v3-green-primary-200) */
+  --lc-avatar-fg-accent: var(--lc-topnav-avatar-fg); /* var(--v3-green-primary) */
   --lc-avatar-image-fallback: var(--lc-topnav-avatar-bg);
 }
 .lc-topnav__account-avatar .lc-avatar__initials {

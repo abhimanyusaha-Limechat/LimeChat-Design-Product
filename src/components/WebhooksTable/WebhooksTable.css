@@ -9,9 +9,9 @@
 }
 
 .lc-wh__status[data-status='active'] {
-  color: var(--lc-color-green-500);
+  color: var(--v3-green-primary);
 }
 
 .lc-wh__status[data-status='failing'] {
-  color: var(--lc-color-red-500);
+  color: var(--v3-warning-red-medium);
 }

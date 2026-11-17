@@ -7,12 +7,12 @@
  */
 
 .lc-attr {
-  --lc-attr-border: var(--lc-color-gray-300);
-  --lc-attr-divider: var(--lc-color-gray-200);
-  --lc-attr-text-title: var(--lc-color-green-900);
-  --lc-attr-text-dimmed: var(--lc-color-sage-500);
-  --lc-attr-primary: var(--lc-color-green-700);
-  --lc-attr-bg-subtle: var(--lc-color-stone-50);
+  --lc-attr-border: var(--v3-grey-400);
+  --lc-attr-divider: var(--v3-grey-300);
+  --lc-attr-text-title: var(--v3-text-dark);
+  --lc-attr-text-dimmed: var(--v3-text-light);
+  --lc-attr-primary: var(--v3-green-primary-600);
+  --lc-attr-bg-subtle: var(--v3-input-default-body);
   --lc-attr-radius: 12px;
   --lc-attr-radius-sm: 6px;
   --lc-attr-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -78,7 +78,7 @@
   flex-direction: column;
   border: 1px solid var(--lc-attr-divider);
   border-radius: var(--lc-attr-radius);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   overflow: hidden;
   transition: opacity 220ms var(--lc-attr-ease-out), transform 220ms var(--lc-attr-ease-out);
 
@@ -109,7 +109,7 @@
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: var(--lc-color-gray-300);
+  background: var(--v3-grey-400);
   cursor: pointer;
   transition: background-color 150ms ease;
 }
@@ -125,7 +125,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   transition: transform 150ms ease;
 }
@@ -193,7 +193,7 @@
   padding: 0 12px;
   border: 1px solid var(--lc-attr-border);
   border-radius: var(--lc-attr-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;

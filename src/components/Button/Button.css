@@ -15,7 +15,7 @@
  *   soft  = background/<c>/light  · soft-hover  = …/light-hover
  *   text  = text/<c>/default      · border      = border/<c>/default
  *
- * Disabled uses background/disabled/default var(--lc-color-gray-150) + text/disabled/default var(--lc-color-gray-400)
+ * Disabled uses background/disabled/default var(--v3-grey-300) + text/disabled/default var(--v3-grey-500)
  * (Figma defines it for the Filled variant; generalised to every variant here).
  */
 .lc-btn {
@@ -91,12 +91,12 @@
 
 /* --- Colour tokens ------------------------------------------------- */
 .lc-btn[data-color='primary'] {
-  --c-solid: var(--lc-color-green-500);
-  --c-solid-hover: var(--lc-color-green-700);
-  --c-soft: var(--lc-color-green-50);
-  --c-soft-hover: var(--lc-color-green-75);
-  --c-text: var(--lc-color-green-500);
-  --c-border: var(--lc-color-green-500);
+  --c-solid: var(--v3-green-primary);
+  --c-solid-hover: var(--v3-green-primary-600);
+  --c-soft: var(--v3-primary-extra-light);
+  --c-soft-hover: var(--v3-green-primary-000);
+  --c-text: var(--v3-green-primary);
+  --c-border: var(--v3-green-primary);
 }
 .lc-btn[data-color='green'] {
   --c-solid: #16A34A;
@@ -107,34 +107,34 @@
   --c-border: #16A34A;
 }
 .lc-btn[data-color='gray'] {
-  --c-solid: var(--lc-color-gray-400);
-  --c-solid-hover: var(--lc-color-gray-500);
-  --c-soft: var(--lc-color-gray-100);
+  --c-solid: var(--v3-grey-500);
+  --c-solid-hover: var(--v3-grey-600);
+  --c-soft: var(--v3-grey-200);
   --c-soft-hover: #F0F0F0;
-  --c-text: var(--lc-color-gray-500);
-  --c-border: var(--lc-color-gray-300);
+  --c-text: var(--v3-grey-600);
+  --c-border: var(--v3-grey-400);
 }
 .lc-btn[data-color='red'] {
-  --c-solid: var(--lc-color-red-500);
-  --c-solid-hover: var(--lc-color-red-600);
+  --c-solid: var(--v3-warning-red-medium);
+  --c-solid-hover: var(--v3-warning-red-medium);
   --c-soft: var(--lc-color-red-50);
   --c-soft-hover: #F9E2E2;
-  --c-text: var(--lc-color-red-600);
-  --c-border: var(--lc-color-red-500);
+  --c-text: var(--v3-warning-red-medium);
+  --c-border: var(--v3-warning-red-medium);
 }
 .lc-btn[data-color='yellow'] {
-  --c-solid: var(--lc-color-amber-500);
-  --c-solid-hover: var(--lc-color-amber-600);
+  --c-solid: var(--v3-warning-yellow-dark);
+  --c-solid-hover: var(--v3-warning-yellow-dark);
   --c-soft: #FCF9F3;
   --c-soft-hover: #FAEFDB;
-  --c-text: var(--lc-color-amber-600);
-  --c-border: var(--lc-color-amber-500);
+  --c-text: var(--v3-warning-yellow-dark);
+  --c-border: var(--v3-warning-yellow-dark);
 }
 
 /* --- Variants ---------------------------------------------------- */
 .lc-btn[data-variant='filled'] {
   background: var(--c-solid);
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 .lc-btn[data-variant='light'] {
   background: var(--c-soft);
@@ -150,14 +150,14 @@
   color: var(--c-text);
 }
 .lc-btn[data-variant='white'] {
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   color: var(--c-text);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .lc-btn[data-variant='default'] {
-  background: var(--lc-color-white);
-  color: var(--lc-color-green-900);
-  border-color: var(--lc-color-gray-300);
+  background: var(--v3-white);
+  color: var(--v3-text-dark);
+  border-color: var(--v3-grey-400);
 }
 
 /* hover — only when interactive */
@@ -173,7 +173,7 @@
 }
 .lc-btn[data-variant='white']:not(:disabled):not([data-disabled]):not([data-loading]):hover,
 .lc-btn[data-variant='default']:not(:disabled):not([data-disabled]):not([data-loading]):hover {
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
 }
 
 /* --- Disabled --------------------------------------------------- */
@@ -184,15 +184,15 @@
 }
 .lc-btn:disabled,
 .lc-btn[data-disabled] {
-  background: var(--lc-color-gray-150);
-  color: var(--lc-color-gray-400);
-  border-color: var(--lc-color-gray-150);
+  background: var(--v3-grey-300);
+  color: var(--v3-grey-500);
+  border-color: var(--v3-grey-300);
   box-shadow: none;
 }
 
 /* --- Focus ---------------------------------------------------- */
 .lc-btn:focus-visible {
-  outline: 2px solid var(--c-border, var(--lc-color-green-500));
+  outline: 2px solid var(--c-border, var(--v3-green-primary));
   outline-offset: 2px;
 }
 
@@ -227,7 +227,7 @@
   border: 2px solid currentColor;
   border-right-color: transparent;
   border-radius: 50%;
-  color: var(--lc-color-gray-400);
+  color: var(--v3-grey-500);
   animation: lc-btn-spin 0.6s linear infinite;
 }
 

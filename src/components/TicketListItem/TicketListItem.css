@@ -2,17 +2,17 @@
  * TicketListItem — LimeChat design system (Figma node 8977:4521 "tickets",
  * Default / Hover / Selected property states).
  *
- * Text/sm 14/20 (dimmed var(--lc-color-sage-500)) · Text/xs 12/16 · heading/h5 14/18 bold
- * (text/default var(--lc-color-green-900)) · Text Uppercase/xxs 10/12 SemiBold (badges)
+ * Text/sm 14/20 (dimmed var(--v3-text-light)) · Text/xs 12/16 · heading/h5 14/18 bold
+ * (text/default var(--v3-text-dark)) · Text Uppercase/xxs 10/12 SemiBold (badges)
  */
 .lc-ticket-row {
-  --lc-tr-title: var(--lc-color-green-900);
-  --lc-tr-dimmed: var(--lc-color-sage-500);
+  --lc-tr-title: var(--v3-text-dark);
+  --lc-tr-dimmed: var(--v3-text-light);
   --lc-tr-border: #F5F5F5;
-  --lc-tr-border-hover: var(--lc-color-gray-300);
-  --lc-tr-primary: var(--lc-color-green-500);
-  --lc-tr-primary-light: var(--lc-color-green-50);
-  --lc-tr-secondary: var(--lc-color-blue-600);
+  --lc-tr-border-hover: var(--v3-grey-400);
+  --lc-tr-primary: var(--v3-green-primary);
+  --lc-tr-primary-light: var(--v3-primary-extra-light);
+  --lc-tr-secondary: var(--v3-blue-dark);
   --lc-tr-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   position: relative;
@@ -22,7 +22,7 @@
   width: 100%;
   box-sizing: border-box;
   padding: 10px 12px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   border-bottom: 1px solid var(--lc-tr-border);
   font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   cursor: pointer;
@@ -104,20 +104,20 @@
   width: 16px;
   height: 16px;
   border-radius: 4px;
-  border: 1px solid var(--lc-color-gray-300);
-  background: var(--lc-color-white);
+  border: 1px solid var(--v3-grey-400);
+  background: var(--v3-white);
   cursor: pointer;
 }
 
 .lc-ticket-row__checkbox[data-checked='true'] {
-  background: var(--lc-tr-primary, var(--lc-color-green-500));
-  border-color: var(--lc-tr-primary, var(--lc-color-green-500));
+  background: var(--lc-tr-primary, var(--v3-green-primary));
+  border-color: var(--lc-tr-primary, var(--v3-green-primary));
 }
 
 .lc-ticket-row__checkbox-icon {
   width: 12px;
   height: 12px;
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 
 /* --- Body layout -------------------------------------------------------- */
@@ -151,7 +151,7 @@
   display: inline-flex;
   width: 20px;
   height: 20px;
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 .lc-ticket-row__channel-icon svg {
   width: 100%;
@@ -192,7 +192,7 @@
   justify-content: center;
   border-radius: 100px;
   background: var(--lc-tr-primary);
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 
 /* --- Meta: timestamp / more-actions -------------------------------------- */

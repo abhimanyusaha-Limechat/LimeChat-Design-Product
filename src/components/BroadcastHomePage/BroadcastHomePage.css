@@ -6,21 +6,21 @@
  */
 
 .lc-bh {
-  --lc-bh-border: var(--lc-color-gray-300);
-  --lc-bh-text-title: var(--lc-color-green-900);
-  --lc-bh-text-dimmed: var(--lc-color-sage-500);
-  --lc-bh-secondary-dark: var(--lc-color-stone-600);
-  --lc-bh-text-light: var(--lc-color-sage-500);
-  --lc-bh-text-placeholder: var(--lc-color-gray-500);
-  --lc-bh-primary: var(--lc-color-green-500);
-  --lc-bh-primary-dark: var(--lc-color-green-800);
-  --lc-bh-green-2: var(--lc-color-green-200);
-  --lc-bh-retry-bg: var(--lc-color-green-50);
+  --lc-bh-border: var(--v3-grey-400);
+  --lc-bh-text-title: var(--v3-text-dark);
+  --lc-bh-text-dimmed: var(--v3-text-light);
+  --lc-bh-secondary-dark: var(--v3-grey-700);
+  --lc-bh-text-light: var(--v3-text-light);
+  --lc-bh-text-placeholder: var(--v3-grey-600);
+  --lc-bh-primary: var(--v3-green-primary);
+  --lc-bh-primary-dark: var(--v3-green-primary-600);
+  --lc-bh-green-2: var(--v3-green-primary-200);
+  --lc-bh-retry-bg: var(--v3-primary-extra-light);
   --lc-bh-retry-text: #6BAC1B;
-  --lc-bh-secondary-light-bg: var(--lc-color-gray-125);
-  --lc-bh-secondary-light-text: var(--lc-color-sage-600);
+  --lc-bh-secondary-light-bg: var(--v3-grey-300);
+  --lc-bh-secondary-light-text: var(--v3-grey-700);
   --lc-bh-warning: #E8A325;
-  --lc-bh-bg: var(--lc-color-stone-25);
+  --lc-bh-bg: var(--v3-bg-yellow);
   --lc-bh-radius: 4px;
   --lc-bh-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;

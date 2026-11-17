@@ -73,7 +73,7 @@
 }
 
 .lc-ad__icon-btn:hover {
-  background: var(--lc-color-stone-100);
+  background: var(--v3-grey-200);
   color: var(--lc-sp-text-title);
 }
 
@@ -118,7 +118,7 @@
   padding: 6px 10px;
   border: 1px solid var(--lc-sp-border);
   border-radius: 6px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -150,7 +150,7 @@
   padding: 0 12px;
   border: 1px solid var(--lc-sp-primary);
   border-radius: var(--lc-sp-radius-2xs);
-  background: var(--lc-color-green-50);
+  background: var(--v3-primary-extra-light);
   color: var(--lc-sp-primary);
   font-family: inherit;
   font-size: 14px;
@@ -158,7 +158,7 @@
 }
 
 .lc-ad__chip--add {
-  border: 1px dashed var(--lc-color-gray-400);
+  border: 1px dashed var(--v3-grey-500);
   background: transparent;
   color: var(--lc-sp-text-dimmed);
   cursor: pointer;

@@ -11,13 +11,13 @@
   /* Tints that have no shared token yet — all from the design system's
      product-card scale, kept local to this block. */
   --lc-pcard-tint: #f1f7e9;        /* background/primary/light */
-  --lc-pcard-tint-text: var(--lc-color-green-800);
-  --lc-pcard-filled: var(--lc-color-green-500);
-  --lc-pcard-image: var(--lc-color-gray-100);
+  --lc-pcard-tint-text: var(--v3-green-primary-600);
+  --lc-pcard-filled: var(--v3-green-primary);
+  --lc-pcard-image: var(--v3-grey-200);
   --lc-pcard-thumb: #f3f4f3;       /* background/gray/light */
   --lc-pcard-scrim: #1f1f1f;       /* gray/100 */
-  --lc-pcard-title: var(--lc-color-green-900);
-  --lc-pcard-dimmed: var(--lc-color-sage-500);
+  --lc-pcard-title: var(--v3-text-dark);
+  --lc-pcard-dimmed: var(--v3-text-light);
   --lc-pcard-float-shadow: 0 2px 1.5px rgba(0, 0, 0, 0.14);
 
   position: relative;
@@ -26,7 +26,7 @@
   align-items: flex-start;
   overflow: clip;
   border-radius: 16px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
 }
 
@@ -83,7 +83,7 @@
   align-items: center;
   padding: 4px 8px;
   border-radius: 8px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   filter: drop-shadow(var(--lc-pcard-float-shadow));
   font-size: 12px;
   line-height: 14px;
@@ -110,7 +110,7 @@
   width: 28px;
   height: 28px;
   border-radius: 32px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   filter: drop-shadow(var(--lc-pcard-float-shadow));
 }
 
@@ -163,7 +163,7 @@
   height: 6px;
   flex-shrink: 0;
   border-radius: 32px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 
 .lc-pcard__dot--active { width: 16px; }
@@ -239,7 +239,7 @@
 }
 
 .lc-pcard__title--lg { font-size: 20px; line-height: 24px; width: 100%; }
-.lc-pcard__title--on-image { color: var(--lc-color-white); width: 100%; }
+.lc-pcard__title--on-image { color: var(--v3-white); width: 100%; }
 
 .lc-pcard__desc {
   margin: 0;
@@ -275,8 +275,8 @@
   color: var(--lc-pcard-dimmed);
 }
 
-.lc-pcard__scrim .lc-pcard__rating-value { color: var(--lc-color-white); }
-.lc-pcard__scrim .lc-pcard__rating-count { color: var(--lc-color-white); opacity: 0.8; }
+.lc-pcard__scrim .lc-pcard__rating-value { color: var(--v3-white); }
+.lc-pcard__scrim .lc-pcard__rating-count { color: var(--v3-white); opacity: 0.8; }
 
 /* --- Price -------------------------------------------------------------- */
 
@@ -303,8 +303,8 @@
   white-space: nowrap;
 }
 
-.lc-pcard__scrim .lc-pcard__price { color: var(--lc-color-white); }
-.lc-pcard__scrim .lc-pcard__mrp { color: var(--lc-color-white); opacity: 0.7; }
+.lc-pcard__scrim .lc-pcard__price { color: var(--v3-white); }
+.lc-pcard__scrim .lc-pcard__mrp { color: var(--v3-white); opacity: 0.7; }
 
 /* --- Tag pills ---------------------------------------------------------- */
 
@@ -349,7 +349,7 @@
 /* On the scrim the pill becomes a 20% white wash with white text. */
 .lc-pcard__tag[data-on-image] {
   background: rgba(255, 255, 255, 0.2);
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 
 /* --- Editorial thumbnails ----------------------------------------------- */
@@ -393,14 +393,14 @@
   font-size: 14px;
   line-height: 18px;
   font-weight: 700;
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 
 .lc-pcard__divider {
   width: 100%;
   height: 1px;
   flex-shrink: 0;
-  background: var(--lc-color-gray-200);
+  background: var(--v3-grey-300);
 }
 
 /* --- Buttons ------------------------------------------------------------ */
@@ -435,7 +435,7 @@
 
 .lc-pcard__button[data-variant='filled'] {
   background: var(--lc-pcard-filled);
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 
 .lc-pcard__button[data-variant='outline'] {

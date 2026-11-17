@@ -5,6 +5,7 @@ import { App } from './App';
 import { AuthGate } from './AuthGate';
 import { Inspector } from './components/Inspector';
 import './tokens.css';
+import './tokens-v3.css';
 import './fonts.css';
 
 createRoot(document.getElementById('root')!).render(

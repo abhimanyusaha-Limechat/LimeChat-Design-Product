@@ -4,7 +4,7 @@
  *
  * Bubble radius/sm: 12px · nested card radius: 8px · avatar/image radius: 4px
  * Balloon drop shadow: 0px 1px 1px rgba(0,0,0,.1), 0px 1px 1.5px rgba(0,0,0,.05)
- * Text/sm 14/20 (title var(--lc-color-green-900)) · Text/xxs 10/12.5 (dimmed var(--lc-color-sage-500))
+ * Text/sm 14/20 (title var(--v3-text-dark)) · Text/xxs 10/12.5 (dimmed var(--v3-text-light))
  */
 .lc-message-bubble {
   --lc-bubble-radius: 12px;
@@ -12,16 +12,16 @@
   --lc-bubble-radius-2xs: 4px;
   --lc-bubble-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1), 0px 1px 1.5px rgba(0, 0, 0, 0.05);
 
-  --lc-bubble-agent-bg: var(--lc-color-green-100);
-  --lc-bubble-agent-card-bg: var(--lc-color-green-200);
-  --lc-bubble-customer-bg: var(--lc-color-white);
+  --lc-bubble-agent-bg: var(--v3-green-primary-000);
+  --lc-bubble-agent-card-bg: var(--v3-green-primary-200);
+  --lc-bubble-customer-bg: var(--v3-white);
   --lc-bubble-customer-card-bg: #F3FAFD;
   --lc-bubble-note-bg: #FAEFDB;
   --lc-bubble-blocked-bg: #FCF3F3;
-  --lc-bubble-blocked-banner-text: var(--lc-color-red-600);
+  --lc-bubble-blocked-banner-text: var(--v3-warning-red-medium);
 
-  --lc-text-title: var(--lc-color-green-900);
-  --lc-text-dimmed: var(--lc-color-sage-500);
+  --lc-text-title: var(--v3-text-dark);
+  --lc-text-dimmed: var(--v3-text-light);
   --lc-text-gray-4: #A8ACA6;
   --lc-text-secondary-alpha: rgba(0, 0, 0, 0.5);
 
@@ -85,8 +85,8 @@
 .lc-message-bubble__date-divider span {
   padding: 4px 12px;
   border-radius: 100px;
-  background: var(--lc-color-white);
-  color: var(--lc-text-dimmed, var(--lc-color-sage-500));
+  background: var(--v3-white);
+  color: var(--lc-text-dimmed, var(--v3-text-light));
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;
@@ -545,7 +545,7 @@
   gap: 7px;
   padding: 3px 8px 2.5px 9px;
   border-radius: 13px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   border: 1px solid #F5F5F5;
   box-shadow: 0px 0.66px 0px rgba(0, 0, 0, 0.06);
   font-family: inherit;
@@ -580,9 +580,9 @@ button.lc-message-bubble__reaction:hover {
   width: 22px;
   height: 22px;
   padding: 0;
-  border: 1px solid var(--lc-color-gray-200);
+  border: 1px solid var(--v3-grey-300);
   border-radius: 999px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   color: var(--lc-text-dimmed);
   cursor: pointer;
   opacity: 0;
@@ -601,7 +601,7 @@ button.lc-message-bubble__reaction:hover {
 }
 .lc-message-bubble__react-trigger:hover {
   color: var(--lc-text-title);
-  background: var(--lc-color-gray-100);
+  background: var(--v3-grey-200);
 }
 .lc-message-bubble__react-trigger svg {
   width: 14px;
@@ -619,9 +619,9 @@ button.lc-message-bubble__reaction:hover {
   right: 4px;
   width: 22px;
   height: 22px;
-  border: 1px solid var(--lc-color-gray-200);
+  border: 1px solid var(--v3-grey-300);
   border-radius: 999px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   color: var(--lc-text-dimmed);
   opacity: 0;
   pointer-events: none;
@@ -635,7 +635,7 @@ button.lc-message-bubble__reaction:hover {
 }
 .lc-menu__trigger.lc-message-bubble__menu-trigger:hover {
   color: var(--lc-text-title);
-  background: var(--lc-color-gray-100);
+  background: var(--v3-grey-200);
 }
 .lc-menu__trigger.lc-message-bubble__menu-trigger svg {
   width: 14px;
@@ -682,12 +682,12 @@ button.lc-message-bubble__reaction:hover {
   transform: scale(1.1);
 }
 .lc-message-bubble__reaction-option[data-active] {
-  background: color-mix(in srgb, var(--lc-color-green-700) 10%, white);
+  background: color-mix(in srgb, var(--v3-green-primary-600) 10%, white);
 }
 .lc-message-bubble__reaction-option--remove {
   margin-left: 4px;
   padding-left: 4px;
-  border-left: 1px solid var(--lc-color-gray-200);
+  border-left: 1px solid var(--v3-grey-300);
   border-radius: 0 999px 999px 0;
   color: var(--lc-text-dimmed);
 }
@@ -697,6 +697,6 @@ button.lc-message-bubble__reaction:hover {
 }
 .lc-message-bubble__reaction-option--remove:hover {
   background: #FCF3F3;
-  color: var(--lc-color-red-700);
+  color: var(--v3-warning-red-medium);
   transform: none;
 }

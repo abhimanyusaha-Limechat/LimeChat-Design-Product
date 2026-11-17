@@ -3,13 +3,13 @@
  * TicketDetailsPanel "Products" tab (a ~320-420px resizable sidebar column).
  */
 .lc-pp {
-  --lc-pp-title: var(--lc-color-green-900);
-  --lc-pp-dimmed: var(--lc-color-sage-500);
-  --lc-pp-primary: var(--lc-color-green-500);
-  --lc-pp-primary-light: var(--lc-color-green-50);
-  --lc-pp-border: var(--lc-color-gray-200);
+  --lc-pp-title: var(--v3-text-dark);
+  --lc-pp-dimmed: var(--v3-text-light);
+  --lc-pp-primary: var(--v3-green-primary);
+  --lc-pp-primary-light: var(--v3-primary-extra-light);
+  --lc-pp-border: var(--v3-grey-300);
   --lc-pp-warning: #C68610;
-  --lc-pp-danger: var(--lc-color-red-700);
+  --lc-pp-danger: var(--v3-warning-red-medium);
 
   display: flex;
   flex-direction: column;
@@ -95,7 +95,7 @@
   padding: 0 28px 0 28px;
   border: 1px solid var(--lc-pp-border);
   border-radius: 6px;
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
   font-family: inherit;
   font-size: 13px;
   color: var(--lc-pp-title);
@@ -103,7 +103,7 @@
 .lc-pp__search-input:focus {
   outline: none;
   border-color: var(--lc-pp-primary);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 .lc-pp__search-placeholder {
   position: absolute;
@@ -150,7 +150,7 @@
   cursor: pointer;
 }
 .lc-pp__search-clear:hover {
-  background: var(--lc-color-gray-200);
+  background: var(--v3-grey-300);
   color: var(--lc-pp-title);
 }
 .lc-pp__search-clear svg {
@@ -168,12 +168,12 @@
   padding: 0;
   border: 1px solid var(--lc-pp-border);
   border-radius: 6px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   color: var(--lc-pp-dimmed);
   cursor: pointer;
 }
 .lc-pp__toolbar-btn:hover {
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
   color: var(--lc-pp-title);
 }
 .lc-pp__toolbar-btn[data-active='true'] {
@@ -199,7 +199,7 @@
 .lc-pp__list,
 .lc-pp__detail {
   scrollbar-width: thin;
-  scrollbar-color: var(--lc-color-gray-250) transparent;
+  scrollbar-color: var(--v3-grey-400) transparent;
 }
 .lc-pp__list::-webkit-scrollbar,
 .lc-pp__detail::-webkit-scrollbar {
@@ -211,7 +211,7 @@
 }
 .lc-pp__list::-webkit-scrollbar-thumb,
 .lc-pp__detail::-webkit-scrollbar-thumb {
-  background: var(--lc-color-gray-250);
+  background: var(--v3-grey-400);
   border-radius: 999px;
 }
 .lc-pp__list::-webkit-scrollbar-thumb:hover,
@@ -243,7 +243,7 @@
   animation: lc-pp-row-in 200ms ease both;
 }
 .lc-pp__row:hover {
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
 }
 .lc-pp__row:active {
   transform: scale(0.99);
@@ -284,11 +284,11 @@
 .lc-pp__row-share {
   border: 1px solid var(--lc-pp-primary);
   background: var(--lc-pp-primary);
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 .lc-pp__row-share:hover {
-  background: var(--lc-color-green-700);
-  border-color: var(--lc-color-green-700);
+  background: var(--v3-green-primary-600);
+  border-color: var(--v3-green-primary-600);
 }
 .lc-pp__row[data-availability='out_of_stock'] .lc-thumb,
 .lc-pp__row[data-availability='discontinued'] .lc-thumb {
@@ -386,7 +386,7 @@
   display: inline-flex;
   padding: 1px 6px;
   border-radius: 2px;
-  background: var(--lc-color-gray-100);
+  background: var(--v3-grey-200);
   color: var(--lc-pp-dimmed);
   font-size: 10px;
   font-weight: 700;
@@ -433,7 +433,7 @@
 }
 .lc-pp__status[data-status='discontinued'] {
   color: var(--lc-pp-dimmed);
-  background: var(--lc-color-gray-150);
+  background: var(--v3-grey-300);
 }
 
 /* --- Skeleton ------------------------------------------------------- */
@@ -446,7 +446,7 @@
 }
 .lc-pp__skel {
   border-radius: 4px;
-  background: var(--lc-color-gray-200);
+  background: var(--v3-grey-300);
   animation: lc-pp-pulse 1.4s ease-in-out infinite;
 }
 .lc-pp__skel-thumb {
@@ -525,7 +525,7 @@
   width: 100%;
   padding: 12px 16px;
   border: none;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   color: var(--lc-pp-dimmed);
   font-family: inherit;
   font-size: 12px;
@@ -594,7 +594,7 @@
   padding: 0;
   border: 1px solid var(--lc-pp-border);
   border-radius: 6px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   color: var(--lc-pp-dimmed);
   cursor: pointer;
   transition: background-color 120ms ease, color 120ms ease;
@@ -645,7 +645,7 @@
   margin: 0;
   font-size: 13px;
   line-height: 19px;
-  color: var(--lc-color-stone-600);
+  color: var(--v3-grey-700);
 }
 .lc-pp__detail-desc--clamped {
   display: -webkit-box;
@@ -658,7 +658,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: var(--lc-color-blue-600);
+  color: var(--v3-blue-dark);
   font-family: inherit;
   font-size: 12px;
   font-weight: 400;
@@ -705,7 +705,7 @@
   padding: 2px 6px;
   border: none;
   border-radius: 4px;
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
   font-family: inherit;
   font-weight: 600;
   color: var(--lc-pp-dimmed);
@@ -818,7 +818,7 @@
   flex-shrink: 0;
   border: 1.5px solid var(--lc-pp-border);
   border-radius: 4px;
-  background: var(--lc-color-white);
+  background: var(--v3-white);
   cursor: pointer;
 }
 .lc-pp-filter__checkbox:checked {
@@ -832,7 +832,7 @@
   top: 1px;
   width: 5px;
   height: 9px;
-  border: solid var(--lc-color-white);
+  border: solid var(--v3-white);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
@@ -853,12 +853,12 @@
   min-width: 0;
   border: 1px solid var(--lc-pp-border);
   border-radius: 6px;
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
   transition: border-color 120ms ease, background-color 120ms ease;
 }
 .lc-pp-filter__price-field:focus-within {
   border-color: var(--lc-pp-primary);
-  background: var(--lc-color-white);
+  background: var(--v3-white);
 }
 .lc-pp-filter__price-prefix {
   padding-left: 8px;

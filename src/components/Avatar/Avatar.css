@@ -7,10 +7,10 @@
  * Initials font (bold Lato): xs 10/12 (SemiBold, uppercase) · sm 12/16 · md 16/20 · lg 32/40 · xl 40/48
  * Radius:  xs → radius/2xs 4px   ·   xl → circle
  * Variants (colour family: primary):
- *   light   → bg background/primary/light var(--lc-color-green-50) · fg text/primary/default var(--lc-color-green-500)
- *   filled  → bg background/primary/filled var(--lc-color-green-500) · fg neutral/white var(--lc-color-white)
- *   outline → transparent · 1px border/primary/default var(--lc-color-green-500) · fg var(--lc-color-green-500)
- *   image   → fg over a text/dimmed var(--lc-color-sage-500) fallback fill
+ *   light   → bg background/primary/light var(--v3-primary-extra-light) · fg text/primary/default var(--v3-green-primary)
+ *   filled  → bg background/primary/filled var(--v3-green-primary) · fg neutral/white var(--v3-white)
+ *   outline → transparent · 1px border/primary/default var(--v3-green-primary) · fg var(--v3-green-primary)
+ *   image   → fg over a text/dimmed var(--v3-text-light) fallback fill
  */
 .lc-avatar {
   --lc-avatar-size: 36px;
@@ -21,12 +21,12 @@
   --lc-avatar-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
 
-  --lc-avatar-light-bg: var(--lc-color-green-50);
-  --lc-avatar-filled-bg: var(--lc-color-green-500);
-  --lc-avatar-outline-border: var(--lc-color-green-500);
-  --lc-avatar-fg-on-color: var(--lc-color-white);
-  --lc-avatar-fg-accent: var(--lc-color-green-500);
-  --lc-avatar-image-fallback: var(--lc-color-sage-500);
+  --lc-avatar-light-bg: var(--v3-primary-extra-light);
+  --lc-avatar-filled-bg: var(--v3-green-primary);
+  --lc-avatar-outline-border: var(--v3-green-primary);
+  --lc-avatar-fg-on-color: var(--v3-white);
+  --lc-avatar-fg-accent: var(--v3-green-primary);
+  --lc-avatar-image-fallback: var(--v3-text-light);
 
   box-sizing: border-box;
   display: inline-flex;
@@ -106,7 +106,7 @@
      would otherwise reset background-clip to border-box). */
   background-color: var(--lc-avatar-image-fallback);
   background-clip: padding-box;
-  color: var(--lc-color-white);
+  color: var(--v3-white);
 }
 .lc-avatar__img {
   width: 100%;
@@ -134,13 +134,13 @@
   align-items: center;
 }
 .lc-avatar-group > .lc-avatar {
-  border-color: var(--lc-color-white);
+  border-color: var(--v3-white);
   margin-left: calc(-0.28 * var(--lc-avatar-size, 36px));
 }
 .lc-avatar-group > .lc-avatar:first-child {
   margin-left: 0;
 }
 .lc-avatar-group__overflow {
-  background: var(--lc-avatar-light-bg, var(--lc-color-green-50));
-  color: var(--lc-avatar-fg-accent, var(--lc-color-green-500));
+  background: var(--lc-avatar-light-bg, var(--v3-primary-extra-light));
+  color: var(--lc-avatar-fg-accent, var(--v3-green-primary));
 }

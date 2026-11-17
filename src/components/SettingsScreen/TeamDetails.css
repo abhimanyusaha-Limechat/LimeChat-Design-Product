@@ -99,8 +99,8 @@
 
 /* The Agents table's avatar colours: gray fill, dark-gray initials. */
 .lc-avatar.lc-td__avatar {
-  --lc-avatar-light-bg: var(--lc-color-gray-200);
-  --lc-avatar-fg-accent: var(--lc-color-stone-600);
+  --lc-avatar-light-bg: var(--v3-grey-300);
+  --lc-avatar-fg-accent: var(--v3-grey-700);
 }
 
 .lc-td__text {

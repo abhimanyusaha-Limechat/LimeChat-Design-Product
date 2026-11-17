@@ -8,20 +8,20 @@
  */
 
 .lc-th {
-  --lc-th-border: var(--lc-color-gray-300);
-  --lc-th-text-title: var(--lc-color-green-900);
-  --lc-th-text-dimmed: var(--lc-color-sage-500);
-  --lc-th-secondary-dark: var(--lc-color-stone-600);
-  --lc-th-text-light: var(--lc-color-sage-500);
-  --lc-th-text-placeholder: var(--lc-color-gray-500);
-  --lc-th-primary: var(--lc-color-green-500);
+  --lc-th-border: var(--v3-grey-400);
+  --lc-th-text-title: var(--v3-text-dark);
+  --lc-th-text-dimmed: var(--v3-text-light);
+  --lc-th-secondary-dark: var(--v3-grey-700);
+  --lc-th-text-light: var(--v3-text-light);
+  --lc-th-text-placeholder: var(--v3-grey-600);
+  --lc-th-primary: var(--v3-green-primary);
   --lc-th-warning: #E8A325;
-  --lc-th-danger: var(--lc-color-red-600);
-  --lc-th-row-hover: var(--lc-color-gray-100);
-  --lc-th-secondary-light-bg: var(--lc-color-gray-125);
-  --lc-th-secondary-light-text: var(--lc-color-sage-600);
-  --lc-th-retry-bg: var(--lc-color-green-50);
-  --lc-th-bg: var(--lc-color-stone-25);
+  --lc-th-danger: var(--v3-warning-red-medium);
+  --lc-th-row-hover: var(--v3-grey-200);
+  --lc-th-secondary-light-bg: var(--v3-grey-300);
+  --lc-th-secondary-light-text: var(--v3-grey-700);
+  --lc-th-retry-bg: var(--v3-primary-extra-light);
+  --lc-th-bg: var(--v3-bg-yellow);
   --lc-th-radius: 4px;
   --lc-th-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --lc-th-font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
@@ -171,7 +171,7 @@
 }
 
 .lc-th__row--body[data-status='in-review'] {
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
 }
 
 .lc-th__row--body[data-status='in-review']:hover {
@@ -183,7 +183,7 @@
 }
 
 .lc-th__row--body[data-status='rejected'] {
-  background: var(--lc-color-gray-50);
+  background: var(--v3-input-default-body);
 }
 
 .lc-th__row--body[data-status='rejected']:hover {
@@ -269,7 +269,7 @@
 
 .lc-th__status[data-status='paused'] {
   color: var(--lc-th-text-dimmed);
-  background: var(--lc-color-gray-150);
+  background: var(--v3-grey-300);
 }
 
 .lc-th__meta-line {

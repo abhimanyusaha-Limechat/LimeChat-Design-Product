@@ -5,7 +5,7 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-ct--empty {
@@ -26,7 +26,7 @@
   margin: 0 0 8px;
   font-size: 14px;
   line-height: 20px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 /* --- Toolbar --------------------------------------------------------------- */
@@ -55,18 +55,18 @@
   max-width: 100%;
   height: var(--lc-input-sm);
   padding: 0 12px;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--v3-grey-400);
   border-radius: 4px;
   background: white;
 }
 
 .lc-ct__search:focus-within {
-  border-color: var(--lc-color-green-500);
+  border-color: var(--v3-green-primary);
 }
 
 .lc-ct__search-icon {
   flex-shrink: 0;
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 
 .lc-ct__search-input {
@@ -82,7 +82,7 @@
 }
 
 .lc-ct__search-input::placeholder {
-  color: var(--lc-color-gray-500);
+  color: var(--v3-grey-600);
 }
 
 .lc-ct__summary {
@@ -90,7 +90,7 @@
   margin: 8px 0 12px;
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 /* --- View toggle ----------------------------------------------------------- */
@@ -105,7 +105,7 @@
   display: inline-flex;
   height: var(--lc-input-sm);
   padding: 2px;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--v3-grey-400);
   border-radius: 6px;
   background: white;
 }
@@ -118,17 +118,17 @@
   border: none;
   border-radius: 4px;
   background: transparent;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
   cursor: pointer;
 }
 
 .lc-ct__view-btn[aria-pressed='true'] {
-  background: var(--lc-color-green-100);
-  color: var(--lc-color-green-800);
+  background: var(--v3-green-primary-000);
+  color: var(--v3-green-primary-600);
 }
 
 .lc-ct__view-btn:focus-visible {
-  outline: 2px solid var(--lc-color-green-700);
+  outline: 2px solid var(--v3-green-primary-600);
   outline-offset: 1px;
 }
 
@@ -156,9 +156,9 @@
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  border: 1px solid var(--lc-color-gray-200);
+  border: 1px solid var(--v3-grey-300);
   border-radius: 8px;
-  background: var(--lc-color-green-50);
+  background: var(--v3-primary-extra-light);
 }
 
 .lc-ct__card > .lc-thumb {
@@ -197,7 +197,7 @@
 
 .lc-ct__card-photo {
   height: 140px;
-  background: var(--lc-color-gray-200);
+  background: var(--v3-grey-300);
 }
 
 .lc-ct__card--skeleton .lc-dt__skeleton {
@@ -208,7 +208,7 @@
   grid-column: 1 / -1;
   padding: 24px 0;
   font-size: 14px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
   text-align: center;
 }
 
@@ -218,7 +218,7 @@
   min-width: 0;
   font-size: 13px;
   line-height: 18px;
-  color: var(--lc-color-stone-600);
+  color: var(--v3-grey-700);
   text-align: left;
 }
 
@@ -268,31 +268,31 @@
   font-size: 14px;
   font-weight: 700;
   line-height: 18px;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-ct__text {
   font-size: 13px;
-  color: var(--lc-color-green-900);
+  color: var(--v3-text-dark);
 }
 
 .lc-ct__sub {
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
 }
 
 .lc-ct__compare {
   font-size: 12px;
   line-height: 16px;
-  color: var(--lc-color-sage-500);
+  color: var(--v3-text-light);
   text-decoration: line-through;
 }
 
 .lc-ct__out {
   font-size: 13px;
   font-weight: 700;
-  color: var(--lc-color-red-700);
+  color: var(--v3-warning-red-medium);
 }
 
 .lc-ct__pill {
@@ -304,17 +304,17 @@
 }
 
 .lc-ct__pill[data-status='active'] {
-  background: var(--lc-color-green-100);
-  color: var(--lc-color-green-800);
+  background: var(--v3-green-primary-000);
+  color: var(--v3-green-primary-600);
 }
 
 /* amber-600 alone is too light for 11px text on a yellow tint; darken it for contrast (as in InboxesTable). */
 .lc-ct__pill[data-status='draft'] {
-  background: color-mix(in srgb, var(--lc-color-amber-500) 18%, white);
-  color: color-mix(in srgb, var(--lc-color-amber-600) 65%, black);
+  background: color-mix(in srgb, var(--v3-warning-yellow-dark) 18%, white);
+  color: color-mix(in srgb, var(--v3-warning-yellow-dark) 65%, black);
 }
 
 .lc-ct__pill[data-status='archived'] {
-  background: var(--lc-color-gray-200);
-  color: var(--lc-color-stone-600);
+  background: var(--v3-grey-300);
+  color: var(--v3-grey-700);
 }

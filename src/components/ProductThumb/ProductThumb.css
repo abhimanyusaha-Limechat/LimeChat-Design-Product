@@ -31,7 +31,7 @@
   cursor: pointer;
 }
 .lc-thumb[data-clickable]:focus-visible {
-  outline: 2px solid var(--lc-color-green-500);
+  outline: 2px solid var(--v3-green-primary);
   outline-offset: 2px;
 }
 .lc-thumb__zoom {
@@ -42,7 +42,7 @@
   justify-content: center;
   border-radius: inherit;
   background: rgba(0, 0, 0, 0.35);
-  color: var(--lc-color-white);
+  color: var(--v3-white);
   opacity: 0;
   transition: opacity 150ms ease;
   pointer-events: none;
@@ -89,11 +89,11 @@
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: var(--lc-color-white);
-  color: var(--lc-color-green-900);
+  background: var(--v3-white);
+  color: var(--v3-text-dark);
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 .lc-thumb-preview__close:hover {
-  background: var(--lc-color-gray-100);
+  background: var(--v3-grey-200);
 }
