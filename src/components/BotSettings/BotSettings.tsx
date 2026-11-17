@@ -11,6 +11,7 @@
  */
 import { useMemo, useState } from 'react';
 import { NativeSelect } from '../Select';
+import { SegmentedTabs } from '../SegmentedTabs';
 import { CheckIcon } from '../icons';
 import {
   PRODUCT_CARD_LAYOUTS,
@@ -220,21 +221,7 @@ export function BotSettings({ values, onChange, initialSection = 'product-cards'
   return (
     <div className="lc-bset">
       <div className="lc-bset__controls">
-        <div className="lc-bset__tabs" role="tablist" aria-label="Bot settings sections">
-          {SECTION_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={tab.id === section}
-              className="lc-bset__tab"
-              data-active={tab.id === section}
-              onClick={() => setSection(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <SegmentedTabs ariaLabel="Bot settings sections" tabs={SECTION_TABS} value={section} onChange={setSection} />
         <label className="lc-bset__search">
           <SearchIcon />
           <input

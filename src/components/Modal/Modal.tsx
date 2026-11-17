@@ -101,13 +101,21 @@ export function Modal({
     };
   }, [closing]);
 
+  // Held in a ref so the focus effect below depends on `open` alone: with `onClose` in its
+  // deps, a caller passing an inline arrow re-ran the effect on every render and pulled focus
+  // off whatever the user was typing in.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
   useEffect(() => {
     if (!open) return;
     cardRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCloseRef.current();
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [open, onClose]);
+  }, [open]);
 
   if (!rendered || typeof document === 'undefined') return null;
 
