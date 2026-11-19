@@ -1,0 +1,16 @@
+.tab
+  padding-block: var(--mantine-spacing-sm)
+  padding-inline: var(--mantine-spacing-md)
+  font-size: var(--mantine-font-size-md)
+  font-weight: 400
+  color: var(--mantine-color-light)
+
+  &[data-active]
+    font-weight: 700
+    color: var(--mantine-color-dark)
+
+.root[data-variant='pills']
+  .tab[data-active]
+    font-weight: 400
+    color: var(--mantine-color-white)
+    --tab-color: var(--mantine-color-white)

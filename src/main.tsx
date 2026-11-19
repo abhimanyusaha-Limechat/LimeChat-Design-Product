@@ -1,18 +1,22 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Agentation } from 'agentation';
+import { ThemeProvider } from 'arceus';
+import '../arceus/src/styles';
+import './base.css';
+import './scrollbar.css';
 import { App } from './App';
 import { AuthGate } from './AuthGate';
 import { Inspector } from './components/Inspector';
-import './tokens.css';
-import './fonts.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AuthGate>
-      <App />
-      <Inspector />
-    </AuthGate>
+    <ThemeProvider>
+      <AuthGate>
+        <App />
+        <Inspector />
+      </AuthGate>
+    </ThemeProvider>
     {import.meta.env.DEV && (
       <Agentation
         endpoint="http://localhost:4747"

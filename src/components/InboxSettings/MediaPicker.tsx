@@ -4,8 +4,8 @@
  * Uploads become object URLs, freed when replaced or removed.
  */
 import { useId, useRef, useState, type ReactNode } from 'react';
-import { Button } from '../Button';
 import { Icon, PhotoIcon } from '../icons';
+import { Button } from 'arceus';
 
 export interface MediaFile {
   name: string;

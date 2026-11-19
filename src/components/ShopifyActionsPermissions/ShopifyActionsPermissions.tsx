@@ -10,9 +10,8 @@
  */
 import { useId } from 'react';
 import { Icon } from '../icons';
-import { NativeSelect } from '../Select';
-import { Tooltip } from '../Tooltip';
 import './ShopifyActionsPermissions.css';
+import { NativeSelect, Switch, Tooltip } from 'arceus';
 
 export interface ShopifyPermissions {
   createOrder: boolean;
@@ -51,17 +50,7 @@ export function ShopifyActionsPermissions({ values, onChange, prepaidAvailable =
             setting it up to start creating prepaid orders.
           </p>
         </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={values.createOrder}
-          aria-labelledby={`${id}-title`}
-          aria-describedby={`${id}-desc`}
-          className="lc-is__switch"
-          onClick={() => set({ createOrder: !values.createOrder })}
-        >
-          <span className="lc-is__switch-thumb" aria-hidden="true" />
-        </button>
+        <Switch checked={values.createOrder} aria-labelledby={`${id}-title`} aria-describedby={`${id}-desc`} onChange={() => set({ createOrder: !values.createOrder })} size="sm" />
       </div>
 
       <div className="lc-is__row">
@@ -107,7 +96,7 @@ export function ShopifyActionsPermissions({ values, onChange, prepaidAvailable =
           data={MANDATORY_FIELDS}
           value={values.mandatoryField}
           disabled={off}
-          fullWidth
+          w="100%"
           onChange={(e) => set({ mandatoryField: e.currentTarget.value })}
         />
       </div>

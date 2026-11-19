@@ -1,0 +1,20 @@
+.input
+  // class hook for :has() state selectors
+
+.track
+  --switch-bg: var(--mantine-color-gray-3)
+  border: 1px solid var(--mantine-color-gray-3)
+
+  [data-mantine-color-scheme='light'] &
+    --switch-bg: var(--mantine-color-gray-3)
+
+  &[data-error]
+    border-color: var(--mantine-color-error-6)
+
+.root
+  &:has(.input:checked) .track:not([data-error])
+    border-color: var(--mantine-color-primary-6)
+
+  &:has(.input:checked:disabled) .track,
+  &:has(.input:checked[data-disabled]) .track
+    --switch-bg: var(--mantine-color-primary-6)

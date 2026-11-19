@@ -3,9 +3,9 @@
  * pick from), font, the launcher icon and the company logo.
  */
 import { useId } from 'react';
-import { NativeSelect } from '../Select';
 import { MediaPicker, type MediaFile } from './MediaPicker';
 import { Row, SectionHeading } from './InboxSettingsSections';
+import { NativeSelect, TextInput } from 'arceus';
 
 export interface InboxWidgetAppearance {
   /** Six hex digits, no '#'. The shades below are generated from it. */
@@ -61,15 +61,7 @@ export function WidgetAppearanceSection({
               <span className="lc-inbs__color-swatch" style={{ background: primary }} aria-hidden="true" />
               <label className="lc-inbs__hex" htmlFor={hexId}>
                 <span aria-hidden="true">#</span>
-                <input
-                  id={hexId}
-                  className="lc-inbs__hex-input"
-                  maxLength={6}
-                  value={value.baseColor}
-                  aria-invalid={!valid}
-                  aria-label="Primary colour hex"
-                  onChange={(e) => set({ baseColor: e.currentTarget.value.replace(/[^0-9a-f]/gi, '') })}
-                />
+                <TextInput id={hexId} maxLength={6} value={value.baseColor} aria-invalid={!valid} aria-label="Primary colour hex" onChange={(e) => set({ baseColor: e.currentTarget.value.replace(/[^0-9a-f]/gi, '') })} />
               </label>
             </div>
             <div className="lc-inbs__shades" role="radiogroup" aria-label="Primary colour shades">
@@ -93,7 +85,7 @@ export function WidgetAppearanceSection({
         <Row label="Font" description="The typeface used inside the widget.">
           <NativeSelect
             size="sm"
-            fullWidth
+            w="100%"
             aria-label="Font"
             data={FONTS}
             value={value.font}

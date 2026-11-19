@@ -5,13 +5,11 @@
  * "Create agent" makes a brand-new account agent.
  */
 import { useEffect, useId, useState, type CSSProperties, type ReactNode } from 'react';
-import { Avatar } from '../Avatar';
-import { Button } from '../Button';
 import { DataTable, DataTableEmpty, DataTableHead, DataTableRow, DataTableSortHeader, useTableSort } from '../DataTable';
 import { Icon } from '../icons';
-import { NativeSelect } from '../Select';
 import { AGENT_ROLES, CreateAgentModal, type NewAgent } from './InboxCreateAgentModal';
 import { SectionHeading } from './InboxSettingsSections';
+import { Avatar, Button, NativeSelect, Switch, TextInput } from 'arceus';
 
 export interface InboxAgent {
   id: string;
@@ -164,18 +162,12 @@ export function CollaboratorsTab({
       <div className="lc-inbs__agent-tools">
         <label className="lc-inbs__search">
           <Icon name="search" size={16} aria-hidden="true" />
-          <input
-            type="search"
-            aria-label="Search agents"
-            placeholder="Search by name, role or email"
-            value={query}
-            onChange={(e) => setQuery(e.currentTarget.value)}
-          />
+          <TextInput type="search" aria-label="Search agents" placeholder="Search by name, role or email" value={query} onChange={(e) => setQuery(e.currentTarget.value)} />
         </label>
         <NativeSelect
           size="sm"
           aria-label="Filter by role"
-          wrapperClassName="lc-inbs__role-filter"
+          className="lc-inbs__role-filter"
           data={[{ value: '', label: 'All roles' }, ...AGENT_ROLES]}
           value={role}
           onChange={(e) => setRole(e.currentTarget.value)}
@@ -197,16 +189,7 @@ export function CollaboratorsTab({
           return (
             <AgentRow key={agent.id} agent={agent}>
               <div role="cell" className="lc-inbs__col lc-inbs__col--assign">
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={manual}
-                  aria-label={`Only assign ${agent.name} manually`}
-                  className="lc-inbs__switch-track"
-                  onClick={() => onChange({ ...value, [agent.id]: { onlyAssignManually: !manual } })}
-                >
-                  <span className="lc-inbs__switch-thumb" />
-                </button>
+                <Switch checked={manual} aria-label={`Only assign ${agent.name} manually`} onChange={() => onChange({ ...value, [agent.id]: { onlyAssignManually: !manual } })} size="sm" />
                 <span className="lc-inbs__agent-switch-text">Only assign manually</span>
               </div>
               <div role="cell" className="lc-inbs__col lc-inbs__col--action">

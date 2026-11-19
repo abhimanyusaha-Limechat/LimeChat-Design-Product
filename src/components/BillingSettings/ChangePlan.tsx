@@ -8,11 +8,11 @@
  *   <ChangePlan tiers={PLAN_TIERS} features={PLAN_FEATURES} currentId="advanced-plus" onSwitch={(tier) => ...} />
  */
 import { useId } from 'react';
-import { Button } from '../Button';
 import { DataTable, DataTableHead, DataTableRow } from '../DataTable';
 import { CheckIcon } from '../icons';
 import { usd } from './BillingSettings';
 import './ChangePlan.css';
+import { Button } from 'arceus';
 
 export interface PlanTier {
   id: string;
@@ -81,7 +81,6 @@ export function ChangePlan({ tiers, features, currentId, onSwitch }: ChangePlanP
               <Button
                 variant="default"
                 size="md"
-                textTransform="none"
                 fullWidth
                 disabled={isCurrent}
                 onClick={() => onSwitch(tier)}

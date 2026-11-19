@@ -10,8 +10,6 @@
  *     onCreateSegment={() => setOpen(true)}
  *   />
  */
-import { Button } from '../Button';
-import { Tooltip } from '../Tooltip';
 import { ActionMenu } from '../Menu';
 import { SegmentIcon } from './icons';
 import {
@@ -26,6 +24,7 @@ import {
   useTableSort,
 } from '../DataTable';
 import './SegmentsHomePage.css';
+import { Button, Tabs, TextInput, Tooltip } from 'arceus';
 
 export type SegmentSourceTab = 'lc-segments' | 'imported';
 
@@ -123,13 +122,7 @@ export function SegmentsHomePage({
       <div className="lc-sg__toolbar" data-anchor="segment-toolbar">
         <div className="lc-sg__search">
           <SegmentIcon name="search" className="lc-sg__search-icon" />
-          <input
-            className="lc-sg__search-input"
-            type="text"
-            placeholder="Search by segment ID or name"
-            value={searchValue}
-            onChange={(e) => onSearchChange?.(e.currentTarget.value)}
-          />
+          <TextInput className="lc-sg__search-input" placeholder="Search by segment ID or name" value={searchValue} onChange={(e) => onSearchChange?.(e.currentTarget.value)} variant="unstyled" />
         </div>
         <div className="lc-sg__actions">
           <Button
@@ -145,21 +138,15 @@ export function SegmentsHomePage({
       </div>
 
       <div className="lc-sg__nav-row" data-anchor="segment-tab-bar">
-        <div className="lc-sg__tabs" role="tablist">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              className="lc-sg__tab"
-              data-active={tab.id === activeTab || undefined}
-              aria-selected={tab.id === activeTab}
-              onClick={() => onTabChange?.(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs value={activeTab}>
+          <Tabs.List className="lc-sg__tabs">
+            {TABS.map((tab) => (
+              <Tabs.Tab key={tab.id} value={tab.id} className="lc-sg__tab" onClick={() => onTabChange?.(tab.id)}>
+                {tab.label}
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs>
       </div>
 
       <DataTable aria-busy={loading || undefined} aria-label="Segments" data-anchor="segment-table">

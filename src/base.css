@@ -1,0 +1,4 @@
+/* arceus sizes everything in rem on a 10px root (REM_BASE_PX); without this its components render 1.6x too large. */
+html {
+  font-size: 10px;
+}

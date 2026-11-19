@@ -9,14 +9,13 @@
 import { useMemo } from 'react';
 import { COLOR_OPTIONS, MOCK_PRODUCTS, PRODUCT_IMAGE_BY_SKU, type Product } from '../../data/mockProducts';
 import { useCommerce, variantKey } from '../../context/CommerceContext';
-import { Button } from '../Button';
-import { NativeSelect } from '../Select';
 import './CartPanel.css';
 import { iconProps } from '../iconProps';
 import { formatINR } from '../formatINR';
 import { DEFAULT_TAX_RATE, orderTotals } from '../../data/orderDraft';
 import { ProductThumb } from '../ProductThumb';
 import { QtyStepper } from '../QtyStepper';
+import { Button, NativeSelect } from 'arceus';
 
 const EmptyCartIcon = () => (
   <svg {...iconProps()} width="40" height="40">
@@ -66,7 +65,7 @@ export function CartPanel() {
                             {item.size && (
                               <NativeSelect
                                 size="xs"
-                                fullWidth
+                                w="100%"
                                 aria-label={`Size for ${item.name}`}
                                 data={variants && variants.length > 0 ? variants : [item.size]}
                                 value={item.size}
@@ -76,7 +75,7 @@ export function CartPanel() {
                             {item.color && (
                               <NativeSelect
                                 size="xs"
-                                fullWidth
+                                w="100%"
                                 aria-label={`Color for ${item.name}`}
                                 data={COLOR_OPTIONS}
                                 value={item.color}

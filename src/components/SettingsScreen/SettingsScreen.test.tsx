@@ -328,7 +328,7 @@ describe('SettingsScreen inbox edit', () => {
     await user.click(screen.getByRole('tab', { name: 'WhatsApp Widget' }));
     expect(screen.getByRole('complementary', { name: 'Mobile preview' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Preview on desktop' }));
-    expect(screen.getByRole('dialog', { name: 'Desktop preview' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: /Desktop preview/ })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Close' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     await user.click(screen.getByRole('button', { name: 'Copy code' }));

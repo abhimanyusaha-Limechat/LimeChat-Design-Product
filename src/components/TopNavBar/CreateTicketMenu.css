@@ -12,7 +12,7 @@
   max-height: 168px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--lc-color-gray-300) transparent;
+  scrollbar-color: var(--mantine-color-gray-3) transparent;
 }
 .lc-create-ticket-menu .lc-menu__items::-webkit-scrollbar {
   width: 6px;
@@ -21,7 +21,7 @@
   background: transparent;
 }
 .lc-create-ticket-menu .lc-menu__items::-webkit-scrollbar-thumb {
-  background: var(--lc-color-gray-300);
+  background: var(--mantine-color-gray-3);
   border-radius: 100px;
 }
 
@@ -29,12 +29,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: var(--lc-input-sm);
+  height: var(--input-height-sm);
   padding: 0 8px;
   margin-bottom: 2px;
   border: 1px solid #D9D9D9;
   border-radius: 6px;
-  color: var(--lc-color-sage-500);
+  color: var(--mantine-color-light);
   box-sizing: border-box;
 }
 .lc-create-ticket-menu__search svg {
@@ -51,7 +51,7 @@
   font-family: inherit;
   font-size: 13px;
   line-height: 16px;
-  color: var(--lc-color-green-900);
+  color: var(--mantine-color-dark);
 }
 .lc-create-ticket-menu__search input::placeholder {
   color: #A8ACA6;

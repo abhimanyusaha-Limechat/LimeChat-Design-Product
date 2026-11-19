@@ -23,9 +23,9 @@
  *   />
  */
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import { Button } from '../Button';
 import { CheckIcon, ChevronDownIcon as ChevronIcon } from '../icons';
 import './AccountSettings.css';
+import { Button, TextInput } from 'arceus';
 
 /** Shows `children` briefly after `trigger()` is called — fades in, holds, fades out. */
 function useTransientStatus(holdMs = 1800) {
@@ -138,15 +138,15 @@ export function AccountSettings({
     <div className="lc-as">
       <section className="lc-as__table">
         <Row label="ID" htmlFor={idId} description="Internal identifier — can't be changed.">
-          <input id={idId} className="lc-as__input" value={id} disabled readOnly />
+          <TextInput id={idId} value={id} disabled readOnly />
         </Row>
 
         <Row label="CRM Account ID" htmlFor={crmId} description="Links this workspace to its CRM account.">
-          <input id={crmId} className="lc-as__input" value={crmAccountId} disabled readOnly />
+          <TextInput id={crmId} value={crmAccountId} disabled readOnly />
         </Row>
 
         <Row label="Company" htmlFor={companyId} description="The organization this account belongs to.">
-          <input id={companyId} className="lc-as__input" value={company} disabled readOnly />
+          <TextInput id={companyId} value={company} disabled readOnly />
         </Row>
 
         <Row
@@ -154,7 +154,7 @@ export function AccountSettings({
           htmlFor={subdomainId}
           description="The link domain used across this workspace's messages."
         >
-          <input id={subdomainId} className="lc-as__input" value={brandSubdomain} disabled readOnly />
+          <TextInput id={subdomainId} value={brandSubdomain} disabled readOnly />
         </Row>
 
         <Row

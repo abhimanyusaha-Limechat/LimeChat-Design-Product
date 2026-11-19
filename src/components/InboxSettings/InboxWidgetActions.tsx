@@ -3,9 +3,9 @@
  * button that copies the widget's embed code.
  */
 import { useId } from 'react';
-import { Button } from '../Button';
 import { Icon } from '../icons';
 import { useCopied } from './useCopied';
+import { Button, Switch } from 'arceus';
 
 export function WidgetEditorActions({
   active,
@@ -26,17 +26,7 @@ export function WidgetEditorActions({
     <>
       <div className="lc-inbs__header-switch">
         <span id={labelId} className="lc-inbs__label">{active ? 'Active' : 'Inactive'}</span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={active}
-          aria-labelledby={labelId}
-          disabled={!canToggle}
-          className="lc-inbs__switch-track"
-          onClick={() => onActiveChange(!active)}
-        >
-          <span className="lc-inbs__switch-thumb" />
-        </button>
+        <Switch checked={active} aria-labelledby={labelId} disabled={!canToggle} onChange={() => onActiveChange(!active)} size="sm" />
       </div>
       <Button variant="outline" color="primary" size="sm" leftSection={<Icon name="copy" size={14} />} onClick={copy}>
         <span aria-live="polite">{copied ? 'Copied' : 'Copy widget code'}</span>

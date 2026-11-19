@@ -4,11 +4,10 @@
  * closing hour is derived. The master switch dims everything below it.
  */
 import { Fragment, useId } from 'react';
-import { Button } from '../Button';
 import { Icon } from '../icons';
 import { TIMEZONE_OPTIONS } from '../ProfileSettings';
-import { NativeSelect, type SelectItem } from '../Select';
 import { SectionHeading } from './InboxSettingsSections';
+import { Button, NativeSelect, Switch, Textarea, type SelectItem } from 'arceus';
 
 export interface BusinessHoursSlot {
   /** Minutes after midnight. */
@@ -74,17 +73,7 @@ function DayRow({
     <div className="lc-inbs__row lc-inbs__row--top lc-inbs__day" data-disabled={off} role="group" aria-labelledby={labelId}>
       <div className="lc-inbs__day-head">
         <span id={labelId} className="lc-inbs__label">{name}</span>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={day.enabled}
-          aria-label={`${name} open`}
-          disabled={off}
-          className="lc-inbs__switch-track"
-          onClick={() => onChange({ ...day, enabled: !day.enabled })}
-        >
-          <span className="lc-inbs__switch-thumb" />
-        </button>
+        <Switch checked={day.enabled} aria-label={`${name} open`} disabled={off} onChange={() => onChange({ ...day, enabled: !day.enabled })} size="sm" />
       </div>
       <div className="lc-inbs__slots" data-disabled={slotsOff}>
         <div className="lc-inbs__slot lc-inbs__slot--head" aria-hidden="true">
@@ -100,7 +89,7 @@ function DayRow({
             <div className="lc-inbs__slot">
               <NativeSelect
                 size="sm"
-                fullWidth
+                w="100%"
                 aria-label={`${name} slot ${i + 1} starting hour`}
                 data={START_OPTIONS}
                 value={String(slot.start)}
@@ -109,7 +98,7 @@ function DayRow({
               />
               <NativeSelect
                 size="sm"
-                fullWidth
+                w="100%"
                 aria-label={`${name} slot ${i + 1} hours`}
                 data={HOURS_OPTIONS}
                 value={String(slot.hours)}
@@ -179,7 +168,7 @@ export function BusinessHoursTab({
             <NativeSelect
               id={timezoneId}
               size="sm"
-              fullWidth
+              w="100%"
               data={TIMEZONE_OPTIONS}
               value={value.timezone}
               disabled={off}
@@ -191,14 +180,7 @@ export function BusinessHoursTab({
               <label className="lc-inbs__label" htmlFor={messageId}>Unavailable message for visitors</label>
               <p className="lc-inbs__row-desc">Shown when nobody is available.</p>
             </div>
-            <textarea
-              id={messageId}
-              className="lc-inbs__input lc-inbs__textarea"
-              rows={4}
-              value={value.unavailableMessage}
-              disabled={off}
-              onChange={(e) => set({ unavailableMessage: e.currentTarget.value })}
-            />
+            <Textarea id={messageId} rows={4} value={value.unavailableMessage} disabled={off} onChange={(e) => set({ unavailableMessage: e.currentTarget.value })} />
           </div>
         </div>
       </section>

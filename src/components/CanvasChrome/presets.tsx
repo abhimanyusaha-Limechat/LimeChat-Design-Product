@@ -11,7 +11,6 @@
  *     flow={{ title: 'Welcome series', subtitle: 'flow_1a2b', badge: 'Active', onBack, onEdit }}
  *   />
  */
-import { Button } from '../Button';
 import { CanvasIcon } from './icons';
 import type {
   CanvasBroadcastMeta,
@@ -21,6 +20,7 @@ import type {
   CanvasNodeGroup,
   CanvasTool,
 } from './CanvasChrome';
+import { Button } from 'arceus';
 
 /** "Add node" palette contents for the flow builder (Figma "Add node"). */
 export const flowNodePalette: CanvasNodeGroup[] = [
@@ -171,7 +171,6 @@ export function marketingCanvas(options: MarketingCanvasOptions = {}): Partial<C
             variant="default"
             color="gray"
             size="sm"
-            textTransform="none"
             leftSection={<CanvasIcon name="download" />}
             rightSection={simpleReport ? undefined : <CanvasIcon name="chevron-down" />}
             onClick={onDownloadReports}
@@ -184,7 +183,6 @@ export function marketingCanvas(options: MarketingCanvasOptions = {}): Partial<C
             variant="outline"
             color="primary"
             size="sm"
-            textTransform="none"
             leftSection={<CanvasIcon name="save" />}
             onClick={onSaveDraft}
           >
@@ -196,7 +194,6 @@ export function marketingCanvas(options: MarketingCanvasOptions = {}): Partial<C
             variant="default"
             color="gray"
             size="sm"
-            textTransform="none"
             leftSection={<CanvasIcon name="flask" />}
             onClick={onTest}
           >
@@ -208,7 +205,6 @@ export function marketingCanvas(options: MarketingCanvasOptions = {}): Partial<C
             variant="filled"
             color="primary"
             size="sm"
-            textTransform="none"
             leftSection={<CanvasIcon name="rocket" />}
             onClick={onPublish}
           >
@@ -271,7 +267,6 @@ export function automationCanvas(options: AutomationCanvasOptions = {}): Partial
           variant="filled"
           color="primary"
           size="sm"
-          textTransform="none"
           leftSection={<CanvasIcon name="rocket" />}
           onClick={onPublish}
         >

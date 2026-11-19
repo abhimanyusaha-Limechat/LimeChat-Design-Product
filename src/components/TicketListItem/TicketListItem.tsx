@@ -23,8 +23,10 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { TicketIcon, type TicketIconName } from './icons';
 import { ActionMenu } from '../Menu';
-import { Avatar, AvatarGroup } from '../Avatar';
 import './TicketListItem.css';
+import { Avatar } from 'arceus';
+
+const MAX_AVATARS = 3;
 
 export type TicketChannel = 'whatsapp' | 'email' | 'instagram' | 'sms';
 
@@ -161,12 +163,15 @@ export const TicketListItem = forwardRef<HTMLDivElement, TicketListItemProps>(fu
             </span>
             <span className="lc-ticket-row__user">{user}</span>
             {avatars && avatars.length > 0 && (
-              <AvatarGroup className="lc-ticket-row__avatars" limit={3} size={16} radius="xl">
-                {avatars.map((a, i) => (
+              <Avatar.Group className="lc-ticket-row__avatars">
+                {avatars.slice(0, MAX_AVATARS).map((a, i) => (
                   // eslint-disable-next-line react/no-array-index-key
-                  <Avatar key={i} src={a.src} alt={a.alt} />
+                  <Avatar key={i} src={a.src} alt={a.alt} size={16} radius="xl" />
                 ))}
-              </AvatarGroup>
+                {avatars.length > MAX_AVATARS && (
+                  <Avatar size={16} radius="xl">{`+${avatars.length - MAX_AVATARS}`}</Avatar>
+                )}
+              </Avatar.Group>
             )}
           </div>
 

@@ -24,6 +24,7 @@
 import { useId, useState, type ReactNode } from 'react';
 import { ChevronDownIcon as ChevronIcon } from '../icons';
 import './HelpDeskAccountSettings.css';
+import { Switch, TextInput } from 'arceus';
 
 /** One label(+description) | control row of a settings table. */
 function Row({
@@ -77,16 +78,7 @@ function ToggleRow({
       <label className="lc-hda__toggle-label" htmlFor={id}>
         {label}
       </label>
-      <button
-        id={id}
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        className="lc-hda__switch-track"
-        onClick={() => onChange(!checked)}
-      >
-        <span className="lc-hda__switch-thumb" />
-      </button>
+      <Switch id={id} checked={checked} onChange={() => onChange(!checked)} size="sm" />
     </div>
   );
 }
@@ -296,12 +288,7 @@ export function HelpDeskAccountSettings({
           required
           description="Shown to customers across the helpdesk."
         >
-          <input
-            id={companyId}
-            className="lc-hda__input"
-            value={companyName}
-            onChange={(e) => onCompanyNameChange(e.currentTarget.value)}
-          />
+          <TextInput id={companyId} value={companyName} onChange={(e) => onCompanyNameChange(e.currentTarget.value)} />
         </Row>
 
         <Row
@@ -309,13 +296,7 @@ export function HelpDeskAccountSettings({
           htmlFor={websiteId}
           description="Shown on customer-facing pages and invoices."
         >
-          <input
-            id={websiteId}
-            className="lc-hda__input"
-            placeholder="Your website url"
-            value={websiteUrl}
-            onChange={(e) => onWebsiteUrlChange(e.currentTarget.value)}
-          />
+          <TextInput id={websiteId} placeholder="Your website url" value={websiteUrl} onChange={(e) => onWebsiteUrlChange(e.currentTarget.value)} />
         </Row>
 
         <Row
@@ -324,12 +305,7 @@ export function HelpDeskAccountSettings({
           required
           description="The currency your products are sold in."
         >
-          <input
-            id={currencyId}
-            className="lc-hda__input"
-            value={currency}
-            onChange={(e) => onCurrencyChange(e.currentTarget.value)}
-          />
+          <TextInput id={currencyId} value={currency} onChange={(e) => onCurrencyChange(e.currentTarget.value)} />
         </Row>
 
         <Row

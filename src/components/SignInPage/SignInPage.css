@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
   min-height: 100vh;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   font-family: Lato, sans-serif;
 }
 
@@ -14,10 +14,10 @@
   justify-content: center;
   gap: 24px;
   padding: 64px;
-  background: var(--lc-color-green-900);
-  color: var(--lc-color-white);
+  background: var(--mantine-color-dark);
+  color: var(--mantine-color-white);
 }
-.sign-in-page__logo { width: 48px; height: 48px; color: var(--lc-color-green-200); }
+.sign-in-page__logo { width: 48px; height: 48px; color: var(--mantine-color-primary-2); }
 .sign-in-page__headline {
   margin: 0;
   max-width: 14ch;
@@ -38,25 +38,25 @@
 .sign-in-page__bubble--reply {
   align-self: flex-end;
   border-radius: 12px 12px 4px 12px;
-  background: var(--lc-color-green-200);
-  color: var(--lc-color-green-900);
+  background: var(--mantine-color-primary-2);
+  color: var(--mantine-color-dark);
 }
 
 /* Form panel */
 .sign-in-page__panel { display: flex; align-items: center; justify-content: center; padding: 24px; }
 .sign-in-page__form { width: 100%; max-width: 380px; }
-.sign-in-page__switch { margin: 24px 0 0; font-size: 15px; color: var(--lc-color-sage-600); }
+.sign-in-page__switch { margin: 24px 0 0; font-size: 15px; color: var(--mantine-color-gray-6); }
 .sign-in-page__switch button {
   padding: 0;
   border: 0;
   background: none;
   font: inherit;
   font-weight: 700;
-  color: var(--lc-color-green-700);
+  color: var(--mantine-color-primary-7);
   cursor: pointer;
 }
 .sign-in-page__switch button:hover { text-decoration: underline; }
-.sign-in-page__switch button:focus-visible { outline: 2px solid var(--lc-color-green-500); outline-offset: 2px; border-radius: 4px; }
+.sign-in-page__switch button:focus-visible { outline: 2px solid var(--mantine-color-primary-6); outline-offset: 2px; border-radius: 4px; }
 
 /* One-time entrance: brand panel cascades in, form fades up. Transform + opacity only. */
 @media (prefers-reduced-motion: no-preference) {
@@ -85,7 +85,7 @@
 /* Clerk's own focus ring is more specific than its `appearance` overrides, so set ours here. */
 .sign-in-page .cl-formFieldInput:focus,
 .sign-in-page .cl-formFieldInput:focus-visible {
-  border-color: var(--lc-color-green-700) !important;
-  box-shadow: 0 0 0 3px var(--lc-color-green-200) !important;
+  border-color: var(--mantine-color-primary-7) !important;
+  box-shadow: 0 0 0 3px var(--mantine-color-primary-2) !important;
   outline: none;
 }

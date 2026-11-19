@@ -3,10 +3,10 @@
  *
  * Design tokens mirror "LimeChat Design System — V3" (Figma node 8773:1123):
  *  - rail width ....... 64px
- *  - rail fill ........ background/primary/filled-hover  var(--lc-color-green-700)
- *  - selected fill .... ~green/green-8                   var(--lc-color-green-800)
- *  - icon / logo ...... ~green/green-0                   var(--lc-color-green-25)
- *  - avatar fallback .. text/dimmed                      var(--lc-color-sage-500)
+ *  - rail fill ........ background/primary/filled-hover  var(--mantine-color-primary-7)
+ *  - selected fill .... ~green/green-8                   var(--mantine-color-primary-8)
+ *  - icon / logo ...... ~green/green-0                   var(--mantine-color-primary-0)
+ *  - avatar fallback .. text/dimmed                      var(--mantine-color-light)
  *  - control radius ... radius/2xs                       4px
  *  - padding .......... top 12px · bottom/x 20px/8px
  *  - horizontal pad ... padding/xs                       8px
@@ -15,13 +15,13 @@
  */
 .lc-sidebar {
   --lc-sidebar-width: 64px;
-  --lc-sidebar-bg: var(--lc-color-green-700);
-  --lc-sidebar-item-selected-bg: var(--lc-color-green-800);
+  --lc-sidebar-bg: var(--mantine-color-primary-7);
+  --lc-sidebar-item-selected-bg: var(--mantine-color-primary-8);
   --lc-sidebar-item-hover-bg: rgba(255, 255, 255, 0.1);
-  --lc-sidebar-fg: var(--lc-color-green-25);
+  --lc-sidebar-fg: var(--mantine-color-primary-0);
   /* Idle (unselected) nav/footer icon stroke — ~green/green-2. */
-  --lc-sidebar-icon-idle: var(--lc-color-green-200);
-  --lc-sidebar-avatar-bg: var(--lc-color-sage-500);
+  --lc-sidebar-icon-idle: var(--mantine-color-primary-2);
+  --lc-sidebar-avatar-bg: var(--mantine-color-light);
   --lc-sidebar-radius: 4px;
   --lc-sidebar-pad-y: 20px;
   --lc-sidebar-pad-top: 12px;
@@ -147,9 +147,8 @@
 /* --- Avatar (the shared <Avatar>, tinted to the rail's neutral chip) --- */
 .lc-sidebar__avatar {
   /* keep the rail's grey fallback + light glyph instead of the primary tint */
-  --lc-avatar-light-bg: var(--lc-sidebar-avatar-bg);
-  --lc-avatar-fg-accent: var(--lc-sidebar-fg);
-  --lc-avatar-image-fallback: var(--lc-sidebar-avatar-bg);
+  --avatar-bg: var(--lc-sidebar-avatar-bg);
+  --avatar-color: var(--lc-sidebar-fg);
   font-size: 13px; /* initials a touch smaller than the DS default at this size */
   cursor: pointer;
 }
@@ -171,7 +170,7 @@
   min-width: 188px;
   padding: 6px;
   border-radius: 8px;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   box-shadow:
     0 1px 1.5px rgba(0, 0, 0, 0.05),
     0 20px 12.5px rgba(0, 0, 0, 0.1),
@@ -197,14 +196,14 @@
   font-family: inherit;
   font-size: 13px;
   line-height: 16px;
-  color: var(--lc-color-green-900);
+  color: var(--mantine-color-dark);
   text-align: left;
   cursor: pointer;
   transition: background-color 120ms ease, transform 120ms ease;
 }
 
 .lc-sidebar__profile-menu-item:hover {
-  background: var(--lc-color-stone-100);
+  background: var(--mantine-color-gray-1);
 }
 
 .lc-sidebar__profile-menu-item:active {

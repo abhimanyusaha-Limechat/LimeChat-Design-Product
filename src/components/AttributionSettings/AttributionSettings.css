@@ -7,12 +7,12 @@
  */
 
 .lc-attr {
-  --lc-attr-border: var(--lc-color-gray-300);
-  --lc-attr-divider: var(--lc-color-gray-200);
-  --lc-attr-text-title: var(--lc-color-green-900);
-  --lc-attr-text-dimmed: var(--lc-color-sage-500);
-  --lc-attr-primary: var(--lc-color-green-700);
-  --lc-attr-bg-subtle: var(--lc-color-stone-50);
+  --lc-attr-border: var(--mantine-color-gray-3);
+  --lc-attr-divider: var(--mantine-color-gray-2);
+  --lc-attr-text-title: var(--mantine-color-dark);
+  --lc-attr-text-dimmed: var(--mantine-color-light);
+  --lc-attr-primary: var(--mantine-color-primary-7);
+  --lc-attr-bg-subtle: var(--mantine-color-gray-0);
   --lc-attr-radius: 12px;
   --lc-attr-radius-sm: 6px;
   --lc-attr-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -78,7 +78,7 @@
   flex-direction: column;
   border: 1px solid var(--lc-attr-divider);
   border-radius: var(--lc-attr-radius);
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   overflow: hidden;
   transition: opacity 220ms var(--lc-attr-ease-out), transform 220ms var(--lc-attr-ease-out);
 
@@ -100,44 +100,6 @@
 }
 
 /* --- Switch (in the section heading) ---------------------------------- */
-
-.lc-attr__switch-track {
-  position: relative;
-  flex-shrink: 0;
-  width: 40px;
-  height: 22px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: var(--lc-color-gray-300);
-  cursor: pointer;
-  transition: background-color 150ms ease;
-}
-
-.lc-attr__switch-track[aria-checked='true'] {
-  background: var(--lc-attr-primary);
-}
-
-.lc-attr__switch-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--lc-color-white);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-  transition: transform 150ms ease;
-}
-
-.lc-attr__switch-track[aria-checked='true'] .lc-attr__switch-thumb {
-  transform: translateX(18px);
-}
-
-.lc-attr__switch-track:focus-visible {
-  outline: 2px solid var(--lc-attr-primary);
-  outline-offset: 2px;
-}
 
 /* --- Row: label+description left, Days/Hours right --------------------- */
 
@@ -189,11 +151,11 @@
 
 .lc-attr__input {
   width: 100%;
-  height: var(--lc-input-sm);
+  height: var(--input-height-sm);
   padding: 0 12px;
   border: 1px solid var(--lc-attr-border);
   border-radius: var(--lc-attr-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;

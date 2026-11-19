@@ -5,11 +5,10 @@
  * Three sections, each following the Waiting reminder pattern: a heading (with its own switch
  * for the two lists), dimming rows, and an Add button below.
  */
-import { Button } from '../Button';
 import { Icon } from '../icons';
-import { NativeSelect } from '../Select';
 import { MediaPicker, type MediaFile } from './MediaPicker';
 import { SectionHeading, SwitchRow, TextRow } from './InboxSettingsSections';
+import { Button, NativeSelect, TextInput } from 'arceus';
 
 export interface HomepageButton {
   name: string;
@@ -90,7 +89,7 @@ export function WidgetHomepageSection({
               <div className="lc-inbs__inline-control">
                 <NativeSelect
                   size="sm"
-                  fullWidth
+                  w="100%"
                   aria-label={`Inbox ${i + 1}`}
                   data={INBOX_OPTIONS.filter((o) => o === inbox || !value.inboxes.includes(o))}
                   value={inbox}
@@ -154,15 +153,15 @@ export function WidgetHomepageSection({
               <div className="lc-inbs__reminder-fields">
                 <label className="lc-inbs__field">
                   <span className="lc-inbs__field-label">Button name</span>
-                  <input className="lc-inbs__input" placeholder="Insert button name" value={button.name} disabled={buttonsOff} onChange={(e) => setButton(i, { name: e.currentTarget.value })} />
+                  <TextInput placeholder="Insert button name" value={button.name} disabled={buttonsOff} onChange={(e) => setButton(i, { name: e.currentTarget.value })} />
                 </label>
                 <label className="lc-inbs__field">
                   <span className="lc-inbs__field-label">Subheading</span>
-                  <input className="lc-inbs__input" placeholder="Insert subheading" value={button.subheading} disabled={buttonsOff} onChange={(e) => setButton(i, { subheading: e.currentTarget.value })} />
+                  <TextInput placeholder="Insert subheading" value={button.subheading} disabled={buttonsOff} onChange={(e) => setButton(i, { subheading: e.currentTarget.value })} />
                 </label>
                 <label className="lc-inbs__field">
                   <span className="lc-inbs__field-label">Link</span>
-                  <input className="lc-inbs__input" type="url" placeholder="Insert link" value={button.link} disabled={buttonsOff} onChange={(e) => setButton(i, { link: e.currentTarget.value })} />
+                  <TextInput type="url" placeholder="Insert link" value={button.link} disabled={buttonsOff} onChange={(e) => setButton(i, { link: e.currentTarget.value })} />
                 </label>
                 <MediaPicker
                   label={`icon for button ${i + 1}`}

@@ -2,8 +2,8 @@
 import type { CSSProperties } from 'react';
 import { InboxIcon, type InboxRowData } from '../InboxesTable';
 import type { BotTemplateRow } from '../BotTemplatesTable';
-import { Avatar } from '../Avatar';
 import { initials } from '../AccountPicker/AccountPicker';
+import { Avatar } from 'arceus';
 
 type Field = [label: string, value: string | undefined];
 
@@ -33,11 +33,9 @@ export function rowFields(tab: string, row: BotTemplateRow): Field[] {
 
 /** Grey rounded-square initials on the white header card. */
 const AVATAR_STYLE = {
-  '--lc-avatar-radius': '8px',
-  '--lc-avatar-font': '10px',
-  '--lc-avatar-light-bg': 'var(--lc-color-gray-150)',
-  '--lc-avatar-fg-accent': 'var(--lc-color-green-700)',
-  borderColor: 'var(--lc-color-white)',
+  '--avatar-bg': 'var(--mantine-color-gray-2)',
+  '--avatar-color': 'var(--mantine-color-primary-7)',
+  borderColor: 'var(--mantine-color-white)',
 } as CSSProperties;
 
 /** Profile image for the panel header — initials until a photo exists. */

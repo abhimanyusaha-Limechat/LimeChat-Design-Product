@@ -32,10 +32,7 @@ import { TicketAssignmentSettings, type AssignmentStrategy } from '../TicketAssi
 import { IntegrationsHomePage } from '../IntegrationsHomePage';
 import { IntegrationSettings } from '../IntegrationSettings';
 import { DEFAULT_SHOPIFY_PERMISSIONS, ShopifyActionsPermissions, type ShopifyPermissions } from '../ShopifyActionsPermissions';
-import { TagsInput } from '../TagsInput';
-import { Button } from '../Button';
 import { Menu } from '../Menu';
-import { CheckboxPill } from '../CheckboxPill';
 import { Icon } from '../icons';
 import {
   AGENT_INBOXES,
@@ -85,6 +82,7 @@ import {
   USE_CASE_CATEGORIES,
   VARIABLE_SCOPES,
 } from './settingsTabs';
+import { Button, Checkbox, MultiSelect } from 'arceus';
 
 export interface SettingsScreenProps {
   product: SidebarProduct;
@@ -669,7 +667,7 @@ export function SettingsScreen({
           </>
         ) : settingsTab === 'tags' ? (
           <>
-            <CheckboxPill checked={tagsInInternalTickets} onChange={setTagsInInternalTickets} label="Use in Internal tickets" />
+            <Checkbox checked={tagsInInternalTickets} onChange={(e) => setTagsInInternalTickets(e.currentTarget.checked)} label="Use in Internal tickets" />
             <Button
               variant="filled"
               color="primary"
@@ -1066,12 +1064,11 @@ export function SettingsScreen({
                 borderBottom: i === BOT_NAMES.length - 1 ? '1px solid #F0F0F0' : 'none',
               }}
             >
-              <TagsInput
+              <MultiSelect
                 label={bot}
-                labelIcon={<WhatsAppIcon />}
-                layout="horizontal"
+                leftSection={<WhatsAppIcon />}
                 placeholder="Enter inboxes"
-                searchPlaceholder="Search inboxes"
+                searchable
                 data={INBOX_NAMES}
                 value={botInboxMap[bot] ?? []}
                 onChange={(next) =>

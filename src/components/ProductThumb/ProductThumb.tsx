@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Modal } from '../Modal';
 import { CloseIcon, PhotoIcon, ZoomIcon } from '../icons';
 import { thumbPalette } from '../catalogUtils';
 import './ProductThumb.css';
+import { Modal } from 'arceus';
 
 /**
  * Product tile: the photo when there is one (click or Enter/Space opens it full-size in a
@@ -64,7 +64,7 @@ export function ProductThumb({
       </span>
 
       {imageUrl && previewOpen && (
-        <Modal open onClose={() => setPreviewOpen(false)} title="" width={600} className="lc-thumb-preview-modal">
+        <Modal centered opened onClose={() => setPreviewOpen(false)} title="" size={600} className="lc-thumb-preview-modal">
           <div className="lc-thumb-preview__frame">
             <img src={imageUrl} alt={name} className="lc-thumb-preview__image" />
             <button

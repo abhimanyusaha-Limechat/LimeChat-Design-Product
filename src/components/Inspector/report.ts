@@ -57,7 +57,7 @@ function choice(prop: string, value: string, options: { value: string; label: st
   };
 }
 
-const COLOR_OPTIONS = COLOR_TOKENS.map((t) => ({ value: `var(--lc-color-${t.name})`, label: t.name }));
+const COLOR_OPTIONS = COLOR_TOKENS.map((t) => ({ value: `var(${t.cssVar})`, label: t.name }));
 
 export interface ReportSection {
   tool: Tool;
@@ -166,8 +166,8 @@ const weightIssue = (type: NonNullable<Spec['type']>) =>
 function colorRow(label: string, color: string, prop: string): ReportRow {
   const token = findColorToken(color);
   if (token) {
-    const detail = token.primitive ? `${token.primitive} · ${token.hex}` : token.hex;
-    return { label, value: token.name, detail, swatch: color, edit: choice(prop, `var(--lc-color-${token.name})`, COLOR_OPTIONS) };
+    const detail = token.hex;
+    return { label, value: token.name, detail, swatch: color, edit: choice(prop, `var(${token.cssVar})`, COLOR_OPTIONS) };
   }
   const closest = nearestColorToken(color);
   return {
@@ -238,7 +238,7 @@ function colorSection(spec: Spec): ReportSection {
 
 const colorValue = (hex: string) => {
   const token = findColorToken(hex);
-  return token ? `var(--lc-color-${token.name})` : hex;
+  return token ? `var(${token.cssVar})` : hex;
 };
 
 const px = (n: number) => (n === 0 ? '0' : `${fmt(n)}px`);

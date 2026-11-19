@@ -4,10 +4,10 @@
  * up separately. The open device tab is local.
  */
 import { useState } from 'react';
-import { NativeSelect, type SelectItem } from '../Select';
 import { DEVICES, type WidgetDevice } from './InboxWhatsAppWidgetTab';
 import { MediaPicker, type MediaFile } from './MediaPicker';
 import { RadioRow, Row, SectionHeading, TextRow, type Choice } from './InboxSettingsSections';
+import { NativeSelect, Tabs, type SelectItem } from 'arceus';
 
 export interface PopupSettings {
   position: 'top' | 'side';
@@ -56,21 +56,15 @@ export function PopupMessageSection({ value, onChange }: { value: InboxPopupMess
         description="Makes the widget more noticeable to new visitors. It appears next to the widget on your website."
         toggle={{ checked: value.enabled, onChange: (enabled) => onChange({ ...value, enabled }) }}
       />
-      <div className="lc-inbs__tabs" role="tablist" aria-label="Pop-up device">
-        {TABS.map((d) => (
-          <button
-            key={d.device}
-            type="button"
-            role="tab"
-            aria-selected={d.device === device}
-            className="lc-inbs__tab"
-            data-active={d.device === device || undefined}
-            onClick={() => setDevice(d.device)}
-          >
-            {d.label}
-          </button>
-        ))}
-      </div>
+      <Tabs value={device}>
+        <Tabs.List className="lc-inbs__tabs" aria-label="Pop-up device">
+          {TABS.map((d) => (
+            <Tabs.Tab key={d.device} value={d.device} className="lc-inbs__tab" onClick={() => setDevice(d.device)}>
+              {d.label}
+            </Tabs.Tab>
+          ))}
+        </Tabs.List>
+      </Tabs>
       <div className="lc-inbs__table" role="tabpanel" aria-label={TABS.find((d) => d.device === device)?.label}>
         <RadioRow
           label="Pop-up position"
@@ -92,7 +86,7 @@ export function PopupMessageSection({ value, onChange }: { value: InboxPopupMess
           <div className="lc-inbs__duration lc-inbs__duration--pair" role="group" aria-label="Time delays">
             <NativeSelect
               label="Time to appear"
-              fullWidth
+              w="100%"
               data={DELAYS}
               value={String(popup.appearAfter)}
               disabled={off}
@@ -100,7 +94,7 @@ export function PopupMessageSection({ value, onChange }: { value: InboxPopupMess
             />
             <NativeSelect
               label="Time to disappear"
-              fullWidth
+              w="100%"
               data={DELAYS}
               value={String(popup.disappearAfter)}
               disabled={off}

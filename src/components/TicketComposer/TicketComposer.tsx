@@ -11,11 +11,10 @@
  *   />
  */
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactElement } from 'react';
-import { Button } from '../Button';
-import { Modal } from '../Modal';
 import { iconProps } from '../iconProps';
 import { Icon, CloseIcon, TrashIcon, ZoomIcon } from '../icons';
 import './TicketComposer.css';
+import { Button, Modal, Textarea } from 'arceus';
 
 export type TicketComposerMode = 'reply' | 'note';
 
@@ -162,17 +161,7 @@ export function TicketComposer({
       )}
 
       <div className="lc-ticket-composer__input-row">
-        <textarea
-          className="lc-ticket-composer__textarea"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          placeholder={placeholder}
-          aria-label={placeholder}
-          rows={1}
-          maxLength={maxLength}
-        />
+        <Textarea className="lc-ticket-composer__textarea" value={value} onChange={(e) => onChange(e.target.value)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} placeholder={placeholder} aria-label={placeholder} rows={1} maxLength={maxLength} variant="unstyled" />
       </div>
 
       <input
@@ -253,7 +242,7 @@ export function TicketComposer({
     </div>
 
     {previewFile && (
-      <Modal open onClose={() => setPreviewIndex(null)} title="" width={600} className="lc-ticket-composer__preview-modal">
+      <Modal centered opened onClose={() => setPreviewIndex(null)} title="" size={600} className="lc-ticket-composer__preview-modal">
         <div className="lc-ticket-composer__preview-frame">
           <img src={previewUrl} alt={previewFile.name} className="lc-ticket-composer__preview-image" />
           <button

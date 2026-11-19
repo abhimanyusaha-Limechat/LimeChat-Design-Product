@@ -1,8 +1,10 @@
 name: Deploy to GitHub Pages
 
+# One Pages site serves two builds: `main` at the root and the `staging` branch under /staging/.
+# A push to either branch rebuilds both, so neither deploy removes the other.
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   workflow_dispatch:
 
 permissions:
@@ -17,22 +19,47 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out main (production)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: prod
+      - name: Check out staging
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          path: staging
+        continue-on-error: true
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
-      - run: npm test
-      - run: npm run build
-        env:
-          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          cache-dependency-path: |
+            prod/package-lock.json
+            staging/package-lock.json
+      - name: Build production
+        working-directory: prod
+        run: |
+          npm ci
+          npm test
+          npm run build
+      - name: Build staging
+        run: |
+          if [ -d staging ]; then
+            cd staging
+            npm ci
+            npm test
+            VITE_BASE=/LimeChat-Design-Product/staging/ npm run build
+            mv dist ../prod/dist/staging
+          fi
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: prod/dist
 
   deploy:
     needs: build

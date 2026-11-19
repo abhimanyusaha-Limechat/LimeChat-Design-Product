@@ -24,9 +24,9 @@
  */
 import { forwardRef, useEffect, useState, type HTMLAttributes, type KeyboardEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { Button } from '../Button';
 import { Icon, TrashIcon } from '../icons';
 import './EmailMessage.css';
+import { Button, TextInput, Textarea } from 'arceus';
 
 function iconProps(size = 24) {
   return {
@@ -154,14 +154,7 @@ function RecipientRow({
           </button>
         </span>
       ))}
-      <input
-        className="lc-email-forward__recipient-input"
-        value={draft}
-        onChange={(e) => setDraft(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={commit}
-        placeholder={field === 'bcc' ? 'Type name of recipient' : 'Type to add'}
-      />
+      <TextInput value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={handleKeyDown} onBlur={commit} placeholder={field === 'bcc' ? 'Type name of recipient' : 'Type to add'} />
     </div>
   );
 }
@@ -302,14 +295,7 @@ export const EmailForwardComposer = forwardRef<HTMLDivElement, EmailForwardCompo
           )}
 
           <div className="lc-email-forward__input-row">
-            <textarea
-              className="lc-email-forward__textarea"
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              onFocus={() => (!isForward || to.length > 0) && setEditingAddresses(false)}
-              placeholder={placeholder}
-              rows={6}
-            />
+            <Textarea value={value} onChange={(e) => onChange(e.target.value)} onFocus={() => (!isForward || to.length > 0) && setEditingAddresses(false)} placeholder={placeholder} rows={6} />
           </div>
 
           {quotedText && (

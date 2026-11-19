@@ -1,0 +1,38 @@
+@use '../../../styles/shadows' as *
+
+.floating-modal
+    background-color: transparent
+    padding: var(--mantine-spacing-zero) !important
+    box-shadow: none !important
+    overflow: visible !important
+    max-height: none !important
+
+.floating-modal-body
+    overflow: visible
+    max-height: none
+
+.draggable-container
+    @extend .shadow-lg
+    user-select: none
+    display: flex
+    flex-direction: column
+    border: 2px solid var(--mantine-color-gray-5)
+
+    &--close-button
+        position: absolute
+        top: -5.2rem
+        right: calc(-1 * var(--mantine-spacing-2xs))
+
+    &--handle
+        display: flex
+        align-items: center
+        justify-content: center
+        padding: var(--mantine-spacing-sm)
+        cursor: move
+
+        .handle-bar
+            border-radius: var(--mantine-spacing-xs)
+            height: 3px
+            min-height: 3px
+            width: 75px
+            background: var(--mantine-color-gray-4)

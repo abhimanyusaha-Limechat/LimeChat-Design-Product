@@ -5,7 +5,6 @@ import {
   isAllowedFontSize,
   isOnSpacingGrid,
   nearestColorToken,
-  parseColorTokens,
 } from './designScale';
 
 describe('isOnSpacingGrid', () => {
@@ -28,30 +27,20 @@ describe('isAllowedFontSize', () => {
   });
 });
 
-describe('parseColorTokens', () => {
-  it('reads name, hex and primitive, dropping notes and section comments', () => {
-    const css = `
-      /* Brand green — primitives */
-      --lc-color-green-900: #3C492C; /* color/dark */
-      --lc-color-green-75: #e5f7cf; /* green-1 (nearest approved step) */
-      --lc-color-plain: #ffffff;
-      /* Next section */
-      --lc-font: Lato;`;
-    expect(parseColorTokens(css)).toEqual([
-      { name: 'green-900', hex: '#3c492c', primitive: 'color/dark' },
-      { name: 'green-75', hex: '#e5f7cf', primitive: 'green-1' },
-      { name: 'plain', hex: '#ffffff', primitive: null },
-    ]);
-  });
-
-  it('finds every color token in tokens.css', () => {
+describe('COLOR_TOKENS', () => {
+  it('is read from the arceus palettes', () => {
     expect(COLOR_TOKENS.length).toBeGreaterThan(30);
+    expect(COLOR_TOKENS.find((t) => t.name === 'primary-6')).toEqual({
+      name: 'primary-6',
+      cssVar: '--mantine-color-primary-6',
+      hex: '#6bac1b',
+    });
   });
 });
 
 describe('findColorToken', () => {
   it('returns the first-declared token for a shared hex', () => {
-    expect(findColorToken('#E5F7CF')?.name).toBe('green-100');
+    expect(findColorToken('#E5F7CF')?.name).toBe('primary-1');
   });
 
   it('returns null for an off-palette or translucent color', () => {
@@ -62,7 +51,7 @@ describe('findColorToken', () => {
 
 describe('nearestColorToken', () => {
   it('returns the closest token by RGB', () => {
-    expect(nearestColorToken('#818a76')?.name).toBe('sage-500');
+    expect(nearestColorToken('#818a76')?.name).toBe('light');
   });
 
   it('returns null for colors it cannot read', () => {

@@ -44,7 +44,7 @@ describe('MessageBubble reactions', () => {
 
     await user.click(screen.getByRole('button', { name: 'React to message' }));
 
-    const picker = screen.getByRole('group', { name: 'Pick a reaction' });
+    const picker = screen.getByRole('dialog');
     expect(picker).toBeInTheDocument();
     for (const emoji of ['👍', '❤️', '😂', '😮', '😢', '🙏']) {
       expect(screen.getByRole('button', { name: emoji })).toBeInTheDocument();
@@ -52,7 +52,7 @@ describe('MessageBubble reactions', () => {
 
     await user.click(screen.getByRole('button', { name: '❤️' }));
     expect(onReact).toHaveBeenCalledExactlyOnceWith('❤️');
-    expect(screen.queryByRole('group', { name: 'Pick a reaction' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('respects a custom `reactionOptions` list', async () => {
@@ -134,10 +134,10 @@ describe('MessageBubble reactions', () => {
       </div>,
     );
     await user.click(screen.getByRole('button', { name: 'React to message' }));
-    expect(screen.getByRole('group', { name: 'Pick a reaction' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'outside' }));
-    expect(screen.queryByRole('group', { name: 'Pick a reaction' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(onReact).not.toHaveBeenCalled();
   });
 
@@ -150,10 +150,10 @@ describe('MessageBubble reactions', () => {
       </MessageBubble>,
     );
     await user.click(screen.getByRole('button', { name: 'React to message' }));
-    expect(screen.getByRole('group', { name: 'Pick a reaction' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
 
     await user.keyboard('{Escape}');
-    expect(screen.queryByRole('group', { name: 'Pick a reaction' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(onReact).not.toHaveBeenCalled();
   });
 

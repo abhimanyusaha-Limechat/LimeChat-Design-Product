@@ -7,7 +7,6 @@ export {
   DataTableSkeleton,
   DataTableSortHeader,
   selectRow,
-  pageWindow,
   Skeleton,
   useTableSort,
   type TableSort,

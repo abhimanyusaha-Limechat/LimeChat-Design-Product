@@ -11,14 +11,12 @@
  *     onApply={(values) => modifyTickets(values)}
  *   />
  */
-import { useEffect, useId, useState } from 'react';
-import { Button } from '../Button';
+import { useEffect, useState } from 'react';
 import { Menu } from '../Menu';
-import { Modal } from '../Modal';
-import { NativeSelect } from '../Select';
 import { TICKETS_STATUS_OPTIONS } from '../TicketsSection';
 import { Icon, ChevronDownIcon, CheckIcon } from '../icons';
 import './TicketsBulkModifyModal.css';
+import { Button, Modal, NativeSelect, Stack, Text, TextInput, Textarea } from 'arceus';
 
 const StarIcon = () => <Icon name="star" />;
 const SearchIcon = () => (
@@ -60,14 +58,7 @@ function MenuSelectField({
           searchable ? (
             <div className="lc-create-ticket-menu__search">
               <SearchIcon />
-              <input
-                type="text"
-                placeholder={`Search ${label.toLowerCase()}`}
-                value={query}
-                autoFocus
-                onChange={(e) => setQuery(e.currentTarget.value)}
-                onClick={(e) => e.stopPropagation()}
-              />
+              <TextInput placeholder={`Search ${label.toLowerCase()}`} value={query} autoFocus onChange={(e) => setQuery(e.currentTarget.value)} onClick={(e) => e.stopPropagation()} />
             </div>
           ) : undefined
         }
@@ -137,7 +128,6 @@ export function TicketsBulkModifyModal({
   onApply,
 }: TicketsBulkModifyModalProps) {
   const [values, setValues] = useState<TicketsBulkModifyValues>(DEFAULTS);
-  const noteId = useId();
 
   useEffect(() => {
     if (open) setValues(DEFAULTS);
@@ -148,31 +138,18 @@ export function TicketsBulkModifyModal({
 
   return (
     <Modal
-      open={open}
+      centered
+      opened={open}
       onClose={onClose}
       title={
         <>
           <span className="lc-tbm-count">{selectedCount}</span> Ticket{selectedCount === 1 ? '' : 's'} selected
         </>
       }
-      width={719}
-      style={{ minHeight: 512 }}
-      footer={
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-          <Button variant="subtle" color="gray" size="sm" onClick={() => setValues(DEFAULTS)}>
-            Clear all
-          </Button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Button variant="subtle" color="gray" size="sm" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button variant="filled" color="primary" size="sm" onClick={() => onApply?.(values)}>
-              Apply changes
-            </Button>
-          </div>
-        </div>
-      }
+      size={719}
+      styles={{ content: { minHeight: 512 } }}
     >
+      <Stack gap="md">
       <div className="lc-tbm-row">
         <MenuSelectField
           label="Agents"
@@ -204,38 +181,45 @@ export function TicketsBulkModifyModal({
         value={values.tags || TAG_OPTIONS[0]}
         onChange={(e) => set('tags', e.currentTarget.value)}
         size="sm"
-        wrapperClassName="lc-tbm-field"
-        fullWidth
+        className="lc-tbm-field"
+        w="100%"
       />
 
-      <div className="lc-modal__field">
-        <label className="lc-modal__field-label" htmlFor={noteId}>
-          Reply
-        </label>
-        <textarea
-          id={noteId}
-          className="lc-modal__textarea"
-          rows={3}
+      <Textarea
+          label="Reply"
+          minRows={3}
           placeholder="Press Shift + Enter for a new line. Type '/' to browse canned responses."
           value={values.note}
           onChange={(e) => set('note', e.currentTarget.value)}
         />
-      </div>
 
-      <div className="lc-modal__field">
-        <span className="lc-modal__field-label">Actions</span>
+      <Stack gap="xs">
+        <Text variant="subtitle-2">Actions</Text>
         <Button
           variant="outline"
           color="gray"
           size="sm"
-          textTransform="none"
           leftSection={<StarIcon />}
           style={{ borderRadius: 999, alignSelf: 'flex-start' }}
           onClick={() => set('markStarred', !values.markStarred)}
         >
           Mark Starred
         </Button>
-      </div>
+      </Stack>
+      </Stack>
+      <Modal.Footer><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <Button variant="subtle" color="gray" size="sm" onClick={() => setValues(DEFAULTS)}>
+            Clear all
+          </Button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Button variant="subtle" color="gray" size="sm" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button variant="filled" color="primary" size="sm" onClick={() => onApply?.(values)}>
+              Apply changes
+            </Button>
+          </div>
+        </div></Modal.Footer>
     </Modal>
   );
 }

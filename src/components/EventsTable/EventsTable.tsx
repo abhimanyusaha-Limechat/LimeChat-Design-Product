@@ -10,9 +10,6 @@
  * so both reset whenever the user leaves the tab.
  */
 import { useState } from 'react';
-import { Button } from '../Button';
-import { Modal } from '../Modal';
-import { Tooltip } from '../Tooltip';
 import { Icon } from '../icons';
 import {
   DataTable,
@@ -27,6 +24,7 @@ import {
   useTableSort,
 } from '../DataTable';
 import './EventsTable.css';
+import { Button, Modal, TextInput, Tooltip } from 'arceus';
 
 export interface EventRowData {
   id: string;
@@ -65,15 +63,7 @@ export function EventsTable({ events, onCustomEvents, loading = false }: EventsT
       <div className="lc-ev__toolbar">
         <label className="lc-ev__search">
           <Icon name="search" className="lc-ev__search-icon" />
-          <input
-            className="lc-ev__search-input"
-            type="search"
-            inputMode="tel"
-            aria-label="Search by phone number"
-            placeholder="Search by phone number"
-            value={phoneSearch}
-            onChange={(e) => setPhoneSearch(e.currentTarget.value)}
-          />
+          <TextInput className="lc-ev__search-input" type="search" inputMode="tel" aria-label="Search by phone number" placeholder="Search by phone number" value={phoneSearch} onChange={(e) => setPhoneSearch(e.currentTarget.value)} variant="unstyled" />
         </label>
         <div className="lc-ev__toolbar-end">
           <Tooltip label="Matches any part of the event name">
@@ -83,14 +73,7 @@ export function EventsTable({ events, onCustomEvents, loading = false }: EventsT
           </Tooltip>
           <label className="lc-ev__search">
             <Icon name="search" className="lc-ev__search-icon" />
-            <input
-              className="lc-ev__search-input"
-              type="search"
-              aria-label="Search with event name"
-              placeholder="Search with event name"
-              value={nameSearch}
-              onChange={(e) => setNameSearch(e.currentTarget.value)}
-            />
+            <TextInput className="lc-ev__search-input" type="search" aria-label="Search with event name" placeholder="Search with event name" value={nameSearch} onChange={(e) => setNameSearch(e.currentTarget.value)} variant="unstyled" />
           </label>
           {onCustomEvents && (
             <Button variant="filled" color="primary" size="sm" leftSection={<Icon name="settings" />} onClick={onCustomEvents}>
@@ -146,11 +129,12 @@ export function EventsTable({ events, onCustomEvents, loading = false }: EventsT
       </DataTable>
 
       <Modal
-        open={openEvent !== null}
+        centered
+        opened={openEvent !== null}
         onClose={() => setOpenEvent(null)}
         title="Payload"
-        description={openEvent && `${openEvent.name} · ${openEvent.phone} · ${openEvent.createdAt}`}
-        width={560}
+        description={openEvent ? `${openEvent.name} · ${openEvent.phone} · ${openEvent.createdAt}` : undefined}
+        size={560}
       >
         <pre className="lc-ev__payload">{openEvent && JSON.stringify(openEvent.payload, null, 2)}</pre>
       </Modal>

@@ -25,18 +25,15 @@ import {
   type HTMLAttributes,
   type ReactNode,
 } from 'react';
-import { NativeSelect } from '../Select';
 import { Menu } from '../Menu';
-import { Tooltip } from '../Tooltip';
 import { ProductsPanel } from '../ProductsPanel';
 import { OrdersPanel } from '../OrdersPanel';
 import { CartPanel } from '../CartPanel';
 import { CommerceProvider, useCommerce, type CommerceView } from '../../context/CommerceContext';
-import { Modal, ModalTextarea, ModalCheckbox } from '../Modal';
-import { Button } from '../Button';
 import './TicketDetailsPanel.css';
 import { iconProps } from '../iconProps';
 import { Icon, ChevronDownIcon, CloseIcon as TagCloseIcon, TrashIcon } from '../icons';
+import { Button, Checkbox, Modal, Select, TextInput, Textarea, Tooltip } from 'arceus';
 
 const RANDOM_AGENT_NAMES = [
   'Aditi Sharma',
@@ -256,16 +253,7 @@ function AssigneeSearchSelect({
       width={198}
       header={
         <div className="lc-tdp__assignee-search-row">
-          <input
-            type="text"
-            className="lc-tdp__assignee-search"
-            aria-label="Search agents"
-            placeholder="Search agents…"
-            value={query}
-            autoFocus
-            onChange={(e) => setQuery(e.currentTarget.value)}
-            onClick={(e) => e.stopPropagation()}
-          />
+          <TextInput className="lc-tdp__assignee-search" aria-label="Search agents" placeholder="Search agents…" value={query} autoFocus onChange={(e) => setQuery(e.currentTarget.value)} onClick={(e) => e.stopPropagation()} variant="unstyled" />
         </div>
       }
       emptyState={<p className="lc-tdp__assignee-empty">No agents found.</p>}
@@ -315,12 +303,7 @@ function TextField({ field }: { field: TicketDetailsField }) {
   return (
     <label className="lc-tdp__field">
       <span className="lc-tdp__field-label">{field.label}</span>
-      <input
-        className="lc-tdp__field-input"
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.currentTarget.value)}
-      />
+      <TextInput value={value} onChange={(e) => setValue(e.currentTarget.value)} />
     </label>
   );
 }
@@ -345,14 +328,14 @@ function DateField({ field }: { field: TicketDetailsField }) {
 function SelectField({ field }: { field: TicketDetailsField }) {
   const [value, setValue] = useState(field.defaultValue ?? '');
   return (
-    <NativeSelect
+    <Select
       label={field.label}
       size="sm"
-      wrapperClassName="lc-tdp__select-field"
+      className="lc-tdp__select-field"
       placeholder="Select..."
       data={(field.options ?? []).map((o) => ({ value: o.value, label: o.label }))}
-      value={value}
-      onChange={(e) => setValue(e.currentTarget.value)}
+      value={value || null}
+      onChange={(v) => setValue((v ?? ''))}
     />
   );
 }
@@ -370,32 +353,32 @@ function CascadingField({ field }: { field: TicketDetailsField }) {
     <div className="lc-tdp__field">
       <span className="lc-tdp__field-label">{field.label}</span>
       <div className="lc-tdp__cascade">
-        <NativeSelect
+        <Select
           size="sm"
           aria-label={field.label}
           placeholder="Select…"
           data={level1.map((o) => ({ value: o.value, label: o.label }))}
-          value={path[0] ?? ''}
-          onChange={(e) => setPath([e.currentTarget.value])}
+          value={(path[0] ?? '') || null}
+          onChange={(v) => setPath([(v ?? '')])}
         />
         {path[0] && level2.length > 0 && (
-          <NativeSelect
+          <Select
             size="sm"
             aria-label={`${field.label}: ${level1Selected?.label}`}
             placeholder="Select…"
             data={level2.map((o) => ({ value: o.value, label: o.label }))}
-            value={path[1] ?? ''}
-            onChange={(e) => setPath([path[0], e.currentTarget.value])}
+            value={(path[1] ?? '') || null}
+            onChange={(v) => setPath([path[0], (v ?? '')])}
           />
         )}
         {path[1] && level3.length > 0 && (
-          <NativeSelect
+          <Select
             size="sm"
             aria-label={`${field.label}: ${level2Selected?.label}`}
             placeholder="Select…"
             data={level3.map((o) => ({ value: o.value, label: o.label }))}
-            value={path[2] ?? ''}
-            onChange={(e) => setPath([path[0], path[1], e.currentTarget.value])}
+            value={(path[2] ?? '') || null}
+            onChange={(v) => setPath([path[0], path[1], (v ?? '')])}
           />
         )}
       </div>
@@ -456,40 +439,40 @@ function SubTicketModal({ open, onClose }: { open: boolean; onClose: () => void 
 
   return (
     <Modal
-      open={open}
+      centered
+      opened={open}
       onClose={close}
       title="Create a Sub-ticket"
-      width={525}
-      footer={
-        <Button variant="filled" color="primary" size="sm" disabled={!canCreate} onClick={close}>
-          Create
-        </Button>
-      }
+      size={525}
     >
       <div className="lc-tdp__subticket-form">
-        <ModalTextarea
+        <Textarea
+          minRows={3}
           label="Reason for the sub ticket creation"
           required
           placeholder="Write your issue"
           value={reason}
           onChange={(e) => setReason(e.currentTarget.value)}
         />
-        <NativeSelect
+        <Select
           label="Assign to"
           withAsterisk
           size="sm"
           placeholder="Select an internal agent"
           data={RANDOM_AGENT_NAMES}
-          value={assignee}
-          onChange={(e) => setAssignee(e.currentTarget.value)}
+          value={assignee || null}
+          onChange={(v) => setAssignee((v ?? ''))}
         />
-        <ModalCheckbox
+        <Checkbox
           checked={requireResolution}
-          onChange={setRequireResolution}
+          onChange={(e) => setRequireResolution(e.currentTarget.checked)}
           label="Resolving this ticket is required to close the parent ticket."
           description="This assists in determining the dependency of the parent ticket on the internal ticket."
         />
       </div>
+      <Modal.Footer><Button variant="filled" color="primary" size="sm" disabled={!canCreate} onClick={close}>
+          Create
+        </Button></Modal.Footer>
     </Modal>
   );
 }

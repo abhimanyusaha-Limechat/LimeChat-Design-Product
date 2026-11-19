@@ -1,0 +1,11 @@
+// State selectors for the checkbox input. Mantine applies `styles` inline, which can't hold
+// selectors, so they live here and read the colours the theme extension sets as root vars
+// (theme/extensions/checkbox.extension.ts).
+.input
+  &:not(:checked):not([data-indeterminate])
+    border-color: var(--arceus-checkbox-border-color)
+
+  &:checked:not(:disabled),
+  &[data-indeterminate]:not(:disabled)
+    border-color: var(--arceus-checkbox-checked-border-color)
+    background-color: var(--arceus-checkbox-checked-bg)

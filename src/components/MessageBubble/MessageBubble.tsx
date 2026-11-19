@@ -21,21 +21,16 @@
 import {
   forwardRef,
   memo,
-  useEffect,
-  useRef,
   useState,
   type CSSProperties,
   type HTMLAttributes,
   type ReactNode,
 } from 'react';
-import { createPortal } from 'react-dom';
-import { Avatar } from '../Avatar';
-import { Button } from '../Button';
 import { ActionMenu, type MenuItemData, type MenuTriggerRenderProps } from '../Menu';
-import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 import './MessageBubble.css';
 import { iconProps } from '../iconProps';
 import { Icon, TrashIcon, CloseIcon as RemoveReactionIcon } from '../icons';
+import { ActionIcon, Avatar, Button, Popover, UnstyledButton } from 'arceus';
 
 const DEFAULT_REACTION_OPTIONS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 
@@ -233,14 +228,7 @@ function Banner({ icon, text, tone = 'dimmed' }: { icon: ReactNode; text: string
   );
 }
 
-/**
- * Horizontal emoji-strip popover for picking a reaction. Near-duplicates
- * `Menu`'s trigger/portal/outside-click/Escape mechanics (and shares its
- * `usePopoverPosition` hook) rather than reusing `Menu` itself — `Menu`'s
- * `items` render as a vertical icon+label list, which doesn't fit a compact
- * row of plain emoji buttons (same reasoning as `ProductsPanel`'s
- * `FilterPopover`).
- */
+/** Horizontal emoji-strip popover for picking a reaction, on arceus Popover. */
 function ReactionPicker({
   options,
   active,
@@ -255,83 +243,32 @@ function ReactionPicker({
   align?: 'start' | 'end';
 }) {
   const [open, setOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const popoverRef = useRef<HTMLDivElement>(null);
-  const width = options.length * 32 + 16 + (active ? 32 : 0);
-  const coords = usePopoverPosition(open, triggerRef, popoverRef, width, align);
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointerDown = (e: PointerEvent) => {
-      const target = e.target as Node;
-      if (!triggerRef.current?.contains(target) && !popoverRef.current?.contains(target)) setOpen(false);
-    };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [open]);
-
-  // Portalling to `document.body` moves the popover out of the trigger's place in the
-  // DOM, so Tab order wouldn't naturally reach it — move focus in on open (to the
-  // active/first option) and back to the trigger on close, rather than relying on it.
-  useEffect(() => {
-    if (!open) return;
-    const activeButton = popoverRef.current?.querySelector<HTMLButtonElement>('[data-active]');
-    const firstButton = popoverRef.current?.querySelector<HTMLButtonElement>('button');
-    (activeButton ?? firstButton)?.focus();
-    return () => triggerRef.current?.focus();
-  }, [open]);
+  const pick = (emoji: string) => {
+    setOpen(false);
+    onPick(emoji);
+  };
 
   return (
-    <>
-      {trigger({ ref: triggerRef, onClick: () => setOpen((o) => !o), open })}
-      {open &&
-        typeof document !== 'undefined' &&
-        createPortal(
-          <div
-            ref={popoverRef}
-            className="lc-message-bubble__reaction-picker"
-            role="group"
-            aria-label="Pick a reaction"
-            style={{ width, ...(coords ? { top: coords.top, left: coords.left } : { visibility: 'hidden' as const }) }}
+    <Popover opened={open} onChange={setOpen} position={align === 'end' ? 'bottom-end' : 'bottom-start'} withinPortal trapFocus returnFocus>
+      <Popover.Target>{trigger({ ref: null, onClick: () => setOpen((o) => !o), open })}</Popover.Target>
+      <Popover.Dropdown className="lc-message-bubble__reaction-picker">
+        {options.map((emoji) => (
+          <UnstyledButton
+            key={emoji}
+            className="lc-message-bubble__reaction-option"
+            data-active={emoji === active || undefined}
+            onClick={() => pick(emoji)}
           >
-            {options.map((emoji) => (
-              <button
-                key={emoji}
-                type="button"
-                className="lc-message-bubble__reaction-option"
-                data-active={emoji === active || undefined}
-                onClick={() => {
-                  setOpen(false);
-                  onPick(emoji);
-                }}
-              >
-                {emoji}
-              </button>
-            ))}
-            {active && (
-              <button
-                type="button"
-                className="lc-message-bubble__reaction-option lc-message-bubble__reaction-option--remove"
-                aria-label="Remove reaction"
-                onClick={() => {
-                  setOpen(false);
-                  onPick(active);
-                }}
-              >
-                <RemoveReactionIcon />
-              </button>
-            )}
-          </div>,
-          document.body,
+            {emoji}
+          </UnstyledButton>
+        ))}
+        {active && (
+          <ActionIcon variant="subtle" color="gray" aria-label="Remove reaction" onClick={() => pick(active)}>
+            <RemoveReactionIcon />
+          </ActionIcon>
         )}
-    </>
+      </Popover.Dropdown>
+    </Popover>
   );
 }
 

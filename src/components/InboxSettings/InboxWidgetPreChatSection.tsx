@@ -4,6 +4,7 @@
  */
 import { useId } from 'react';
 import { Row, SectionHeading, SwitchRow } from './InboxSettingsSections';
+import { Textarea } from 'arceus';
 
 export interface InboxWidgetPreChat {
   enabled: boolean;
@@ -38,16 +39,7 @@ export function WidgetPreChatSection({
       />
       <div className="lc-inbs__table">
         <Row label="Pre Chat Message" description="This will appear on the top of the form. This is like a welcome message to start filling the form." off={off}>
-          <textarea
-            id={messageId}
-            className="lc-inbs__input lc-inbs__textarea"
-            rows={5}
-            aria-label="Pre Chat Message"
-            placeholder="This message would be visible to the users along with the form"
-            value={value.message}
-            disabled={off}
-            onChange={(e) => set({ message: e.currentTarget.value })}
-          />
+          <Textarea id={messageId} rows={5} aria-label="Pre Chat Message" placeholder="This message would be visible to the users along with the form" value={value.message} disabled={off} onChange={(e) => set({ message: e.currentTarget.value })} />
         </Row>
         {FIELDS.map(({ key, label, description }) => (
           <SwitchRow key={key} label={label} description={description} checked={value[key]} off={off} onChange={(next) => set({ [key]: next })} />

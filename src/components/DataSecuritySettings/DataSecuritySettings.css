@@ -8,12 +8,12 @@
  */
 
 .lc-dss {
-  --lc-dss-border: var(--lc-color-gray-300);
-  --lc-dss-divider: var(--lc-color-gray-200);
-  --lc-dss-text-title: var(--lc-color-green-900);
-  --lc-dss-text-dimmed: var(--lc-color-sage-500);
-  --lc-dss-primary: var(--lc-color-green-700);
-  --lc-dss-bg-subtle: var(--lc-color-stone-50);
+  --lc-dss-border: var(--mantine-color-gray-3);
+  --lc-dss-divider: var(--mantine-color-gray-2);
+  --lc-dss-text-title: var(--mantine-color-dark);
+  --lc-dss-text-dimmed: var(--mantine-color-light);
+  --lc-dss-primary: var(--mantine-color-primary-7);
+  --lc-dss-bg-subtle: var(--mantine-color-gray-0);
   --lc-dss-radius: 12px;
   --lc-dss-radius-sm: 6px;
   --lc-dss-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -129,7 +129,7 @@
   flex-direction: column;
   border: 1px solid var(--lc-dss-divider);
   border-radius: var(--lc-dss-radius);
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   overflow: hidden;
   transition: opacity 220ms var(--lc-dss-ease-out), transform 220ms var(--lc-dss-ease-out);
 
@@ -192,57 +192,7 @@
 
 /* --- Switch ---------------------------------------------------------- */
 
-.lc-dss__switch-track,
-.lc-dss__header-switch {
-  position: relative;
-  flex-shrink: 0;
-  width: 40px;
-  height: 22px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: var(--lc-color-gray-300);
-  transition: background-color 150ms ease;
-}
-
-.lc-dss__switch-track {
-  cursor: pointer;
-}
-
-.lc-dss__switch-track:disabled {
-  cursor: not-allowed;
-}
-
-.lc-dss__switch-track[aria-checked='true'] {
-  background: var(--lc-dss-primary);
-}
-
 /* The card's switch keeps the brighter primary green it had before. */
-.lc-dss__header-switch[data-checked='true'] {
-  background: var(--lc-color-green-500);
-}
-
-.lc-dss__switch-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--lc-color-white);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-  transition: transform 150ms ease;
-}
-
-.lc-dss__switch-track[aria-checked='true'] .lc-dss__switch-thumb,
-.lc-dss__header-switch[data-checked='true'] .lc-dss__switch-thumb {
-  transform: translateX(18px);
-}
-
-.lc-dss__switch-track:focus-visible {
-  outline: 2px solid var(--lc-dss-primary);
-  outline-offset: 2px;
-}
 
 /* --- Block profanity: add row + word rows ------------------------------ */
 
@@ -255,11 +205,11 @@
 .lc-dss__input {
   flex: 1 1 auto;
   min-width: 0;
-  height: var(--lc-input-sm);
+  height: var(--input-height-sm);
   padding: 0 12px;
   border: 1px solid var(--lc-dss-border);
   border-radius: var(--lc-dss-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -299,7 +249,7 @@
   white-space: nowrap;
   font-size: 14px;
   font-weight: 600;
-  color: var(--lc-color-red-600);
+  color: var(--mantine-color-red-7);
 }
 
 .lc-dss__profanity-match {
@@ -330,7 +280,7 @@
 
 .lc-dss__profanity-match button[data-active='true'] {
   background: var(--lc-dss-primary);
-  color: var(--lc-color-white);
+  color: var(--mantine-color-white);
 }
 
 .lc-dss__profanity-remove {

@@ -14,10 +14,6 @@
  *   />
  */
 import { useState } from 'react';
-import { Button } from '../Button';
-import { CheckboxPill } from '../CheckboxPill';
-import { NativeSelect } from '../Select';
-import { Tooltip } from '../Tooltip';
 import { ActionMenu, Menu } from '../Menu';
 import { FlowIcon } from './icons';
 import {
@@ -34,6 +30,7 @@ import {
   useTableSort,
 } from '../DataTable';
 import './FlowsHomePage.css';
+import { Button, Checkbox, NativeSelect, Tabs, TextInput, Tooltip } from 'arceus';
 
 export type FlowTab = 'active' | 'inactive' | 'draft';
 export type FlowStatus = 'active' | 'inactive' | 'draft';
@@ -154,13 +151,7 @@ export function FlowsHomePage({
       <div className="lc-fh__toolbar" data-anchor="flow-toolbar">
         <div className="lc-fh__search">
           <FlowIcon name="search" className="lc-fh__search-icon" />
-          <input
-            className="lc-fh__search-input"
-            type="text"
-            placeholder="Search for flow"
-            value={searchValue}
-            onChange={(e) => onSearchChange?.(e.currentTarget.value)}
-          />
+          <TextInput className="lc-fh__search-input" placeholder="Search for flow" value={searchValue} onChange={(e) => onSearchChange?.(e.currentTarget.value)} variant="unstyled" />
         </div>
         <div className="lc-fh__actions">
           <Menu
@@ -196,21 +187,15 @@ export function FlowsHomePage({
       </div>
 
       <div className="lc-fh__nav-row" data-anchor="flow-tab-bar">
-        <div className="lc-fh__tabs" role="tablist">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              className="lc-fh__tab"
-              data-active={tab.id === activeTab || undefined}
-              aria-selected={tab.id === activeTab}
-              onClick={() => onTabChange?.(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs value={activeTab}>
+          <Tabs.List className="lc-fh__tabs">
+            {TABS.map((tab) => (
+              <Tabs.Tab key={tab.id} value={tab.id} className="lc-fh__tab" onClick={() => onTabChange?.(tab.id)}>
+                {tab.label}
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs>
 
         <div className="lc-fh__filters">
           <div className="lc-fh__filters-group">
@@ -235,7 +220,7 @@ export function FlowsHomePage({
               ]}
             />
           </div>
-          <CheckboxPill checked={showRetry} onChange={setShowRetry} label="Show retry results" />
+          <Checkbox checked={showRetry} onChange={(e) => setShowRetry(e.currentTarget.checked)} label="Show retry results" />
         </div>
       </div>
 

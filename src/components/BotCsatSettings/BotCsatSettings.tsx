@@ -20,6 +20,7 @@
 import { useId, type ReactNode } from 'react';
 import { CheckIcon } from '../icons';
 import './BotCsatSettings.css';
+import { Switch, TextInput } from 'arceus';
 
 export type CsatFlowKey =
   | 'showProducts'
@@ -142,14 +143,7 @@ function TimeDelayFields({
       {(['hours', 'minutes', 'seconds'] as CsatTimeDelayField[]).map((field) => (
         <label key={field} className="lc-csat__field">
           <span className="lc-csat__field-label">{field[0].toUpperCase() + field.slice(1)}</span>
-          <input
-            type="number"
-            min={0}
-            className="lc-csat__input"
-            value={value[field]}
-            disabled={disabled}
-            onChange={(e) => onChange(field, clampDelay(e.currentTarget.valueAsNumber))}
-          />
+          <TextInput type="number" min={0} value={value[field]} disabled={disabled} onChange={(e) => onChange(field, clampDelay(e.currentTarget.valueAsNumber))} />
         </label>
       ))}
     </div>
@@ -173,13 +167,7 @@ export function BotCsatSettings({
   return (
     <div className="lc-csat">
       <section className="lc-csat__group" aria-labelledby={titleId}>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={enabled}
-          className="lc-csat__header-row"
-          onClick={() => onEnabledChange(!enabled)}
-        >
+        <div className="lc-csat__header-row">
           <StarIcon />
           <span className="lc-csat__header-copy">
             <span id={titleId} className="lc-csat__header-label">Bot CSAT</span>
@@ -187,10 +175,8 @@ export function BotCsatSettings({
               Automatically send a satisfaction survey when the bot resolves a ticket
             </span>
           </span>
-          <span className="lc-csat__switch-track" data-checked={enabled} aria-hidden="true">
-            <span className="lc-csat__switch-thumb" />
-          </span>
-        </button>
+          <Switch checked={enabled} onChange={() => onEnabledChange(!enabled)} aria-labelledby={titleId} size="sm" />
+        </div>
 
         <div className="lc-csat__table" data-disabled={!enabled}>
           <Row label="Flows" description="Bot flows that send the survey once resolved.">

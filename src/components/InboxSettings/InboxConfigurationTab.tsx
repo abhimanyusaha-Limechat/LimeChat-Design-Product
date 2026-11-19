@@ -3,9 +3,9 @@
  * provider (Twilio). It's set up by an admin, so an inbox without one shows a hint instead.
  */
 import { useId } from 'react';
-import { Button } from '../Button';
 import { SectionHeading } from './InboxSettingsSections';
 import { useCopied } from './useCopied';
+import { Button, TextInput } from 'arceus';
 
 export interface InboxConfiguration {
   /** Empty until an admin has set the inbox up. */
@@ -30,7 +30,7 @@ export function ConfigurationTab({ value }: { value: InboxConfiguration }) {
               <p className="lc-inbs__row-desc">Paste this into Twilio's message callback setting.</p>
             </div>
             <div className="lc-inbs__copy">
-              <input id={urlId} className="lc-inbs__input" value={value.callbackUrl} readOnly onFocus={(e) => e.currentTarget.select()} />
+              <TextInput id={urlId} value={value.callbackUrl} readOnly onFocus={(e) => e.currentTarget.select()} />
               <Button variant="outline" size="sm" onClick={copy}>{copied ? 'Copied' : 'Copy'}</Button>
             </div>
           </div>

@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
   min-height: 100dvh;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   font-family: Lato, sans-serif;
 }
 
@@ -14,13 +14,13 @@
   justify-content: space-between;
   gap: 48px;
   padding: 64px;
-  background: var(--lc-color-green-900);
-  color: var(--lc-color-white);
+  background: var(--mantine-color-dark);
+  color: var(--mantine-color-white);
 }
-.account-picker__logo { width: 48px; height: 48px; color: var(--lc-color-green-200); }
+.account-picker__logo { width: 48px; height: 48px; color: var(--mantine-color-primary-2); }
 .account-picker__title { margin: 0; max-width: 12ch; font-size: 44px; line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; }
 .account-picker__lead { margin: 16px 0 0; max-width: 36ch; font-size: 16px; line-height: 1.55; color: rgb(255 255 255 / 0.72); overflow-wrap: anywhere; }
-.account-picker__lead strong { color: var(--lc-color-white); font-weight: 700; }
+.account-picker__lead strong { color: var(--mantine-color-white); font-weight: 700; }
 .account-picker__logout {
   align-self: flex-start;
   padding: 4px 0;
@@ -29,7 +29,7 @@
   font: inherit;
   font-size: 14px;
   font-weight: 700;
-  color: var(--lc-color-green-200);
+  color: var(--mantine-color-primary-2);
   cursor: pointer;
 }
 .account-picker__logout:hover { text-decoration: underline; }
@@ -54,27 +54,27 @@
   width: 20px;
   height: 20px;
   transform: translateY(-50%);
-  color: var(--lc-color-gray-500);
+  color: var(--mantine-color-gray-5);
   pointer-events: none;
 }
 .account-picker__search input {
   width: 100%;
-  height: var(--lc-input-lg);
+  height: var(--input-height-lg);
   padding: 0 16px 0 46px;
   box-sizing: border-box;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--mantine-color-gray-3);
   border-radius: 10px;
   font: inherit;
   font-size: 16px;
-  color: var(--lc-color-green-900);
+  color: var(--mantine-color-dark);
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 .account-picker__search input:focus {
   outline: none;
-  border-color: var(--lc-color-green-700);
-  box-shadow: 0 0 0 3px var(--lc-color-green-200);
+  border-color: var(--mantine-color-primary-7);
+  box-shadow: 0 0 0 3px var(--mantine-color-primary-2);
 }
-.account-picker__count { margin: 14px 4px 6px; font-size: 13px; color: var(--lc-color-sage-500); }
+.account-picker__count { margin: 14px 4px 6px; font-size: 13px; color: var(--mantine-color-light); }
 
 .account-picker__list {
   max-height: min(520px, calc(100dvh - 240px));
@@ -89,7 +89,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--lc-color-sage-500);
+  color: var(--mantine-color-light);
 }
 .account-picker__row {
   display: grid;
@@ -103,69 +103,69 @@
   contain-intrinsic-size: auto 60px;
   transition: background-color 140ms ease;
 }
-.account-picker__row[data-active='true'] { background: var(--lc-color-green-50); box-shadow: inset 0 0 0 1px var(--lc-color-green-100); }
+.account-picker__row[data-active='true'] { background: var(--mantine-color-primary-0); box-shadow: inset 0 0 0 1px var(--mantine-color-primary-1); }
 .account-picker__avatar {
   display: grid;
   place-items: center;
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: var(--lc-color-green-100);
+  background: var(--mantine-color-primary-1);
   font-size: 14px;
   font-weight: 700;
-  color: var(--lc-color-green-800);
+  color: var(--mantine-color-primary-8);
 }
 .account-picker__info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.account-picker__name { overflow: hidden; font-size: 16px; font-weight: 700; color: var(--lc-color-green-900); text-overflow: ellipsis; white-space: nowrap; }
-.account-picker__id { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--lc-color-sage-500); }
+.account-picker__name { overflow: hidden; font-size: 16px; font-weight: 700; color: var(--mantine-color-dark); text-overflow: ellipsis; white-space: nowrap; }
+.account-picker__id { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--mantine-color-light); }
 .account-picker__role {
   padding: 3px 10px;
   border-radius: 999px;
-  background: var(--lc-color-gray-100);
+  background: var(--mantine-color-gray-1);
   font-size: 12px;
   font-weight: 700;
-  color: var(--lc-color-sage-600);
+  color: var(--mantine-color-gray-6);
 }
 .account-picker__arrow {
   width: 20px;
   height: 20px;
-  color: var(--lc-color-green-700);
+  color: var(--mantine-color-primary-7);
   opacity: 0;
   transform: translateX(-6px);
   transition: opacity 160ms var(--ease-out), transform 160ms var(--ease-out);
 }
 .account-picker__row[data-active='true'] .account-picker__arrow { opacity: 1; transform: none; }
 .account-picker__row:active { transform: scale(0.99); }
-.account-picker mark { padding: 0; background: var(--lc-color-green-200); color: inherit; border-radius: 2px; }
+.account-picker mark { padding: 0; background: var(--mantine-color-primary-2); color: inherit; border-radius: 2px; }
 
 .account-picker__more {
   width: 100%;
   margin-top: 8px;
   padding: 12px;
-  border: 1px dashed var(--lc-color-gray-300);
+  border: 1px dashed var(--mantine-color-gray-3);
   border-radius: 10px;
   background: none;
   font: inherit;
   font-size: 14px;
   font-weight: 700;
-  color: var(--lc-color-green-700);
+  color: var(--mantine-color-primary-7);
   cursor: pointer;
 }
-.account-picker__more:hover { background: var(--lc-color-green-50); }
+.account-picker__more:hover { background: var(--mantine-color-primary-0); }
 
-.account-picker__empty { padding: 40px 12px; text-align: center; color: var(--lc-color-sage-600); }
+.account-picker__empty { padding: 40px 12px; text-align: center; color: var(--mantine-color-gray-6); }
 .account-picker__empty p { margin: 0 0 12px; }
 .account-picker__empty button {
   border: 0;
   background: none;
   font: inherit;
   font-weight: 700;
-  color: var(--lc-color-green-700);
+  color: var(--mantine-color-primary-7);
   cursor: pointer;
 }
 .account-picker__empty button:hover { text-decoration: underline; }
 
-.account-picker button:focus-visible { outline: 2px solid var(--lc-color-green-500); outline-offset: 2px; border-radius: 4px; }
+.account-picker button:focus-visible { outline: 2px solid var(--mantine-color-primary-6); outline-offset: 2px; border-radius: 4px; }
 
 /* One-time entrance: transform + opacity only. */
 @media (prefers-reduced-motion: no-preference) {

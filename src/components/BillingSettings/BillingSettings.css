@@ -4,12 +4,12 @@
  */
 
 .lc-billing {
-  --lc-billing-border: var(--lc-color-gray-200);
-  --lc-billing-text-title: var(--lc-color-green-900);
-  --lc-billing-text-dimmed: var(--lc-color-sage-500);
-  --lc-billing-text-body: var(--lc-color-sage-600);
-  --lc-billing-primary: var(--lc-color-green-700);
-  --lc-billing-warning: var(--lc-color-amber-600);
+  --lc-billing-border: var(--mantine-color-gray-2);
+  --lc-billing-text-title: var(--mantine-color-dark);
+  --lc-billing-text-dimmed: var(--mantine-color-light);
+  --lc-billing-text-body: var(--mantine-color-gray-6);
+  --lc-billing-primary: var(--mantine-color-primary-7);
+  --lc-billing-warning: var(--mantine-color-yellow-7);
   /* amber-600 is ~2.8:1 on the tinted card — too faint for text. No darker amber token yet. */
   --lc-billing-warning-text: #8a5a00;
 
@@ -29,7 +29,7 @@
 .lc-billing__card {
   border: 1px solid var(--lc-billing-border);
   border-radius: 16px;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   overflow: hidden;
 }
 
@@ -41,7 +41,7 @@
   /* Usage figures, bar and dates read as one block: tight inside, more air above it. */
   gap: 12px;
   padding: 24px 32px;
-  background: color-mix(in srgb, var(--lc-billing-primary) 7%, var(--lc-color-white));
+  background: color-mix(in srgb, var(--lc-billing-primary) 7%, var(--mantine-color-white));
 }
 
 .lc-billing__header {
@@ -137,13 +137,13 @@
   gap: 4px;
   padding: 2px;
   border-radius: 999px;
-  background: var(--lc-color-gray-300);
+  background: var(--mantine-color-gray-3);
 }
 
 .lc-billing__segment {
   height: 12px;
   border-radius: 999px;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   overflow: hidden;
 }
 

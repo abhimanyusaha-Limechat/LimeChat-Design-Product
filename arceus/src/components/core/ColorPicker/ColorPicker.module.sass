@@ -1,0 +1,33 @@
+@use '../../../styles/shadows' as *
+
+.trigger
+  display: flex
+  align-items: center
+  justify-content: center
+  flex-shrink: 0
+  padding: 0
+  cursor: pointer
+  border: 1px solid var(--mantine-color-gray-3)
+  border-radius: var(--mantine-radius-2xs)
+  background-color: var(--mantine-color-primary-6)
+
+  &:focus-visible
+    outline: 2px solid var(--mantine-color-primary-filled)
+    outline-offset: 2px
+
+// #TODO: set the color of this el based on some contrast theory, so black for light, white for dark.
+.icon
+  color: var(--mantine-color-white)
+  pointer-events: none
+
+.popoverDropdown
+  padding: var(--mantine-spacing-xs) !important
+  border-radius: var(--mantine-radius-2xs) !important
+  background: var(--mantine-color-white) !important
+  @extend .shadow-lg
+
+.dropdown
+  display: flex
+  flex-direction: column
+  gap: var(--mantine-spacing-xs)
+  min-width: 200px

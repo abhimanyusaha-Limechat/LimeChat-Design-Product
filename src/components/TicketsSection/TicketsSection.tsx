@@ -14,12 +14,12 @@
  *   </TicketsSection>
  */
 import { forwardRef, useId, useState, type HTMLAttributes, type ReactNode } from 'react';
-import { Button } from '../Button';
 import { Menu } from '../Menu';
 import { TicketIcon, TicketRowCheckbox, type TicketChannel } from '../TicketListItem';
 import './TicketsSection.css';
 import { iconProps } from '../iconProps';
 import { ChevronDownIcon, CheckIcon } from '../icons';
+import { Button, Tabs, TextInput } from 'arceus';
 
 const SearchIcon = () => (
   <svg {...iconProps()}>
@@ -201,12 +201,7 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
         <div className="lc-tickets-section__search-row">
           <div className="lc-tickets-section__search">
             <SearchIcon />
-            <input
-              type="text"
-              placeholder="Search in Tickets"
-              value={searchValue}
-              onChange={(e) => onSearchChange?.(e.currentTarget.value)}
-            />
+            <TextInput placeholder="Search in Tickets" value={searchValue} onChange={(e) => onSearchChange?.(e.currentTarget.value)} />
           </div>
           <button type="button" className="lc-tickets-section__icon-btn" aria-label="Filter" onClick={onFilterClick}>
             <FilterIcon />
@@ -234,14 +229,7 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
                 header={
                   <div className="lc-create-ticket-menu__search">
                     <SearchIcon />
-                    <input
-                      type="text"
-                      placeholder="Search inboxes"
-                      value={inboxQuery}
-                      autoFocus
-                      onChange={(e) => setInboxQuery(e.currentTarget.value)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
+                    <TextInput placeholder="Search inboxes" value={inboxQuery} autoFocus onChange={(e) => setInboxQuery(e.currentTarget.value)} onClick={(e) => e.stopPropagation()} />
                   </div>
                 }
                 emptyState={<div className="lc-create-ticket-menu__empty">No inboxes found</div>}
@@ -266,21 +254,15 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
       </div>
 
       {tabs && tabs.length > 0 && (
-        <div className="lc-tickets-section__tabs" role="tablist">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              className="lc-tickets-section__tab"
-              data-active={activeTab === tab.id || undefined}
-              onClick={() => onTabChange?.(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs value={activeTab}>
+          <Tabs.List grow className="lc-tickets-section__tabs">
+            {tabs.map((tab) => (
+              <Tabs.Tab key={tab.id} value={tab.id} className="lc-tickets-section__tab" onClick={() => onTabChange?.(tab.id)}>
+                {tab.label}
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs>
       )}
 
       {sortLabel && (
@@ -312,7 +294,7 @@ export const TicketsSection = forwardRef<HTMLDivElement, TicketsSectionProps>(fu
           <span className="lc-tickets-section__selection-label">
             Select All <span className="lc-tickets-section__selection-count">{selectedCount}</span>
           </span>
-          <Button variant="filled" color="primary" size="xs" textTransform="none" onClick={onModify}>
+          <Button variant="filled" color="primary" size="xs" onClick={onModify}>
             MODIFY
           </Button>
         </div>

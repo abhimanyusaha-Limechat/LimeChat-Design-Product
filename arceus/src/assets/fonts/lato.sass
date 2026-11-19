@@ -1,0 +1,79 @@
+$font-path: 'Lato'
+$font-name: 'Lato'
+$font-version: '1.0.0'
+
+@mixin fontdef-ttf($font-path, $font-name, $font-version: '1.0.0', $font-type: '')
+  $caret: '-'
+  @if $font-type == ''
+    $caret: ''
+  src: url('@fonts/#{$font-path}/#{$font-name}#{$caret}#{$font-type}.ttf?v=#{$font-version}') format('truetype')
+
+@mixin fontdef-woff($font-path, $font-name, $font-version: '1.0.0')
+  src: url('@fonts/#{$font-path}/#{$font-name}.woff2?v=#{$font-version}') format('woff2')
+  src: url('@fonts/#{$font-path}/#{$font-name}.woff?v=#{$font-version}') format('woff')
+
+@font-face
+  font-family: 'Lato'
+  @include fontdef-ttf($font-path, $font-name, $font-version, 'Black')
+  font-weight: 900
+  font-style: normal
+
+@font-face
+  font-family: 'Lato'
+  @include fontdef-ttf($font-path, $font-name, $font-version, 'BlackItalic')
+  font-weight: 900
+  font-style: italic
+
+@font-face
+  font-family: 'Lato'
+  @include fontdef-ttf($font-path, $font-name, $font-version, 'Bold')
+  font-weight: bold
+  font-style: normal
+
+@font-face
+  font-family: 'Lato'
+  @include fontdef-ttf($font-path, $font-name, $font-version, 'BoldItalic')
+  font-weight: bold
+  font-style: italic
+
+@font-face
+  font-family: 'Lato'
+  @include fontdef-ttf($font-path, $font-name, $font-version, 'Medium')
+  font-weight: 500
+  font-style: normal
+
+@font-face
+  font-family: 'Lato'
+  @include fontdef-ttf($font-path, $font-name, $font-version, 'Regular')
+  font-weight: normal
+  font-style: normal
+
+@font-face
+  font-family: 'Lato'
+  @include fontdef-ttf($font-path, $font-name, $font-version, 'Italic')
+  font-weight: normal
+  font-style: italic
+
+@font-face
+  font-family: 'Lato'
+  @include fontdef-ttf($font-path, $font-name, $font-version, 'Light')
+  font-weight: 300
+  font-style: normal
+
+@font-face
+  font-family: 'Lato'
+  @include fontdef-ttf($font-path, $font-name, $font-version, 'LightItalic')
+  font-weight: 300
+  font-style: italic
+
+@font-face
+  font-family: 'Lato'
+  @include fontdef-ttf($font-path, $font-name, $font-version, 'Thin')
+  font-weight: 100
+  font-style: normal
+
+@font-face
+  font-family: 'Lato'
+  @include fontdef-ttf($font-path, $font-name, $font-version, 'ThinItalic')
+  font-weight: 100
+  font-style: italic

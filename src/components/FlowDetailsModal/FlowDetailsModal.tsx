@@ -14,8 +14,7 @@
  * Built on the shared `<Modal>` shell.
  */
 import { useEffect, useState } from 'react';
-import { Button } from '../Button';
-import { Modal, ModalSwitch, ModalTextField, ModalTextarea } from '../Modal';
+import { Button, Group, Modal, Paper, Stack, Switch, TextInput, Textarea } from 'arceus';
 
 export interface FlowDetailsValues {
   name: string;
@@ -59,52 +58,54 @@ export function FlowDetailsModal({
 
   return (
     <Modal
-      open={open}
+      centered
+      opened={open}
       onClose={onClose}
       title={title}
-      footer={
+    >
+      <Stack gap="md">
+      <TextInput label="Flow name" required value={name} onChange={(e) => setName(e.currentTarget.value)} />
+
+      <Paper withBorder p="sm" radius="xs" bg="var(--mantine-color-primary-0)">
+        <Switch
+          checked={active}
+          onChange={(e) => {
+            const next = e.currentTarget.checked;
+            setActive(next);
+            onActiveChange?.(next);
+          }}
+          label="Make flow active / inactive"
+        />
+      </Paper>
+
+      <Group align="flex-end" wrap="nowrap">
+        <TextInput label="Flow Id" required disabled value={flowId} />
         <Button
+          variant="default"
+          color="primary"
+          size="sm"
+          onClick={() => onCopyFlowId?.(flowId)}
+        >
+          Copy
+        </Button>
+      </Group>
+
+      <Textarea
+        minRows={3}
+        label="Description"
+        placeholder="Type in a description of your flow"
+        value={description}
+        onChange={(e) => setDescription(e.currentTarget.value)}
+      />
+      </Stack>
+      <Modal.Footer><Button
           variant="filled"
           color="primary"
           size="sm"
           onClick={() => onSave?.({ name, active, description })}
         >
           Save
-        </Button>
-      }
-    >
-      <ModalTextField label="Flow name" required value={name} onChange={setName} />
-
-      <div className="lc-modal__callout">
-        <ModalSwitch
-          checked={active}
-          onChange={(next) => {
-            setActive(next);
-            onActiveChange?.(next);
-          }}
-          label="Make flow active / inactive"
-        />
-      </div>
-
-      <div className="lc-modal__row lc-modal__row--end">
-        <ModalTextField label="Flow Id" required disabled value={flowId} />
-        <Button
-          variant="default"
-          color="primary"
-          size="sm"
-          textTransform="none"
-          onClick={() => onCopyFlowId?.(flowId)}
-        >
-          Copy
-        </Button>
-      </div>
-
-      <ModalTextarea
-        label="Description"
-        placeholder="Type in a description of your flow"
-        value={description}
-        onChange={(e) => setDescription(e.currentTarget.value)}
-      />
+        </Button></Modal.Footer>
     </Modal>
   );
 }

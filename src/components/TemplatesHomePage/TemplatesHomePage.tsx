@@ -10,9 +10,6 @@
  *   />
  */
 import { useState } from 'react';
-import { Button } from '../Button';
-import { NativeSelect } from '../Select';
-import { Tooltip } from '../Tooltip';
 import { ActionMenu } from '../Menu';
 import { TemplateIcon } from './icons';
 import {
@@ -27,6 +24,7 @@ import {
   useTableSort,
 } from '../DataTable';
 import './TemplatesHomePage.css';
+import { Button, NativeSelect, Tabs, TextInput, Tooltip } from 'arceus';
 
 export type TemplateStatus = 'in-review' | 'active' | 'rejected' | 'paused';
 export type TemplateType = 'text' | 'image';
@@ -199,19 +197,13 @@ export function TemplatesHomePage({
       <div className="lc-th__toolbar" data-anchor="template-toolbar">
         <div className="lc-th__search">
           <TemplateIcon name="search" className="lc-th__search-icon" />
-          <input
-            className="lc-th__search-input"
-            type="text"
-            placeholder="Search templates"
-            value={searchValue}
-            onChange={(e) => onSearchChange?.(e.currentTarget.value)}
-          />
+          <TextInput className="lc-th__search-input" placeholder="Search templates" value={searchValue} onChange={(e) => onSearchChange?.(e.currentTarget.value)} variant="unstyled" />
         </div>
 
         <div className="lc-th__filters">
           <NativeSelect
             size="sm"
-            wrapperClassName="lc-th__filter"
+            className="lc-th__filter"
             value={inboxFilter}
             onChange={(e) => onInboxFilterChange?.(e.currentTarget.value)}
             data={[
@@ -223,7 +215,7 @@ export function TemplatesHomePage({
           {activeChannel === 'whatsapp' && (
             <NativeSelect
               size="sm"
-              wrapperClassName="lc-th__filter"
+              className="lc-th__filter"
               value={typeFilter}
               onChange={(e) => onTypeFilterChange?.(e.currentTarget.value)}
               data={[
@@ -239,7 +231,7 @@ export function TemplatesHomePage({
           {activeChannel !== 'email' && (
             <NativeSelect
               size="sm"
-              wrapperClassName="lc-th__filter"
+              className="lc-th__filter"
               value={categoryFilter}
               onChange={(e) => onCategoryFilterChange?.(e.currentTarget.value)}
               data={[
@@ -276,21 +268,15 @@ export function TemplatesHomePage({
       </div>
 
       <div className="lc-th__nav-row" data-anchor="template-tab-bar">
-        <div className="lc-th__tabs" role="tablist">
-          {CHANNELS.map((channel) => (
-            <button
-              key={channel.id}
-              type="button"
-              role="tab"
-              className="lc-th__tab"
-              data-active={channel.id === activeChannel || undefined}
-              aria-selected={channel.id === activeChannel}
-              onClick={() => onChannelChange?.(channel.id)}
-            >
-              {channel.label}
-            </button>
-          ))}
-        </div>
+        <Tabs value={activeChannel}>
+          <Tabs.List className="lc-th__tabs">
+            {CHANNELS.map((channel) => (
+              <Tabs.Tab key={channel.id} value={channel.id} className="lc-th__tab" onClick={() => onChannelChange?.(channel.id)}>
+                {channel.label}
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs>
       </div>
 
       <DataTable aria-busy={loading || undefined} aria-label="Templates" data-anchor="template-table">

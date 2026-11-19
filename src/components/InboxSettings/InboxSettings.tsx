@@ -14,8 +14,6 @@
  */
 import { useId, useState } from 'react';
 import type { InboxType } from '../InboxesTable';
-import type { SelectItem } from '../Select';
-import { Tooltip } from '../Tooltip';
 import { Icon } from '../icons';
 import type { IconName } from '../iconPaths';
 import { BusinessHoursTab, type InboxBusinessHours } from './InboxBusinessHoursTab';
@@ -46,6 +44,7 @@ import {
   type WaitingReminders,
 } from './InboxSettingsSections';
 import './InboxSettings.css';
+import { SelectItem, Tabs, TextInput, Textarea, Tooltip } from 'arceus';
 
 export type { InboxDuration, InboxDurationField };
 export type InboxDurationKey = 'autoClose' | 'autoResolve' | 'autoResolveBot' | 'autoAlert';
@@ -215,19 +214,14 @@ function GeneralTab({ type, detail, values, onChange, templates }: InboxSettings
         <div className="lc-inbs__table">
           <div className="lc-inbs__row">
             <label className="lc-inbs__label" htmlFor={nameId}>Inbox name</label>
-            <input
-              id={nameId}
-              className="lc-inbs__input"
-              value={values.name}
-              onChange={(e) => onChange({ name: e.currentTarget.value })}
-            />
+            <TextInput id={nameId} value={values.name} onChange={(e) => onChange({ name: e.currentTarget.value })} />
           </div>
           <div className="lc-inbs__row">
             <div className="lc-inbs__row-label">
               <label className="lc-inbs__label" htmlFor={detailId}>{DETAIL_LABEL[type]}</label>
               <p className="lc-inbs__row-desc">Set when the inbox was connected; it can't be changed here.</p>
             </div>
-            <input id={detailId} className="lc-inbs__input" value={detail} readOnly />
+            <TextInput id={detailId} value={detail} readOnly />
           </div>
         </div>
       </section>
@@ -264,14 +258,7 @@ function GeneralTab({ type, detail, values, onChange, templates }: InboxSettings
                 approximate wait.
               </p>
             </div>
-            <textarea
-              id={waitMessageId}
-              className="lc-inbs__input lc-inbs__textarea"
-              rows={4}
-              value={wait.text}
-              disabled={!wait.enabled}
-              onChange={(e) => onChange({ waitTimeMessage: { ...wait, text: e.currentTarget.value } })}
-            />
+            <Textarea id={waitMessageId} rows={4} value={wait.text} disabled={!wait.enabled} onChange={(e) => onChange({ waitTimeMessage: { ...wait, text: e.currentTarget.value } })} />
           </div>
         </div>
       </section>
@@ -310,33 +297,32 @@ export function InboxSettings(props: InboxSettingsProps) {
     <div className="lc-inbs-shell">
       <div className="lc-inbs">
         <div className="lc-inbs__tabbar">
-          <div className="lc-inbs__tabs" role="tablist" aria-label="Inbox settings">
-            {tabs.map((t) => {
-              const active = t.id === tab;
-              const tabButton = (
-                <button
-                  key={t.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  aria-label={t.label}
-                  className="lc-inbs__tab"
-                  data-active={active || undefined}
-                  data-icon={t.icon ? true : undefined}
-                  onClick={() => setTab(t.id)}
-                >
-                  {t.icon && <Icon name={t.icon} size={16} />}
-                  {(!t.icon || active) && t.label}
-                </button>
-              );
-              // Widget tabs collapse to icons so all of them fit; the open one keeps its label.
-              return t.icon && !active ? (
-                <Tooltip key={t.id} label={t.label} position="bottom">{tabButton}</Tooltip>
-              ) : (
-                tabButton
-              );
-            })}
-          </div>
+          <Tabs value={tab}>
+            <Tabs.List className="lc-inbs__tabs" aria-label="Inbox settings">
+              {tabs.map((t) => {
+                const active = t.id === tab;
+                const tabButton = (
+                  <Tabs.Tab
+                    key={t.id}
+                    value={t.id}
+                    aria-label={t.label}
+                    className="lc-inbs__tab"
+                    data-icon={t.icon ? true : undefined}
+                    leftSection={t.icon ? <Icon name={t.icon} size={16} /> : undefined}
+                    onClick={() => setTab(t.id)}
+                  >
+                    {(!t.icon || active) && t.label}
+                  </Tabs.Tab>
+                );
+                // Widget tabs collapse to icons so all of them fit; the open one keeps its label.
+                return t.icon && !active ? (
+                  <Tooltip key={t.id} label={t.label} position="bottom">{tabButton}</Tooltip>
+                ) : (
+                  tabButton
+                );
+              })}
+            </Tabs.List>
+          </Tabs>
         </div>
         <div className="lc-inbs__panel" role="tabpanel" aria-label={tabLabel}>
           {isWidget ? (

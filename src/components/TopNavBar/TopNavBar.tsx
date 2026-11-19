@@ -12,12 +12,11 @@
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { TopNavIcon } from './icons';
-import { Tooltip } from '../Tooltip';
 import { ProductSwitcher, type ProductSwitcherItem } from '../ProductSwitcher';
 import { AccountSwitcher, type AccountSwitcherProps } from '../AccountSwitcher';
-import { Avatar } from '../Avatar';
 import { useDismiss } from '../../hooks/useDismiss';
 import './TopNavBar.css';
+import { Avatar, Tooltip } from 'arceus';
 
 export interface TopNavCrumb {
   label: string;

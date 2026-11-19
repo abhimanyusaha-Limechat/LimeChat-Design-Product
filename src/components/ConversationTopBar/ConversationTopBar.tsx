@@ -14,13 +14,12 @@
  *   />
  */
 import { forwardRef, type HTMLAttributes } from 'react';
-import { Avatar } from '../Avatar';
-import { Button } from '../Button';
 import { ActionMenu, Menu } from '../Menu';
 import { TicketIcon, type TicketChannel } from '../TicketListItem';
 import './ConversationTopBar.css';
 import { iconProps } from '../iconProps';
 import { Icon, ChevronDownIcon } from '../icons';
+import { Avatar, Button } from 'arceus';
 
 const PhoneIcon = () => <Icon name="phone" />;
 const WhatsAppIcon = () => <Icon name="whatsapp" />;

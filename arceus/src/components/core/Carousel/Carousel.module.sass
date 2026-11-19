@@ -1,0 +1,56 @@
+.carouselContainer
+  position: relative
+  z-index: 100
+
+.carouselContentWrapper
+  overflow: hidden
+
+.carouselContent
+  display: flex
+  align-items: flex-start
+
+  &.horizontal
+    margin-left: calc(-1 * var(--mantine-spacing-sm))
+
+  &.vertical
+    flex-direction: column
+    margin-top: calc(-1 * var(--mantine-spacing-sm))
+
+.carouselItem
+  min-width: 0
+  flex-shrink: 0
+  flex-grow: 0
+  flex-basis: 100%
+
+  &.horizontal
+    padding-left: var(--mantine-spacing-sm)
+
+  &.vertical
+    padding-top: var(--mantine-spacing-sm)
+
+.carouselButton
+  position: absolute
+  backdrop-filter: blur(1px)
+  box-shadow: none
+
+  &.previous
+    &.horizontal
+      top: 50%
+      left: calc(-1 * var(--mantine-spacing-sm))
+      transform: translateY(-50%)
+
+    &.vertical
+      top: -3rem
+      left: 50%
+      transform: translateX(-50%) rotate(90deg)
+
+  &.next
+    &.horizontal
+      top: 50%
+      right: calc(-1 * var(--mantine-spacing-sm))
+      transform: translateY(-50%)
+
+    &.vertical
+      bottom: -3rem
+      left: 50%
+      transform: translateX(-50%) rotate(90deg)

@@ -6,21 +6,19 @@
  *
  *   <ProductsPanel />
  */
-import { useEffect, useId, useMemo, useRef, useState, type MouseEvent } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { COLOR_OPTIONS, MOCK_PRODUCTS, type Availability, type Product } from '../../data/mockProducts';
 import { useCommerce } from '../../context/CommerceContext';
 import { Menu, type MenuItemData } from '../Menu';
-import { Button } from '../Button';
 import './ProductsPanel.css';
 import { iconProps } from '../iconProps';
-import { Icon, CloseIcon as ClearIcon, CheckIcon, ChevronDownIcon, TrashIcon } from '../icons';
+import { Icon, CloseIcon as ClearIcon, CheckIcon, TrashIcon } from '../icons';
 import { formatINR } from '../formatINR';
 import { useTypingPlaceholder } from '../catalogUtils';
 import { ProductThumb } from '../ProductThumb';
 import { QtyStepper } from '../QtyStepper';
 import { HighlightMatch } from '../HighlightMatch';
-import { usePopoverPosition } from '../../hooks/usePopoverPosition';
+import { ActionIcon, Button, Checkbox, Popover, Select, TextInput } from 'arceus';
 
 type SortKey = 'relevance' | 'price_low_high' | 'price_high_low' | 'rating' | 'recently_added';
 
@@ -332,40 +330,9 @@ function TruncatedDescription({ text }: { text: string }) {
   );
 }
 
-/** A NativeSelect-styled field whose options open in our Menu popover instead of the native `<select>` list. */
+/** A labelled arceus Select for a product variant option. */
 function PopoverSelect({ label, data, value, onChange }: { label: string; data: string[]; value: string; onChange: (next: string) => void }) {
-  const id = useId();
-  return (
-    <div className="lc-select" data-size="sm">
-      <label className="lc-select__label" htmlFor={id}>
-        {label}
-      </label>
-      <Menu
-        ariaLabel={label}
-        align="start"
-        width={200}
-        items={data.map((option) => ({ key: option, label: option, selected: option === value, onClick: () => onChange(option) }))}
-        trigger={({ ref, onClick, open }) => (
-          <div className="lc-select__control">
-            <button
-              ref={ref}
-              id={id}
-              type="button"
-              className="lc-select__input lc-select__input--button"
-              aria-haspopup="listbox"
-              aria-expanded={open}
-              onClick={onClick}
-            >
-              {value}
-            </button>
-            <span className="lc-select__chevron" aria-hidden="true">
-              <ChevronDownIcon />
-            </span>
-          </div>
-        )}
-      />
-    </div>
-  );
+  return <Select label={label} size="sm" data={data} value={value} allowDeselect={false} onChange={(next) => next && onChange(next)} />;
 }
 
 function ProductDetailView({ product, onBack }: { product: Product; onBack: () => void }) {
@@ -467,13 +434,7 @@ function toggleValue<T>(list: T[], value: T): T[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
-/**
- * FilterPopover — intentionally near-duplicates Menu's trigger/portal/
- * outside-click/Escape mechanics (Menu.tsx), because Menu's `items` API only
- * supports single-action rows and has no escape hatch for arbitrary content
- * like a checkbox list + price-range inputs. Positioning is shared via
- * `usePopoverPosition` (also used by Menu itself).
- */
+/** Filter popover: checkbox lists + price range, on arceus Popover. */
 function FilterPopover({
   categories,
   brands,
@@ -488,98 +449,44 @@ function FilterPopover({
   active: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const popoverRef = useRef<HTMLDivElement>(null);
-  const width = 240;
-  const coords = usePopoverPosition(open, triggerRef, popoverRef, width, 'end');
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointerDown = (e: PointerEvent) => {
-      const target = e.target as Node;
-      if (!triggerRef.current?.contains(target) && !popoverRef.current?.contains(target)) setOpen(false);
-    };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [open]);
-
   return (
-    <>
-      <button
-        ref={triggerRef}
-        type="button"
-        className="lc-pp__toolbar-btn"
-        aria-label="Filter products"
-        data-active={active || undefined}
-        onClick={() => setOpen((o) => !o)}
-      >
-        <FilterIcon />
-      </button>
-      {open &&
-        typeof document !== 'undefined' &&
-        createPortal(
-          <div
-            ref={popoverRef}
-            className="lc-pp-filter"
-            role="dialog"
-            aria-label="Filter products"
-            style={{ width, ...(coords ? { top: coords.top, left: coords.left } : { visibility: 'hidden' as const }) }}
-          >
+    <Popover opened={open} onChange={setOpen} position="bottom-end" width={240} withinPortal>
+      <Popover.Target>
+        <ActionIcon
+          variant={active ? 'light' : 'subtle'}
+          color="gray"
+          size="sm"
+          aria-label="Filter products"
+          onClick={() => setOpen((o) => !o)}
+        >
+          <FilterIcon />
+        </ActionIcon>
+      </Popover.Target>
+      <Popover.Dropdown role="dialog" aria-label="Filter products" className="lc-pp-filter">
             <div className="lc-pp-filter__header">
               <span>Filters</span>
-              <button type="button" className="lc-pp-filter__close" aria-label="Close" onClick={() => setOpen(false)}>
+              <ActionIcon variant="subtle" color="gray" size="xs" aria-label="Close" onClick={() => setOpen(false)}>
                 <ClearIcon />
-              </button>
+              </ActionIcon>
             </div>
 
             <div className="lc-pp-filter__body">
               <div className="lc-pp-filter__group">
                 <p className="lc-pp-filter__group-title">Category</p>
                 {categories.map((c) => (
-                  <label key={c} className="lc-pp-filter__option">
-                    <input
-                      type="checkbox"
-                      className="lc-pp-filter__checkbox"
-                      checked={filters.category.includes(c)}
-                      onChange={() => onChange({ ...filters, category: toggleValue(filters.category, c) })}
-                    />
-                    {c}
-                  </label>
+                  <Checkbox key={c} size="xs" checked={filters.category.includes(c)} onChange={() => onChange({ ...filters, category: toggleValue(filters.category, c) })} label={c} />
                 ))}
               </div>
               <div className="lc-pp-filter__group">
                 <p className="lc-pp-filter__group-title">Brand</p>
                 {brands.map((b) => (
-                  <label key={b} className="lc-pp-filter__option">
-                    <input
-                      type="checkbox"
-                      className="lc-pp-filter__checkbox"
-                      checked={filters.brand.includes(b)}
-                      onChange={() => onChange({ ...filters, brand: toggleValue(filters.brand, b) })}
-                    />
-                    {b}
-                  </label>
+                  <Checkbox key={b} size="xs" checked={filters.brand.includes(b)} onChange={() => onChange({ ...filters, brand: toggleValue(filters.brand, b) })} label={b} />
                 ))}
               </div>
               <div className="lc-pp-filter__group">
                 <p className="lc-pp-filter__group-title">Availability</p>
                 {(Object.keys(STATUS_LABEL) as Availability[]).map((a) => (
-                  <label key={a} className="lc-pp-filter__option">
-                    <input
-                      type="checkbox"
-                      className="lc-pp-filter__checkbox"
-                      checked={filters.availability.includes(a)}
-                      onChange={() => onChange({ ...filters, availability: toggleValue(filters.availability, a) })}
-                    />
-                    {STATUS_LABEL[a]}
-                  </label>
+                  <Checkbox key={a} size="xs" checked={filters.availability.includes(a)} onChange={() => onChange({ ...filters, availability: toggleValue(filters.availability, a) })} label={STATUS_LABEL[a]} />
                 ))}
               </div>
               <div className="lc-pp-filter__group">
@@ -587,43 +494,24 @@ function FilterPopover({
                 <div className="lc-pp-filter__price-row">
                   <span className="lc-pp-filter__price-field">
                     <span className="lc-pp-filter__price-prefix">₹</span>
-                    <input
-                      type="number"
-                      className="lc-pp-filter__price-input"
-                      placeholder="Min"
-                      value={filters.priceMin}
-                      onChange={(e) => onChange({ ...filters, priceMin: e.currentTarget.value })}
-                    />
+                    <TextInput type="number" placeholder="Min" value={filters.priceMin} onChange={(e) => onChange({ ...filters, priceMin: e.currentTarget.value })} />
                   </span>
                   <span className="lc-pp-filter__price-sep">–</span>
                   <span className="lc-pp-filter__price-field">
                     <span className="lc-pp-filter__price-prefix">₹</span>
-                    <input
-                      type="number"
-                      className="lc-pp-filter__price-input"
-                      placeholder="Max"
-                      value={filters.priceMax}
-                      onChange={(e) => onChange({ ...filters, priceMax: e.currentTarget.value })}
-                    />
+                    <TextInput type="number" placeholder="Max" value={filters.priceMax} onChange={(e) => onChange({ ...filters, priceMax: e.currentTarget.value })} />
                   </span>
                 </div>
               </div>
             </div>
 
             <div className="lc-pp-filter__footer">
-              <button
-                type="button"
-                className="lc-pp-filter__clear"
-                disabled={!active}
-                onClick={() => onChange(EMPTY_FILTERS)}
-              >
+              <Button variant="subtle" size="xs" disabled={!active} onClick={() => onChange(EMPTY_FILTERS)}>
                 Clear filters
-              </button>
+              </Button>
             </div>
-          </div>,
-          document.body,
-        )}
-    </>
+      </Popover.Dropdown>
+    </Popover>
   );
 }
 
@@ -722,12 +610,7 @@ export function ProductsPanel() {
       <div className="lc-pp__search-row">
         <span className="lc-pp__search">
           <SearchIcon />
-          <input
-            className="lc-pp__search-input"
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
-          />
+          <TextInput className="lc-pp__search-input" value={search} onChange={(e) => setSearch(e.currentTarget.value)} variant="unstyled" />
           <AnimatedSearchPlaceholder visible={!search} />
           {search && (
             <button type="button" className="lc-pp__search-clear" aria-label="Clear search" onClick={() => setSearch('')}>

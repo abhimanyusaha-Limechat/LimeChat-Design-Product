@@ -2,9 +2,9 @@ import { StrictMode, useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Inspector } from './Inspector';
+import { Inspector, tooltipPlacement } from './Inspector';
 import { Menu } from '../Menu';
-import { Modal } from '../Modal';
+import { Modal } from 'arceus';
 
 // jsdom has no layout: give every element a box so targets don't resolve up to <body>.
 beforeEach(() => {
@@ -170,7 +170,7 @@ describe('pinning', () => {
   it('Esc unpins, then closes — without closing an open Modal', async () => {
     const onClose = vi.fn();
     const user = setup(
-      <Modal open onClose={onClose} title="Delete ticket">
+      <Modal opened onClose={onClose} title="Delete ticket">
         <p>Body text</p>
       </Modal>,
     );
@@ -374,7 +374,7 @@ describe('Inspector tooltips', () => {
   });
   afterEach(() => vi.useRealTimers());
 
-  const hoverFab = () => fireEvent.mouseEnter(fab().parentElement as HTMLElement);
+  const hoverFab = () => fireEvent.mouseEnter(fab());
 
   it('waits 1000ms, and shows above the bar in the bottom half of the screen', () => {
     setup();
@@ -382,49 +382,27 @@ describe('Inspector tooltips', () => {
     act(() => vi.advanceTimersByTime(999));
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     act(() => vi.advanceTimersByTime(1));
-    expect(screen.getByRole('tooltip')).toHaveClass('lc-tooltip__bubble--top');
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+  });
+});
+
+describe('tooltipPlacement', () => {
+  // jsdom can't lay out arceus's floating tooltip, so the rule that picks its side is tested directly.
+  const half = () => window.innerHeight / 2;
+
+  it('opens above the bar in the bottom half of the screen', () => {
+    expect(tooltipPlacement(half() + 100, false)).toBe('top');
   });
 
-  /** Drags the FAB so its top edge lands at `y` (it starts 60px above the bottom). */
-  const dragFabTo = (y: number) => {
-    const start = { button: 0, buttons: 1, pointerId: 1, clientX: 0, clientY: 0 };
-    const end = { ...start, clientY: y - (window.innerHeight - 60) };
-    fireEvent.pointerDown(fab(), start);
-    fireEvent.pointerMove(window, end);
-    fireEvent.pointerUp(window, { ...end, buttons: 0 });
-  };
-
-  it('shows below the bar once it is dragged into the top half', () => {
-    setup();
-    dragFabTo(100);
-    hoverFab();
-    act(() => vi.advanceTimersByTime(1000));
-    expect(screen.getByRole('tooltip')).toHaveClass('lc-tooltip__bubble--bottom');
+  it('opens below the bar in the top half', () => {
+    expect(tooltipPlacement(100, false)).toBe('bottom');
   });
 
-  /** Pins an app element (real timers: user-event stalls on fake ones), then returns to fake timers. */
-  const pinWithFabAt = async (y: number) => {
-    vi.useRealTimers();
-    const user = setup(<button type="button">Save</button>);
-    dragFabTo(y);
-    await user.click(fab());
-    await user.click(screen.getByRole('button', { name: 'Save' }));
-    await waitFor(() => expect(panel()).toBeInTheDocument());
-    vi.useFakeTimers();
-    vi.setSystemTime(Date.now() + 1000);
-  };
-
-  it('shows above the bar while the panel is open below it, if there is room', async () => {
-    await pinWithFabAt(100);
-    hoverFab();
-    act(() => vi.advanceTimersByTime(1000));
-    expect(screen.getByRole('tooltip')).toHaveClass('lc-tooltip__bubble--top');
+  it('opens above while the panel is open below the bar, if there is room', () => {
+    expect(tooltipPlacement(100, true)).toBe('top');
   });
 
-  it('stays below with the panel open when the bar is too close to the top', async () => {
-    await pinWithFabAt(20);
-    hoverFab();
-    act(() => vi.advanceTimersByTime(1000));
-    expect(screen.getByRole('tooltip')).toHaveClass('lc-tooltip__bubble--bottom');
+  it('stays below with the panel open when the bar is too close to the top', () => {
+    expect(tooltipPlacement(20, true)).toBe('bottom');
   });
 });

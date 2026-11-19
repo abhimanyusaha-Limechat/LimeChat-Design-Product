@@ -1,0 +1,136 @@
+.root
+  .steps
+    isolation: isolate
+
+  .steps[data-orientation="horizontal"]
+    align-items: stretch
+    gap: 0
+
+    .separator
+      display: none
+
+    .step
+      position: relative
+      z-index: var(--arceus-step-order, 0)
+      flex: 1 0 0
+      min-width: 0
+      height: 4.4rem
+      justify-content: flex-start
+      align-items: center
+      gap: var(--mantine-spacing-sm)
+      padding: var(--mantine-spacing-sm) var(--mantine-spacing-2xl) var(--mantine-spacing-sm) var(--mantine-spacing-2xl)
+      margin-inline-start: calc(-1 * var(--mantine-spacing-lg))
+      border: 1px solid var(--mantine-color-gray-3)
+      border-radius: var(--stepper-radius)
+      background: var(--mantine-color-white)
+
+      &:first-child
+        margin-inline-start: 0
+        padding-inline-start: var(--mantine-spacing-sm)
+
+      &[data-icon-position="right"]
+        justify-content: flex-end
+
+      &[data-allow-click]:hover:not([data-progress]):not([data-completed]):not(.error)
+        background: var(--mantine-color-gray-1)
+
+    &[data-wrap] .step
+      flex-basis: auto
+
+  .steps[data-orientation="vertical"]
+    align-items: stretch
+    gap: var(--mantine-spacing-sm)
+
+    .step
+      min-height: 4.4rem
+      padding: var(--mantine-spacing-sm)
+      gap: var(--mantine-spacing-sm)
+      align-items: center
+      border: 1px solid var(--mantine-color-gray-3)
+      border-radius: var(--stepper-radius)
+      background: var(--mantine-color-white)
+
+    .verticalSeparator
+      display: none
+
+  .stepWrapper
+    flex: 0 0 auto
+
+  .stepIcon
+    width: var(--stepper-icon-size)
+    height: var(--stepper-icon-size)
+    min-width: var(--stepper-icon-size)
+    background: var(--mantine-color-gray-1)
+    border: none
+    border-radius: var(--mantine-radius-2xs)
+    color: var(--mantine-color-dark)
+    font-size: var(--mantine-font-size-xs)
+    font-weight: 400
+    line-height: 1.6rem
+    box-shadow: none
+
+  .stepBody
+    display: flex
+    flex-direction: column
+    margin: 0
+    gap: var(--mantine-spacing-2xs)
+    overflow: hidden
+
+  .stepLabel
+    font-size: var(--mantine-font-size-xs)
+    font-weight: 700
+    line-height: 1.6rem
+    color: var(--mantine-color-dark)
+    white-space: nowrap
+
+  .stepDescription
+    font-size: var(--mantine-font-size-2xs)
+    font-weight: 400
+    margin: 0;
+    color: var(--mantine-color-light)
+    white-space: nowrap
+
+  .steps .step[data-progress]
+    background: var(--mantine-color-gray-0)
+    border-color: var(--step-color, var(--stepper-color))
+
+    .stepLabel
+      color: var(--step-color, var(--stepper-color))
+
+  .stepIcon[data-progress]
+    background: var(--mantine-color-gray-1)
+    border: 2px solid var(--step-color, var(--stepper-color))
+    color: var(--mantine-color-dark)
+
+  .steps .step[data-completed]:not(.error)
+    background: var(--arceus-step-completed-color, var(--step-color, var(--stepper-color)))
+    border-color: transparent
+
+    .stepLabel,
+    .stepDescription
+      color: var(--mantine-color-white)
+
+    .stepIcon
+      background: var(--mantine-color-primary-1)
+      border: none
+      border-radius: var(--mantine-radius-xl)
+      color: var(--mantine-color-primary-7)
+
+      * > svg
+        stroke: var(--mantine-color-primary-7)
+
+  .steps .step.error
+    background: var(--mantine-color-red-1)
+    border-color: var(--mantine-color-gray-3)
+
+    .stepLabel
+      color: var(--mantine-color-dark)
+
+    .stepDescription
+      color: var(--mantine-color-light)
+
+    .stepIcon
+      background: var(--mantine-color-red-7)
+      border: none
+      border-radius: var(--mantine-radius-2xs)
+      color: var(--mantine-color-white)

@@ -2,9 +2,8 @@
  * The widget editor's General tab: the bot's name, the inbox it feeds, which input
  * elements the widget shows, and whether it shows unread messages while closed.
  */
-import { Tooltip } from '../Tooltip';
-import { NativeSelect } from '../Select';
 import { Row, SectionHeading, SwitchRow, TextRow } from './InboxSettingsSections';
+import { NativeSelect, Tooltip } from 'arceus';
 
 export interface InboxWidgetGeneral {
   botName: string;
@@ -46,7 +45,7 @@ export function WidgetGeneralSection({
         <Row label="Inbox" description="Conversations from this widget land in this inbox.">
           <NativeSelect
             size="sm"
-            fullWidth
+            w="100%"
             aria-label="Inbox"
             data={INBOXES}
             value={value.inbox}

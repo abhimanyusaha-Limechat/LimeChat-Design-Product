@@ -12,7 +12,6 @@
  *     onSync={() => refetchInboxes()}
  *   />
  */
-import { Button } from '../Button';
 import { ActionMenu } from '../Menu';
 import { InboxIcon, type InboxIconName } from './icons';
 import {
@@ -27,6 +26,7 @@ import {
   useTableSort,
 } from '../DataTable';
 import './InboxesTable.css';
+import { Button, TextInput } from 'arceus';
 
 export type InboxType = 'whatsapp' | 'email' | 'instagram' | 'sms' | 'facebook';
 
@@ -93,13 +93,7 @@ export function InboxesTable({
       <div className="lc-ib__toolbar" data-anchor="inbox-toolbar">
         <div className="lc-ib__search">
           <InboxIcon name="search" className="lc-ib__search-icon" />
-          <input
-            className="lc-ib__search-input"
-            type="text"
-            placeholder="Search inboxes by ID or name"
-            value={searchValue}
-            onChange={(e) => onSearchChange?.(e.currentTarget.value)}
-          />
+          <TextInput className="lc-ib__search-input" placeholder="Search inboxes by ID or name" value={searchValue} onChange={(e) => onSearchChange?.(e.currentTarget.value)} variant="unstyled" />
         </div>
         {onSync && (
           <Button

@@ -1,0 +1,32 @@
+.draggable-container
+    user-select: none
+    display: flex
+    flex-direction: column
+    position: relative
+
+    &--close-button
+        position: absolute !important
+        top: -4.2rem
+        right: calc(-1 * var(--mantine-spacing-2xs))
+
+    &--handle
+        display: flex
+        align-items: center
+        justify-content: center
+        padding: var(--mantine-spacing-sm)
+        cursor: move
+        position: absolute
+        left: 50%
+        top: var(--mantine-spacing-zero)
+        transform: translateX(-50%)
+
+        .handle-bar
+            border-radius: var(--mantine-spacing-xs)
+            height: 3px
+            min-height: 3px
+            width: 75px
+            background: var(--mantine-color-gray-4)
+
+    &--header
+        cursor: move
+        user-select: none

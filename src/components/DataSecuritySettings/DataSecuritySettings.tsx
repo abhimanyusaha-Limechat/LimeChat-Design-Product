@@ -13,10 +13,9 @@
  *   />
  */
 import { useId, useState } from 'react';
-import { Button } from '../Button';
-import { Tooltip } from '../Tooltip';
 import { CloseIcon } from '../icons';
 import './DataSecuritySettings.css';
+import { Button, Switch, TextInput, Tooltip } from 'arceus';
 
 function ShieldIcon() {
   return (
@@ -60,17 +59,7 @@ function ToggleRow({
         </label>
         {description && <p className="lc-dss__row-desc">{description}</p>}
       </div>
-      <button
-        id={id}
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        disabled={disabled}
-        className="lc-dss__switch-track"
-        onClick={() => onChange(!checked)}
-      >
-        <span className="lc-dss__switch-thumb" />
-      </button>
+      <Switch id={id} checked={checked} disabled={disabled} onChange={() => onChange(!checked)} size="sm" />
     </div>
   );
 }
@@ -186,13 +175,7 @@ export function DataSecuritySettings({
   return (
     <div className="lc-dss">
       <section className="lc-dss__group" aria-labelledby={piiTitleId}>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={maskMessagePii}
-          className="lc-dss__header-row"
-          onClick={() => onMaskMessagePiiChange(!maskMessagePii)}
-        >
+        <div className="lc-dss__header-row">
           <ShieldIcon />
           <span className="lc-dss__header-copy">
             <span id={piiTitleId} className="lc-dss__header-label">Mask message PII</span>
@@ -200,10 +183,8 @@ export function DataSecuritySettings({
               Mask sensitive customer information in WhatsApp and website widget messages
             </span>
           </span>
-          <span className="lc-dss__header-switch" data-checked={maskMessagePii} aria-hidden="true">
-            <span className="lc-dss__switch-thumb" />
-          </span>
-        </button>
+          <Switch checked={maskMessagePii} onChange={() => onMaskMessagePiiChange(!maskMessagePii)} aria-labelledby={piiTitleId} size="sm" />
+        </div>
 
         <div className="lc-dss__table" data-disabled={!maskMessagePii}>
           <ToggleRow
@@ -233,34 +214,17 @@ export function DataSecuritySettings({
               Stop agents from sending profanity or any word your team should never send.
             </p>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={blockProfanity}
-            aria-labelledby={profanityTitleId}
-            className="lc-dss__switch-track"
-            onClick={() => onBlockProfanityChange(!blockProfanity)}
-          >
-            <span className="lc-dss__switch-thumb" />
-          </button>
+          <Switch checked={blockProfanity} aria-labelledby={profanityTitleId} onChange={() => onBlockProfanityChange(!blockProfanity)} size="sm" />
         </div>
 
         <div className="lc-dss__table" data-disabled={!blockProfanity}>
           <div className="lc-dss__profanity-add">
-            <input
-              className="lc-dss__input"
-              aria-label="Word or phrase to block"
-              placeholder="Add a word or phrase to block"
-              value={pendingWord}
-              disabled={!blockProfanity}
-              onChange={(e) => setPendingWord(e.currentTarget.value)}
-              onKeyDown={(e) => {
+            <TextInput aria-label="Word or phrase to block" placeholder="Add a word or phrase to block" value={pendingWord} disabled={!blockProfanity} onChange={(e) => setPendingWord(e.currentTarget.value)} onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   handleAddWord();
                 }
-              }}
-            />
+              }} />
             <Button
               variant="filled"
               color="primary"

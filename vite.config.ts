@@ -1,5 +1,6 @@
 import { execSync } from 'node:child_process';
 import { defineConfig, type Plugin } from 'vite';
+import { arceusAliases, arceusSassLoadPaths } from './arceus/aliases';
 import react from '@vitejs/plugin-react';
 import { anchorManifest, type SourceFile } from './src/anchors/anchorManifest';
 import { buildStamp } from './src/build/buildStamp';
@@ -43,7 +44,8 @@ const stamp = buildStamp(
 export default defineConfig(({ command }) => ({
   // Project pages are served from /<repo>/, not the domain root — only apply
   // that prefix for production builds so `vite`/`vite preview` stay at `/`.
-  base: command === 'build' ? '/LimeChat-Design-Product/' : '/',
+  // VITE_BASE lets the staging build live under /LimeChat-Design-Product/staging/ (see deploy-pages.yml).
+  base: command === 'build' ? (process.env.VITE_BASE ?? '/LimeChat-Design-Product/') : '/',
   // Anchors first so it reads untransformed source and reports true line numbers.
   plugins: [anchorsPlugin(), react()],
   define: {
@@ -52,6 +54,10 @@ export default defineConfig(({ command }) => ({
   },
   resolve: {
     dedupe: ['react', 'react-dom'],
+    alias: arceusAliases,
+  },
+  css: {
+    preprocessorOptions: { sass: { loadPaths: arceusSassLoadPaths } },
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react/jsx-runtime', 'agentation'],

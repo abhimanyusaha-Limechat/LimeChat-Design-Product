@@ -17,10 +17,9 @@
  *   />
  */
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import { Avatar } from '../Avatar';
-import { Button } from '../Button';
 import { Icon, CheckIcon, ChevronDownIcon } from '../icons';
 import './ProfileSettings.css';
+import { Avatar, Button, Switch, TextInput, Textarea } from 'arceus';
 
 /** "Copy" action sitting inside a read-only field — copies `value` to the clipboard. */
 function CopyButton({ value, label }: { value: string; label: string }) {
@@ -131,7 +130,7 @@ function SecretRow({
   return (
     <Row label={label} htmlFor={id} description={description}>
       <div className="lc-ps__field">
-        <input id={id} className="lc-ps__field-value" value={masked} readOnly />
+        <TextInput id={id} value={masked} readOnly />
         <CopyButton value={masked} label={`Copy ${label}`} />
       </div>
       {regenerate && (
@@ -325,9 +324,9 @@ export function ProfileSettings({
       />
     );
 
-  const emailInput = <input id={emailId} className="lc-ps__input" value={email} disabled readOnly />;
+  const emailInput = <TextInput id={emailId} value={email} disabled readOnly />;
   const nameInput = (
-    <input id={nameId} className="lc-ps__input" value={name} onChange={(e) => onNameChange(e.currentTarget.value)} />
+    <TextInput id={nameId} value={name} onChange={(e) => onNameChange(e.currentTarget.value)} />
   );
 
 
@@ -417,14 +416,7 @@ export function ProfileSettings({
           </div>
         </Row>
         <Row label="Address" htmlFor={`${fieldId}-address`} description="Your work location.">
-          <textarea
-            id={`${fieldId}-address`}
-            className="lc-ps__input lc-ps__textarea"
-            rows={3}
-            autoComplete="street-address"
-            value={contact.address}
-            onChange={(e) => onContactChange?.({ ...contact, address: e.currentTarget.value })}
-          />
+          <Textarea id={`${fieldId}-address`} rows={3} autoComplete="street-address" value={contact.address} onChange={(e) => onContactChange?.({ ...contact, address: e.currentTarget.value })} />
         </Row>
         {passwordRow}
       </Section>
@@ -443,16 +435,7 @@ export function ProfileSettings({
             htmlFor={`${fieldId}-actioncable`}
             description="Records delivery receipts for real-time events sent to you — useful when debugging missed updates."
           >
-            <button
-              id={`${fieldId}-actioncable`}
-              type="button"
-              role="switch"
-              aria-checked={actionCableReceipts.checked}
-              className="lc-ps__switch-track"
-              onClick={() => actionCableReceipts.onChange(!actionCableReceipts.checked)}
-            >
-              <span className="lc-ps__switch-thumb" />
-            </button>
+            <Switch id={`${fieldId}-actioncable`} checked={actionCableReceipts.checked} onChange={() => actionCableReceipts.onChange(!actionCableReceipts.checked)} size="sm" />
           </Row>
         )}
         {apiKeyRow}

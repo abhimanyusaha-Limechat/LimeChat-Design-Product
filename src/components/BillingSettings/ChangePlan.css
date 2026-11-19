@@ -4,10 +4,10 @@
  */
 
 .lc-plans {
-  --lc-plans-border: var(--lc-color-gray-200);
-  --lc-plans-text-title: var(--lc-color-green-900);
-  --lc-plans-text-body: var(--lc-color-sage-600);
-  --lc-plans-primary: var(--lc-color-green-700);
+  --lc-plans-border: var(--mantine-color-gray-2);
+  --lc-plans-text-title: var(--mantine-color-dark);
+  --lc-plans-text-body: var(--mantine-color-gray-6);
+  --lc-plans-primary: var(--mantine-color-primary-7);
 
   display: flex;
   flex-direction: column;
@@ -34,7 +34,7 @@
   padding: 24px;
   border: 1px solid var(--lc-plans-border);
   border-radius: 16px;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
@@ -43,13 +43,13 @@
 }
 
 .lc-plans__card:not([data-current='true']):hover {
-  border-color: color-mix(in srgb, var(--lc-plans-primary) 40%, var(--lc-color-white));
+  border-color: color-mix(in srgb, var(--lc-plans-primary) 40%, var(--mantine-color-white));
 }
 
 .lc-plans__card[data-current='true'] {
   border: 2px solid var(--lc-plans-primary);
   padding: 23px;
-  background: color-mix(in srgb, var(--lc-plans-primary) 7%, var(--lc-color-white));
+  background: color-mix(in srgb, var(--lc-plans-primary) 7%, var(--mantine-color-white));
 }
 
 .lc-plans__card-head {
@@ -77,7 +77,7 @@
   font-size: 12px;
   font-weight: 700;
   line-height: 16px;
-  color: var(--lc-color-white);
+  color: var(--mantine-color-white);
 }
 
 .lc-plans__price {
@@ -116,7 +116,7 @@
 }
 
 .lc-plans__card[data-current='true'] .lc-plans__features {
-  border-top-color: color-mix(in srgb, var(--lc-plans-primary) 20%, var(--lc-color-white));
+  border-top-color: color-mix(in srgb, var(--lc-plans-primary) 20%, var(--mantine-color-white));
 }
 
 .lc-plans__inherits {
@@ -124,11 +124,11 @@
   margin: 0;
   padding: 4px 10px;
   border-radius: 999px;
-  background: var(--lc-color-green-100);
+  background: var(--mantine-color-primary-1);
   font-size: 12px;
   font-weight: 700;
   line-height: 16px;
-  color: var(--lc-color-green-800);
+  color: var(--mantine-color-primary-8);
 }
 
 .lc-plans__list {
@@ -170,7 +170,7 @@
 }
 
 .lc-plans__table .lc-dt__row--head {
-  background: var(--lc-color-gray-50);
+  background: var(--mantine-color-gray-0);
   font-size: 13px;
   font-weight: 700;
 }

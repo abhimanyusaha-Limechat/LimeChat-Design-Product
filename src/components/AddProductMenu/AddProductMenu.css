@@ -5,16 +5,16 @@
   width: 100%;
   box-sizing: border-box;
   padding: 6px 8px;
-  border: 1px solid var(--lc-color-gray-300);
+  border: 1px solid var(--mantine-color-gray-3);
   border-radius: 6px;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   font-family: inherit;
   font-size: 13px;
-  color: var(--lc-color-green-900);
+  color: var(--mantine-color-dark);
 }
 .lc-add-product__search-input:focus {
   outline: none;
-  border-color: var(--lc-color-green-500);
+  border-color: var(--mantine-color-primary-6);
 }
 .lc-add-product .lc-menu__items {
   max-height: 204px;
@@ -58,5 +58,5 @@
 }
 .lc-add-product__item-price {
   flex-shrink: 0;
-  color: var(--lc-color-sage-500);
+  color: var(--mantine-color-light);
 }

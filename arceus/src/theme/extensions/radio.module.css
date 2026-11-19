@@ -1,0 +1,3 @@
+.radio {
+  border-radius: var(--radio-radius, var(--radio-size)) !important;
+}

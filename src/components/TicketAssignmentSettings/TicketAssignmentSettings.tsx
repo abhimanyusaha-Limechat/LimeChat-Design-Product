@@ -18,13 +18,11 @@
  *   />
  */
 import { useId } from 'react';
-import { Button } from '../Button';
-import { CheckboxPill } from '../CheckboxPill';
 import { Icon } from '../icons';
 import { INBOX_TYPE_LABEL, type InboxRowData } from '../InboxesTable';
 import { Menu } from '../Menu';
-import { Tooltip } from '../Tooltip';
 import './TicketAssignmentSettings.css';
+import { Button, Checkbox, Tooltip } from 'arceus';
 
 export type AssignmentStrategy = 'load-balance' | 'round-robin';
 
@@ -158,10 +156,7 @@ export function TicketAssignmentSettings({
       </div>
 
       <div className="lc-ta__offline">
-        <CheckboxPill
-          checked={offlineEnabled}
-          onChange={onOfflineEnabledChange}
-          label="Allow Tickets to be assigned automatically when agents are offline"
+        <Checkbox checked={offlineEnabled} onChange={(e) => onOfflineEnabledChange(e.currentTarget.checked)} label="Allow Tickets to be assigned automatically when agents are offline"
         />
         <Menu
           ariaLabel="Inboxes assigned while agents are offline"

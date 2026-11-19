@@ -10,6 +10,7 @@
 import { useState, type ReactNode } from 'react';
 import { TemplateIcon } from '../TemplatesHomePage';
 import './IntegrationsHomePage.css';
+import { TextInput } from 'arceus';
 
 export interface IntegrationPartner {
   id: string;
@@ -62,14 +63,7 @@ export function IntegrationsHomePage({ categories, onPartnerClick, compact }: In
           </div>
           <div className="lc-ihp__search">
             <TemplateIcon name="search" className="lc-ihp__search-icon" aria-hidden />
-            <input
-              className="lc-ihp__search-input"
-              type="search"
-              placeholder="Search integrations"
-              aria-label="Search integrations"
-              value={query}
-              onChange={(e) => setQuery(e.currentTarget.value)}
-            />
+            <TextInput className="lc-ihp__search-input" type="search" placeholder="Search integrations" aria-label="Search integrations" value={query} onChange={(e) => setQuery(e.currentTarget.value)} variant="unstyled" />
           </div>
         </div>
       )}

@@ -8,9 +8,9 @@ import { useDemoLoading } from '../../hooks/useDemoLoading';
 import { SettingsPage } from '../SettingsPage';
 import { BotTemplatesTable, type BotTemplateRow } from '../BotTemplatesTable';
 import { digitsOf } from '../DataTable';
-import { Button } from '../Button';
 import { Icon } from '../icons';
 import { CONTACT_TAGS, DEMO_CONTACTS } from '../../data/contactsDemo';
+import { Button } from 'arceus';
 
 export type ContactSearchField = 'phone' | 'email' | 'name' | 'instagram';
 

@@ -15,15 +15,13 @@
  * Presentation + light local form state — the committed values come back through
  * `onPublish`. Built on the shared `<Modal>` shell.
  */
-import { useEffect, useState, type ReactNode } from 'react';
-import { Button } from '../Button';
-import { NativeSelect } from '../Select';
-import { Modal, ModalSwitch, ModalStepper } from '../Modal';
+import { useEffect, useState } from 'react';
+import { Button, Group, Modal, NumberInput, Select, Stack, Switch, TimeInput } from 'arceus';
 
 export interface PublishFlowValues {
   /** DND window enabled. */
   dndEnabled: boolean;
-  /** Start of the DND window, "HH : MM" (24h). */
+  /** Start of the DND window, "HH:mm" (24h). */
   from: string;
   /** DND duration in hours. */
   forHours: number;
@@ -37,22 +35,13 @@ export interface PublishFlowModalProps {
   /** Called with the current values when "Publish" is clicked. */
   onPublish?: (values: PublishFlowValues) => void;
   title?: string;
-  description?: ReactNode;
+  description?: string;
   /** Footer button label. Default `'Publish'`. */
   submitLabel?: string;
   /** Options for the "Select retry timing" dropdown. */
   retryOptions?: string[];
   retryPlaceholder?: string;
   defaults?: Partial<PublishFlowValues>;
-}
-
-function stepTime(value: string, dir: 1 | -1): string {
-  const m = /^(\d{1,2})\s*:\s*(\d{1,2})$/.exec(value.trim());
-  const base = m ? Number(m[1]) * 60 + Number(m[2]) : 0;
-  const next = (((base + dir * 15) % 1440) + 1440) % 1440;
-  const hh = String(Math.floor(next / 60)).padStart(2, '0');
-  const mm = String(next % 60).padStart(2, '0');
-  return `${hh} : ${mm}`;
 }
 
 export function PublishFlowModal({
@@ -67,7 +56,7 @@ export function PublishFlowModal({
   defaults,
 }: PublishFlowModalProps) {
   const [dndEnabled, setDndEnabled] = useState(defaults?.dndEnabled ?? true);
-  const [from, setFrom] = useState(defaults?.from ?? '20 : 14');
+  const [from, setFrom] = useState(defaults?.from ?? '20:14');
   const [forHours, setForHours] = useState(defaults?.forHours ?? 2);
   const [retry, setRetry] = useState(defaults?.retry ?? '');
 
@@ -75,7 +64,7 @@ export function PublishFlowModal({
   useEffect(() => {
     if (!open) return;
     setDndEnabled(defaults?.dndEnabled ?? true);
-    setFrom(defaults?.from ?? '20 : 14');
+    setFrom(defaults?.from ?? '20:14');
     setForHours(defaults?.forHours ?? 2);
     setRetry(defaults?.retry ?? '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,53 +72,53 @@ export function PublishFlowModal({
 
   return (
     <Modal
-      open={open}
+      centered
+      opened={open}
       onClose={onClose}
       title={title}
       description={description}
-      footer={
-        <Button
+    >
+      <Stack gap="md">
+      <Switch
+        checked={dndEnabled}
+        onChange={(e) => setDndEnabled(e.currentTarget.checked)}
+        label="Turn on / off DND timings"
+      />
+      <Group grow align="flex-start">
+        <TimeInput
+          label="From (24 H)"
+          value={from}
+          disabled={!dndEnabled}
+          onChange={(e) => setFrom(e.currentTarget.value)}
+        />
+        <NumberInput
+          label="For (in Hours)"
+          value={forHours}
+          min={0}
+          allowDecimal={false}
+          disabled={!dndEnabled}
+          onChange={(v) => setForHours(Math.max(0, Number(v) || 0))}
+        />
+      </Group>
+
+      <Select
+        label="Select retry timing"
+        placeholder={retryPlaceholder}
+        size="sm"
+        w="100%"
+        data={retryOptions}
+        value={retry || null}
+        onChange={(v) => setRetry((v ?? ''))}
+      />
+      </Stack>
+      <Modal.Footer><Button
           variant="filled"
           color="primary"
           size="sm"
           onClick={() => onPublish?.({ dndEnabled, from, forHours, retry })}
         >
           {submitLabel}
-        </Button>
-      }
-    >
-      <ModalSwitch
-        checked={dndEnabled}
-        onChange={setDndEnabled}
-        label="Turn on / off DND timings"
-      />
-      <div className="lc-modal__row">
-        <ModalStepper
-          label="From (24 H)"
-          value={from}
-          disabled={!dndEnabled}
-          onChange={setFrom}
-          onStep={(dir) => setFrom((v) => stepTime(v, dir))}
-        />
-        <ModalStepper
-          label="For (in Hours)"
-          value={String(forHours)}
-          inputMode="numeric"
-          disabled={!dndEnabled}
-          onChange={(v) => setForHours(Math.max(0, Number(v.replace(/\D/g, '')) || 0))}
-          onStep={(dir) => setForHours((h) => Math.max(0, h + dir))}
-        />
-      </div>
-
-      <NativeSelect
-        label="Select retry timing"
-        placeholder={retryPlaceholder}
-        size="sm"
-        fullWidth
-        data={retryOptions}
-        value={retry}
-        onChange={(e) => setRetry(e.currentTarget.value)}
-      />
+        </Button></Modal.Footer>
     </Modal>
   );
 }

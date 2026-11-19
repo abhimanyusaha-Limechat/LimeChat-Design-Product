@@ -1,0 +1,109 @@
+.chart-container
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-self: stretch
+  background: transparent
+  border-radius: var(--mantine-spacing-3xs)
+
+  &:focus-visible
+    outline: 2px solid var(--mantine-other-extra03)
+    outline-offset: var(--mantine-spacing-3xs)
+
+.zero-state
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-self: stretch
+  background: transparent
+  border-radius: var(--mantine-spacing-3xs)
+
+.zero-state-content
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: var(--mantine-spacing-sm)
+  padding: var(--mantine-spacing-lg)
+  text-align: center
+  height: 100%
+
+.zero-state-icon
+  color: var(--mantine-color-gray-4)
+  opacity: 0.7
+  animation: fadeInIcon 0.8s ease-out
+
+.zero-state-message
+  font-weight: 500
+  opacity: 0.8
+
+.zero-state-hint
+  opacity: 0.6
+  max-width: 280px
+
+@keyframes fadeInIcon
+  0%
+    opacity: 0
+    transform: scale(0.8)
+  100%
+    opacity: 0.7
+    transform: scale(1)
+
+.loader
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-self: stretch
+  background: transparent
+  border-radius: var(--mantine-spacing-3xs)
+
+.loader-frame
+  position: relative
+  width: 100%
+  height: 100%
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-lg) var(--mantine-spacing-lg)
+
+.axis-y,
+.axis-x,
+.line-shape
+  position: absolute
+  pointer-events: none
+
+.axis-y,
+.axis-x
+  border-radius: var(--mantine-spacing-zero)
+  background: linear-gradient(180deg, var(--mantine-color-gray-0) 0%, var(--mantine-color-gray-0) 100%)
+  opacity: 0.65
+
+.line-shape
+  border-radius: var(--mantine-spacing-zero)
+  transform-origin: bottom center
+  filter: drop-shadow(0 10px 14px rgba(60, 90, 255, 0.08))
+
+.line-primary
+  background: linear-gradient(180deg, rgba(76, 110, 245, 0.55) 0%, rgba(76, 110, 245, 0.18) 90%)
+  clip-path: polygon(
+    0% 68%, 16% 52%, 32% 58%, 48% 36%, 64% 42%, 80% 24%, 100% 34%,
+    100% 36%, 80% 26%, 64% 44%, 48% 38%, 32% 60%, 16% 54%, 0% 70%
+  )
+  animation: linePulsePrimary 2.2s ease-in-out infinite
+
+
+.static
+  .line-shape
+    animation: none
+
+.loader-frame > .axis-x
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4)
+
+.loader-frame > .axis-y
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.4)
+
+
+@keyframes linePulsePrimary
+  0%, 100%
+    transform: translateY(1%) scaleY(0.96)
+  45%
+    transform: translateY(-0.4%) scaleY(1.02)
+

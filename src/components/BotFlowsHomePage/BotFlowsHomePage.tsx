@@ -15,8 +15,6 @@
  *     onRowClick={openFlowInEditor}
  *   />
  */
-import { Button } from '../Button';
-import { Tooltip } from '../Tooltip';
 import { ActionMenu } from '../Menu';
 import { BotFlowIcon } from './icons';
 import {
@@ -31,6 +29,7 @@ import {
   useTableSort,
 } from '../DataTable';
 import './BotFlowsHomePage.css';
+import { Button, Switch, Tabs, TextInput, Tooltip } from 'arceus';
 
 export type BotFlowTab = 'active' | 'inactive';
 export type BotFlowStatus = 'active' | 'inactive';
@@ -127,13 +126,7 @@ export function BotFlowsHomePage({
       <div className="lc-bf__toolbar" data-anchor="bot-flow-toolbar">
         <div className="lc-bf__search">
           <BotFlowIcon name="search" className="lc-bf__search-icon" />
-          <input
-            className="lc-bf__search-input"
-            type="text"
-            placeholder="Search for flow"
-            value={searchValue}
-            onChange={(e) => onSearchChange?.(e.currentTarget.value)}
-          />
+          <TextInput className="lc-bf__search-input" placeholder="Search for flow" value={searchValue} onChange={(e) => onSearchChange?.(e.currentTarget.value)} variant="unstyled" />
         </div>
         <div className="lc-bf__actions">
           <Button
@@ -149,21 +142,15 @@ export function BotFlowsHomePage({
       </div>
 
       <div className="lc-bf__nav-row" data-anchor="bot-flow-tab-bar">
-        <div className="lc-bf__tabs" role="tablist">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              className="lc-bf__tab"
-              data-active={tab.id === activeTab || undefined}
-              aria-selected={tab.id === activeTab}
-              onClick={() => onTabChange?.(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs value={activeTab}>
+          <Tabs.List className="lc-bf__tabs">
+            {TABS.map((tab) => (
+              <Tabs.Tab key={tab.id} value={tab.id} className="lc-bf__tab" onClick={() => onTabChange?.(tab.id)}>
+                {tab.label}
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs>
       </div>
 
       <DataTable aria-busy={loading || undefined} aria-label="Bot flows" data-anchor="bot-flow-table">
@@ -205,17 +192,7 @@ export function BotFlowsHomePage({
               </div>
               <div role="cell" className="lc-bf__cell--actions lc-bf__cell">
                 <Tooltip label={row.status === 'active' ? 'Deactivate flow' : 'Activate flow'}>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={row.status === 'active'}
-                    aria-label={row.status === 'active' ? 'Deactivate flow' : 'Activate flow'}
-                    className="lc-bf__toggle"
-                    data-checked={row.status === 'active' || undefined}
-                    onClick={() => onRowToggleActive?.(row)}
-                  >
-                    <span className="lc-bf__toggle-thumb" aria-hidden="true" />
-                  </button>
+                  <Switch checked={row.status === 'active'} aria-label={row.status === 'active' ? 'Deactivate flow' : 'Activate flow'} onChange={() => onRowToggleActive?.(row)} size="sm" />
                 </Tooltip>
                 <RowActions row={row} onEdit={onRowClick} onClone={onRowClone} onDownload={onRowDownload} onDelete={onRowDelete} />
               </div>

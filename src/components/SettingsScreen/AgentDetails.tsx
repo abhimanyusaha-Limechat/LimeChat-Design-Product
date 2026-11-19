@@ -6,11 +6,11 @@
  */
 import { useId, useState } from 'react';
 import type { BotTemplateRow } from '../BotTemplatesTable';
-import { Button } from '../Button';
 import { CheckIcon, Icon } from '../icons';
 import { Menu } from '../Menu';
 import { AGENT_INBOXES } from '../../data/settingsDemo';
 import './AgentDetails.css';
+import { Button, Textarea } from 'arceus';
 
 export type AgentPatch = Partial<Pick<BotTemplateRow, 'signature' | 'inboxes'>>;
 
@@ -66,14 +66,7 @@ function SignatureRow({ value, onChange }: { value: string; onChange: (v: string
         </button>
       </div>
       {editing && (
-        <textarea
-          id={id}
-          className="lc-ad__input"
-          rows={3}
-          value={value}
-          autoFocus
-          onChange={(e) => onChange(e.currentTarget.value)}
-        />
+        <Textarea id={id} rows={3} value={value} autoFocus onChange={(e) => onChange(e.currentTarget.value)} />
       )}
     </div>
   );

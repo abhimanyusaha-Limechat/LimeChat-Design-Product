@@ -6,14 +6,14 @@
  */
 
 .lc-sp {
-  --lc-sp-border: var(--lc-color-gray-300);
-  --lc-sp-text-title: var(--lc-color-green-900);
-  --lc-sp-text-dimmed: var(--lc-color-sage-500);
-  --lc-sp-primary: var(--lc-color-green-700);
-  --lc-sp-primary-dark: var(--lc-color-green-800);
-  --lc-sp-green-1: var(--lc-color-green-100);
-  --lc-sp-bg: var(--lc-color-stone-100);
-  --lc-sp-divider: var(--lc-color-gray-200);
+  --lc-sp-border: var(--mantine-color-gray-3);
+  --lc-sp-text-title: var(--mantine-color-dark);
+  --lc-sp-text-dimmed: var(--mantine-color-light);
+  --lc-sp-primary: var(--mantine-color-primary-7);
+  --lc-sp-primary-dark: var(--mantine-color-primary-8);
+  --lc-sp-green-1: var(--mantine-color-primary-1);
+  --lc-sp-bg: var(--mantine-color-gray-1);
+  --lc-sp-divider: var(--mantine-color-gray-2);
   --lc-sp-radius-2xs: 4px;
   --lc-sp-radius-3xs: 2px;
   --lc-sp-radius-xs: 8px;
@@ -58,7 +58,7 @@
 }
 
 .lc-sp__side-panel[data-scrolling='true'] {
-  scrollbar-color: var(--lc-color-gray-250) transparent;
+  scrollbar-color: var(--mantine-color-gray-3) transparent;
 }
 
 .lc-sp__side-panel::-webkit-scrollbar {
@@ -76,7 +76,7 @@
 }
 
 .lc-sp__side-panel[data-scrolling='true']::-webkit-scrollbar-thumb {
-  background: var(--lc-color-gray-250);
+  background: var(--mantine-color-gray-3);
 }
 
 .lc-sp__tab {
@@ -101,7 +101,7 @@
 }
 
 .lc-sp__tab:hover {
-  background: var(--lc-color-stone-100);
+  background: var(--mantine-color-gray-1);
 }
 
 .lc-sp__tab[data-active='true'] {
@@ -228,7 +228,7 @@
 }
 
 .lc-sp__content[data-scrolling='true'] {
-  scrollbar-color: var(--lc-color-gray-250) transparent;
+  scrollbar-color: var(--mantine-color-gray-3) transparent;
 }
 
 .lc-sp__content::-webkit-scrollbar {
@@ -246,7 +246,7 @@
 }
 
 .lc-sp__content[data-scrolling='true']::-webkit-scrollbar-thumb {
-  background: var(--lc-color-gray-250);
+  background: var(--mantine-color-gray-3);
 }
 
 
@@ -285,7 +285,7 @@
   /* Inset shadow, not a border, so the panel's content box is the full 320px. */
   box-shadow: inset 1px 0 0 var(--lc-sp-border);
   /* Figma gray/gray-0. */
-  background: var(--lc-color-stone-100);
+  background: var(--mantine-color-gray-1);
   opacity: 0;
   transform: translateX(16px);
   transition:
@@ -322,7 +322,7 @@
   padding: 8px 12px;
   border: 1px solid var(--lc-sp-divider);
   border-radius: 12px;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
 }
 
 /* Optional icon/avatar + title; min-width 0 lets a long title ellipsize. */
@@ -375,7 +375,7 @@
   margin: 0;
   border: 1px solid var(--lc-sp-divider);
   border-radius: 12px;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   overflow: hidden;
 }
 

@@ -10,7 +10,7 @@
 }
 
 .lc-tbm-field {
-  --lc-select-label: var(--lc-color-green-900);
+  --lc-select-label: var(--mantine-color-dark);
 }
 .lc-select[data-size='sm'].lc-tbm-field {
   --label-fz: 12px;
@@ -32,8 +32,8 @@
   min-width: 18px;
   padding: 1px 6px;
   border-radius: 100px;
-  background: var(--lc-color-green-500);
-  color: var(--lc-color-white);
+  background: var(--mantine-color-primary-6);
+  color: var(--mantine-color-white);
   font-size: 12px;
   font-weight: 700;
   line-height: 16px;

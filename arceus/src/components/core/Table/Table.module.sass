@@ -1,0 +1,189 @@
+.table
+  width: 100%
+  border-collapse: collapse
+  border-spacing: 0
+  height: 1px
+  margin-bottom: 0
+
+  &-header-row
+    position: sticky
+    top: 0
+    background: var(--mantine-color-secondary-0)
+    z-index: 2
+
+    th, &-cell
+      color: var(--mantine-color-secondary-7)
+      font-size: var(--mantine-font-size-md) !important
+      font-weight: 400 !important
+
+    th
+      padding: var(--mantine-spacing-md) var(--mantine-spacing-xl) var(--mantine-spacing-md) var(--mantine-spacing-xl) !important
+      border-bottom: none !important
+      white-space: nowrap
+
+      &:last-child
+        padding-right: var(--mantine-spacing-md) !important
+
+  &-cell
+    font-size: var(--mantine-font-size-sm)
+    font-weight: 400
+    line-height: var(--mantine-line-height-sm)
+    border-bottom: none !important
+    padding: var(--mantine-spacing-sm) var(--mantine-spacing-xl) var(--mantine-spacing-sm) var(--mantine-spacing-xl) !important
+    white-space: nowrap
+    &:last-child
+      padding-right: var(--mantine-spacing-zero) !important
+
+  &-sticky-left-edge
+    &::after
+      content: ""
+      position: absolute
+      z-index: 2
+      top: 0
+      right: -1px
+      bottom: 0
+      width: 1px
+      pointer-events: none
+      background: var(--mantine-color-gray-3)
+      clip-path: inset(0 -8px 0 0)
+      box-shadow: var(--mantine-shadow-sm)
+
+  &-wrapper
+    height: 100%
+    width: 100%
+    display: flex
+    flex-direction: column
+
+  &-inner-wrapper
+    width: 100%
+    height: 100%
+    display: flex
+    flex-direction: column
+    justify-content: space-between
+    overflow: auto
+
+    &-scrollArea
+      overflow: hidden
+
+  &-scroll-area
+    flex: 1
+    min-height: 0
+
+    :global(.mantine-ScrollArea-viewport)
+      height: 100%
+
+  &-body
+    &-row
+      cursor: pointer
+
+      &:hover
+        background: var(--mantine-color-gray-0)
+
+  &-selected
+    background: var(--mantine-color-primary-0)
+
+    &:hover
+      background: var(--mantine-color-primary-0)
+
+  &-zero-wrapper
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    height: calc(100% - 5.6rem)
+    padding: var(--mantine-spacing-4xl)
+
+  &-loading-wrapper
+    align-items: stretch
+    justify-content: flex-start
+    height: auto
+    padding: var(--mantine-spacing-zero)
+
+.table-pagination-footer
+  display: flex
+  flex-direction: row
+  align-items: center
+  justify-content: flex-end
+  gap: var(--mantine-spacing-xl)
+  padding: var(--mantine-spacing-xs)
+
+.table-header-sort
+  display: flex
+  flex-direction: row
+  align-items: center
+  gap: var(--mantine-spacing-md)
+
+.table-card
+  border: 1px solid var(--mantine-color-gray-2)
+  border-radius: var(--mantine-radius-sm)
+  background: var(--mantine-color-white)
+  overflow: hidden
+
+.table-card, .table-list
+  .table
+    table-layout: fixed
+    border-collapse: separate
+
+  .table-header-sort
+    gap: var(--mantine-spacing-2xs)
+
+    button
+      border: none !important
+      background: transparent !important
+      color: var(--mantine-color-gray-5) !important
+
+  .table-header-row-cell
+    font-size: var(--mantine-font-size-xs) !important
+    font-weight: 700 !important
+    color: var(--mantine-color-gray-7) !important
+
+  .table-header-row
+    background: var(--mantine-color-gray-1)
+
+    th
+      padding: var(--mantine-spacing-sm) var(--mantine-spacing-md) !important
+      font-size: var(--mantine-font-size-xs) !important
+      font-weight: 700 !important
+      color: var(--mantine-color-gray-7)
+      text-align: left
+
+  .table-body tr
+    border-bottom: 1px solid var(--mantine-color-gray-2)
+
+    &:last-child
+      border-bottom: none
+
+    &:hover
+      background: var(--mantine-color-gray-0)
+
+  .table-cell
+    padding: var(--mantine-spacing-sm) var(--mantine-spacing-md) !important
+    white-space: normal
+    overflow: hidden
+
+    &:last-child
+      padding-right: var(--mantine-spacing-md) !important
+
+  .table-body tr.table-selected
+    background: var(--mantine-color-primary-1)
+
+  .table-body tr.table-selected, .table-body tr:hover
+    td:first-child
+      border-top-left-radius: var(--mantine-radius-xs)
+      border-bottom-left-radius: var(--mantine-radius-xs)
+
+    td:last-child
+      border-top-right-radius: var(--mantine-radius-xs)
+      border-bottom-right-radius: var(--mantine-radius-xs)
+
+  .table-body tr td
+    border-bottom: 1px solid var(--mantine-color-gray-2) !important
+
+  .table-body tr:last-child td
+    border-bottom: none !important
+
+  .table-body tr.table-selected td
+    border-bottom-color: transparent !important
+
+.table-list .table-body tr
+  cursor: pointer

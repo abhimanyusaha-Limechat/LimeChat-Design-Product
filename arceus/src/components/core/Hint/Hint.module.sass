@@ -1,0 +1,16 @@
+.dropdown
+    --hint-bg: var(--mantine-color-dark-filled)
+    --hint-color: var(--mantine-color-white)
+    --hint-radius: var(--mantine-radius-default)
+    background: var(--hint-bg)
+    color: var(--hint-color)
+    border-radius: var(--hint-radius)
+    border-color: var(--hint-bg)
+    font-size: var(--mantine-font-size-sm)
+    padding: 6px var(--mantine-spacing-sm)
+    pointer-events: none
+
+    :global(.mantine-Popover-arrow)
+        --popover-arrow-bg: var(--hint-bg)
+        background: var(--hint-bg)
+        border-color: var(--hint-bg)

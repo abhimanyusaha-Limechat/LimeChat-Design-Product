@@ -1,0 +1,146 @@
+/*
+ * Mantine @mantine/dates Calendar skin — applied via DatePicker / DatePickerInput wrappers.
+ * Tokens follow Figma Date Picker (LimeChat Design System V3) and packages/ui/DESIGN.md.
+ *
+ * Day cell sizes (10px rem): xs 32, sm 40, md 48, lg 56, xl 64
+ */
+
+.levelsGroup {
+  --day-size-xs: 3.2rem;
+  --day-size-sm: 4rem;
+  --day-size-md: 4.8rem;
+  --day-size-lg: 5.6rem;
+  --day-size-xl: 6.4rem;
+  --dch-control-size-xs: 3.2rem;
+  --dch-control-size-sm: 4rem;
+  --dch-control-size-md: 4.8rem;
+  --dch-control-size-lg: 5.6rem;
+  --dch-control-size-xl: 6.4rem;
+}
+
+.day {
+  width: var(--day-size);
+  height: var(--day-size);
+  font-size: calc(var(--day-size) * 0.35);
+  font-weight: 400;
+  border-radius: var(--mantine-radius-2xs);
+  color: var(--mantine-color-text);
+  transition:
+    background-color 100ms ease,
+    color 100ms ease;
+}
+
+.day:hover:not([data-selected]):not([data-in-range]):not([data-disabled]):not([data-today]) {
+  background-color: var(--mantine-color-primary-0);
+}
+
+.day[data-today]:not([data-selected]):not([data-first-in-range]):not([data-last-in-range]) {
+  background-color: var(--mantine-color-primary-4);
+  color: var(--mantine-color-white);
+  font-weight: 400;
+}
+
+.day[data-selected] {
+  background-color: var(--mantine-color-primary-filled);
+  color: var(--mantine-color-white);
+  border-radius: var(--mantine-radius-2xs);
+}
+
+.day[data-in-range]:not([data-first-in-range]):not([data-last-in-range]),
+.day[data-selected][data-in-range]:not([data-first-in-range]):not([data-last-in-range]) {
+  background-color: var(--mantine-color-primary-3);
+  border-radius: 0;
+  color: var(--mantine-color-white);
+}
+
+.day[data-first-in-range] {
+  background-color: var(--mantine-color-primary-filled);
+  color: var(--mantine-color-white);
+  border-radius: var(--mantine-radius-2xs) 0 0 var(--mantine-radius-2xs);
+}
+
+.day[data-last-in-range] {
+  background-color: var(--mantine-color-primary-filled);
+  color: var(--mantine-color-white);
+  border-radius: 0 var(--mantine-radius-2xs) var(--mantine-radius-2xs) 0;
+}
+
+.day[data-first-in-range][data-last-in-range] {
+  border-radius: var(--mantine-radius-2xs);
+}
+
+.day[data-outside]:not([data-selected]):not([data-in-range]) {
+  color: var(--mantine-color-light);
+  opacity: 0.5;
+}
+
+.day[data-outside][data-selected],
+.day[data-outside][data-in-range] {
+  opacity: 0.5;
+}
+
+.day[data-disabled] {
+  color: var(--mantine-color-disabled-color);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.monthCell {
+  padding: 0;
+}
+
+.weekday {
+  color: var(--mantine-color-light);
+  font-size: calc(var(--day-size) * 0.35);
+  font-weight: 400;
+  height: 2.4rem;
+  padding: 0;
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--mantine-spacing-xs);
+}
+
+.calendarHeaderLevel {
+  flex: 1;
+  height: var(--dch-control-size);
+  font-weight: 400;
+  font-size: calc(var(--day-size) * 0.4);
+  color: var(--mantine-color-text);
+  border-radius: var(--mantine-radius-2xs);
+}
+
+.calendarHeaderLevel:hover {
+  background-color: var(--mantine-color-primary-0);
+}
+
+.calendarHeaderControl {
+  width: var(--dch-control-size);
+  height: var(--dch-control-size);
+  min-width: var(--dch-control-size);
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--mantine-radius-2xs);
+  color: var(--mantine-color-text);
+}
+
+.calendarHeaderControl:hover:not([data-disabled]) {
+  background-color: var(--mantine-color-primary-0);
+}
+
+.calendarHeaderControl[data-disabled] {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.calendarHeaderControlIcon {
+  width: 60%;
+  height: 60%;
+}
+
+.input {
+  cursor: pointer;
+}

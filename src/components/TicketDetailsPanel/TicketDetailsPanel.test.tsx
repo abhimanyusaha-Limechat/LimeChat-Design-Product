@@ -26,7 +26,7 @@ describe('TicketDetailsPanel commerce tabs', () => {
   it('keep their state when you switch away and back', async () => {
     const user = userEvent.setup();
     const { container } = render(<Harness />);
-    const search = () => container.querySelector<HTMLInputElement>('.lc-op__search-input')!;
+    const search = () => container.querySelector<HTMLInputElement>('.lc-op__search-input input')!;
 
     await user.type(search(), 'nike');
     await user.click(screen.getByRole('tab', { name: 'Products' }));

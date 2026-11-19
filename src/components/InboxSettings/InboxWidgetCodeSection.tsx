@@ -2,10 +2,10 @@
  * The widget editor's Code tab: the script a site pastes in to load the LimeChat widget,
  * with a Copy code button under the install instructions. The header's "Copy widget code" copies the same script.
  */
-import { Button } from '../Button';
 import { Icon } from '../icons';
 import { SectionHeading } from './InboxSettingsSections';
 import { useCopied } from './useCopied';
+import { Button } from 'arceus';
 
 // ponytail: demo token and SDK URL until widgets have a real embed script.
 export const WIDGET_EMBED_CODE = `<script>

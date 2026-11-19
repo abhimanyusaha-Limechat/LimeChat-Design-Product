@@ -3,9 +3,7 @@
  * edited. Mounted only while open, so each opening starts with an empty form.
  */
 import { useId, useState, type FormEvent } from 'react';
-import { Button } from '../Button';
-import { Modal, ModalCheckbox, ModalTextField } from '../Modal';
-import { NativeSelect } from '../Select';
+import { Button, Checkbox, Modal, NativeSelect, TextInput } from 'arceus';
 
 export interface NewAgent {
   name: string;
@@ -52,30 +50,29 @@ export function CreateAgentModal({
 
   return (
     <Modal
-      open
+      centered
+      opened
       onClose={onClose}
       title="Create agent"
       description="They'll get an email invite to set up their account."
-      footer={
-        <>
-          <Button variant="default" onClick={onClose}>Cancel</Button>
-          <Button type="submit" form={formId}>Create agent</Button>
-        </>
-      }
     >
       <form id={formId} onSubmit={submit} noValidate className="lc-inbs__create-form">
-        <ModalTextField label="Full name" required value={name} onChange={setName} autoComplete="off" error={submitted ? nameError : undefined} />
-        <ModalTextField label="Email address" required type="email" value={email} onChange={setEmail} autoComplete="off" error={submitted ? emailError : undefined} />
+        <TextInput label="Full name" required value={name} onChange={(e) => setName(e.currentTarget.value)} autoComplete="off" error={submitted ? nameError : undefined} />
+        <TextInput label="Email address" required type="email" value={email} onChange={(e) => setEmail(e.currentTarget.value)} autoComplete="off" error={submitted ? emailError : undefined} />
         <NativeSelect
           label="Role"
           size="sm"
-          fullWidth
+          w="100%"
           data={AGENT_ROLES}
           value={role}
           onChange={(e) => setRole(e.currentTarget.value)}
         />
-        <ModalCheckbox checked={addToInbox} onChange={setAddToInbox} label="Add to this inbox" />
+        <Checkbox checked={addToInbox} onChange={(e) => setAddToInbox(e.currentTarget.checked)} label="Add to this inbox" />
       </form>
+      <Modal.Footer><>
+          <Button variant="default" onClick={onClose}>Cancel</Button>
+          <Button type="submit" form={formId}>Create agent</Button>
+        </></Modal.Footer>
     </Modal>
   );
 }

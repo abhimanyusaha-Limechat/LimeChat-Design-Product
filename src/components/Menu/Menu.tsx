@@ -1,10 +1,9 @@
 /**
  * Menu — the LimeChat design system's shared popover-menu shell.
  *
- * A trigger-anchored, portal-positioned dropdown: consistent shadow/radius/
- * animation, closes on outside click or Escape, and repositions on scroll
- * or resize. Extracted from the near-identical row-action menus that had
- * been hand-rolled per page (Templates/BotFlows/Segments home pages).
+ * A data-driven adapter over arceus `Menu` (Mantine): positioning, portal,
+ * outside-click and Escape handling all come from arceus. This file only maps
+ * the `items` / `trigger` API the screens use onto arceus's compound parts.
  *
  *   <Menu
  *     ariaLabel="Template actions"
@@ -21,10 +20,8 @@
  * `ActionMenu` bundles the common case: a dots-vertical trigger with a
  * "More actions" tooltip.
  */
-import { useEffect, useRef, useState, type ReactNode, type Ref } from 'react';
-import { createPortal } from 'react-dom';
-import { Tooltip } from '../Tooltip';
-import { usePopoverPosition } from '../../hooks/usePopoverPosition';
+import { useState, type ReactNode, type Ref } from 'react';
+import { ActionIcon, Menu as ArceusMenu, Tooltip } from 'arceus';
 import './Menu.css';
 
 export interface MenuItemData {
@@ -36,12 +33,14 @@ export interface MenuItemData {
   onClick?: () => void;
   danger?: boolean;
   disabled?: boolean;
-  /** Highlights the row with a light primary background, for the currently active option in a single-select list. */
+  /** Highlights the row for the currently active option in a single-select list. */
   selected?: boolean;
 }
 
 export interface MenuTriggerRenderProps {
+  /** Always null: arceus attaches its own ref to the trigger element. Kept so triggers can spread props. */
   ref: Ref<HTMLButtonElement>;
+  /** No-op: arceus toggles the menu when the trigger is clicked. Kept so triggers can spread props. */
   onClick: () => void;
   open: boolean;
 }
@@ -64,7 +63,8 @@ export interface MenuProps {
   closeOnItemClick?: boolean;
 }
 
-/** The shared trigger + portal-positioned dropdown. Closes on outside click, Escape, scroll, or resize-driven reposition. */
+const noop = () => undefined;
+
 export function Menu({
   items,
   trigger,
@@ -77,72 +77,38 @@ export function Menu({
   closeOnItemClick = true,
 }: MenuProps) {
   const [open, setOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  // Rows/cards often animate with a `transform`, which establishes a stacking
-  // context even at rest — a menu positioned inside its own row can end up
-  // painted behind a later row's stacking context despite z-index. Portalling
-  // to <body> (like Tooltip already does) sidesteps that entirely.
-  const coords = usePopoverPosition(open, triggerRef, menuRef, width, align);
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointerDown = (e: PointerEvent) => {
-      const target = e.target as Node;
-      if (!triggerRef.current?.contains(target) && !menuRef.current?.contains(target)) setOpen(false);
-    };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [open]);
 
   return (
-    <>
-      {trigger({ ref: triggerRef, onClick: () => setOpen((o) => !o), open })}
-      {open &&
-        typeof document !== 'undefined' &&
-        createPortal(
-          <div
-            ref={menuRef}
-            className={`lc-menu${className ? ` ${className}` : ''}`}
-            role="menu"
-            aria-label={ariaLabel}
-            style={{ width, ...(coords ? { top: coords.top, left: coords.left } : { visibility: 'hidden' as const }) }}
-          >
-            {header}
-            <div className="lc-menu__items lc-scrollbar-thin">
-              {items.length === 0 && emptyState}
-              {items.map((item, i) => (
-                <button
-                  key={item.key ?? i}
-                  type="button"
-                  role="menuitem"
-                  className={`lc-menu__item${item.danger ? ' lc-menu__item--danger' : ''}${item.selected ? ' lc-menu__item--selected' : ''}`}
-                  disabled={item.disabled}
-                  onClick={() => {
-                    if (closeOnItemClick) setOpen(false);
-                    item.onClick?.();
-                  }}
-                >
-                  {item.icon && <span className="lc-menu__item-icon">{item.icon}</span>}
-                  <span className="lc-menu__item-label">{item.label}</span>
-                  {item.trailingIcon && (
-                    <span className="lc-menu__item-icon lc-menu__item-icon--trailing">{item.trailingIcon}</span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>,
-          document.body,
-        )}
-    </>
+    <ArceusMenu
+      opened={open}
+      onChange={setOpen}
+      position={align === 'end' ? 'bottom-end' : 'bottom-start'}
+      width={width}
+      closeOnItemClick={closeOnItemClick}
+      withinPortal
+    >
+      <ArceusMenu.Target>{trigger({ ref: null, onClick: noop, open })}</ArceusMenu.Target>
+      <ArceusMenu.Dropdown className={`lc-menu${className ? ` ${className}` : ''}`} aria-label={ariaLabel}>
+        {header}
+        <div className="lc-menu__items lc-scrollbar-thin">
+          {items.length === 0 && emptyState}
+          {items.map((item, i) => (
+            <ArceusMenu.Item
+              key={item.key ?? i}
+              leftSection={item.icon}
+              rightSection={item.trailingIcon}
+              color={item.danger ? 'red' : undefined}
+              disabled={item.disabled}
+              data-selected={item.selected || undefined}
+              className="lc-menu__item"
+              onClick={item.onClick}
+            >
+              {item.label}
+            </ArceusMenu.Item>
+          ))}
+        </div>
+      </ArceusMenu.Dropdown>
+    </ArceusMenu>
   );
 }
 
@@ -176,17 +142,17 @@ export function ActionMenu({
       align={align}
       width={width}
       className={className}
-      trigger={({ ref, onClick, open }) => (
+      trigger={({ open }) => (
         <Tooltip label={tooltip} disabled={open}>
-          <button
-            ref={ref}
-            type="button"
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            size="xs"
             className={`lc-menu__trigger${triggerClassName ? ` ${triggerClassName}` : ''}`}
             aria-label={tooltip}
-            onClick={onClick}
           >
             {icon}
-          </button>
+          </ActionIcon>
         </Tooltip>
       )}
     />

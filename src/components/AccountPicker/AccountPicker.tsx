@@ -3,6 +3,7 @@ import { useAuth, useClerk, useUser } from '@clerk/react';
 import { LimeChatLogo } from '../Sidebar/icons';
 import { pickerAccounts, type PickerAccount } from '../../data/accountsDemo';
 import './AccountPicker.css';
+import { TextInput } from 'arceus';
 
 const PICKED_KEY = 'lc-picked-account';
 const RECENT_KEY = 'lc-recent-accounts';
@@ -177,24 +178,11 @@ function AccountPickerScreen({ onPick }: { onPick: (id: string) => void }) {
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0M21 21l-6 -6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <input
-            type="text"
-            role="combobox"
-            aria-expanded="true"
-            aria-controls="account-listbox"
-            aria-activedescendant={options[activeIndex] ? `account-option-${options[activeIndex].id}` : undefined}
-            aria-label="Search accounts by name or id"
-            placeholder="Search by name or id"
-            autoComplete="off"
-            autoFocus
-            value={query}
-            onChange={(e) => {
+          <TextInput role="combobox" aria-expanded="true" aria-controls="account-listbox" aria-activedescendant={options[activeIndex] ? `account-option-${options[activeIndex].id}` : undefined} aria-label="Search accounts by name or id" placeholder="Search by name or id" autoComplete="off" autoFocus value={query} onChange={(e) => {
               setQuery(e.currentTarget.value);
               setActive(0);
               setLimit(PAGE_SIZE);
-            }}
-            onKeyDown={onKeyDown}
-          />
+            }} onKeyDown={onKeyDown} />
         </div>
 
         <p className="account-picker__count" aria-live="polite">

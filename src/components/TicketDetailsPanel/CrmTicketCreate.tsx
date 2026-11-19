@@ -5,6 +5,7 @@
 import { useEffect, useId, useRef, useState, type DragEvent, type FormEvent } from 'react';
 import { IntegrationsHomePage, type IntegrationPartner } from '../IntegrationsHomePage';
 import { CloseIcon } from '../icons';
+import { TextInput, Textarea } from 'arceus';
 
 const INPUTS = ['Subject', 'Requester name', 'Requester email', 'Priority'] as const;
 
@@ -77,13 +78,13 @@ function TicketForm({ formId, onCreated }: { formId: string; onCreated: () => vo
       {INPUTS.map((label) => (
         <label key={label} className="lc-tdp__field">
           <span className="lc-tdp__field-label">{label}</span>
-          <input className="lc-tdp__field-input" type="text" name={label} />
+          <TextInput name={label} />
         </label>
       ))}
       <label className="lc-tdp__field" htmlFor={`${idBase}-desc`}>
         <span className="lc-tdp__field-label">Description</span>
       </label>
-      <textarea id={`${idBase}-desc`} className="lc-tdp__field-input lc-tdp__field-textarea" rows={4} />
+      <Textarea id={`${idBase}-desc`} rows={4} />
       <Dropzone files={files} onFiles={setFiles} />
     </form>
   );

@@ -14,6 +14,7 @@
  */
 import { useId } from 'react';
 import './AttributionSettings.css';
+import { Switch, TextInput } from 'arceus';
 
 export type AttributionWindowKey = 'linkClick' | 'linkSent' | 'botIntent';
 export type AttributionWindowField = 'days' | 'hours';
@@ -74,15 +75,7 @@ function AttributionSection({
   const field = (name: AttributionWindowField, label: string, max?: number) => (
     <label className="lc-attr__field">
       <span className="lc-attr__field-label">{label}</span>
-      <input
-        type="number"
-        min={0}
-        max={max}
-        className="lc-attr__input"
-        value={value[name]}
-        disabled={!on}
-        onChange={(e) => onWindowChange(name, clampField(name, e.currentTarget.valueAsNumber))}
-      />
+      <TextInput type="number" min={0} max={max} value={value[name]} disabled={!on} onChange={(e) => onWindowChange(name, clampField(name, e.currentTarget.valueAsNumber))} />
     </label>
   );
 
@@ -94,16 +87,7 @@ function AttributionSection({
           <p className="lc-attr__section-desc">{section.info}</p>
         </div>
         {section.optional && (
-          <button
-            type="button"
-            role="switch"
-            aria-checked={enabled}
-            aria-labelledby={titleId}
-            className="lc-attr__switch-track"
-            onClick={() => onEnabledChange(!enabled)}
-          >
-            <span className="lc-attr__switch-thumb" />
-          </button>
+          <Switch checked={enabled} aria-labelledby={titleId} onChange={() => onEnabledChange(!enabled)} size="sm" />
         )}
       </div>
       <div className="lc-attr__table">

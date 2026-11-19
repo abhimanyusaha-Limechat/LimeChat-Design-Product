@@ -25,11 +25,10 @@
  * the `marketingCanvas()` / `automationCanvas()` presets in `./presets`.
  */
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { Avatar } from '../Avatar';
-import { Tooltip, type TooltipPosition } from '../Tooltip';
 import { CanvasIcon, type CanvasIconName } from './icons';
 import { useDismiss } from '../../hooks/useDismiss';
 import './CanvasChrome.css';
+import { Avatar, TextInput, Tooltip, type TooltipProps } from 'arceus';
 
 export interface CanvasFlow {
   /** Bold flow name in the pill (e.g. "Marketing flows", "Bot flows"). */
@@ -229,7 +228,7 @@ function IconButton({
   disabled?: boolean;
   /** Show the design-system `Tooltip` on hover / focus instead of the native `title`. */
   tooltip?: boolean;
-  tooltipPosition?: TooltipPosition;
+  tooltipPosition?: TooltipProps['position'];
 }) {
   const button = (
     <button
@@ -583,13 +582,7 @@ function CanvasNodePalette({
     <div className="lc-canvas__palette" role="dialog" aria-label="Add node">
       <div className="lc-canvas__palette-search">
         <CanvasIcon name="search" className="lc-canvas__icon" />
-        <input
-          type="search"
-          value={query}
-          placeholder={searchPlaceholder}
-          aria-label={searchPlaceholder}
-          onChange={(e) => setQuery(e.currentTarget.value)}
-        />
+        <TextInput type="search" value={query} placeholder={searchPlaceholder} aria-label={searchPlaceholder} onChange={(e) => setQuery(e.currentTarget.value)} />
       </div>
 
       <div className="lc-canvas__palette-body">
@@ -656,17 +649,10 @@ function CanvasSearchBar({
     <div className="lc-canvas__searchbar" role="search">
       <div className="lc-canvas__searchbar-field">
         <CanvasIcon name="search" className="lc-canvas__icon" />
-        <input
-          ref={inputRef}
-          type="search"
-          value={query}
-          placeholder={placeholder}
-          aria-label={placeholder}
-          onChange={(e) => {
+        <TextInput ref={inputRef} type="search" value={query} placeholder={placeholder} aria-label={placeholder} onChange={(e) => {
             setQuery(e.currentTarget.value);
             onSearch(e.currentTarget.value);
-          }}
-        />
+          }} />
       </div>
       <IconButton
         icon="dots-vertical"
@@ -882,12 +868,15 @@ export function CanvasChrome({
                   onClick={onCollaborators}
                   aria-label="Collaborators"
                 >
-                  <Avatar.Group size="sm" radius="xl" limit={3}>
-                    {collaborators.map((c, i) => (
-                      <Avatar key={c.src ?? c.name ?? i} src={c.src} alt={c.name ?? ''} variant="filled">
+                  <Avatar.Group>
+                    {collaborators.slice(0, 3).map((c, i) => (
+                      <Avatar key={c.src ?? c.name ?? i} src={c.src} alt={c.name ?? ''} variant="filled" size="sm" radius="xl">
                         {c.src ? undefined : (c.name?.trim().charAt(0) ?? '?')}
                       </Avatar>
                     ))}
+                    {collaborators.length > 3 && (
+                      <Avatar size="sm" radius="xl">{`+${collaborators.length - 3}`}</Avatar>
+                    )}
                   </Avatar.Group>
                   <CanvasIcon name="chevron-down" className="lc-canvas__icon" />
                 </button>

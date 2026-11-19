@@ -5,12 +5,11 @@
  * "Preview on desktop" opens the same thing as a desktop browser window in a modal.
  */
 import { useState, type CSSProperties } from 'react';
-import { Button } from '../Button';
 import { Icon } from '../icons';
-import { Modal } from '../Modal';
 import type { InboxPopupMessage, PopupSettings } from './InboxPopupMessageSection';
 import type { InboxWhatsAppWidget, WhatsAppWidgetSettings, WidgetDevice } from './InboxWhatsAppWidgetTab';
 import { useCopied } from './useCopied';
+import { Button, Modal } from 'arceus';
 
 function WidgetFace({ widget }: { widget: WhatsAppWidgetSettings }) {
   const logo = widget.icon?.src ? (
@@ -131,11 +130,12 @@ export function WidgetPreview({
       )}
       {!mobile.enabled && <p className="lc-inbs-preview__note">The mobile widget is switched off.</p>}
       <Modal
-        open={desktopOpen}
+        centered
+        opened={desktopOpen}
         onClose={() => setDesktopOpen(false)}
         title="Desktop preview"
         description="Where the widget and pop-up sit on a desktop website, using your Desktop settings."
-        width={960}
+        size={960}
       >
         <div className="lc-inbs-browser" aria-hidden="true">
           <div className="lc-inbs-browser__bar">

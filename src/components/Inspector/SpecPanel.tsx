@@ -1,5 +1,4 @@
 import { memo, useEffect, useRef, useState, type ComponentProps, type HTMLAttributes } from 'react';
-import { Button } from '../Button';
 import { Icon } from '../icons';
 import type { IconName } from '../iconPaths';
 import { BoxModel } from './BoxModel';
@@ -7,6 +6,7 @@ import type { Spec } from './measure';
 import { editorHref, formatLoc, type Loc } from './reactSource';
 import { RowEditor } from './RowEditor';
 import { buildReport, editProps, fmt, specToCss, toMarkdown } from './report';
+import { Button } from 'arceus';
 
 type CopyState = 'idle' | 'copied' | 'failed';
 
@@ -17,7 +17,7 @@ type FootButtonProps = Omit<ComponentProps<typeof Button>, 'leftSection'> & { ic
 /** The panel's small gray footer actions. */
 function FootButton({ icon, ...props }: FootButtonProps) {
   return (
-    <Button variant="default" color="gray" size="xs" textTransform="none" leftSection={<Icon name={icon} size={14} />} {...props} />
+    <Button variant="default" color="gray" size="xs" leftSection={<Icon name={icon} size={14} />} {...props} />
   );
 }
 

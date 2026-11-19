@@ -1,11 +1,10 @@
 import { useState, type HTMLAttributes } from 'react';
 import { initials } from '../components/AccountPicker/AccountPicker';
-import { Avatar } from '../components/Avatar';
-import { Button } from '../components/Button';
 import { Icon } from '../components/icons';
 import type { Comment } from './api';
 import type { Point } from './placement';
 import type { CommentsStatus } from './useComments';
+import { Avatar, Button } from 'arceus';
 
 const relative = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
 const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
@@ -117,7 +116,6 @@ function Thread({ comment, number, isDesigner, onReply, onResolve }: ThreadProps
               variant="default"
               color="gray"
               size="xs"
-              textTransform="none"
               leftSection={<Icon name="circle-check" size={14} />}
               loading={busy === 'resolve'}
               disabled={busy !== null}
@@ -126,7 +124,7 @@ function Thread({ comment, number, isDesigner, onReply, onResolve }: ThreadProps
               Resolve
             </Button>
           )}
-          <Button size="xs" textTransform="none" disabled={!text.trim() || busy !== null} loading={busy === 'reply'} onClick={sendReply}>
+          <Button size="xs" disabled={!text.trim() || busy !== null} loading={busy === 'reply'} onClick={sendReply}>
             Reply
           </Button>
         </div>
@@ -204,7 +202,7 @@ export function CommentsPanel({
           {status === 'error' && (
             <div className="lc-comments__state">
               <p className="lc-inspector__empty">Couldn't load comments.</p>
-              <Button variant="default" color="gray" size="xs" textTransform="none" onClick={onRetry}>
+              <Button variant="default" color="gray" size="xs" onClick={onRetry}>
                 Retry
               </Button>
             </div>

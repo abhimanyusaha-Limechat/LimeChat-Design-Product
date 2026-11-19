@@ -104,11 +104,11 @@ describe('buildReport', () => {
     );
   });
 
-  it('names a color token, with its primitive and hex underneath', () => {
+  it('names a color token, with its hex underneath', () => {
     expect(rows(spec({ type: { ...TYPE, color: '#808975' } })).Text).toMatchObject({
       label: 'Text',
-      value: 'sage-500',
-      detail: 'color/light · #808975',
+      value: 'light',
+      detail: '#808975',
       swatch: '#808975',
     });
   });
@@ -116,7 +116,7 @@ describe('buildReport', () => {
   it('flags a color that is not a token, naming the closest one', () => {
     expect(rows(spec({ type: { ...TYPE, color: '#818a76' } })).Text).toMatchObject({
       value: '#818a76',
-      issue: 'Not a color token — closest is sage-500 (#808975)',
+      issue: 'Not a color token — closest is light (#808975)',
     });
   });
 
@@ -164,8 +164,8 @@ describe('describePin', () => {
 
 describe('buildLabel', () => {
   it('summarises every tool that has something to say', () => {
-    expect(buildLabel(spec())).toBe('14/20 Lato 700 · text green-900 · p 8 12 · gap 8');
-    expect(buildLabel(spec({ type: { ...TYPE, lineHeight: null }, gap: null }))).toBe('14/normal Lato 700 · text green-900 · p 8 12');
+    expect(buildLabel(spec())).toBe('14/20 Lato 700 · text dark · p 8 12 · gap 8');
+    expect(buildLabel(spec({ type: { ...TYPE, lineHeight: null }, gap: null }))).toBe('14/normal Lato 700 · text dark · p 8 12');
   });
 
   it('always says something: an element with nothing else still shows its padding', () => {
@@ -181,7 +181,7 @@ describe('specToCss', () => {
         'font-size: 14px;',
         'font-weight: 700;',
         'line-height: 20px;',
-        'color: var(--lc-color-green-900);',
+        'color: var(--mantine-color-dark);',
         'padding: 0 12px;',
         'gap: 8px;',
       ].join('\n'),
@@ -191,7 +191,7 @@ describe('specToCss', () => {
   it('writes background and border colors, only the ones that exist', () => {
     const colors = { background: '#ffffff', border: null };
     const css = specToCss(spec({ type: null, colors }));
-    expect(css).toContain('background-color: var(--lc-color-white);');
+    expect(css).toContain('background-color: var(--mantine-color-white);');
     expect(css).not.toContain('border-color');
   });
 
@@ -250,7 +250,7 @@ describe('row editors', () => {
 
   it('lets colors be picked from the tokens, keeping an off-token value selectable', () => {
     const token = rows(spec({ colors: { background: '#fafdf6', border: '#818a76' } }));
-    expect(token.Background.edit).toMatchObject({ kind: 'choice', prop: 'background-color', value: 'var(--lc-color-green-50)' });
+    expect(token.Background.edit).toMatchObject({ kind: 'choice', prop: 'background-color', value: 'var(--mantine-color-primary-0)' });
     const custom = token.Border.edit;
     expect(custom?.kind === 'choice' && custom.options[0]).toEqual({ value: '#818a76', label: '#818a76' });
   });

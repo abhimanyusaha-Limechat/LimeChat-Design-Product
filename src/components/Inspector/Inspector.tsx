@@ -70,6 +70,12 @@ const defaultPosition = (viewport: Size) => ({
  */
 const keepFromApp = (e: SyntheticEvent) => e.stopPropagation();
 
+// Inspect mode's shortcuts (Esc, arrows…) must run before arceus's Modal, which closes on Escape from its own
+// window-capture listener. Listeners on one target fire in the order they were added, so this one is added once at
+// load — before any Modal mounts — and forwards to whichever Inspector is mounted.
+let keyHandler: ((e: KeyboardEvent) => void) | null = null;
+if (typeof window !== 'undefined') window.addEventListener('keydown', (e) => keyHandler?.(e), true);
+
 /** Pressing the bar keeps focus where it was, so focus-driven popovers stay open. */
 const keepAppFocus = (e: ReactMouseEvent) => e.preventDefault();
 
@@ -97,7 +103,7 @@ function panelPlacement(x: number, y: number): CSSProperties {
  * Below the bar in the top half of the screen, so they don't clip off the top —
  * unless the panel is open there (it would cover them) and there's room above.
  */
-function tooltipPlacement(y: number, panelOpen: boolean): 'top' | 'bottom' {
+export function tooltipPlacement(y: number, panelOpen: boolean): 'top' | 'bottom' {
   if (y + BAR_SIZE / 2 >= window.innerHeight / 2) return 'top';
   return panelOpen && y >= TOOLTIP_CLEARANCE ? 'top' : 'bottom';
 }
@@ -245,11 +251,14 @@ export function Inspector() {
       // Only when Inspect mode acted, so e.g. Esc doesn't also close an open Modal.
       if (handled) {
         e.preventDefault();
-        e.stopPropagation();
+        // arceus's Modal also listens for Escape on window's capture phase; stop its listener too.
+        e.stopImmediatePropagation();
       }
     };
-    window.addEventListener('keydown', onKey, true);
-    return () => window.removeEventListener('keydown', onKey, true);
+    keyHandler = onKey;
+    return () => {
+      if (keyHandler === onKey) keyHandler = null;
+    };
   }, [
     inspecting,
     commenting,

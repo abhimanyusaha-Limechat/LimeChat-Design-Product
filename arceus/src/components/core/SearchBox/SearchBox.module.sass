@@ -1,0 +1,42 @@
+.input
+  border: none !important
+  border-bottom: 1px solid var(--mantine-color-gray-4) !important
+  border-radius: 0 !important
+  background-color: transparent !important
+  outline: none
+
+  &:focus,
+  &:focus-visible,
+  &:focus-within
+    border-bottom-color: var(--mantine-color-primary-6) !important
+    outline: none
+    box-shadow: none
+
+  &[data-disabled]
+    border-bottom-color: var(--mantine-color-gray-4)
+
+  &[data-error]
+    border-bottom-color: var(--mantine-color-error-6)
+
+.inputUnstyled
+  border: none
+  border-radius: 0
+  background: transparent
+  outline: none
+  box-shadow: none
+  --input-bd-focus: transparent
+
+  &:focus,
+  &:focus-visible,
+  &:focus-within
+    border: none
+    outline: none
+    box-shadow: none
+    --input-bd: transparent
+    --input-bd-focus: transparent
+
+  &[data-disabled]
+    background: transparent
+
+  &[data-error]
+    border: none

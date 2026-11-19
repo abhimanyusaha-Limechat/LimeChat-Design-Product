@@ -12,11 +12,10 @@
  */
 import { useRef, useState, type ReactNode } from 'react';
 import { LimeChatLogo, SidebarIcon, type SidebarIconName } from './icons';
-import { Tooltip } from '../Tooltip';
-import { Avatar } from '../Avatar';
 import { useDismiss } from '../../hooks/useDismiss';
 import './Sidebar.css';
 import '../scrollbar-hidden.css';
+import { Avatar, Tooltip } from 'arceus';
 
 export interface SidebarMenuItem {
   id: string;
@@ -92,7 +91,6 @@ function SidebarEntry({
       arrowPosition="center"
       openDelay={2000}
       closeDelay={50}
-      instantGrace={false}
     >
       <button
         type="button"

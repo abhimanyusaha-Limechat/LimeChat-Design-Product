@@ -1,0 +1,42 @@
+.legend
+  display: flex
+  flex-direction: column
+  gap: var(--mantine-spacing-2xs)
+  padding: var(--mantine-spacing-sm)
+  background: var(--mantine-color-white)
+  border-radius: var(--mantine-spacing-2xs)
+  box-shadow: 0 var(--mantine-spacing-3xs) var(--mantine-spacing-2xs) rgba(0, 0, 0, 0.1)
+  z-index: 10
+  position: relative
+  margin: var(--mantine-spacing-2xs)
+
+  &--top,
+  &--bottom
+    align-self: center
+    flex-direction: row
+    flex-wrap: wrap
+
+.legend-items
+  display: flex
+  flex-direction: column
+  gap: var(--mantine-spacing-3xs)
+
+  .legend--top &,
+  .legend--bottom &
+    flex-direction: row
+    flex-wrap: wrap
+    gap: var(--mantine-spacing-sm)
+
+.legend-item
+  display: flex
+  align-items: center
+
+.legend-checkbox
+  min-height: auto
+
+  :global(.mantine-Checkbox-input)
+    cursor: pointer
+
+  :global(.mantine-Checkbox-label)
+    padding-left: var(--mantine-spacing-2xs)
+    cursor: pointer

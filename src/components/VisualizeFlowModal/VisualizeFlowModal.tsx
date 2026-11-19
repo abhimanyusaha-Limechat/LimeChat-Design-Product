@@ -14,9 +14,7 @@
  * Built on the shared `<Modal>` shell + `NativeSelect`.
  */
 import { useEffect, useState } from 'react';
-import { Button } from '../Button';
-import { NativeSelect } from '../Select';
-import { Modal } from '../Modal';
+import { ActionIcon, Badge, Button, Group, Modal, NativeSelect, Stack, Text, TextInput } from 'arceus';
 
 const PLUS_ICON_PATHS = ['M12 5l0 14', 'M5 12l14 0'];
 function PlusIcon() {
@@ -50,12 +48,18 @@ const DEFAULT_COUNTRY_CODES = ['+91', '+1', '+44', '+61', '+971'];
 
 function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="lc-modal__chip">
+    <Badge
+      variant="light"
+      size="lg"
+      tt="none"
+      rightSection={
+        <ActionIcon variant="transparent" color="gray" size="xs" aria-label={`Remove ${label}`} onClick={onRemove}>
+          ×
+        </ActionIcon>
+      }
+    >
       {label}
-      <button type="button" className="lc-modal__chip-remove" aria-label={`Remove ${label}`} onClick={onRemove}>
-        ×
-      </button>
-    </span>
+    </Badge>
   );
 }
 
@@ -100,34 +104,27 @@ export function VisualizeFlowModal({
 
   return (
     <Modal
-      open={open}
+      centered
+      opened={open}
       onClose={onClose}
       title={title}
       description={description}
-      footer={
-        <Button
-          variant="filled"
-          color="primary"
-          size="sm"
-          onClick={() => onSend?.({ countryCode, phones, emails })}
-        >
-          Send
-        </Button>
-      }
     >
-      <div className="lc-modal__field">
-        <span className="lc-modal__field-label">Add phone number</span>
-        <div className="lc-modal__row lc-modal__row--end">
+      <Stack gap="md">
+      <Stack gap="xs">
+        <Text variant="subtitle-2">Add phone number</Text>
+        <Group align="flex-end" wrap="nowrap">
           <NativeSelect
             data={countryCodes}
             value={countryCode}
             onChange={(e) => setCountryCode(e.currentTarget.value)}
             size="sm"
-            wrapperClassName="lc-modal__country-code"
+            w={96}
+            aria-label="Country code"
           />
-          <input
+          <TextInput
             type="tel"
-            className="lc-modal__input"
+            flex={1}
             value={phoneInput}
             placeholder="Add phone number"
             aria-label="Add phone number"
@@ -137,28 +134,27 @@ export function VisualizeFlowModal({
             variant="default"
             color="primary"
             size="sm"
-            textTransform="none"
             leftSection={<PlusIcon />}
             onClick={addPhone}
           >
             Add
           </Button>
-        </div>
+        </Group>
         {phones.length > 0 && (
-          <div className="lc-modal__chip-list">
+          <Group gap="xs">
             {phones.map((p, i) => (
               <Chip key={`${p}-${i}`} label={p} onRemove={() => setPhones((v) => v.filter((_, j) => j !== i))} />
             ))}
-          </div>
+          </Group>
         )}
-      </div>
+      </Stack>
 
-      <div className="lc-modal__field">
-        <span className="lc-modal__field-label">Add email address (Optional)</span>
-        <div className="lc-modal__row lc-modal__row--end">
-          <input
+      <Stack gap="xs">
+        <Text variant="subtitle-2">Add email address (Optional)</Text>
+        <Group align="flex-end" wrap="nowrap">
+          <TextInput
             type="email"
-            className="lc-modal__input"
+            flex={1}
             value={emailInput}
             placeholder="Email address"
             aria-label="Email address"
@@ -168,21 +164,29 @@ export function VisualizeFlowModal({
             variant="default"
             color="primary"
             size="sm"
-            textTransform="none"
             leftSection={<PlusIcon />}
             onClick={addEmail}
           >
             Add
           </Button>
-        </div>
+        </Group>
         {emails.length > 0 && (
-          <div className="lc-modal__chip-list">
+          <Group gap="xs">
             {emails.map((email, i) => (
               <Chip key={`${email}-${i}`} label={email} onRemove={() => setEmails((v) => v.filter((_, j) => j !== i))} />
             ))}
-          </div>
+          </Group>
         )}
-      </div>
+      </Stack>
+      </Stack>
+      <Modal.Footer><Button
+          variant="filled"
+          color="primary"
+          size="sm"
+          onClick={() => onSend?.({ countryCode, phones, emails })}
+        >
+          Send
+        </Button></Modal.Footer>
     </Modal>
   );
 }

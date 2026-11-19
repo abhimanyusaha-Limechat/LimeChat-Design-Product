@@ -15,14 +15,13 @@
  *   />
  */
 import { useEffect, useState } from 'react';
-import { Button } from '../Button';
-import { Modal } from '../Modal';
 import type {
   CanvasBroadcastAudience,
   CanvasBroadcastSchedule,
 } from '../CanvasChrome';
 import { Icon } from '../icons';
 import './PublishConfirmModal.css';
+import { Button, Modal } from 'arceus';
 
 const DIGITS = Array.from({ length: 10 }, (_, i) => i);
 
@@ -124,21 +123,12 @@ export function PublishConfirmModal({
 }: PublishConfirmModalProps) {
   return (
     <Modal
-      open={open}
+      centered
+      opened={open}
       onClose={onClose}
       title={title}
       description={description}
-      width={552}
-      footer={
-        <>
-          <Button variant="default" color="gray" size="sm" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button variant="filled" color="primary" size="sm" onClick={onConfirm}>
-            {confirmLabel}
-          </Button>
-        </>
-      }
+      size={552}
     >
       <div className="lc-publish-confirm">
         <section className="lc-publish-confirm__section">
@@ -188,6 +178,14 @@ export function PublishConfirmModal({
           </div>
         </section>
       </div>
+      <Modal.Footer><>
+          <Button variant="default" color="gray" size="sm" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button variant="filled" color="primary" size="sm" onClick={onConfirm}>
+            {confirmLabel}
+          </Button>
+        </></Modal.Footer>
     </Modal>
   );
 }

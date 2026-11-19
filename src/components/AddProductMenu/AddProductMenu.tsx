@@ -5,13 +5,13 @@
  * with its price pinned to the right.
  */
 import { useState, type ReactNode } from 'react';
-import { Button } from '../Button';
 import { Menu, type MenuItemData, type MenuTriggerRenderProps } from '../Menu';
 import { MOCK_PRODUCTS, type Product } from '../../data/mockProducts';
 import { formatINR } from '../formatINR';
 import { Icon, PhotoIcon } from '../icons';
 import { thumbPalette } from '../catalogUtils';
 import './AddProductMenu.css';
+import { Button, TextInput } from 'arceus';
 
 const PlusIcon = () => <Icon name="plus" />;
 
@@ -73,13 +73,7 @@ export function AddProductMenu({
       className="lc-add-product"
       header={
         <div className="lc-add-product__search">
-          <input
-            type="text"
-            className="lc-add-product__search-input"
-            placeholder="Search products"
-            value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
-          />
+          <TextInput className="lc-add-product__search-input" placeholder="Search products" value={search} onChange={(e) => setSearch(e.currentTarget.value)} variant="unstyled" />
         </div>
       }
       trigger={trigger}

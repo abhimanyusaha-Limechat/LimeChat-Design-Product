@@ -1,0 +1,6 @@
+.section svg {
+  width: var(--input-section-icon-size);
+  height: var(--input-section-icon-size);
+  min-width: var(--input-section-icon-size);
+  min-height: var(--input-section-icon-size);
+}

@@ -13,10 +13,6 @@
  *   />
  */
 import { useState } from 'react';
-import { Button } from '../Button';
-import { CheckboxPill } from '../CheckboxPill';
-import { NativeSelect } from '../Select';
-import { Tooltip } from '../Tooltip';
 import { ActionMenu } from '../Menu';
 import { BroadcastIcon, type BroadcastIconName } from './icons';
 import {
@@ -33,6 +29,7 @@ import {
   useTableSort,
 } from '../DataTable';
 import './BroadcastHomePage.css';
+import { Button, Checkbox, NativeSelect, Tabs, TextInput, Tooltip } from 'arceus';
 
 export type BroadcastTab = 'triggered' | 'scheduled' | 'draft';
 export type BroadcastStatus = 'sending' | 'completed' | 'scheduled' | 'draft';
@@ -162,13 +159,7 @@ export function BroadcastHomePage({
       <div className="lc-bh__toolbar" data-anchor="broadcast-toolbar">
         <div className="lc-bh__search">
           <BroadcastIcon name="search" className="lc-bh__search-icon" />
-          <input
-            className="lc-bh__search-input"
-            type="text"
-            placeholder="Search for broadcast"
-            value={searchValue}
-            onChange={(e) => onSearchChange?.(e.currentTarget.value)}
-          />
+          <TextInput className="lc-bh__search-input" placeholder="Search for broadcast" value={searchValue} onChange={(e) => onSearchChange?.(e.currentTarget.value)} variant="unstyled" />
         </div>
         <div className="lc-bh__actions">
           <Button
@@ -193,21 +184,15 @@ export function BroadcastHomePage({
       </div>
 
       <div className="lc-bh__nav-row" data-anchor="broadcast-tab-bar">
-        <div className="lc-bh__tabs" role="tablist">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              className="lc-bh__tab"
-              data-active={tab.id === activeTab || undefined}
-              aria-selected={tab.id === activeTab}
-              onClick={() => onTabChange?.(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs value={activeTab}>
+          <Tabs.List className="lc-bh__tabs">
+            {TABS.map((tab) => (
+              <Tabs.Tab key={tab.id} value={tab.id} className="lc-bh__tab" onClick={() => onTabChange?.(tab.id)}>
+                {tab.label}
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs>
 
         <div className="lc-bh__filters">
           <div className="lc-bh__filters-group">
@@ -232,7 +217,7 @@ export function BroadcastHomePage({
               ]}
             />
           </div>
-          <CheckboxPill checked={showRetry} onChange={setShowRetry} label="Show retry results" />
+          <Checkbox checked={showRetry} onChange={(e) => setShowRetry(e.currentTarget.checked)} label="Show retry results" />
         </div>
       </div>
 

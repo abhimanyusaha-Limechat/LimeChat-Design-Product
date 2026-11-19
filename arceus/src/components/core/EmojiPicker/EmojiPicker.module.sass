@@ -1,0 +1,65 @@
+@use '../../../styles/shadows' as *
+
+// Compact, on-brand overrides for emoji-picker-react (scoped via .dropdown wrapper).
+
+.trigger
+  flex-shrink: 0
+
+.dropdown
+  padding: 0 !important
+  border: 1px solid var(--mantine-color-gray-4) !important
+  border-radius: var(--mantine-radius-2xs) !important
+  background: var(--mantine-color-white) !important
+  @extend .shadow-lg
+  overflow: hidden
+
+  :global(.EmojiPickerReact)
+    --epr-picker-border-radius: var(--mantine-radius-2xs)
+    --epr-picker-border-color: var(--mantine-color-gray-4)
+    --epr-bg-color: var(--mantine-color-white)
+    --epr-horizontal-padding: var(--mantine-spacing-xs)
+    --epr-header-padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm)
+    --epr-highlight-color: var(--mantine-color-primary-filled)
+    --epr-hover-bg-color: var(--mantine-color-gray-3)
+    --epr-hover-bg-color-reduced-opacity: var(--mantine-color-gray-0)
+    --epr-focus-bg-color: var(--mantine-color-primary-light)
+    --epr-text-color: var(--mantine-color-light)
+    --epr-category-icon-active-color: var(--mantine-color-primary-filled)
+    --epr-search-input-bg-color: var(--mantine-color-gray-0)
+    --epr-search-input-bg-color-active: var(--mantine-color-white)
+    --epr-search-input-height: 2.8rem
+    --epr-search-input-border-radius: var(--mantine-radius-2xs)
+    --epr-search-input-text-color: var(--mantine-color-text)
+    --epr-search-input-placeholder-color: var(--mantine-color-placeholder)
+    --epr-search-bar-inner-padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm)
+    --epr-category-navigation-button-size: 2.2rem
+    --epr-category-label-bg-color: var(--mantine-color-white)
+    --epr-category-label-text-color: var(--mantine-color-light)
+    --epr-category-label-height: 2.4rem
+    --epr-emoji-size: 2.2rem
+    --epr-emoji-padding: 0.2rem
+    --epr-emoji-gap: 0.2rem
+    font-family: var(--mantine-font-family)
+
+  :global(.epr-category-nav)
+    padding-top: var(--mantine-spacing-xs)
+    padding-bottom: var(--mantine-spacing-xs)
+
+  :global(.epr-cat-btn)
+    border-radius: var(--mantine-radius-2xs)
+    opacity: 0.55
+
+    &:hover
+      opacity: 0.85
+      background-color: var(--mantine-color-gray-3)
+
+  :global(.epr-cat-btn.epr-active)
+    opacity: 1
+    background-color: var(--mantine-color-primary-light)
+
+  :global(.epr-emoji-category-label)
+    font-size: var(--mantine-font-size-xs)
+    font-weight: 600
+
+  :global(.epr-search-container input)
+    font-size: var(--mantine-font-size-sm)

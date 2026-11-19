@@ -12,6 +12,7 @@ import {
   type DurationRow,
   type InboxDuration,
 } from './InboxSettingsSections';
+import { Textarea } from 'arceus';
 
 export interface InboxCsat {
   enabled: boolean;
@@ -106,14 +107,7 @@ export function CsatTab({ value, onChange }: { value: InboxCsat; onChange: (next
               <label className="lc-inbs__label" htmlFor={messageId}>Custom CSAT message</label>
               <p className="lc-inbs__row-desc">Shown to customers with the survey.</p>
             </div>
-            <textarea
-              id={messageId}
-              className="lc-inbs__input lc-inbs__textarea"
-              rows={4}
-              value={value.message}
-              disabled={off}
-              onChange={(e) => set({ message: e.currentTarget.value })}
-            />
+            <Textarea id={messageId} rows={4} value={value.message} disabled={off} onChange={(e) => set({ message: e.currentTarget.value })} />
           </div>
         </div>
       </section>
@@ -131,15 +125,7 @@ export function CsatTab({ value, onChange }: { value: InboxCsat; onChange: (next
             <label className="lc-inbs__label" htmlFor={reminderMessageId}>CSAT reminder message</label>
             <p className="lc-inbs__row-desc">Sent with the reminder to customers who haven't rated yet.</p>
           </div>
-          <textarea
-            id={reminderMessageId}
-            className="lc-inbs__input lc-inbs__textarea"
-            rows={4}
-            placeholder="CSAT reminder message"
-            value={reminder.message}
-            disabled={!reminder.enabled}
-            onChange={(e) => setReminder({ message: e.currentTarget.value })}
-          />
+          <Textarea id={reminderMessageId} rows={4} placeholder="CSAT reminder message" value={reminder.message} disabled={!reminder.enabled} onChange={(e) => setReminder({ message: e.currentTarget.value })} />
         </div>
       </DurationSection>
     </>

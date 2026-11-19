@@ -8,10 +8,10 @@
  *   <EmailComposerBar onMerge={merge} onNotes={openNotes} onReply={openReply} onForward={openForward} />
  */
 import { forwardRef, type HTMLAttributes } from 'react';
-import { Button } from '../Button';
 import './EmailMessage.css';
 import { iconProps } from '../iconProps';
 import { Icon } from '../icons';
+import { Button } from 'arceus';
 
 const MergeIcon = () => (
   <svg {...iconProps()}>

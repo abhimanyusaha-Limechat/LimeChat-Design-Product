@@ -1,4 +1,4 @@
-import './QtyStepper.css';
+import { ActionIcon, Group, Text } from 'arceus';
 
 /** Quantity −/+ control, never below 1. `field` is the taller variant that sits beside form inputs. */
 export function QtyStepper({
@@ -10,15 +10,18 @@ export function QtyStepper({
   onChange: (next: number) => void;
   variant?: 'compact' | 'field';
 }) {
+  const size = variant === 'field' ? 'md' : 'sm';
   return (
-    <span className={`lc-qty-stepper${variant === 'field' ? ' lc-qty-stepper--field' : ''}`}>
-      <button type="button" aria-label="Decrease quantity" onClick={() => onChange(Math.max(1, value - 1))}>
+    <Group gap="xs" wrap="nowrap" className="lc-qty-stepper">
+      <ActionIcon variant="default" size={size} aria-label="Decrease quantity" onClick={() => onChange(Math.max(1, value - 1))}>
         −
-      </button>
-      <span className="lc-qty-stepper__value">{value}</span>
-      <button type="button" aria-label="Increase quantity" onClick={() => onChange(value + 1)}>
+      </ActionIcon>
+      <Text component="span" variant="body-2" ta="center" miw={24}>
+        {value}
+      </Text>
+      <ActionIcon variant="default" size={size} aria-label="Increase quantity" onClick={() => onChange(value + 1)}>
         +
-      </button>
-    </span>
+      </ActionIcon>
+    </Group>
   );
 }

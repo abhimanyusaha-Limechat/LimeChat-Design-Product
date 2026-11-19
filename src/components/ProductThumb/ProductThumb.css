@@ -31,7 +31,7 @@
   cursor: pointer;
 }
 .lc-thumb[data-clickable]:focus-visible {
-  outline: 2px solid var(--lc-color-green-500);
+  outline: 2px solid var(--mantine-color-primary-6);
   outline-offset: 2px;
 }
 .lc-thumb__zoom {
@@ -42,7 +42,7 @@
   justify-content: center;
   border-radius: inherit;
   background: rgba(0, 0, 0, 0.35);
-  color: var(--lc-color-white);
+  color: var(--mantine-color-white);
   opacity: 0;
   transition: opacity 150ms ease;
   pointer-events: none;
@@ -61,10 +61,15 @@
   height: 24px;
 }
 
-.lc-modal.lc-thumb-preview-modal {
+/* Let the floating close button sit over the card's corner instead of being clipped by the scroll area. */
+.lc-thumb-preview-modal .mantine-Modal-content,
+.lc-thumb-preview-modal .mantine-Modal-body {
+  overflow: visible;
+}
+.lc-thumb-preview-modal .mantine-Modal-body {
   padding: 8px;
 }
-.lc-thumb-preview-modal .lc-modal__header {
+.lc-thumb-preview-modal .mantine-Modal-header {
   display: none;
 }
 .lc-thumb-preview__frame {
@@ -89,11 +94,11 @@
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: var(--lc-color-white);
-  color: var(--lc-color-green-900);
+  background: var(--mantine-color-white);
+  color: var(--mantine-color-dark);
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 .lc-thumb-preview__close:hover {
-  background: var(--lc-color-gray-100);
+  background: var(--mantine-color-gray-1);
 }

@@ -1,6 +1,6 @@
 import { memo, type CSSProperties, type ReactElement, type RefObject } from 'react';
 import { Icon } from '../icons';
-import { Tooltip } from '../Tooltip';
+import { Tooltip } from 'arceus';
 
 /** Long enough that tooltips stay out of the way while you work the bar. */
 const TOOLTIP_DELAY = 1000;

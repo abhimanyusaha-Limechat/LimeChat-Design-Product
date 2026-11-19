@@ -7,11 +7,11 @@
  */
 
 .lc-csat {
-  --lc-csat-border: var(--lc-color-gray-300);
-  --lc-csat-divider: var(--lc-color-gray-200);
-  --lc-csat-text-title: var(--lc-color-green-900);
-  --lc-csat-text-dimmed: var(--lc-color-sage-500);
-  --lc-csat-primary: var(--lc-color-green-700);
+  --lc-csat-border: var(--mantine-color-gray-3);
+  --lc-csat-divider: var(--mantine-color-gray-2);
+  --lc-csat-text-title: var(--mantine-color-dark);
+  --lc-csat-text-dimmed: var(--mantine-color-light);
+  --lc-csat-primary: var(--mantine-color-primary-7);
   --lc-csat-radius: 12px;
   --lc-csat-radius-sm: 6px;
   --lc-csat-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -92,7 +92,7 @@
   flex-direction: column;
   border: 1px solid var(--lc-csat-divider);
   border-radius: var(--lc-csat-radius);
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   overflow: hidden;
   transition: opacity 220ms var(--lc-csat-ease-out), transform 220ms var(--lc-csat-ease-out);
 
@@ -118,36 +118,6 @@
 }
 
 /* --- Switch (in the header card) ------------------------------------- */
-
-.lc-csat__switch-track {
-  position: relative;
-  flex-shrink: 0;
-  width: 40px;
-  height: 22px;
-  border-radius: 999px;
-  background: var(--lc-color-gray-300);
-  transition: background-color 150ms ease;
-}
-
-.lc-csat__switch-track[data-checked='true'] {
-  background: var(--lc-color-green-500);
-}
-
-.lc-csat__switch-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--lc-color-white);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-  transition: transform 150ms ease;
-}
-
-.lc-csat__switch-track[data-checked='true'] .lc-csat__switch-thumb {
-  transform: translateX(18px);
-}
 
 /* --- Row: label+description left, control right ----------------------- */
 
@@ -217,8 +187,8 @@
   height: 18px;
   border: 1.5px solid var(--lc-csat-border);
   border-radius: 4px;
-  background: var(--lc-color-white);
-  color: var(--lc-color-white);
+  background: var(--mantine-color-white);
+  color: var(--mantine-color-white);
   transition: background-color 120ms ease, border-color 120ms ease;
 }
 
@@ -318,11 +288,11 @@
 
 .lc-csat__input {
   width: 100%;
-  height: var(--lc-input-sm);
+  height: var(--input-height-sm);
   padding: 0 12px;
   border: 1px solid var(--lc-csat-border);
   border-radius: var(--lc-csat-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;

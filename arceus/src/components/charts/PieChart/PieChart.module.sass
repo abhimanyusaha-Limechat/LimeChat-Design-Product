@@ -1,0 +1,99 @@
+.chart-container
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-self: stretch
+  background: transparent
+  border-radius: var(--mantine-spacing-3xs)
+
+  &:focus-visible
+    outline: 2px solid var(--mantine-other-extra03)
+    outline-offset: var(--mantine-spacing-3xs)
+
+.zero-state
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-self: stretch
+  background: transparent
+  border-radius: var(--mantine-spacing-3xs)
+
+.zero-state-content
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: var(--mantine-spacing-sm)
+  padding: var(--mantine-spacing-lg)
+  text-align: center
+  height: 100%
+
+.zero-state-icon
+  color: var(--mantine-color-gray-4)
+  opacity: 0.7
+  animation: fadeInIcon 0.8s ease-out
+
+.zero-state-message
+  font-weight: 500
+  opacity: 0.8
+
+.zero-state-hint
+  opacity: 0.6
+  max-width: 280px
+
+@keyframes fadeInIcon
+  0%
+    opacity: 0
+    transform: scale(0.8)
+  100%
+    opacity: 0.7
+    transform: scale(1)
+
+.loader
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-self: stretch
+  background: transparent
+  border-radius: var(--mantine-spacing-3xs)
+
+.loader-frame
+  position: relative
+  width: 100%
+  height: 100%
+  display: flex
+  align-items: center
+  justify-content: center
+  gap: var(--mantine-spacing-xl)
+  padding: var(--mantine-spacing-lg)
+  flex-wrap: wrap
+
+.chart-face
+  position: relative
+  width: 220px
+  height: 220px
+  display: flex
+  align-items: center
+  justify-content: center
+
+.pie-base,
+.pie-center
+  position: absolute
+  pointer-events: none
+
+.pie-base
+  background: linear-gradient(145deg, rgba(245, 248, 255, 0.95) 0%, rgba(225, 232, 250, 0.8) 100%)
+  box-shadow: inset 0 6px 10px rgba(255, 255, 255, 0.8)
+
+
+.pie-center
+  background: linear-gradient(145deg, rgba(250, 252, 255, 0.95) 0%, rgba(230, 236, 246, 0.75) 100%)
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.05)
+
+
+.static
+  .pie-base,
+  .pie-center
+    animation: none
+

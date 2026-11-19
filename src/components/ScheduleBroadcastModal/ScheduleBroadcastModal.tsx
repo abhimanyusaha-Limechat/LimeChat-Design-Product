@@ -16,9 +16,8 @@
  * Built on the shared `<Modal>` shell + its `ModalRadioOption` / `ModalCheckbox`
  * / `ModalStepper` primitives.
  */
-import { useEffect, useId, useState } from 'react';
-import { Button } from '../Button';
-import { Modal, ModalCheckbox, ModalRadioOption, ModalStepper } from '../Modal';
+import { useEffect, useState } from 'react';
+import { ActionIcon, Button, Checkbox, DatePickerInput, Group, Modal, NumberInput, Paper, RadioCardGroup, Stack, Text, TimeInput } from 'arceus';
 
 const EDIT_ICON_PATHS = ['M7 20h-4v-4l11.5 -11.5a2.121 2.121 0 0 1 3 3l-11.5 11.5', 'M13.5 6.5l3 3'];
 const CALENDAR_ICON_PATHS = [
@@ -86,9 +85,6 @@ export function ScheduleBroadcastModal({
   defaults,
 }: ScheduleBroadcastModalProps) {
   const [values, setValues] = useState<ScheduleBroadcastValues>({ ...DEFAULTS, ...defaults });
-  const radioName = useId();
-  const dateId = useId();
-  const timeId = useId();
 
   // Snapshot the incoming defaults each time the modal opens.
   useEffect(() => {
@@ -102,123 +98,82 @@ export function ScheduleBroadcastModal({
 
   return (
     <Modal
-      open={open}
+      centered
+      opened={open}
       onClose={onClose}
       title={title}
-      width={638}
-      footer={
-        <Button
-          variant="filled"
-          color="primary"
-          size="sm"
-          leftSection={<CalendarIcon />}
-          onClick={() => onSetSchedule?.(values)}
-        >
-          Set Schedule
-        </Button>
-      }
+      size={638}
     >
-      <div className="lc-modal__field">
-        {description && (
-          <p className="lc-modal__description" style={{ margin: 0 }}>
-            {description}
-          </p>
+      <Stack gap="md">
+        {description && <Text variant="body-2" tone="light">{description}</Text>}
+
+        <RadioCardGroup
+          value={values.mode}
+          onChange={(mode) => set('mode', mode === 'now' ? 'now' : 'later')}
+          options={[
+            { value: 'now', label: 'Publish now', description: 'Instantly publishes your broadcast' },
+            { value: 'later', label: 'Schedule for later', description: 'Schedules your broadcast for a specific time' },
+          ]}
+        />
+
+        {values.mode === 'later' && (
+          <Group grow align="flex-start">
+            <DatePickerInput
+              label="Date"
+              leftSection={<CalendarIcon />}
+              value={values.date || null}
+              onChange={(date) => set('date', typeof date === 'string' ? date : '')}
+            />
+            <TimeInput
+              label="Time"
+              leftSection={<ClockIcon />}
+              value={values.time}
+              onChange={(e) => set('time', e.currentTarget.value)}
+            />
+          </Group>
         )}
 
-        <ModalRadioOption
-          name={radioName}
-          checked={values.mode === 'now'}
-          onChange={() => set('mode', 'now')}
-          label="Publish now"
-          description="Instantly publishes your broadcast"
-        />
-
-        <ModalRadioOption
-          name={radioName}
-          checked={values.mode === 'later'}
-          onChange={() => set('mode', 'later')}
-          label="Schedule for later"
-          description="Schedules your broadcast for a specific time"
-        >
-          <span className="lc-modal__field">
-            <label className="lc-modal__field-label" htmlFor={dateId}>
-              Date
-            </label>
-            <span className="lc-modal__field-icon-wrap">
-              <span className="lc-modal__field-icon">
-                <CalendarIcon />
-              </span>
-              <input
-                id={dateId}
-                type="date"
-                className="lc-modal__input lc-modal__input--with-icon"
-                value={values.date}
-                disabled={values.mode !== 'later'}
-                onChange={(e) => set('date', e.currentTarget.value)}
-              />
-            </span>
-          </span>
-          <span className="lc-modal__field">
-            <label className="lc-modal__field-label" htmlFor={timeId}>
-              Time
-            </label>
-            <span className="lc-modal__field-icon-wrap">
-              <span className="lc-modal__field-icon">
-                <ClockIcon />
-              </span>
-              <input
-                id={timeId}
-                type="time"
-                className="lc-modal__input lc-modal__input--with-icon"
-                value={values.time}
-                disabled={values.mode !== 'later'}
-                onChange={(e) => set('time', e.currentTarget.value)}
-              />
-            </span>
-          </span>
-        </ModalRadioOption>
-      </div>
-
-      <div className="lc-modal__card">
-        <ModalCheckbox
-          checked={values.retryEnabled}
-          onChange={(next) => set('retryEnabled', next)}
-          label="Retry Broadcast"
-          description="Configure the retry automation time window to determine when all failed messages will be resent, optimizing for higher delivery rates."
-        />
-
-        <div className="lc-modal__card-controls">
-          <span className="lc-modal__card-controls-label">Do retries for the next</span>
-          <ModalStepper
-            label="Days"
-            value={String(values.retryDays)}
-            inputMode="numeric"
-            disabled={!values.retryEnabled}
-            onChange={(v) => set('retryDays', Math.max(0, Number(v.replace(/\D/g, '')) || 0))}
-            onStep={(dir) => set('retryDays', Math.max(0, values.retryDays + dir))}
+        <Paper withBorder p="md" radius="xs"><Stack gap="sm">
+          <Checkbox
+            checked={values.retryEnabled}
+            onChange={(e) => set('retryEnabled', e.currentTarget.checked)}
+            label="Retry Broadcast"
+            description="Configure the retry automation time window to determine when all failed messages will be resent, optimizing for higher delivery rates."
           />
-          <ModalStepper
-            label="Hours"
-            value={String(values.retryHours)}
-            inputMode="numeric"
-            disabled={!values.retryEnabled}
-            onChange={(v) => set('retryHours', Math.max(0, Number(v.replace(/\D/g, '')) || 0))}
-            onStep={(dir) => set('retryHours', Math.max(0, values.retryHours + dir))}
-          />
-        </div>
 
-        <div className="lc-modal__banner">
-          <p className="lc-modal__banner-text">{quietHoursLabel}</p>
-          <button
-            type="button"
-            className="lc-modal__banner-action"
-            aria-label="Edit quiet hours"
-            onClick={onEditQuietHours}
-          >
-            <EditIcon />
-          </button>
-        </div>
-      </div>
+          <Group align="flex-end">
+            <Text variant="body-2">Do retries for the next</Text>
+            <NumberInput
+              label="Days"
+              value={values.retryDays}
+              min={0}
+              allowDecimal={false}
+              disabled={!values.retryEnabled}
+              onChange={(v) => set('retryDays', Math.max(0, Number(v) || 0))}
+            />
+            <NumberInput
+              label="Hours"
+              value={values.retryHours}
+              min={0}
+              allowDecimal={false}
+              disabled={!values.retryEnabled}
+              onChange={(v) => set('retryHours', Math.max(0, Number(v) || 0))}
+            />
+          </Group>
+
+          <Group justify="space-between" wrap="nowrap">
+            <Text variant="body-2">{quietHoursLabel}</Text>
+            <ActionIcon variant="subtle" color="gray" aria-label="Edit quiet hours" onClick={onEditQuietHours}>
+              <EditIcon />
+            </ActionIcon>
+          </Group>
+        </Stack></Paper>
+      </Stack>
+      <Modal.Footer>
+        <Button variant="filled" color="primary" size="sm" leftSection={<CalendarIcon />} onClick={() => onSetSchedule?.(values)}>
+          Set Schedule
+        </Button>
+      </Modal.Footer>
     </Modal>
   );
 }

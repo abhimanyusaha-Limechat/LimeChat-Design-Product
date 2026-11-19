@@ -11,9 +11,9 @@
  */
 import { useMemo, useState } from 'react';
 import { Menu } from '../Menu';
-import { Button } from '../Button';
 import { TopNavIcon } from './icons';
 import './CreateTicketMenu.css';
+import { Button, TextInput } from 'arceus';
 
 export type TicketInboxType = 'whatsapp' | 'email';
 
@@ -45,14 +45,7 @@ export function CreateTicketMenu({ inboxes, onSelectInbox }: CreateTicketMenuPro
       header={
         <div className="lc-create-ticket-menu__search">
           <TopNavIcon name="search" />
-          <input
-            type="text"
-            placeholder="Search inboxes"
-            value={query}
-            autoFocus
-            onChange={(e) => setQuery(e.currentTarget.value)}
-            onClick={(e) => e.stopPropagation()}
-          />
+          <TextInput placeholder="Search inboxes" value={query} autoFocus onChange={(e) => setQuery(e.currentTarget.value)} onClick={(e) => e.stopPropagation()} />
         </div>
       }
       emptyState={<div className="lc-create-ticket-menu__empty">No inboxes found</div>}
@@ -67,7 +60,6 @@ export function CreateTicketMenu({ inboxes, onSelectInbox }: CreateTicketMenuPro
           ref={ref}
           variant="default"
           size="sm"
-          textTransform="none"
           leftSection={<TopNavIcon name="plus" />}
           onClick={onClick}
         >

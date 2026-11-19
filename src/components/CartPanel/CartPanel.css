@@ -3,11 +3,11 @@
  * "Cart" tab (a ~320-420px resizable sidebar column).
  */
 .lc-cp {
-  --lc-cp-title: var(--lc-color-green-900);
-  --lc-cp-dimmed: var(--lc-color-sage-500);
-  --lc-cp-primary: var(--lc-color-green-500);
-  --lc-cp-primary-light: var(--lc-color-green-50);
-  --lc-cp-border: var(--lc-color-gray-200);
+  --lc-cp-title: var(--mantine-color-dark);
+  --lc-cp-dimmed: var(--mantine-color-light);
+  --lc-cp-primary: var(--mantine-color-primary-6);
+  --lc-cp-primary-light: var(--mantine-color-primary-0);
+  --lc-cp-border: var(--mantine-color-gray-2);
   --lc-cp-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   display: flex;
@@ -51,7 +51,7 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--lc-cp-dimmed);
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   border-bottom: 1px solid var(--lc-cp-border);
 }
 
@@ -63,7 +63,7 @@
   padding: 12px;
   border: 1px solid var(--lc-cp-border);
   border-radius: 8px;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   opacity: 1;
   transform: scale(1);
@@ -160,7 +160,7 @@
   gap: 6px;
   padding: 12px;
   border-top: 1px solid var(--lc-cp-border);
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
 }
 .lc-cp__summary-row {
   display: flex;

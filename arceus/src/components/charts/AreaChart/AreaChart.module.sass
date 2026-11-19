@@ -1,0 +1,103 @@
+.chart-container
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-self: stretch
+  background: transparent
+  border-radius: var(--mantine-spacing-3xs)
+
+  &:focus-visible
+    outline: 2px solid var(--mantine-other-extra03)
+    outline-offset: var(--mantine-spacing-3xs)
+
+.loader
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-self: stretch
+  background: transparent
+  border-radius: var(--mantine-spacing-3xs)
+
+.loader-frame
+  position: relative
+  width: 100%
+  height: 100%
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-lg) var(--mantine-spacing-lg)
+
+.axis-y,
+.axis-x,
+.area-shape
+  position: absolute
+  pointer-events: none
+
+.axis-y,
+.axis-x
+  border-radius: var(--mantine-spacing-zero)
+  background: linear-gradient(180deg, var(--mantine-color-gray-0) 0%, var(--mantine-color-gray-0) 100%)
+  opacity: 0.6
+
+.area-shape
+  position: absolute
+  border-radius: var(--mantine-spacing-2xs)
+  overflow: hidden
+  transform-origin: bottom center
+  filter: drop-shadow(0 12px 16px rgba(41, 72, 255, 0.05))
+
+.area-primary
+  clip-path: polygon(0% 72%, 14% 58%, 28% 62%, 42% 46%, 58% 52%, 72% 36%, 86% 41%, 100% 30%, 100% 100%, 0% 100%)
+  background: linear-gradient(180deg, rgba(76, 110, 245, 0.35) 0%, rgba(76, 110, 245, 0.08) 85%)
+  animation: areaWavePrimary 2.4s ease-in-out infinite
+
+
+.static
+  .area-shape
+    animation: none
+
+@keyframes areaWavePrimary
+  0%, 100%
+    transform: translateY(1%) scaleY(0.96)
+  45%
+    transform: translateY(0) scaleY(1)
+
+
+.zero-state
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-self: stretch
+  background: transparent
+  border-radius: var(--mantine-spacing-3xs)
+
+.zero-state-content
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: var(--mantine-spacing-sm)
+  padding: var(--mantine-spacing-lg)
+  text-align: center
+  height: 100%
+
+.zero-state-icon
+  color: var(--mantine-color-gray-4)
+  opacity: 0.7
+  animation: fadeInIcon 0.8s ease-out
+
+.zero-state-message
+  font-weight: 500
+  opacity: 0.8
+  color: var(--mantine-color-gray-8)
+
+.zero-state-hint
+  opacity: 0.6
+  max-width: 280px
+  color: var(--mantine-color-gray-5)
+
+@keyframes fadeInIcon
+  0%
+    opacity: 0
+    transform: scale(0.8)
+  100%
+    opacity: 0.7
+    transform: scale(1)

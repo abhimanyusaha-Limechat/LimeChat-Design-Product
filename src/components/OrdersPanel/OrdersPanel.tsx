@@ -14,10 +14,8 @@ import {
   useRef,
   useState,
   type Dispatch,
-  type InputHTMLAttributes,
   type ReactNode,
   type SetStateAction,
-  type TextareaHTMLAttributes,
 } from 'react';
 import {
   type Address,
@@ -29,8 +27,6 @@ import {
 import { PRODUCT_IMAGE_BY_SKU } from '../../data/mockProducts';
 import { useCommerce } from '../../context/CommerceContext';
 import { Menu, type MenuItemData } from '../Menu';
-import { Button } from '../Button';
-import { Modal } from '../Modal';
 import './OrdersPanel.css';
 import { iconProps } from '../iconProps';
 import { Icon, CloseIcon as ClearIcon, TrashIcon, CheckIcon } from '../icons';
@@ -39,6 +35,7 @@ import { addressesEqual, draftToOrder, emptyDraft, formatAddressForCopy, isDraft
 import { thumbPalette, useTypingPlaceholder } from '../catalogUtils';
 import { ProductThumb } from '../ProductThumb';
 import { HighlightMatch } from '../HighlightMatch';
+import { Button, Modal, TextInput, Textarea } from 'arceus';
 
 type SortKey = 'recent' | 'oldest' | 'total_high_low' | 'total_low_high';
 
@@ -437,16 +434,6 @@ function Field({ label, full, children }: { label: string; full?: boolean; child
   );
 }
 
-function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
-  const { className, ...rest } = props;
-  return <input {...rest} className={`lc-op__input${className ? ` ${className}` : ''}`} />;
-}
-
-function TextareaInput(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  const { className, rows, ...rest } = props;
-  return <textarea {...rest} rows={rows ?? 3} className={`lc-op__textarea${className ? ` ${className}` : ''}`} />;
-}
-
 function AddressFields({ value, onChange }: { value: Address; onChange: (next: Address) => void }) {
   const set = <K extends keyof Address>(key: K, v: Address[K]) => onChange({ ...value, [key]: v });
   return (
@@ -683,7 +670,7 @@ function OrderFormFields({
 
       <div className="lc-op__detail-section">
         <p className="lc-op__detail-section-title">Notes</p>
-        <TextareaInput
+        <Textarea
           placeholder="Add a note for this order..."
           value={draft.notes}
           onChange={(e) => {
@@ -809,15 +796,11 @@ function OrderDetailView({
       </div>
 
       <Modal
-        open={updatesOpen}
+        centered
+        opened={updatesOpen}
         onClose={() => setUpdatesOpen(false)}
         title="Order updates"
-        width={360}
-        footer={
-          <Button variant="subtle" color="primary" size="sm" onClick={() => setUpdatesOpen(false)}>
-            Close
-          </Button>
-        }
+        size={360}
       >
         <div className="lc-op__timeline">
           {buildStatusTimeline(order).map((step, i, arr) => (
@@ -832,6 +815,9 @@ function OrderDetailView({
             </div>
           ))}
         </div>
+        <Modal.Footer><Button variant="subtle" color="primary" size="sm" onClick={() => setUpdatesOpen(false)}>
+            Close
+          </Button></Modal.Footer>
       </Modal>
     </div>
   );
@@ -974,12 +960,7 @@ export function OrdersPanel() {
         <div className="lc-op__search-row">
           <span className="lc-op__search">
             <SearchIcon />
-            <input
-              className="lc-op__search-input"
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.currentTarget.value)}
-            />
+            <TextInput className="lc-op__search-input" value={search} onChange={(e) => setSearch(e.currentTarget.value)} variant="unstyled" />
             <AnimatedSearchPlaceholder visible={!search} />
             {search && (
               <button type="button" className="lc-op__search-clear" aria-label="Clear search" onClick={() => setSearch('')}>

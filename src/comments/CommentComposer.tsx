@@ -1,6 +1,6 @@
 import { forwardRef, type KeyboardEvent } from 'react';
-import { Button } from '../components/Button';
 import type { Point } from './placement';
+import { Button } from 'arceus';
 
 const WIDTH = 280;
 /** Roughly the composer's height with an error line; keeps it on screen without measuring. */
@@ -64,10 +64,10 @@ export const CommentComposer = forwardRef<HTMLTextAreaElement, CommentComposerPr
         </p>
       )}
       <div className="lc-comments__actions">
-        <Button variant="subtle" color="gray" size="xs" textTransform="none" onClick={onCancel} disabled={posting}>
+        <Button variant="subtle" color="gray" size="xs" onClick={onCancel} disabled={posting}>
           Cancel
         </Button>
-        <Button size="xs" textTransform="none" onClick={onPost} disabled={!text.trim()} loading={posting} title="Ctrl+Enter">
+        <Button size="xs" onClick={onPost} disabled={!text.trim()} loading={posting} title="Ctrl+Enter">
           Post
         </Button>
       </div>

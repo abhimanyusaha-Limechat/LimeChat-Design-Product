@@ -6,11 +6,10 @@
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import { useScrollFade } from '../../hooks/useScrollFade';
-import { Button } from '../Button';
-import { Tooltip } from '../Tooltip';
 import { Icon } from '../icons';
 import type { IconName } from '../iconPaths';
 import './SettingsPage.css';
+import { Button, Tooltip } from 'arceus';
 
 export interface SettingsTab {
   id: string;

@@ -1,0 +1,64 @@
+.layout
+  display: flex
+  position: relative
+  width: 100%
+  gap: var(--mantine-spacing-lg)
+
+.layout--block
+  display: block
+
+.layout--horizontal
+  flex-direction: row
+  align-items: stretch
+
+.layout--vertical
+  flex-direction: column
+  align-items: stretch
+  width: 100%
+
+.chart-wrapper
+  flex: 1 1 auto
+  min-width: 0
+  min-height: 0
+  position: relative
+
+.layout--block .chart-wrapper,
+.layout--vertical .chart-wrapper
+  flex: none
+  width: 100%
+
+.legend-wrapper
+  flex: 0 0 auto
+  display: flex
+  flex-direction: column
+  overflow: visible
+  box-sizing: border-box
+
+.legend-wrapper--side
+  max-height: 100%
+  overflow-y: auto
+  width: clamp(180px, 26%, 260px)
+
+.legend-wrapper--full
+  width: 100%
+
+.legend-wrapper--align-start
+  align-self: flex-start
+
+.legend-wrapper--align-center
+  align-self: center
+
+.legend-wrapper--align-end
+  align-self: flex-end
+
+.legend-wrapper--right
+  align-items: flex-end
+
+.legend-wrapper--left
+  align-items: flex-start
+
+.legend-wrapper--stretch
+  align-items: stretch
+
+.legend-wrapper :global(.legend)
+  margin: 0

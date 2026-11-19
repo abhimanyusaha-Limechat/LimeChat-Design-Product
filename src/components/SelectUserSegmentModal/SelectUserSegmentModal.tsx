@@ -16,9 +16,8 @@
  * Built on the shared `<Modal>` shell + `<Button>` for the row toggles.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { Button } from '../Button';
-import { Modal } from '../Modal';
 import './SelectUserSegmentModal.css';
+import { Button, Modal, Tabs, TextInput } from 'arceus';
 
 export type SegmentChoice = 'include' | 'exclude';
 
@@ -138,67 +137,27 @@ export function SelectUserSegmentModal({
 
   return (
     <Modal
-      open={open}
+      centered
+      opened={open}
       onClose={onClose}
       title="Select user segments"
-      width={1024}
+      size={1024}
       className="lc-segment-modal"
-      footer={
-        <div className="lc-segment-modal__footer">
-          <div className="lc-segment-modal__notice">
-            <InfoIcon />
-            <span>You can include/exclude at max {maxSelected} segments at a time</span>
-          </div>
-          <div className="lc-segment-modal__footer-right">
-            <span className="lc-segment-modal__total">
-              <span>User count in segments</span>
-              <InfoIcon />
-              <strong>{includedUserCount.toLocaleString()}</strong>
-            </span>
-            <Button
-              variant="filled"
-              color="primary"
-              size="sm"
-              disabled={selectedCount === 0}
-              onClick={() => onSave?.(selections)}
-            >
-              Save
-            </Button>
-          </div>
-        </div>
-      }
     >
       <div className="lc-segment-modal__toolbar">
-        <div className="lc-segment-modal__tabs" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'lc'}
-            className="lc-segment-modal__tab"
-            data-active={tab === 'lc' || undefined}
-            onClick={() => setTab('lc')}
-          >
-            LC Segments
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'imported'}
-            className="lc-segment-modal__tab"
-            data-active={tab === 'imported' || undefined}
-            onClick={() => setTab('imported')}
-          >
-            Imported Segments
-          </button>
-        </div>
+        <Tabs value={tab}>
+          <Tabs.List className="lc-segment-modal__tabs">
+            <Tabs.Tab value="lc" className="lc-segment-modal__tab" onClick={() => setTab('lc')}>
+              LC Segments
+            </Tabs.Tab>
+            <Tabs.Tab value="imported" className="lc-segment-modal__tab" onClick={() => setTab('imported')}>
+              Imported Segments
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs>
         <div className="lc-segment-modal__search">
           <SearchIcon />
-          <input
-            type="text"
-            placeholder="Search by ID, Name & Message"
-            value={query}
-            onChange={(e) => setQuery(e.currentTarget.value)}
-          />
+          <TextInput placeholder="Search by ID, Name & Message" value={query} onChange={(e) => setQuery(e.currentTarget.value)} />
         </div>
       </div>
 
@@ -254,6 +213,28 @@ export function SelectUserSegmentModal({
           )}
         </div>
       </div>
+      <Modal.Footer><div className="lc-segment-modal__footer">
+          <div className="lc-segment-modal__notice">
+            <InfoIcon />
+            <span>You can include/exclude at max {maxSelected} segments at a time</span>
+          </div>
+          <div className="lc-segment-modal__footer-right">
+            <span className="lc-segment-modal__total">
+              <span>User count in segments</span>
+              <InfoIcon />
+              <strong>{includedUserCount.toLocaleString()}</strong>
+            </span>
+            <Button
+              variant="filled"
+              color="primary"
+              size="sm"
+              disabled={selectedCount === 0}
+              onClick={() => onSave?.(selections)}
+            >
+              Save
+            </Button>
+          </div>
+        </div></Modal.Footer>
     </Modal>
   );
 }

@@ -10,7 +10,6 @@ import {
   helpDeskTopNav,
   automationTopNav,
 } from './components/TopNavBar/presets';
-import { Button } from './components/Button';
 import { SettingsPage } from './components/SettingsPage';
 import { SettingsScreen } from './components/SettingsScreen';
 import { ContactsScreen } from './components/ContactsScreen';
@@ -38,6 +37,7 @@ import {
 } from './data/settingsDemo';
 import { getPickedAccount } from './components/AccountPicker';
 import { TICKETS } from './data/ticketsDemo';
+import { Button } from 'arceus';
 
 const PRODUCTS: { id: SidebarProduct; label: string }[] = [
   { id: 'helpdesk', label: 'Helpdesk' },

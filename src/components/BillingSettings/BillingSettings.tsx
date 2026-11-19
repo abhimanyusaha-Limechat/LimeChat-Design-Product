@@ -7,9 +7,9 @@
  *
  *   <BillingSettings plan={DEMO_BILLING_PLAN} onUpgrade={() => ...} />
  */
-import { Button } from '../Button';
 import { Icon } from '../icons';
 import './BillingSettings.css';
+import { Button } from 'arceus';
 
 export interface BillingPlan {
   name: string;
@@ -70,7 +70,7 @@ export function BillingSettings({ plan, onUpgrade }: BillingSettingsProps) {
                 </span>
               </p>
             </div>
-            <Button variant="filled" color="primary" size="sm" textTransform="none" onClick={onUpgrade}>
+            <Button variant="filled" color="primary" size="sm" onClick={onUpgrade}>
               Upgrade plan
             </Button>
           </div>

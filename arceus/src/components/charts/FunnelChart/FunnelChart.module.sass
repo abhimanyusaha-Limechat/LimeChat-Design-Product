@@ -1,0 +1,97 @@
+.chart-container
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-self: stretch
+  background: transparent
+  border-radius: var(--mantine-spacing-3xs)
+
+  &:focus-visible
+    outline: 2px solid var(--mantine-other-extra03)
+    outline-offset: var(--mantine-spacing-3xs)
+
+.zero-state
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-self: stretch
+  background: transparent
+  border-radius: var(--mantine-spacing-3xs)
+
+.zero-state-content
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: var(--mantine-spacing-sm)
+  padding: var(--mantine-spacing-lg)
+  text-align: center
+  height: 100%
+
+.zero-state-icon
+  color: var(--mantine-color-gray-4)
+  opacity: 0.7
+  animation: fadeInIcon 0.8s ease-out
+
+.zero-state-message
+  font-weight: 500
+  opacity: 0.8
+
+.zero-state-hint
+  opacity: 0.6
+  max-width: 280px
+
+@keyframes fadeInIcon
+  0%
+    opacity: 0
+    transform: scale(0.8)
+  100%
+    opacity: 0.7
+    transform: scale(1)
+
+.loader
+  width: 100%
+  display: flex
+  flex-direction: column
+  align-self: stretch
+  background: transparent
+  border-radius: var(--mantine-spacing-3xs)
+
+.loader-frame
+  position: relative
+  width: 100%
+  height: 100%
+  max-width: 420px
+  margin: 0 auto
+  padding: var(--mantine-spacing-lg)
+  display: flex
+  flex-direction: column
+  gap: var(--mantine-spacing-sm)
+
+.stage-row
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 100%
+  margin: 5px auto
+
+.stage-shape
+  border-radius: var(--mantine-spacing-2xs)
+  background: linear-gradient(90deg, rgba(76, 110, 245, 0.55) 0%, rgba(76, 110, 245, 0.2) 100%)
+  clip-path: polygon(0 0, 100% 0, calc(100% - 12%) 100%, 12% 100%)
+  animation: funnelPulse 2.1s ease-in-out infinite
+  box-shadow: 0 12px 18px rgba(60, 90, 255, 0.12)
+  height: 48px
+
+
+.static
+  .stage-shape
+    animation: none
+
+@keyframes funnelPulse
+  0%, 100%
+    transform: translateX(0) scaleX(0.98)
+  50%
+    transform: translateX(2%) scaleX(1)
+

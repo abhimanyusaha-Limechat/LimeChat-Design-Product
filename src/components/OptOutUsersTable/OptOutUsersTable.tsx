@@ -22,6 +22,7 @@ import {
   useTableSort,
 } from '../DataTable';
 import '../EventsTable/EventsTable.css';
+import { TextInput } from 'arceus';
 
 export interface OptOutUserRowData {
   id: string;
@@ -51,15 +52,7 @@ export function OptOutUsersTable({ users, loading = false }: OptOutUsersTablePro
       <div className="lc-ev__toolbar">
         <label className="lc-ev__search">
           <Icon name="search" className="lc-ev__search-icon" />
-          <input
-            className="lc-ev__search-input"
-            type="search"
-            inputMode="tel"
-            aria-label="Search by phone number"
-            placeholder="Search by phone number"
-            value={phoneSearch}
-            onChange={(e) => setPhoneSearch(e.currentTarget.value)}
-          />
+          <TextInput className="lc-ev__search-input" type="search" inputMode="tel" aria-label="Search by phone number" placeholder="Search by phone number" value={phoneSearch} onChange={(e) => setPhoneSearch(e.currentTarget.value)} variant="unstyled" />
         </label>
       </div>
 

@@ -6,12 +6,12 @@
  */
 
 .lc-as {
-  --lc-as-border: var(--lc-color-gray-300);
-  --lc-as-divider: var(--lc-color-gray-200);
-  --lc-as-text-title: var(--lc-color-green-900);
-  --lc-as-text-dimmed: var(--lc-color-sage-500);
-  --lc-as-primary: var(--lc-color-green-700);
-  --lc-as-bg-subtle: var(--lc-color-stone-50);
+  --lc-as-border: var(--mantine-color-gray-3);
+  --lc-as-divider: var(--mantine-color-gray-2);
+  --lc-as-text-title: var(--mantine-color-dark);
+  --lc-as-text-dimmed: var(--mantine-color-light);
+  --lc-as-primary: var(--mantine-color-primary-7);
+  --lc-as-bg-subtle: var(--mantine-color-gray-0);
   --lc-as-radius: 12px;
   --lc-as-radius-sm: 6px;
   --lc-as-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -36,7 +36,7 @@
   flex-direction: column;
   border: 1px solid var(--lc-as-divider);
   border-radius: var(--lc-as-radius);
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   overflow: hidden;
   transition: opacity 220ms var(--lc-as-ease-out), transform 220ms var(--lc-as-ease-out);
 
@@ -123,11 +123,11 @@
 
 .lc-as__input {
   width: 100%;
-  height: var(--lc-input-sm);
+  height: var(--input-height-sm);
   padding: 0 12px;
   border: 1px solid var(--lc-as-border);
   border-radius: var(--lc-as-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
@@ -136,7 +136,7 @@
 }
 
 .lc-as__input::placeholder {
-  color: var(--lc-color-gray-500);
+  color: var(--mantine-color-gray-5);
 }
 
 .lc-as__input:focus-visible {
@@ -159,11 +159,11 @@
 .lc-as__select {
   appearance: none;
   width: 100%;
-  height: var(--lc-input-sm);
+  height: var(--input-height-sm);
   padding: 0 32px 0 12px;
   border: 1px solid var(--lc-as-border);
   border-radius: var(--lc-as-radius-sm);
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;

@@ -18,8 +18,8 @@
  * `AccountSwitcherPagination` type are retained so it can be restored later.
  */
 import type { CSSProperties, ReactNode } from 'react';
-import { Avatar } from '../Avatar';
 import './AccountSwitcher.css';
+import { Avatar, TextInput } from 'arceus';
 
 export interface SwitcherAccount {
   id: string;
@@ -92,13 +92,7 @@ export function AccountSwitcher({
         <span className="lc-account-switcher__search-icon">
           <Icon d={ICONS.search} />
         </span>
-        <input
-          type="search"
-          value={searchValue}
-          placeholder={searchPlaceholder}
-          onChange={(e) => onSearchChange?.(e.currentTarget.value)}
-          aria-label={searchPlaceholder}
-        />
+        <TextInput type="search" value={searchValue} placeholder={searchPlaceholder} onChange={(e) => onSearchChange?.(e.currentTarget.value)} aria-label={searchPlaceholder} />
       </div>
 
       {children}

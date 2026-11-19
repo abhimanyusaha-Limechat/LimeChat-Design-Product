@@ -2,8 +2,8 @@
  * The widget editor's Ecommerce tab: how product cards look in the widget, which store it
  * reads carts from, and the chat input text it prefills on a product page.
  */
-import { NativeSelect } from '../Select';
 import { Row, SectionHeading, SwitchRow, TextRow } from './InboxSettingsSections';
+import { NativeSelect } from 'arceus';
 
 export type ProductImageRatio = '1:1' | '9:16' | '16:9';
 
@@ -52,7 +52,7 @@ export function WidgetEcommerceSection({
         <Row label="Ecommerce Store Type" description="The store the widget reads carts and products from.">
           <NativeSelect
             size="sm"
-            fullWidth
+            w="100%"
             aria-label="Ecommerce Store Type"
             data={STORE_TYPES}
             value={value.storeType}

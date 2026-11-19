@@ -1,0 +1,26 @@
+.chevron
+  display: block
+  flex-shrink: 0
+  // gray-5 is 2.9:1 on white, under the 3:1 non-text minimum
+  color: var(--mantine-color-gray-7)
+  transition: transform 150ms ease
+
+:global(.mantine-Select-wrapper:has(input[data-expanded])),
+:global(.mantine-MultiSelect-wrapper:has([data-expanded])),
+:global(.mantine-Input-wrapper:has(input[aria-haspopup="listbox"][data-expanded])),
+:global(.mantine-Input-wrapper:has(button[aria-haspopup="listbox"][data-expanded]))
+  .chevron
+    transform: rotate(180deg)
+
+:global(.mantine-Select-option[data-checked]),
+:global(.mantine-MultiSelect-option[data-checked]),
+:global(.mantine-Combobox-option[data-checked])
+  background-color: var(--mantine-color-primary-light) !important
+
+  &:hover
+    background-color: var(--mantine-color-primary-light-hover) !important
+
+  svg
+    // primary-filled is 2.5:1 on the light green row, under the 3:1 non-text minimum
+    color: var(--mantine-color-primary-7) !important
+    opacity: 1

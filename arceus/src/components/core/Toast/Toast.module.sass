@@ -1,0 +1,118 @@
+@use '../../../styles/shadows' as *
+
+@mixin variant-surface($accent, $tint)
+  border-color: var(--mantine-color-#{$accent}-6)
+  background: color-mix(in srgb, var(--mantine-color-#{$tint}-0) 72%, var(--mantine-color-white))
+
+.toast
+  display: flex
+  align-items: flex-start
+  gap: var(--mantine-spacing-sm)
+  right: var(--mantine-spacing-sm)
+  width: 100%
+  max-width: 30rem
+  min-height: 3rem
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md)
+  padding-right: var(--mantine-spacing-2xl)
+  border: 1px solid var(--mantine-color-gray-4)
+  border-radius: var(--mantine-radius-2xs)
+  background: var(--mantine-color-white)
+  color: var(--mantine-color-text)
+  @extend .shadow-sm
+
+  &[data-type='success']
+    @include variant-surface(primary, primary)
+
+  &[data-type='error']
+    @include variant-surface(error, error)
+
+  &[data-type='warning']
+    @include variant-surface(warning, warning)
+
+  &[data-type='info']
+    @include variant-surface(info, info)
+
+  &[data-type='loading']
+    background: var(--mantine-color-gray-0)
+
+    .icon,
+    .loader
+      color: var(--mantine-color-gray-6)
+
+  &[data-type='default'],
+  &[data-type='normal'],
+  &[data-type='action']
+    background: var(--mantine-color-gray-0)
+
+    .icon
+      color: var(--mantine-color-gray-6)
+
+.title
+  font-size: var(--mantine-font-size-sm)
+  line-height: var(--mantine-line-height-sm)
+  color: var(--mantine-color-text)
+  color: inherit !important
+
+.description
+  font-size: var(--mantine-font-size-sm)
+  line-height: var(--mantine-line-height-xs)
+  color: var(--mantine-color-text)
+  margin-top: var(--mantine-spacing-3xs)
+
+.icon
+  flex-shrink: 0
+  display: flex
+  align-items: center
+  justify-content: center
+  margin-top: var(--mantine-spacing-3xs)
+  background: none
+
+.icon :global(.sonner-loader),
+.loader:global(.sonner-loader)
+  position: static
+  top: auto
+  left: auto
+  transform: none
+
+.actionButton,
+.cancelButton
+  align-self: center
+  margin-left: auto
+  padding: var(--mantine-spacing-3xs) var(--mantine-spacing-sm)
+  border: none
+  line-height: 1
+  letter-spacing: 0.04em
+  text-transform: uppercase
+  cursor: pointer
+  transition: background-color 160ms ease
+
+.cancelButton
+  color: var(--mantine-color-light)
+
+  &:hover
+    background: color-mix(in srgb, var(--mantine-color-gray-5) 8%, transparent)
+
+.closeButton
+  position: absolute
+  top: var(--mantine-spacing-xs)
+  right: var(--mantine-spacing-xs)
+  left: auto
+  display: flex
+  align-items: flex-start
+  justify-content: flex-end
+  width: auto
+  height: auto
+  margin: 0
+  padding: 0
+  border: none !important
+  border-radius: 0 !important
+  background: none !important
+  box-shadow: none !important
+  transform: none !important
+  cursor: pointer
+
+  &:hover,
+  &:focus-visible
+    background: none !important
+    border-color: transparent !important
+    box-shadow: none !important

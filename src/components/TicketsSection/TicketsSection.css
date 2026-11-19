@@ -2,21 +2,21 @@
  * TicketsSection — LimeChat design system (Figma node 8977:4521's list wrapper).
  */
 .lc-tickets-section {
-  --lc-ts-title: var(--lc-color-green-900);
-  --lc-ts-dimmed: var(--lc-color-sage-500);
-  --lc-ts-primary: var(--lc-color-green-500);
-  --lc-ts-primary-light: var(--lc-color-green-50);
-  --lc-ts-border: var(--lc-color-gray-200);
-  --lc-ts-input-border: var(--lc-color-gray-300);
-  --lc-ts-placeholder: var(--lc-color-gray-500);
-  --lc-ts-header-bg: var(--lc-color-green-25);
+  --lc-ts-title: var(--mantine-color-dark);
+  --lc-ts-dimmed: var(--mantine-color-light);
+  --lc-ts-primary: var(--mantine-color-primary-6);
+  --lc-ts-primary-light: var(--mantine-color-primary-0);
+  --lc-ts-border: var(--mantine-color-gray-2);
+  --lc-ts-input-border: var(--mantine-color-gray-3);
+  --lc-ts-placeholder: var(--mantine-color-gray-5);
+  --lc-ts-header-bg: var(--mantine-color-primary-0);
 
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   overflow: hidden;
 }
@@ -63,7 +63,7 @@
   padding: 4px 8px 4px 10px;
   border: none;
   border-radius: 4px;
-  background: var(--lc-ts-status-bg, var(--lc-color-gray-150));
+  background: var(--lc-ts-status-bg, var(--mantine-color-gray-2));
   font-family: inherit;
   font-size: 13px;
   font-weight: 700;
@@ -90,7 +90,7 @@
   background: #F0F0F0;
 }
 .lc-tickets-section__status[data-status='Voice bot'] {
-  border: 1px solid var(--lc-color-gray-200);
+  border: 1px solid var(--mantine-color-gray-2);
 }
 .lc-tickets-section__status[data-status='Waiting'],
 .lc-tickets-section__status[data-status='Follow up'] {
@@ -118,11 +118,11 @@
   gap: 8px;
   flex: 1 1 0;
   min-width: 0;
-  height: var(--lc-input-sm);
+  height: var(--input-height-sm);
   padding: 0 12px;
   border: 1px solid var(--lc-ts-input-border);
   border-radius: 4px;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   color: var(--lc-ts-placeholder);
 }
 .lc-tickets-section__search svg {
@@ -152,12 +152,12 @@
   height: 32px;
   border: 1px solid var(--lc-ts-input-border);
   border-radius: 4px;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   color: var(--lc-ts-title);
   cursor: pointer;
 }
 .lc-tickets-section__icon-btn:hover {
-  background: var(--lc-color-gray-100);
+  background: var(--mantine-color-gray-1);
 }
 .lc-tickets-section__icon-btn svg {
   width: 16px;
@@ -176,11 +176,11 @@
   gap: 8px;
   flex: 1 1 0;
   min-width: 0;
-  height: var(--lc-input-sm);
+  height: var(--input-height-sm);
   padding: 0 12px;
   border: 1px solid var(--lc-ts-input-border);
   border-radius: 4px;
-  background: var(--lc-color-white);
+  background: var(--mantine-color-white);
   font-family: inherit;
   font-size: 14px;
   color: var(--lc-ts-title);
@@ -214,35 +214,12 @@
   gap: 4px;
   flex-shrink: 0;
   padding: 0 12px;
-  border-bottom: 1px solid var(--lc-ts-border);
+  border-bottom: 1px solid var(--lc-ts-input-border);
 }
-.lc-tickets-section__tab {
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 8px 12px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  border-radius: 4px 4px 0 0;
-  background: transparent;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--lc-ts-dimmed);
-  cursor: pointer;
-  text-align: center;
-  transition: background-color 150ms ease, color 150ms ease;
+/* arceus Tabs draws its own divider; this list's border-bottom is the divider here. */
+.lc-tickets-section__tabs::before {
+  display: none;
 }
-.lc-tickets-section__tab:not([data-active]):hover {
-  background: var(--lc-color-gray-100);
-  color: var(--lc-ts-title);
-}
-.lc-tickets-section__tab[data-active] {
-  color: var(--lc-ts-primary);
-  background: var(--lc-ts-header-bg);
-  font-weight: 700;
-  border-bottom-color: var(--lc-ts-primary);
-}
-
 .lc-tickets-section__sort {
   display: flex;
   align-items: center;
@@ -259,7 +236,7 @@
   transition: background-color 150ms ease;
 }
 .lc-tickets-section__sort:hover {
-  background: var(--lc-color-gray-100);
+  background: var(--mantine-color-gray-1);
 }
 .lc-tickets-section__sort-value {
   font-weight: 700;
@@ -292,7 +269,7 @@
   padding: 2px 6px;
   border-radius: 100px;
   background: var(--lc-ts-primary);
-  color: var(--lc-color-white);
+  color: var(--mantine-color-white);
   font-size: 10px;
   font-weight: 600;
   line-height: 12px;
@@ -333,7 +310,7 @@
   border-radius: 999px;
 }
 .lc-tickets-section__list::-webkit-scrollbar-thumb:hover {
-  background-color: var(--lc-color-gray-400);
+  background-color: var(--mantine-color-gray-4);
 }
 
 .lc-tickets-section__load-more {

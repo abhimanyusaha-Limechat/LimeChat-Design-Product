@@ -1,9 +1,10 @@
 /**
  * The spacing, type and color scale Inspect mode checks values against. This
  * is the only place to change when the design system's scale changes; once
- * spacing and type tokens exist in `tokens.css`, map them here.
+ * spacing and type tokens exist in arceus, map them here.
  */
-import tokensCss from '../../tokens.css?raw';
+import COLOR_PALETTES from '../../../arceus/src/theme/palettes/colors';
+import FONT_COLORS from '../../../arceus/src/theme/palettes/fonts';
 
 export const SPACING_STEP = 4;
 export const FONT_SIZES: readonly number[] = [10, 12, 14, 16, 20];
@@ -19,29 +20,33 @@ export function isAllowedFontSize(px: number): boolean {
 }
 
 export interface ColorToken {
-  /** The CSS variable without its `--lc-color-` prefix, e.g. `sage-500`. */
+  /** The arceus palette key and step, e.g. `primary-6`, or `dark` / `light` / `white`. */
   name: string;
-  /** The design system's primitive name from the token's comment, e.g. `color/light`. */
-  primitive: string | null;
+  /** The Mantine CSS variable arceus publishes for it, e.g. `--mantine-color-primary-6`. */
+  cssVar: string;
   /** Lowercase `#rrggbb`. */
   hex: string;
 }
 
-// `--lc-color-sage-500: #808975; /* color/light */` — the comment is optional, and
-// anything from `(` on is a note, not part of the primitive name.
-const TOKEN_LINE = /--lc-color-([\w-]+):\s*(#[0-9a-f]{6})\s*;(?:[ \t]*\/\*\s*([^*(\n]+?)\s*(?:\(|\*\/))?/gi;
+// Palettes that are aliases of another (primary = green, error = red, …) or single-tone
+// text colors are skipped so each hex resolves to one canonical name.
+const SKIPPED_PALETTES = new Set(['green', 'blue', 'error', 'warning', 'dark', 'light']);
 
-/** The color tokens declared in a stylesheet, in declaration order. */
-export function parseColorTokens(css: string): ColorToken[] {
-  return [...css.matchAll(TOKEN_LINE)].map(([, name, hex, primitive]) => ({
-    name,
-    hex: hex.toLowerCase(),
-    primitive: primitive ?? null,
-  }));
-}
+const named = (name: string, hex: string): ColorToken => ({
+  name,
+  cssVar: `--mantine-color-${name}`,
+  hex: hex.toLowerCase(),
+});
 
-/** Read from tokens.css itself, so the palette is never maintained twice. */
-export const COLOR_TOKENS: readonly ColorToken[] = parseColorTokens(tokensCss);
+/** Every color arceus publishes, in declaration order. The palette is read from arceus, never copied. */
+export const COLOR_TOKENS: readonly ColorToken[] = [
+  named('dark', FONT_COLORS.DARK),
+  named('light', FONT_COLORS.LIGHT),
+  named('white', '#ffffff'),
+  ...Object.entries(COLOR_PALETTES)
+    .filter(([palette]) => !SKIPPED_PALETTES.has(palette))
+    .flatMap(([palette, steps]) => steps.map((hex, step) => named(`${palette}-${step}`, hex))),
+];
 
 /** The first-declared token with exactly this color, or null. */
 export function findColorToken(hex: string, tokens: readonly ColorToken[] = COLOR_TOKENS): ColorToken | null {

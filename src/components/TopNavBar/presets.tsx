@@ -15,10 +15,10 @@ import { forwardRef, type ReactNode } from 'react';
 import type { TopNavBarProps } from './TopNavBar';
 import { TopNavIcon, type TopNavIconName } from './icons';
 import { CreateTicketMenu, type TicketInboxOption } from './CreateTicketMenu';
-import { Button } from '../Button';
 import campaignsWordmark from './assets/campaigns.png';
 import helpDeskWordmark from './assets/helpdesk.svg';
 import automationWordmark from './assets/automation.svg';
+import { Button } from 'arceus';
 
 /* -------------------------------------------------------------------------- */
 /* CTA building blocks                                                         */
@@ -40,7 +40,7 @@ export interface TopNavButtonProps {
  * the same component the Figma top-nav CTAs are Code-Connected to. Prefer using
  * `<Button>` directly; this is kept for the preset API.
  */
-export const TopNavButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, TopNavButtonProps>(
+export const TopNavButton = forwardRef<HTMLButtonElement, TopNavButtonProps>(
   function TopNavButton({ children, onClick, icon, type = 'button', ...rest }, ref) {
     return (
       <Button
@@ -48,7 +48,6 @@ export const TopNavButton = forwardRef<HTMLButtonElement | HTMLAnchorElement, To
         variant="default"
         size="sm"
         type={type}
-        textTransform="none"
         onClick={onClick}
         leftSection={icon ? <TopNavIcon name={icon} /> : undefined}
         {...rest}

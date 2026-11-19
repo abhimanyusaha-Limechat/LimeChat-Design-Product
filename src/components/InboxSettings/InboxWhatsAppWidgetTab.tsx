@@ -7,6 +7,7 @@ import { useId } from 'react';
 import { Icon } from '../icons';
 import { MediaPicker, type MediaFile } from './MediaPicker';
 import { RadioRow, Row, SectionHeading, SwitchRow, clamp, type Choice } from './InboxSettingsSections';
+import { TextInput } from 'arceus';
 
 export type WidgetDevice = 'mobile' | 'desktop';
 
@@ -113,14 +114,7 @@ function WidgetSection({
             {margins.map(({ key, label }) => (
               <label key={key} className="lc-inbs__field">
                 <span className="lc-inbs__field-label">{label}</span>
-                <input
-                  type="number"
-                  min={0}
-                  className="lc-inbs__input"
-                  value={value[key]}
-                  disabled={off}
-                  onChange={(e) => set({ [key]: clamp(e.currentTarget.valueAsNumber) })}
-                />
+                <TextInput type="number" min={0} value={value[key]} disabled={off} onChange={(e) => set({ [key]: clamp(e.currentTarget.valueAsNumber) })} />
               </label>
             ))}
           </div>
@@ -197,15 +191,7 @@ export function ZIndexSection({ value, onChange }: { value: number; onChange: (n
             <label className="lc-inbs__label" htmlFor={id}>Z-Index value</label>
             <p className="lc-inbs__row-desc">Higher values sit above lower ones.</p>
           </div>
-          <input
-            id={id}
-            type="number"
-            min={0}
-            max={Z_INDEX_MAX}
-            className="lc-inbs__input"
-            value={value}
-            onChange={(e) => onChange(clamp(e.currentTarget.valueAsNumber, Z_INDEX_MAX))}
-          />
+          <TextInput id={id} type="number" min={0} max={Z_INDEX_MAX} value={value} onChange={(e) => onChange(clamp(e.currentTarget.valueAsNumber, Z_INDEX_MAX))} />
         </div>
       </div>
     </section>

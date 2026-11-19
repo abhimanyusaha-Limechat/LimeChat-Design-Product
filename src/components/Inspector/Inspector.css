@@ -4,34 +4,34 @@
  */
 .lc-inspector {
   --lc-inspector-surface: #0f1419;
-  --lc-inspector-on-surface: var(--lc-color-white);
+  --lc-inspector-on-surface: var(--mantine-color-white);
   --lc-inspector-hover: rgb(255 255 255 / 10%);
   --lc-inspector-on-fill: rgb(255 255 255 / 14%);
   --lc-inspector-on-fill-hover: rgb(255 255 255 / 20%);
   --lc-inspector-off-icon: rgb(255 255 255 / 55%);
-  --lc-inspector-off: var(--lc-color-red-600);
+  --lc-inspector-off: var(--mantine-color-red-7);
 
   position: fixed;
   z-index: 2147483647;
-  font-family: var(--lc-font-family, 'Lato', sans-serif);
+  font-family: var(--mantine-font-family);
   font-size: 12px;
   line-height: 16px;
 }
 
 /* Overlay lives outside .lc-inspector, so it declares its own layer colors. */
 .lc-inspector__overlay {
-  --lc-inspector-padding: color-mix(in srgb, var(--lc-color-green-500) 30%, transparent);
-  --lc-inspector-gap: color-mix(in srgb, var(--lc-color-blue-600) 40%, transparent);
-  --lc-inspector-gap-tint: color-mix(in srgb, var(--lc-color-blue-600) 10%, transparent);
-  --lc-inspector-text: color-mix(in srgb, var(--lc-color-amber-500) 28%, transparent);
-  --lc-inspector-off: var(--lc-color-red-600);
-  --lc-inspector-off-fill: color-mix(in srgb, var(--lc-color-red-500) 35%, transparent);
+  --lc-inspector-padding: color-mix(in srgb, var(--mantine-color-primary-6) 30%, transparent);
+  --lc-inspector-gap: color-mix(in srgb, var(--mantine-color-blue-6) 40%, transparent);
+  --lc-inspector-gap-tint: color-mix(in srgb, var(--mantine-color-blue-6) 10%, transparent);
+  --lc-inspector-text: color-mix(in srgb, var(--mantine-color-yellow-6) 28%, transparent);
+  --lc-inspector-off: var(--mantine-color-red-7);
+  --lc-inspector-off-fill: color-mix(in srgb, var(--mantine-color-red-6) 35%, transparent);
 
   position: fixed;
   inset: 0;
   z-index: 2147483600;
   pointer-events: none;
-  font-family: var(--lc-font-family, 'Lato', sans-serif);
+  font-family: var(--mantine-font-family);
 }
 
 /* ---- Bar / FAB ---- */
@@ -148,7 +148,7 @@
 .lc-inspector__tool[aria-pressed='true'],
 .lc-inspector__main[aria-expanded='true'] {
   background: var(--lc-inspector-on-fill);
-  color: var(--lc-color-green-200);
+  color: var(--mantine-color-primary-2);
 }
 
 .lc-inspector__tool[aria-pressed='false'] {
@@ -164,7 +164,7 @@
 
 .lc-inspector__main:focus-visible,
 .lc-inspector__tool:focus-visible {
-  outline: 2px solid var(--lc-color-white);
+  outline: 2px solid var(--mantine-color-white);
   outline-offset: 1px;
 }
 
@@ -515,11 +515,6 @@
 }
 
 /* Footer buttons are light-themed; on the dark panel give them a quiet outline. */
-.lc-inspector__panel-foot .lc-btn {
-  border-color: var(--ip-line);
-  background: var(--ip-field);
-  color: var(--ip-text);
-}
 
 /* ---- Box model ---- */
 
@@ -580,11 +575,11 @@
 .lc-inspector__outline {
   position: fixed;
   box-sizing: border-box;
-  border: 1px solid var(--lc-color-blue-600);
+  border: 1px solid var(--mantine-color-blue-6);
 }
 
 .lc-inspector__outline[data-pinned] {
-  border: 2px solid var(--lc-color-green-700);
+  border: 2px solid var(--mantine-color-primary-7);
 }
 
 .lc-inspector__padding,
@@ -618,7 +613,7 @@
 .lc-inspector__gap[data-off-scale] {
   background:
     repeating-linear-gradient(-45deg, var(--lc-inspector-off-fill) 0 2px, transparent 2px 6px),
-    color-mix(in srgb, var(--lc-color-red-500) 10%, transparent);
+    color-mix(in srgb, var(--mantine-color-red-6) 10%, transparent);
 }
 
 .lc-inspector__padding[data-off-scale],
@@ -635,8 +630,8 @@
   transform: translate(-50%, -50%);
   padding: 1px 4px;
   border-radius: 4px;
-  background: var(--lc-color-green-800);
-  color: var(--lc-color-white);
+  background: var(--mantine-color-primary-8);
+  color: var(--mantine-color-white);
   /* A white ring separates the chip from dark page areas. */
   box-shadow: 0 0 0 1px rgb(255 255 255 / 85%);
   font-size: 10px;
@@ -647,7 +642,7 @@
 }
 
 .lc-inspector__chip[data-kind='gap'] {
-  background: var(--lc-color-blue-900);
+  background: var(--mantine-color-blue-8);
 }
 
 .lc-inspector__chip[data-off-scale] {
@@ -660,8 +655,8 @@
   gap: 6px;
   padding: 2px 6px;
   border-radius: 4px;
-  background: var(--lc-color-green-900);
-  color: var(--lc-color-white);
+  background: var(--mantine-color-dark);
+  color: var(--mantine-color-white);
   /* Lifts it off the page so it doesn't read as part of the content beneath. */
   box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
   font-size: 12px;
@@ -671,7 +666,7 @@
 }
 
 .lc-inspector__label[data-off-scale] {
-  background: var(--lc-color-red-600);
+  background: var(--mantine-color-red-7);
 }
 
 /* A long name truncates; the values never do — they're what the label is for. */
@@ -684,12 +679,12 @@
 
 .lc-inspector__label-meta {
   flex: none;
-  color: var(--lc-color-green-200);
+  color: var(--mantine-color-primary-2);
   font-variant-numeric: tabular-nums;
 }
 
 .lc-inspector__label[data-off-scale] .lc-inspector__label-meta {
-  color: var(--lc-color-white);
+  color: var(--mantine-color-white);
 }
 
 /* The keyboard hint takes its own line, so it never squeezes the values. A
@@ -702,11 +697,11 @@
 
 .lc-inspector__label-hint {
   grid-column: 1 / -1;
-  color: var(--lc-color-green-200);
+  color: var(--mantine-color-primary-2);
 }
 
 .lc-inspector__label[data-off-scale] .lc-inspector__label-hint {
-  color: var(--lc-color-white);
+  color: var(--mantine-color-white);
 }
 
 /* Screen-reader-only announcements. */
@@ -898,13 +893,6 @@
   padding: 10px 12px;
 }
 
-.lc-inspector__panel-foot .lc-btn {
-  width: 100%;
-  min-width: 0;
-  padding-inline: 6px;
-  font-size: 12px;
-  white-space: nowrap;
-}
 
 .lc-inspector__copy-state {
   grid-column: 1 / -1;

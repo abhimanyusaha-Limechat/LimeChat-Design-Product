@@ -19,8 +19,8 @@
  *   />
  */
 import { useId, type ReactNode } from 'react';
-import { Button } from '../Button';
 import './IntegrationSettings.css';
+import { Button, Switch } from 'arceus';
 
 export interface IntegrationField {
   id: string;
@@ -109,17 +109,7 @@ export function IntegrationSettings({
         </span>
         <div className="lc-is__actions">
           {onActiveChange && (
-            <button
-              type="button"
-              role="switch"
-              aria-checked={!!active}
-              aria-label="Active"
-              className="lc-is__switch"
-              disabled={submitting}
-              onClick={() => onActiveChange(!active)}
-            >
-              <span className="lc-is__switch-thumb" aria-hidden="true" />
-            </button>
+            <Switch checked={!!active} aria-label="Active" disabled={submitting} onChange={() => onActiveChange(!active)} size="sm" />
           )}
           {dirty && (
             <Button variant="filled" color="primary" size="sm" disabled={!complete || submitting} onClick={onSubmit}>

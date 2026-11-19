@@ -4,9 +4,8 @@
  * Waiting reminder sections.
  */
 import { useId, useState, type ReactNode } from 'react';
-import { Button } from '../Button';
-import { NativeSelect, type SelectItem } from '../Select';
 import { Icon } from '../icons';
+import { Button, Select, Switch, TextInput, Textarea, type SelectItem } from 'arceus';
 
 export type InboxDurationField = 'days' | 'hours' | 'minutes';
 export type InboxDuration = Record<InboxDurationField, number>;
@@ -53,16 +52,7 @@ export function SectionHeading({ title, description, isNew, toggle }: Heading) {
         {description && <p className="lc-inbs__section-desc">{description}</p>}
       </div>
       {toggle && (
-        <button
-          type="button"
-          role="switch"
-          aria-checked={toggle.checked}
-          aria-labelledby={titleId}
-          className="lc-inbs__switch-track"
-          onClick={() => toggle.onChange(!toggle.checked)}
-        >
-          <span className="lc-inbs__switch-thumb" />
-        </button>
+        <Switch checked={toggle.checked} aria-labelledby={titleId} onChange={() => toggle.onChange(!toggle.checked)} size="sm" />
       )}
     </div>
   );
@@ -141,17 +131,7 @@ export function SwitchRow({
         <span id={labelId} className="lc-inbs__label">{label}</span>
         <p className="lc-inbs__row-desc">{description}</p>
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-labelledby={labelId}
-        disabled={off}
-        className="lc-inbs__switch-track lc-inbs__switch-track--end"
-        onClick={() => onChange(!checked)}
-      >
-        <span className="lc-inbs__switch-thumb" />
-      </button>
+      <Switch checked={checked} aria-labelledby={labelId} disabled={off} className="lc-inbs__switch-track--end" onChange={() => onChange(!checked)} size="sm" />
     </div>
   );
 }
@@ -178,14 +158,7 @@ export function TextRow({
         <label className="lc-inbs__label" htmlFor={id}>{label}</label>
         <p className="lc-inbs__row-desc">{description}</p>
       </div>
-      <input
-        id={id}
-        className="lc-inbs__input"
-        placeholder={placeholder}
-        value={value}
-        disabled={off}
-        onChange={(e) => onChange(e.currentTarget.value)}
-      />
+      <TextInput id={id} placeholder={placeholder} value={value} disabled={off} onChange={(e) => onChange(e.currentTarget.value)} />
     </div>
   );
 }
@@ -219,21 +192,12 @@ function KeywordInput({
         <p id={hintId} className="lc-inbs__row-desc">Case insensitive. Type a keyword and press Enter.</p>
       </div>
       <div className="lc-inbs__field">
-        <input
-          id={id}
-          className="lc-inbs__input"
-          placeholder={placeholder}
-          aria-describedby={hintId}
-          value={pending}
-          disabled={disabled}
-          onChange={(e) => setPending(e.currentTarget.value)}
-          onKeyDown={(e) => {
+        <TextInput id={id} placeholder={placeholder} aria-describedby={hintId} value={pending} disabled={disabled} onChange={(e) => setPending(e.currentTarget.value)} onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
               add();
             }
-          }}
-        />
+          }} />
         {value.length > 0 && (
           <ul className="lc-inbs__chips" aria-label={`${label}s`}>
             {value.map((keyword) => (
@@ -292,34 +256,20 @@ export function OptInOutSection({ value, onChange }: { value: OptInOut; onChange
               <code>{'%<opt_in_key>s'}</code> becomes the first opt-in keyword.
             </p>
           </div>
-          <textarea
-            id={optOutId}
-            className="lc-inbs__input lc-inbs__textarea"
-            rows={4}
-            value={value.optOutMessage}
-            disabled={off}
-            onChange={(e) => onChange({ ...value, optOutMessage: e.currentTarget.value })}
-          />
+          <Textarea id={optOutId} rows={4} value={value.optOutMessage} disabled={off} onChange={(e) => onChange({ ...value, optOutMessage: e.currentTarget.value })} />
         </div>
         <div className="lc-inbs__row" data-disabled={off}>
           <div className="lc-inbs__row-label">
             <label className="lc-inbs__label" htmlFor={previewId}>Preview</label>
             <p className="lc-inbs__row-desc">How the opt out message reads to customers.</p>
           </div>
-          <textarea id={previewId} className="lc-inbs__input lc-inbs__textarea" rows={4} value={preview} readOnly />
+          <Textarea id={previewId} rows={4} value={preview} readOnly />
         </div>
         <div className="lc-inbs__row" data-disabled={off}>
           <div className="lc-inbs__row-label">
             <label className="lc-inbs__label" htmlFor={optInId}>Opt in message</label>
           </div>
-          <textarea
-            id={optInId}
-            className="lc-inbs__input lc-inbs__textarea"
-            rows={4}
-            value={value.optInMessage}
-            disabled={off}
-            onChange={(e) => onChange({ ...value, optInMessage: e.currentTarget.value })}
-          />
+          <Textarea id={optInId} rows={4} value={value.optInMessage} disabled={off} onChange={(e) => onChange({ ...value, optInMessage: e.currentTarget.value })} />
         </div>
       </div>
     </section>
@@ -370,27 +320,20 @@ export function WaitingReminderSection({
             <div className="lc-inbs__reminder-fields">
               <label className="lc-inbs__field">
                 <span className="lc-inbs__field-label">Delay from waiting start (minutes)</span>
-                <input
-                  type="number"
-                  min={1}
-                  className="lc-inbs__input"
-                  value={reminder.delayMinutes}
-                  disabled={off}
-                  onChange={(e) => {
+                <TextInput type="number" min={1} value={reminder.delayMinutes} disabled={off} onChange={(e) => {
                     const minutes = e.currentTarget.valueAsNumber;
                     setReminder(i, { delayMinutes: Number.isNaN(minutes) ? 1 : Math.max(1, minutes) });
-                  }}
-                />
+                  }} />
               </label>
-              <NativeSelect
+              <Select
                 label="Template"
                 size="sm"
-                fullWidth
+                w="100%"
                 data={templates}
                 placeholder="Select a template"
-                value={reminder.templateId}
+                value={reminder.templateId || null}
                 disabled={off}
-                onChange={(e) => setReminder(i, { templateId: e.currentTarget.value })}
+                onChange={(v) => setReminder(i, { templateId: (v ?? '') })}
               />
             </div>
           </div>
@@ -456,17 +399,9 @@ export function DurationSection<K extends string>({
               {FIELDS.map(({ name, label: fieldLabel, max }) => (
                 <label key={name} className="lc-inbs__field">
                   <span className="lc-inbs__field-label">{fieldLabel}</span>
-                  <input
-                    type="number"
-                    min={0}
-                    max={max}
-                    className="lc-inbs__input"
-                    value={values[key][name]}
-                    disabled={off}
-                    onChange={(e) =>
+                  <TextInput type="number" min={0} max={max} value={values[key][name]} disabled={off} onChange={(e) =>
                       onChange({ ...values, [key]: { ...values[key], [name]: clamp(e.currentTarget.valueAsNumber, max) } })
-                    }
-                  />
+                    } />
                 </label>
               ))}
             </div>

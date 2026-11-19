@@ -27,6 +27,7 @@
  *   <DataTableSortHeader label="Name" sortKey="name" sort={sort} onSort={toggle} className="…" />
  */
 import { useState, type ComponentPropsWithoutRef, type CSSProperties, type ReactNode } from 'react';
+import { Pagination, Skeleton as ArceusSkeleton, UnstyledButton } from 'arceus';
 import { useScrollFade } from '../../hooks/useScrollFade';
 import { Icon } from '../icons';
 import { nextSort, sortRows, type SortDir, type SortValue } from './sort';
@@ -117,12 +118,12 @@ type SkeletonProps =
 
 /** Placeholder shapes for a skeleton cell, shaped like the content they stand in for. */
 export function Skeleton(props: SkeletonProps) {
-  if (props.shape === 'circle') return <span className="lc-dt__skeleton-bar lc-dt__skeleton-circle" />;
-  if (props.shape === 'switch') return <span className="lc-dt__skeleton-bar lc-dt__skeleton-switch" />;
+  if (props.shape === 'circle') return <ArceusSkeleton circle height={36} />;
+  if (props.shape === 'switch') return <ArceusSkeleton height={20} width={36} radius="xl" />;
   return (
     <span className="lc-dt__skeleton">
-      <span className="lc-dt__skeleton-bar" />
-      {props.lines === 2 && <span className="lc-dt__skeleton-bar" />}
+      <ArceusSkeleton height={12} w="var(--lc-dt-skeleton-w, 60%)" />
+      {props.lines === 2 && <ArceusSkeleton height={12} w="calc(var(--lc-dt-skeleton-w, 60%) * 0.6)" />}
     </span>
   );
 }
@@ -152,34 +153,19 @@ export function DataTableSortHeader<K extends string>({ label, sortKey, sort, on
       aria-sort={dir === 'asc' ? 'ascending' : dir === 'desc' ? 'descending' : undefined}
       {...rest}
     >
-      <button type="button" className="lc-dt__sort-btn" data-sort={dir} onClick={() => onSort(sortKey)}>
+      <UnstyledButton className="lc-dt__sort-btn" data-sort={dir} onClick={() => onSort(sortKey)}>
         <span className="lc-dt__sort-label" data-text={label}>
           {label}
         </span>
         {/* Unsorted shows ↕; sorted shows a chevron that rotates between asc/desc.
             The key remounts the svg on that swap so the chevron doesn't spin in. */}
         <Icon key={dir ? 'sorted' : 'unsorted'} name={dir ? 'chevron-down' : 'arrows-sort'} className="lc-dt__sort-icon" />
-      </button>
+      </UnstyledButton>
     </div>
   );
 }
 
-/**
- * Which page buttons to show: the first and last page, plus the current page and its
- * neighbours. `null` marks a gap (drawn as an ellipsis); a gap of exactly one page shows
- * that page instead, since an ellipsis would take the same space. 7 of 262 → 1 … 6 7 8 … 262.
- */
-export function pageWindow(page: number, totalPages: number): (number | null)[] {
-  const shown = [...new Set([1, page - 1, page, page + 1, totalPages])]
-    .filter((n) => n >= 1 && n <= totalPages)
-    .sort((a, b) => a - b);
-  return shown.flatMap((n, i) => {
-    const gap = i === 0 ? 0 : n - shown[i - 1] - 1;
-    return gap === 0 ? [n] : gap === 1 ? [n - 1, n] : [null, n];
-  });
-}
-
-/** The page buttons under a table. Renders nothing for a single page. */
+/** The page buttons under a table (arceus Pagination). Renders nothing for a single page. */
 export function DataTablePagination({
   page,
   totalPages,
@@ -190,24 +176,7 @@ export function DataTablePagination({
   if (totalPages <= 1) return null;
   return (
     <nav aria-label="Pagination" className={cx('lc-dt__pagination', className)} {...rest}>
-      {pageWindow(page, totalPages).map((n, i) =>
-        n === null ? (
-          <span key={`gap-${i}`} className="lc-dt__page-item" data-ellipsis="true">
-            <Icon name="dots" size={14} aria-hidden="true" />
-          </span>
-        ) : (
-          <button
-            key={n}
-            type="button"
-            className="lc-dt__page-item"
-            data-active={n === page || undefined}
-            aria-current={n === page ? 'page' : undefined}
-            onClick={() => onPageChange?.(n)}
-          >
-            {n}
-          </button>
-        ),
-      )}
+      <Pagination total={totalPages} value={page} onChange={onPageChange} />
     </nav>
   );
 }
