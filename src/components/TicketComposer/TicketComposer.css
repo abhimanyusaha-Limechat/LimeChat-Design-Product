@@ -265,6 +265,42 @@
   padding: 0 4px;
 }
 
+.lc-ticket-composer__format-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  margin: -2px; /* the padding is reserved always, so opening the pill doesn't move its neighbours or grow the row */
+  border-radius: 4px;
+  transition: background-color 150ms ease;
+}
+.lc-ticket-composer__format-group[data-open] {
+  background: var(--lc-color-gray-100);
+}
+.lc-ticket-composer__format-options {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  animation: lc-tc-unfold 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  transform-origin: left center;
+}
+@keyframes lc-tc-unfold {
+  from { opacity: 0; transform: translateX(-6px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lc-ticket-composer__format-options { animation: none; }
+}
+.lc-ticket-composer__format-group .lc-ticket-composer__icon-btn:hover {
+  background: var(--lc-color-white);
+}
+.lc-ticket-composer__start .lc-ticket-composer__format-group .lc-ticket-composer__icon-btn {
+  /* 28px buttons + the group's 2px padding = the row's 32px, so opening the pill doesn't make the row taller */
+  width: 28px;
+  min-width: 0;
+  height: 28px;
+  padding: 0;
+}
+
 .lc-ticket-composer__tabs {
   position: relative;
   display: flex;

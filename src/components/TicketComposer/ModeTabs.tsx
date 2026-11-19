@@ -22,7 +22,7 @@ const LockIcon = () => (
 );
 
 export const MODE_CONFIG: Record<TicketComposerMode, { label: string; placeholder: string; Icon: () => ReactElement }> = {
-  reply: { label: 'Reply', placeholder: "Type a message, press '/' for canned responses, or choose from templates", Icon: ReplyIcon },
+  reply: { label: 'Reply', placeholder: "Type a message or '/' for canned responses and '\\' for templates", Icon: ReplyIcon },
   note: { label: 'Private note', placeholder: 'Type in a private note visible only to team members', Icon: LockIcon },
 };
 const MODES = Object.keys(MODE_CONFIG) as TicketComposerMode[];
