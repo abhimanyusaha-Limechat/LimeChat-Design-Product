@@ -30,14 +30,18 @@ function Harness({ channel = 'whatsapp' }: { channel?: 'whatsapp' | 'instagram' 
 }
 
 describe('TicketComposer canned responses', () => {
-  it('shows the hint sentence only while the box is empty', async () => {
+  it('opens the templates drawer when "\\" is typed', async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    // The sentence's button and the icon next to the mic.
-    expect(screen.getAllByRole('button', { name: 'Templates' })).toHaveLength(2);
+    await user.type(screen.getByRole('textbox'), '\\');
+    expect(screen.getByRole('listbox', { name: 'Templates' })).toBeInTheDocument();
+  });
 
-    await user.type(screen.getByRole('textbox'), 'hi');
-    expect(screen.getAllByRole('button', { name: 'Templates' })).toHaveLength(1);
+  it('shows the counter only past 80% of the limit', () => {
+    const { rerender } = render(<TicketComposer value={'a'.repeat(799)} onChange={() => {}} maxLength={1000} />);
+    expect(screen.queryByText(/\/ 1000/)).toBeNull();
+    rerender(<TicketComposer value={'a'.repeat(800)} onChange={() => {}} maxLength={1000} />);
+    expect(screen.getByText(/800 \/ 1000/)).toBeInTheDocument();
   });
 
   it('opens the templates drawer from its button, with a serial before each name', async () => {
@@ -45,7 +49,7 @@ describe('TicketComposer canned responses', () => {
     render(<Harness />);
     const box = screen.getByRole('textbox');
 
-    await user.click(screen.getAllByRole('button', { name: 'Templates' })[0]);
+    await user.click(screen.getByRole('button', { name: 'Templates' }));
     expect(screen.getByRole('listbox', { name: 'Templates' })).toBeInTheDocument();
     expect(screen.getAllByRole('option')[0]).toHaveTextContent('09687Diwali offer');
 
@@ -58,7 +62,7 @@ describe('TicketComposer canned responses', () => {
     const user = userEvent.setup();
     render(<Harness />);
 
-    await user.click(screen.getAllByRole('button', { name: 'Templates' })[0]);
+    await user.click(screen.getByRole('button', { name: 'Templates' }));
     await user.type(screen.getByRole('textbox'), 'cart');
     expect(screen.getAllByRole('option')).toHaveLength(1);
     expect(screen.getByRole('option').querySelector('mark')).toHaveTextContent('Cart');
@@ -128,7 +132,7 @@ describe('TicketComposer text formatting', () => {
     expect(box).toHaveValue('hello *world*');
   });
 
-  it('undoes and redoes a format and typed text', async () => {
+  it('undoes and redoes a format with the keyboard', async () => {
     const user = userEvent.setup();
     render(<Harness />);
     const box = screen.getByRole('textbox') as HTMLTextAreaElement;
@@ -139,15 +143,10 @@ describe('TicketComposer text formatting', () => {
     await user.click(screen.getByRole('button', { name: 'Bold' }));
     expect(box).toHaveValue('*hello*');
 
-    await user.click(screen.getByRole('button', { name: 'Undo' }));
+    await user.keyboard('{Control>}z{/Control}');
     expect(box).toHaveValue('hello');
-    await user.click(screen.getByRole('button', { name: 'Redo' }));
+    await user.keyboard('{Control>}y{/Control}');
     expect(box).toHaveValue('*hello*');
-
-    await user.click(screen.getByRole('button', { name: 'Undo' }));
-    await user.click(screen.getByRole('button', { name: 'Undo' }));
-    expect(box).toHaveValue('');
-    expect(screen.getByRole('button', { name: 'Undo' })).toBeDisabled();
   });
 
   it('opens the canned responses drawer from its icon next to the mic', async () => {

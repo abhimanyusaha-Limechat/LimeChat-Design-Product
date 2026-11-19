@@ -107,7 +107,6 @@ export function TicketComposer({
   const canFormat = !isNote && supportsFormatting(channel);
   const history = useTextHistory(value, onChange);
 
-  const formatToggleRef = useRef<HTMLButtonElement>(null);
   const aiToggleRef = useRef<HTMLButtonElement>(null);
 
   const format = (kind: TextFormat) => {
@@ -148,6 +147,11 @@ export function TicketComposer({
   };
 
   const handleChange = (next: string) => {
+    // A lone "\" opens the templates drawer, as "/" opens canned responses.
+    if (next === '\\' && !isNote) {
+      openDrawer('templates');
+      return;
+    }
     history.record(true);
     onChange(next);
     // Typing "/" opens the canned drawer and narrows it; other text there means the agent is writing, not searching.
@@ -196,8 +200,8 @@ export function TicketComposer({
     return () => document.removeEventListener('pointerdown', onPointerDown);
   }, [drawerOpen]);
   const placeholder = MODE_CONFIG[mode].placeholder;
-  // The empty reply box shows a hint sentence (with the Templates button inline) instead of the placeholder.
-  const showHint = !isNote && value.length === 0 && attachments.length === 0 && drawer !== 'templates';
+  // The counter only appears once the draft is within reach of the limit.
+  const showCounter = !isNote && value.length >= maxLength * 0.8;
 
   const addFiles = (files: File[]) => {
     if (files.length > MAX_ATTACHMENTS - attachments.length) setLimitNotice((n) => n + 1);
@@ -285,7 +289,7 @@ export function TicketComposer({
           aria-activedescendant={drawerOpen && shown.length > 0 ? `${drawerId}-${active}` : undefined}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder={drawer === 'templates' ? 'Search for templates' : showHint ? '' : placeholder}
+          placeholder={drawer === 'templates' ? 'Search for templates' : placeholder}
           aria-label={placeholder}
           rows={1}
           maxLength={maxLength}
@@ -294,15 +298,6 @@ export function TicketComposer({
           // A textarea placeholder only shows when empty, so this prompt trails the "/" itself.
           <div className="lc-ticket-composer__slash-hint" aria-hidden="true">
             <span>/</span>Search for canned responses
-          </div>
-        )}
-        {showHint && (
-          // One sentence in place of the placeholder; click-through, so only the Templates button takes clicks.
-          <div className="lc-ticket-composer__hint">
-            Type a message, press / for canned responses, or choose from
-            <Button variant="default" color="gray" size="xs" textTransform="none" onClick={() => openDrawer('templates')}>
-              Templates
-            </Button>
           </div>
         )}
       </div>
@@ -315,19 +310,6 @@ export function TicketComposer({
         onChange={handleFilesSelected}
         style={{ display: 'none' }}
       />
-
-      {canFormat && (
-        <FormattingToolbar
-          open={formatOpen}
-          toggleRef={formatToggleRef}
-          containerRef={rootRef}
-          canUndo={history.canUndo}
-          canRedo={history.canRedo}
-          onUndo={history.undo}
-          onRedo={history.redo}
-          onFormat={format}
-        />
-      )}
 
       <AiImproveToolbar
         open={aiOpen}
@@ -343,18 +325,21 @@ export function TicketComposer({
         <div className="lc-ticket-composer__start">
           <ModeTabs mode={mode} onModeChange={onModeChange} size={tabSize} />
           {canFormat && (
-            <button
-              type="button"
-              ref={formatToggleRef}
-              className="lc-ticket-composer__icon-btn lc-ticket-composer__format-toggle"
-              aria-label="Formatting options"
-              title="Formatting options"
-              aria-pressed={formatOpen}
-              disabled={value.trim() === ''}
-              onClick={() => toggleRow('format')}
-            >
-              Aa
-            </button>
+            // Aa and its options share one pill, so the options read as the Aa button unfolding.
+            <div className="lc-ticket-composer__format-group" data-open={formatOpen || undefined}>
+              <button
+                type="button"
+                className="lc-ticket-composer__icon-btn lc-ticket-composer__format-toggle"
+                aria-label="Formatting options"
+                title="Formatting options"
+                aria-pressed={formatOpen}
+                disabled={value.trim() === ''}
+                onClick={() => toggleRow('format')}
+              >
+                Aa
+              </button>
+              <FormattingToolbar open={formatOpen} onFormat={format} />
+            </div>
           )}
           <button type="button" className="lc-ticket-composer__icon-btn" aria-label="Insert emoji" onClick={onEmoji}>
             <Icon name="mood-smile" />
@@ -373,7 +358,7 @@ export function TicketComposer({
           </button>
         </div>
 
-        {!isNote && (
+        {showCounter && (
           <div className="lc-ticket-composer__counter">
             {value.length} / {maxLength}
           </div>
