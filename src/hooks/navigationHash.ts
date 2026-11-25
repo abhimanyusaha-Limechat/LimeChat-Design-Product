@@ -1,5 +1,6 @@
 import { sidebarPresets, type SidebarProduct } from '../components/Sidebar/presets';
 import { SETTINGS_TABS_BY_PRODUCT } from '../components/SettingsScreen/settingsTabs';
+import { statesOf } from './screenStates';
 import { TICKETS } from '../data/ticketsDemo';
 import { DEMO_AGENTS, DEMO_CANNED, DEMO_CANNED_LIBRARY, DEMO_INBOXES, DEMO_RULES, DEMO_RULE_LIBRARY, DEMO_SLA, DEMO_SLA_LIBRARY, DEMO_TEAMS, INTEGRATION_FORMS, KB_TABS } from '../data/settingsDemo';
 import { AGENTS } from '../data/agentsDemo';
@@ -13,7 +14,7 @@ import type { TemplateChannel } from '../components/TemplatesHomePage';
 export type FlowKind = 'broadcast' | 'flows' | 'bot-flows';
 export type UserSettingsTab = 'account' | 'profile';
 
-/** Everything the URL hash owns: `#/<product>/<item>?view=…&tab=…&flow=…&industries=1&integration=…&inbox=…&plans=1&ticket=…&user=…`. */
+/** Everything the URL hash owns: `#/<product>/<item>?view=…&tab=…&flow=…&industries=1&integration=…&inbox=…&plans=1&state=…&ticket=…&user=…`. */
 export type Screen = {
   product: SidebarProduct;
   selected: string;
@@ -33,6 +34,8 @@ export type Screen = {
   rule: string;
   /** HelpDesk Billing's "Change plan" sub-view. */
   changePlan: boolean;
+  /** Which of its states the Screen is shown in, by id (see `statesOf`): its first by default, '' when it has none. */
+  state: string;
   /** The open ticket's id. Only Helpdesk Tickets has one; elsewhere it stays at the default. */
   ticket: string;
   /** The Flow editor's flow: a row id, or 'new' for "+ New". '' outside the editor. */
@@ -109,6 +112,7 @@ export function toScreen(fields: { product: string; selected: string } & Partial
   const tab = tabs.ids.some((id) => id === fields.tab) ? String(fields.tab) : tabs.fallback;
   const kind = flowKindOf(product, selected);
   const view = fields.view === 'canvas' && kind ? 'canvas' : 'list';
+  const states = statesOf(product, selected, tab);
   return {
     product,
     selected,
@@ -138,6 +142,7 @@ export function toScreen(fields: { product: string; selected: string } & Partial
         ? String(fields.rule)
         : DEFAULTS.rule,
     changePlan: onSettings && product === 'helpdesk' && tab === 'billing' && fields.changePlan === true,
+    state: states.find((state) => state.id === fields.state)?.id ?? states[0]?.id ?? '',
     ticket:
       product === 'helpdesk' && selected === 'tickets' && TICKETS.some((t) => t.id === fields.ticket)
         ? String(fields.ticket)
@@ -163,6 +168,7 @@ export function parseHash(hash: string): Screen {
     team: params.get('team'),
     rule: params.get('rule'),
     changePlan: params.get('plans') === '1',
+    state: params.get('state'),
     ticket: params.get('ticket'),
     flow: params.get('flow'),
     userSettings: params.get('user'),
@@ -181,6 +187,8 @@ export function toHash(screen: Screen) {
   if (screen.team) params.set('team', screen.team);
   if (screen.rule) params.set('rule', screen.rule);
   if (screen.changePlan) params.set('plans', '1');
+  const defaultState = statesOf(screen.product, screen.selected, screen.tab)[0]?.id ?? '';
+  if (screen.state !== defaultState) params.set('state', screen.state);
   if (screen.ticket !== DEFAULTS.ticket) params.set('ticket', screen.ticket);
   const kind = flowKindOf(screen.product, screen.selected);
   if (kind && screen.view === 'canvas' && screen.flow !== defaultFlow(kind, screen.tab)) params.set('flow', screen.flow);
@@ -189,7 +197,7 @@ export function toHash(screen: Screen) {
   return `#/${screen.product}/${screen.selected}${query ? `?${query}` : ''}`;
 }
 
-const KNOWN_PARAMS = ['view', 'tab', 'flow', 'industries', 'integration', 'inbox', 'agent', 'team', 'rule', 'plans', 'ticket', 'user'];
+const KNOWN_PARAMS = ['view', 'tab', 'flow', 'industries', 'integration', 'inbox', 'agent', 'team', 'rule', 'plans', 'state', 'ticket', 'user'];
 
 /** The hash with unknown query parameters removed, to compare against `toHash`. */
 export function withoutUnknownParams(hash: string) {

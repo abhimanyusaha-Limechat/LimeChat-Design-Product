@@ -39,6 +39,7 @@ export const HELPDESK_SETTINGS_TABS: SettingsTab[] = [
 export const AUTOMATION_SETTINGS_TABS: SettingsTab[] = [
   { id: 'bot-brain', label: 'Bot brain' },
   { id: 'bot-settings', label: 'Bot settings' },
+  { id: 'delete-history', label: 'Delete history' },
   { id: 'inboxes', label: 'Inboxes' },
   { id: 'bot-inbox-mapping', label: 'Bot Inbox mapping' },
   { id: 'integrations', label: 'Integrations' },
@@ -86,6 +87,10 @@ export const SETTINGS_COPY: Record<string, { title: string; description: string 
   'bot-settings': {
     title: 'Bot settings',
     description: 'Configure how this bot answers, replies and behaves.',
+  },
+  'delete-history': {
+    title: 'Delete history',
+    description: 'A record of everything deleted in Agentic Studio. Deleted items cannot be restored.',
   },
   'bot-inbox-mapping': {
     title: 'Bot Inbox mapping',

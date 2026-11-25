@@ -67,8 +67,8 @@ const TOP_NAV_BY_PRODUCT = {
 export function App() {
   const { signOut } = useClerk();
   const nav = useAppNavigation();
-  const { product, selected, page, tab, manageIndustries, integration, inbox, agent, team, rule, changePlan, userSettingsTab, ticketId, flowKind, flowId } = nav;
-  const { switchProduct, leaveCanvas, setTab, setManageIndustries, setIntegration, setInbox, setAgent, setTeam, setRule, setChangePlan, setUserSettingsTab } = nav;
+  const { product, selected, page, tab, manageIndustries, integration, inbox, agent, team, rule, changePlan, screenStates, screenState, userSettingsTab, ticketId, flowKind, flowId } = nav;
+  const { switchProduct, leaveCanvas, setTab, setManageIndustries, setIntegration, setInbox, setAgent, setTeam, setRule, setChangePlan, setScreenState, setUserSettingsTab } = nav;
   const preset = sidebarPresets[product];
   // Account/Profile settings reached from the avatar popover — a dedicated
   // page with just those two tabs, separate from the product's own (much
@@ -395,6 +395,9 @@ export function App() {
               onRuleChange={setRule}
               changePlan={changePlan}
               onChangePlanChange={setChangePlan}
+              screenStates={screenStates}
+              screenState={screenState}
+              onScreenStateChange={setScreenState}
             />
           )}
 

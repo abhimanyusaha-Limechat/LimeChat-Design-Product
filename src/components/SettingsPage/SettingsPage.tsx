@@ -34,6 +34,8 @@ export interface SettingsPageProps {
   tabs?: SettingsTab[];
   activeTab?: string;
   onTabChange?: (id: string) => void;
+  /** Floats over the bottom of the tab list, in the space under the tabs (e.g. a reviewer's state switcher). Needs `tabs`. */
+  tabListFooter?: ReactNode;
   title: string;
   /** Sits left of the title, e.g. an integration partner's logo. */
   titleIcon?: ReactNode;
@@ -78,6 +80,7 @@ export function SettingsPage({
   tabs,
   activeTab,
   onTabChange,
+  tabListFooter,
   title,
   titleIcon,
   onBack,
@@ -112,20 +115,24 @@ export function SettingsPage({
   return (
     <div className="lc-sp">
       {tabs && (
-      <nav className="lc-sp__side-panel" data-anchor="settings-tab-list" aria-label="Settings" {...navScroll}>
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            className="lc-sp__tab"
-            data-active={tab.id === activeTab}
-            onClick={() => onTabChange?.(tab.id)}
-          >
-            <span className="lc-sp__tab-accent" />
-            {tab.label}
-          </button>
-        ))}
-      </nav>
+      <div className="lc-sp__side">
+        <nav className="lc-sp__side-panel" data-anchor="settings-tab-list" aria-label="Settings" {...navScroll}>
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className="lc-sp__tab"
+              data-active={tab.id === activeTab}
+              onClick={() => onTabChange?.(tab.id)}
+            >
+              <span className="lc-sp__tab-accent" />
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+        {/* Outside the nav: it is not one of the Settings tabs. */}
+        {tabListFooter && <div className="lc-sp__side-float">{tabListFooter}</div>}
+      </div>
       )}
 
       <div className="lc-sp__main">
