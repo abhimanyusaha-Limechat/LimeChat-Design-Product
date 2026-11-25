@@ -24,6 +24,7 @@
  * `DataTableSortHeader` is the clickable column header that drives it.
  *
  *   const { sorted, sort, toggle } = useTableSort(rows, (row, key) => row[key]);
+ *   // …or opening on a column: useTableSort(rows, getValue, { key: 'createdAt', dir: 'desc' })
  *   <DataTableSortHeader label="Name" sortKey="name" sort={sort} onSort={toggle} className="…" />
  */
 import { useState, type ComponentPropsWithoutRef, type CSSProperties, type ReactNode } from 'react';
@@ -129,9 +130,16 @@ export function Skeleton(props: SkeletonProps) {
 
 export type TableSort<K extends string> = { key: K; dir: SortDir } | null;
 
-/** Sort state for one table. `getValue` maps a row + column key to what that column sorts by. */
-export function useTableSort<T, K extends string>(rows: T[], getValue: (row: T, key: K) => SortValue) {
-  const [sort, setSort] = useState<TableSort<K>>(null);
+/**
+ * Sort state for one table. `getValue` maps a row + column key to what that column sorts by.
+ * `initial` is the sort the table opens with (default: none, the rows' own order).
+ */
+export function useTableSort<T, K extends string>(
+  rows: T[],
+  getValue: (row: T, key: K) => SortValue,
+  initial: TableSort<K> = null,
+) {
+  const [sort, setSort] = useState<TableSort<K>>(initial);
   const sorted = sort ? sortRows(rows, (row) => getValue(row, sort.key), sort.dir) : rows;
   return { sorted, sort, toggle: (key: K) => setSort((s) => nextSort(s, key)) };
 }

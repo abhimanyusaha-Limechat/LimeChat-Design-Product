@@ -516,6 +516,13 @@
   color: var(--v3-text-dark);
 }
 
+/* A row lifted out of the list to be reordered is a card with its own outline, so it drops
+   the table's divider, whose straight ends would otherwise poke past its rounded corners.
+   A tag dragged in tree mode stays in place and keeps it. */
+.lc-bt__row--body[data-dragging]:not([data-tree-id])::before {
+  content: none;
+}
+
 
 .lc-bt__search-by { width: 150px; flex-shrink: 0; }
 
@@ -580,14 +587,24 @@
    selected row's stroke costs no reflow. */
 .lc-bt[data-variant='files'] .lc-dt__row--body {
   border: 1px solid transparent;
-  border-bottom-color: var(--v3-grey-300);
   transition:
     box-shadow 120ms ease-out,
     background-color 150ms ease;
 }
 
+/* The divider reaches the row's outer edge, past the 1px side borders. */
+.lc-bt[data-variant='files'] .lc-dt__row--body::before {
+  right: -1px;
+  left: -1px;
+}
+
+/* Lifted rows are cards: the divider gives way. */
+.lc-bt[data-variant='files'] .lc-dt__row--body:hover::before,
+.lc-bt[data-variant='files'] .lc-dt__row--body[data-selected]::before {
+  content: none;
+}
+
 .lc-bt[data-variant='files'] .lc-dt__row--body:hover {
-  border-bottom-color: transparent;
   background: var(--v3-white);
   box-shadow: var(--lc-lift-soft);
 }
