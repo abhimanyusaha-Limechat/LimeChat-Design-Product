@@ -358,7 +358,7 @@ export function ProfileSettings({
   const apiKeyRow = (
     <SecretRow
       label="API key"
-      description="Store it securely — generate a new one if you've lost it."
+      description="Store it securely. Generate a new one if you've lost it."
       masked={apiKeyMasked}
       regenerate={{ noun: 'key', expiry: apiKeyExpiry, generating: generatingKey, onGenerate: onGenerateKey }}
     />
@@ -368,7 +368,7 @@ export function ProfileSettings({
     return (
       <div className="lc-ps">
         {avatarRow}
-        <Row label="Email" htmlFor={emailId} description="Used to sign in — can't be changed.">
+        <Row label="Email" htmlFor={emailId} description="Used to sign in. Can't be changed.">
           {emailInput}
         </Row>
         <Row label="Name" htmlFor={nameId} description="Shown across LimeChat.">
@@ -390,7 +390,7 @@ export function ProfileSettings({
         <Row label="Display name" htmlFor={`${fieldId}-displayName`} description="What customers see in conversations.">
           {contactInput('displayName', 'text', 'nickname')}
         </Row>
-        <Row label="Email address" htmlFor={emailId} description="Used to sign in — can't be changed.">
+        <Row label="Email address" htmlFor={emailId} description="Used to sign in. Can't be changed.">
           {emailInput}
         </Row>
         <Row label="Phone number" htmlFor={`${fieldId}-phone`} description="Include the country code, e.g. +91.">
@@ -441,7 +441,7 @@ export function ProfileSettings({
           <Row
             label="ActionCable event receipt collection"
             htmlFor={`${fieldId}-actioncable`}
-            description="Records delivery receipts for real-time events sent to you — useful when debugging missed updates."
+            description="Records delivery receipts for real-time events sent to you. Useful when debugging missed updates."
           >
             <button
               id={`${fieldId}-actioncable`}

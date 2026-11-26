@@ -410,8 +410,8 @@ export function App() {
                 <h1 style={{ marginTop: 0 }}>LimeChat App Shell</h1>
                 <p>Reusable rail navigation + top bar from the LimeChat Design System V3.</p>
                 <p style={{ color: '#595959' }}>
-                  Product: <strong>{product}</strong> · nav item: <strong>{selected}</strong> —
-                  open <strong>Flows</strong> in Marketing or Automation from the rail to see the
+                  Product: <strong>{product}</strong> · nav item: <strong>{selected}</strong>.
+                  Open <strong>Flows</strong> in Marketing or Automation from the rail to see the
                   flow-builder canvas chrome.
                 </p>
             </div>
