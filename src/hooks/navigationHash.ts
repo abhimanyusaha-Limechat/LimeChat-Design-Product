@@ -4,6 +4,7 @@ import { statesOf } from './screenStates';
 import { TICKETS } from '../data/ticketsDemo';
 import { DEMO_AGENTS, DEMO_CANNED, DEMO_CANNED_LIBRARY, DEMO_INBOXES, DEMO_RULES, DEMO_RULE_LIBRARY, DEMO_SLA, DEMO_SLA_LIBRARY, DEMO_TEAMS, INTEGRATION_FORMS, KB_TABS } from '../data/settingsDemo';
 import { AGENTS } from '../data/agentsDemo';
+import { TASKS } from '../data/tasksDemo';
 import { FLOW_ROWS } from '../data/flowsDemo';
 import type { BroadcastTab } from '../components/BroadcastHomePage';
 import type { FlowTab } from '../components/FlowsHomePage';
@@ -28,6 +29,8 @@ export type Screen = {
   inbox: string;
   /** The agent being edited, by id (Helpdesk Settings → Agents, or Automation → Agents); '' when the list shows. */
   agent: string;
+  /** The task being edited, by id (Automation → Tasks); '' when the list shows. */
+  task: string;
   /** The team being edited, by id (from the Teams tab); '' when the list shows. */
   team: string;
   /** The automation rule or SLA policy being edited, by id (from the Automation rules or SLA rules tab); '' when the list shows. */
@@ -43,7 +46,7 @@ export type Screen = {
   userSettings: UserSettingsTab | null;
 };
 
-const DEFAULTS = { view: 'list', manageIndustries: false, integration: '', inbox: '', agent: '', team: '', rule: '', changePlan: false, ticket: TICKETS[0].id, userSettings: null } as const;
+const DEFAULTS = { view: 'list', manageIndustries: false, integration: '', inbox: '', agent: '', task: '', team: '', rule: '', changePlan: false, ticket: TICKETS[0].id, userSettings: null } as const;
 
 /** The rows that have an edit page, by Settings tab. */
 const RULE_ROWS_BY_TAB: Record<string, { id: string }[]> = {
@@ -133,6 +136,10 @@ export function toScreen(fields: { product: string; selected: string } & Partial
       (product === 'automation' && selected === 'agents' && AGENTS.some((a) => a.id === fields.agent))
         ? String(fields.agent)
         : DEFAULTS.agent,
+    task:
+      product === 'automation' && selected === 'tasks' && TASKS.some((t) => t.id === fields.task)
+        ? String(fields.task)
+        : DEFAULTS.task,
     team:
       onSettings && product === 'helpdesk' && tab === 'teams' && DEMO_TEAMS.some((t) => t.id === fields.team)
         ? String(fields.team)
@@ -165,6 +172,7 @@ export function parseHash(hash: string): Screen {
     integration: params.get('integration'),
     inbox: params.get('inbox'),
     agent: params.get('agent'),
+    task: params.get('task'),
     team: params.get('team'),
     rule: params.get('rule'),
     changePlan: params.get('plans') === '1',
@@ -184,6 +192,7 @@ export function toHash(screen: Screen) {
   if (screen.integration) params.set('integration', screen.integration);
   if (screen.inbox) params.set('inbox', screen.inbox);
   if (screen.agent) params.set('agent', screen.agent);
+  if (screen.task) params.set('task', screen.task);
   if (screen.team) params.set('team', screen.team);
   if (screen.rule) params.set('rule', screen.rule);
   if (screen.changePlan) params.set('plans', '1');
@@ -197,7 +206,7 @@ export function toHash(screen: Screen) {
   return `#/${screen.product}/${screen.selected}${query ? `?${query}` : ''}`;
 }
 
-const KNOWN_PARAMS = ['view', 'tab', 'flow', 'industries', 'integration', 'inbox', 'agent', 'team', 'rule', 'plans', 'state', 'ticket', 'user'];
+const KNOWN_PARAMS = ['view', 'tab', 'flow', 'industries', 'integration', 'inbox', 'agent', 'task', 'team', 'rule', 'plans', 'state', 'ticket', 'user'];
 
 /** The hash with unknown query parameters removed, to compare against `toHash`. */
 export function withoutUnknownParams(hash: string) {
