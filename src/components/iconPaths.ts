@@ -21,6 +21,8 @@ const GEAR =
   'M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z';
 
 export const ICON_PATHS = {
+  /* V3 Text/Align Left. */
+  'align-left': ['M4 6l16 0', 'M4 12l10 0', 'M4 18l14 0'],
   'alert-triangle': [
     'M12 9v4',
     'M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z',
@@ -35,6 +37,15 @@ export const ICON_PATHS = {
     'M9 17v1a3 3 0 0 0 6 0v-1',
   ],
   bolt: ['M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11'],
+  /* V3 Text/Blockquote. */
+  blockquote: [
+    'M6 15h15',
+    'M21 19h-15',
+    'M15 11h6',
+    'M21 7h-6',
+    'M9 9h1a1 1 0 1 1 -1 1v-2.5a2 2 0 0 1 2 -2',
+    'M3 9h1a1 1 0 1 1 -1 1v-2.5a2 2 0 0 1 2 -2',
+  ],
   book: [
     'M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0',
     'M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0',
@@ -104,7 +115,10 @@ export const ICON_PATHS = {
   check: ['M5 12l5 5l10 -10'],
   'chevron-down': ['M6 9l6 6l6 -6'],
   'chevron-left': ['M15 6l-6 6l6 6'],
+  'chevron-up': ['M6 15l6 -6l6 6'],
   'circle-check': ['M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0', 'M9 12l2 2l4 -4'],
+  /* V3 Text/Clear Formatting. */
+  'clear-formatting': ['M17 15l4 4m0 -4l-4 4', 'M7 6v-1h11v1', 'M7 19l4 0', 'M13 5l-4 14'],
   clock: ['M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0', 'M12 7v5l3 3'],
   close: ['M18 6l-12 12', 'M6 6l12 12'],
   code: ['M7 8l-4 4l4 4', 'M17 8l4 4l-4 4', 'M14 4l-4 16'],
@@ -208,6 +222,8 @@ export const ICON_PATHS = {
     'M14 10.5a1.5 1.5 0 0 1 3 0v1.5',
     'M17 11.5a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7l-.196 -.3c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47',
   ],
+  /* V3 Text/Heading. */
+  heading: ['M7 12h10', 'M7 5v14', 'M17 5v14', 'M15 19h4', 'M15 5h4', 'M5 19h4', 'M5 5h4'],
   headset: [
     'M4 14v-3a8 8 0 0 1 16 0v3',
     'M18 19c0 1.657 -2.686 3 -6 3',
@@ -379,9 +395,13 @@ export const ICON_PATHS = {
     'M6 15v-3a3 3 0 0 1 3 -3h6a3 3 0 0 1 3 3v3',
     'M12 9v6',
   ],
+  /* V3 Text/Separator. */
+  separator: ['M3 12l0 .01', 'M7 12l10 0', 'M21 12l0 .01'],
   slash: ['M17 5l-10 14'],
   /** Channel alias — same bubble as `message-circle`. */
   sms: MESSAGE_CIRCLE,
+  /* V3 Computers/Source Code: a document with `<>` in its top-left corner. */
+  'source-code': ['M14.5 4h2.5a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-10a3 3 0 0 1 -3 -3v-5', 'M6 5l-2 2l2 2', 'M10 5l2 2l-2 2'],
   'spacing-horizontal': [
     'M20 20h-2a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h2',
     'M4 20h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2',
@@ -411,6 +431,8 @@ export const ICON_PATHS = {
     'M20 12v4a4 4 0 0 1 -4 4h-12l4 4',
     'M20 16l-4 -4l4 -4',
   ],
+  /* V3 Database/Table. */
+  table: ['M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14z', 'M3 10h18', 'M10 3v18'],
   tag: [
     'M7.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0',
     'M3 6v5.172a2 2 0 0 0 .586 1.414l7.71 7.71a2.41 2.41 0 0 0 3.408 0l5.592 -5.592a2.41 2.41 0 0 0 0 -3.408l-7.71 -7.71a2 2 0 0 0 -1.414 -.586h-5.172a3 3 0 0 0 -3 3z',
@@ -432,6 +454,8 @@ export const ICON_PATHS = {
   italic: ['M11 5l6 0', 'M7 19l6 0', 'M14 5l-4 14'],
   strikethrough: ['M5 12l14 0', 'M16 6.5a4 2 0 0 0 -4 -1.5h-1a3.5 3.5 0 0 0 0 7h2a3.5 3.5 0 0 1 0 7h-1.5a4 2 0 0 1 -4 -1.5'],
   typography: ['M4 20l3 0', 'M14 20l7 0', 'M6.9 15l6.9 0', 'M10.2 6.3l5.8 13.7', 'M5 20l6 -16l2 0l7 16'],
+  /* V3 Text/Underline. */
+  underline: ['M7 5v5a5 5 0 0 0 10 0v-5', 'M5 19h14'],
   undo: ['M9 14l-4 -4l4 -4', 'M5 10h11a4 4 0 1 1 0 8h-1'],
   user: ['M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0', 'M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2'],
   users: [
@@ -448,6 +472,18 @@ export const ICON_PATHS = {
   ],
   world: GLOBE,
   // Same globe as `world`; named for the Website widget inbox type, which call sites pass as the icon name.
+  /* V3 Math/Variable: the merge-field `{x}` glyph. */
+  variable: [
+    'M5 4c-2.5 5 -2.5 10 0 16m14 -16c2.5 5 2.5 10 0 16m-10 -11h1c1 0 1 1 2.016 3.527c.984 2.473 .984 3.473 1.984 3.473h1',
+    'M8 16c1.5 0 3 -2 4 -3.5s2.5 -3.5 4 -3.5',
+  ],
+  /* V3 Misc/Wand, the Improve-with-AI glyph. */
+  wand: [
+    'M6 21l15 -15l-3 -3l-15 15l3 3',
+    'M15 6l3 3',
+    'M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2',
+    'M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2',
+  ],
   website: GLOBE, // the Website widget inbox type, which call sites pass as the icon name
   whatsapp: [
     'M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9',

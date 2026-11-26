@@ -66,6 +66,33 @@
 .lc-bset__search input::placeholder { color: var(--v3-grey-600); }
 .lc-bset__search input::-webkit-search-cancel-button { appearance: none; }
 
+/* Clears the query; only there while something is typed. */
+.lc-bset__search-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-right: -4px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--v3-grey-600);
+  cursor: pointer;
+}
+
+.lc-bset__search-clear:hover {
+  background: var(--v3-grey-200);
+  color: var(--lc-bset-title);
+}
+
+.lc-bset__search-clear:focus-visible {
+  outline: 2px solid var(--lc-bset-primary);
+  outline-offset: 1px;
+}
+
 .lc-bset__rule {
   flex-shrink: 0;
   height: 1px;
@@ -551,27 +578,103 @@
   overflow-x: clip;
 }
 
-/* --- Sections that have no design yet ----------------------------------- */
+/* --- Single-column sections --------------------------------------------- */
 
-.lc-bset__empty {
+.lc-bset__page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.lc-bset__column {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  width: 800px;
+  max-width: 100%;
+}
+
+.lc-bset__select {
+  width: 384px;
+  max-width: 100%;
+}
+
+/* The Supported languages multi-select: TagsInput in V3's 36px, green-chip form. */
+.lc-bset__languages {
+  --lc-tags-pill-bg: var(--v3-green-0);
+  --lc-tags-placeholder: var(--v3-text-placeholder);
+  width: 520px;
+}
+
+.lc-bset__languages .lc-tags-input__field {
+  min-height: 36px;
+  gap: 8px;
+  padding: 4px 32px 4px 12px;
+}
+
+.lc-bset__languages .lc-tags-input__pill {
+  height: 28px;
+  padding: 0 8px 0 12px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.lc-bsr[data-disabled] .lc-bset__languages .lc-tags-input__pill {
+  color: var(--v3-grey-500);
+}
+
+.lc-bset__languages .lc-tags-input__chevron {
+  height: 36px;
+}
+
+/* --- Search summary ----------------------------------------------------- */
+
+.lc-bset__search-count {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 16px 24px 0;
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--lc-bset-dimmed);
+}
+
+.lc-bset__search-empty {
+  display: flex;
+  flex-direction: column;
   gap: 4px;
-  flex: 1 1 auto;
-  padding: 48px 24px;
+  flex-shrink: 0;
+  padding: 40px 24px 16px;
   text-align: center;
 }
 
-.lc-bset__empty-title {
+.lc-bset__search-empty-title {
   margin: 0;
   font-size: 16px;
+  line-height: 20px;
   font-weight: 700;
 }
 
-.lc-bset__empty-desc {
+.lc-bset__search-empty-desc {
   margin: 0;
   font-size: 14px;
+  line-height: 20px;
   color: var(--lc-bset-dimmed);
+}
+
+.lc-bset__search-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  color: var(--v3-primary-dark);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.lc-bset__search-link:focus-visible {
+  outline: 2px solid var(--v3-green-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
 }

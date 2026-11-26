@@ -1,18 +1,18 @@
 /**
  * BotSettings — Settings → Bot settings, Automation product
- * (Figma "Agentic Bot Builder", node 5205:13540).
+ * (Figma "Agentic Bot Builder", section 5619:12026; Product cards is node 5205:13540).
  *
- * A section tab bar + settings search sit under the page header; below them the
- * page splits into a scrolling form column and a sticky preview column that
- * renders the product card exactly as the bot will send it.
+ * A section tab bar + settings search sit under the page header. Five of the tabs are a
+ * single column of setting rows (`sections.tsx`); Product cards splits into a scrolling
+ * form column and a sticky preview column that renders the card as the bot will send it.
  *
- * The page owns its own state — none of it exists in `SettingsScreen` — so it
- * drops into the settings shell with just `contentPadding={0}`.
+ * The values live in `SettingsScreen`, which owns Save; `savedValues` is its last saved
+ * copy, so a tab with edits to save gets an amber dot.
  */
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useRef, useState } from 'react';
 import { NativeSelect } from '../Select';
 import { SegmentedTabs } from '../SegmentedTabs';
-import { CheckIcon } from '../icons';
+import { CheckIcon, CloseIcon } from '../icons';
 import {
   PRODUCT_CARD_LAYOUTS,
   ProductCardPreview,
@@ -21,16 +21,20 @@ import {
   type ProductCardElements,
   type ProductCardLayout,
 } from './ProductCardPreview';
+import {
+  DEFAULT_BOT_SETTINGS,
+  SECTION_TABS,
+  unsavedChanges,
+  type BotSettingsSection,
+  type BotSettingsValues,
+} from './botSettingsValues';
+import { AdvancedSection, BotBehaviourSection, ChannelsSection, CsatSection, MessagingSection } from './sections';
+import { searchSettings, settingEntry, type SettingEntry } from './settingsIndex';
+import { NO_FILTER, SearchFilterContext, type SearchFilter } from './SettingRow';
 import './BotSettings.css';
 
-const SECTION_TABS = [
-  { id: 'bot-behaviour', label: 'Bot behaviour' },
-  { id: 'messaging', label: 'Messaging' },
-  { id: 'channels', label: 'Channels & input' },
-  { id: 'csat', label: 'CSAT' },
-  { id: 'product-cards', label: 'Product cards' },
-  { id: 'advanced', label: 'Advanced' },
-];
+export { DEFAULT_BOT_SETTINGS, SECTION_TABS, unsavedChanges };
+export type { BotSettingsSection, BotSettingsValues };
 
 type ElementKey = keyof ProductCardElements | 'title' | 'price';
 
@@ -129,53 +133,97 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Everything on this page that is actually a saved setting. */
-export interface BotSettingsValues {
-  layout: ProductCardLayout;
-  currency: string;
-  elements: ProductCardElements;
-  buttonCount: number;
-  buttonLabels: string[];
-  buttonStyle: ButtonStyle;
-  buttonLayout: ButtonLayout;
-  buyNowOpensPage: boolean;
-  showVariants: boolean;
-  cheapestVariant: boolean;
-  showOutOfStock: boolean;
-}
+/**
+ * The line above the open tab while "Search all settings" has a query: how many of its
+ * settings match, or, when none do, which tabs have matches.
+ */
+function SearchSummary({
+  query,
+  matches,
+  section,
+  onSection,
+}: {
+  query: string;
+  matches: SettingEntry[];
+  section: BotSettingsSection;
+  onSection: (next: BotSettingsSection) => void;
+}) {
+  const counts = SECTION_TABS.map((tab) => ({ ...tab, count: matches.filter((m) => m.section === tab.id).length }));
+  const here = counts.find((tab) => tab.id === section)!;
+  const elsewhere = counts.filter((tab) => tab.id !== section && tab.count > 0);
 
-export const DEFAULT_BOT_SETTINGS: BotSettingsValues = {
-  layout: 'compact-tile',
-  currency: '₹',
-  elements: {
-    description: true,
-    mrp: true,
-    discount: true,
-    rating: true,
-    reviewCount: true,
-    tags: true,
-    ribbon: true,
-  },
-  buttonCount: 2,
-  buttonLabels: ['Buy now', 'View details', 'Talk to us'],
-  buttonStyle: 'primary-outline',
-  buttonLayout: 'stacked',
-  buyNowOpensPage: true,
-  showVariants: true,
-  cheapestVariant: false,
-  showOutOfStock: false,
-};
+  if (matches.length === 0) {
+    return (
+      <div className="lc-bset__search-empty" role="status">
+        <p className="lc-bset__search-empty-title">No settings match "{query}"</p>
+        <p className="lc-bset__search-empty-desc">Try another word, or clear the search.</p>
+      </div>
+    );
+  }
+  if (here.count === 0) {
+    return (
+      <div className="lc-bset__search-empty" role="status">
+        <p className="lc-bset__search-empty-title">No matches in {here.label}</p>
+        <p className="lc-bset__search-empty-desc">
+          Found in{' '}
+          {elsewhere.map((tab, i) => (
+            <Fragment key={tab.id}>
+              {i > 0 && ', '}
+              <button type="button" className="lc-bset__search-link" onClick={() => onSection(tab.id)}>
+                {`${tab.label} (${tab.count})`}
+              </button>
+            </Fragment>
+          ))}
+          .
+        </p>
+      </div>
+    );
+  }
+  return (
+    <p className="lc-bset__search-count" role="status">
+      {here.count} {here.count === 1 ? 'setting matches' : 'settings match'} "{query}" in {here.label}
+      {section === 'product-cards' && '. Product cards shows all its settings while you search'}.
+    </p>
+  );
+}
 
 export interface BotSettingsProps {
   values: BotSettingsValues;
   onChange: (next: BotSettingsValues) => void;
+  /** The last saved copy; sections that differ from it get a dot on their tab. */
+  savedValues?: BotSettingsValues;
   /** Section tab to open on mount. */
-  initialSection?: string;
+  initialSection?: BotSettingsSection;
 }
 
-export function BotSettings({ values, onChange, initialSection = 'product-cards' }: BotSettingsProps) {
-  const [section, setSection] = useState(initialSection);
+export function BotSettings({ values, onChange, savedValues, initialSection = 'bot-behaviour' }: BotSettingsProps) {
+  const [section, setSection] = useState<BotSettingsSection>(initialSection);
   const [search, setSearch] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
+  const clearSearch = () => {
+    setSearch('');
+    searchRef.current?.focus();
+  };
+  const unsavedSections = savedValues ? unsavedChanges(values, savedValues).sections : [];
+
+  // Search narrows the open tab to its matching rows (a parent row stays while one of its
+  // rows matches) and counts matches on every tab, so the tabs show where else to look.
+  const query = search.trim();
+  const matches = useMemo(() => (query ? searchSettings(query) : null), [query]);
+  const filter = useMemo<SearchFilter>(() => {
+    if (!matches) return NO_FILTER;
+    const hit = new Set(matches.map((m) => m.id));
+    const parents = new Set(matches.map((m) => m.parent).filter((p): p is string => !!p));
+    return {
+      query,
+      shows: (id) => !id || hit.has(id) || parents.has(id) || hit.has(settingEntry(id)?.parent ?? ''),
+    };
+  }, [matches, query]);
+  const tabs = SECTION_TABS.map((tab) => ({
+    ...tab,
+    dot: unsavedSections.includes(tab.id),
+    badge: matches ? matches.filter((m) => m.section === tab.id).length || undefined : undefined,
+  }));
   // Which card the stage shows. Not a setting — the tabs are there to compare
   // the four layouts without committing to one.
   const [previewLayout, setPreviewLayout] = useState<ProductCardLayout>(values.layout);
@@ -221,25 +269,40 @@ export function BotSettings({ values, onChange, initialSection = 'product-cards'
   return (
     <div className="lc-bset">
       <div className="lc-bset__controls">
-        <SegmentedTabs ariaLabel="Bot settings sections" tabs={SECTION_TABS} value={section} onChange={setSection} />
+        <SegmentedTabs ariaLabel="Bot settings sections" tabs={tabs} value={section} onChange={setSection} />
         <label className="lc-bset__search">
           <SearchIcon />
           <input
+            ref={searchRef}
             type="search"
             placeholder="Search all settings"
             aria-label="Search all settings"
             value={search}
             onChange={(e) => setSearch(e.currentTarget.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') clearSearch();
+            }}
           />
+          {search && (
+            <button type="button" className="lc-bset__search-clear" aria-label="Clear search" onClick={clearSearch}>
+              <CloseIcon size={14} />
+            </button>
+          )}
         </label>
       </div>
 
       <div className="lc-bset__rule" />
 
+      {matches && <SearchSummary query={query} matches={matches} section={section} onSection={setSection} />}
+
+      <SearchFilterContext.Provider value={filter}>
       {section !== 'product-cards' ? (
-        <div className="lc-bset__empty">
-          <p className="lc-bset__empty-title">{SECTION_TABS.find((t) => t.id === section)?.label}</p>
-          <p className="lc-bset__empty-desc">This section hasn’t been designed yet. Product cards is the live one.</p>
+        <div className="lc-bset__page lc-scrollbar-thin">
+          {section === 'bot-behaviour' && <BotBehaviourSection values={values} patch={patch} />}
+          {section === 'messaging' && <MessagingSection values={values} patch={patch} />}
+          {section === 'channels' && <ChannelsSection values={values} patch={patch} />}
+          {section === 'csat' && <CsatSection values={values} patch={patch} />}
+          {section === 'advanced' && <AdvancedSection values={values} patch={patch} />}
         </div>
       ) : (
         <div className="lc-bset__columns">
@@ -462,6 +525,7 @@ export function BotSettings({ values, onChange, initialSection = 'product-cards'
           </div>
         </div>
       )}
+      </SearchFilterContext.Provider>
     </div>
   );
 }

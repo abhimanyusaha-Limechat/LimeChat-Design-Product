@@ -1,0 +1,183 @@
+/**
+ * RichTextField — Figma "RichTextEditor v3": a 1px bordered box, the body padded 24px/16px,
+ * then a toolbar of boxed control groups 12px apart with Improve pinned right.
+ */
+
+.lc-rte {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--v3-border-default);
+  border-radius: 4px;
+  background: var(--v3-white);
+  overflow: hidden;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.lc-rte:focus-within {
+  border-color: var(--v3-green-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--v3-green-primary) 20%, transparent);
+}
+
+.lc-rte__body {
+  min-height: 68px;
+  padding: 24px 16px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--v3-text-title);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  outline: none;
+}
+
+.lc-rte[data-empty] .lc-rte__body::before {
+  content: attr(data-placeholder);
+  color: var(--v3-text-placeholder);
+  pointer-events: none;
+}
+
+/* Merge-field token (Figma ".RTE Variable Token V3"). */
+.lc-rte__token {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 2px;
+  padding: 2px 4px;
+  border: 1px solid var(--v3-border-primary-light);
+  border-radius: 4px;
+  background: var(--v3-background-primary-light);
+  font-size: 12px;
+  line-height: normal;
+  font-weight: 700;
+  color: var(--v3-text-primary-dark);
+  white-space: nowrap;
+  vertical-align: baseline;
+  user-select: all;
+}
+
+/* --- Toolbar ------------------------------------------------------------ */
+
+.lc-rte__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--v3-border-default);
+  background: var(--v3-white);
+}
+
+.lc-rte__group {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--v3-border-default);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.lc-rte__tool {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 0;
+  border-right: 1px solid var(--v3-border-default);
+  background: var(--v3-white);
+  color: var(--v3-text-default);
+  cursor: pointer;
+}
+
+.lc-rte__tool:last-child {
+  border-right: 0;
+}
+
+.lc-rte__tool:hover:not(:disabled) {
+  background: var(--v3-grey-200);
+}
+
+.lc-rte__tool:disabled {
+  color: var(--v3-icon-muted);
+  cursor: default;
+}
+
+.lc-rte__caret {
+  color: var(--v3-icon-default);
+}
+
+.lc-rte__spacer {
+  flex: 1 1 0;
+  min-width: 1px;
+  height: 24px;
+}
+
+/* Improve split button (Figma ".RTE Improve Button V3"): the AI gradient on outline, label, divider and caret. */
+.lc-rte__improve {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--v3-gradient-ai-start);
+  border-radius: 4px;
+  background: transparent;
+  overflow: hidden;
+}
+
+.lc-rte__improve-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 22px;
+  padding: 4px 12px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lc-rte__improve-main span {
+  background: var(--v3-gradient-ai);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lc-rte__improve-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--v3-gradient-ai);
+}
+
+.lc-rte__improve-caret {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--v3-secondary-dark);
+  cursor: pointer;
+}
+
+.lc-rte__improve-main:hover:not(:disabled),
+.lc-rte__improve-caret:hover:not(:disabled) {
+  background: var(--v3-background-primary-light);
+}
+
+/* --- Disabled ----------------------------------------------------------- */
+
+.lc-rte[data-disabled] {
+  background: var(--v3-grey-200);
+}
+
+.lc-rte[data-disabled] .lc-rte__body {
+  color: var(--v3-grey-500);
+}
+
+.lc-rte[data-disabled] .lc-rte__improve {
+  opacity: 0.5;
+}
