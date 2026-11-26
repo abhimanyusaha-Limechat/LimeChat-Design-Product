@@ -6,18 +6,12 @@
  * They were the Agent editor's, and both pages still draw them with its `lc-aep` classes, so
  * the two editors stay one screen family (see AgentEditPage.css, which this module loads).
  */
-import { useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button } from '../Button';
-import { Menu } from '../Menu';
 import { Icon } from '../icons';
+import { PromptModal } from './PromptModal';
 import './AgentEditPage.css';
 
-const FORMATS = [
-  { label: 'Bold', glyph: 'B', mark: '*' },
-  { label: 'Italic', glyph: 'I', mark: '_' },
-  { label: 'Strikethrough', glyph: 'S', mark: '~' },
-];
-const EMOJIS = ['🙂', '👍', '🙏', '🎉', '❤️', '😊'];
 
 /** The prompt can be published once it says something. */
 export const isPromptEmpty = ({ prompt }: { prompt: string }) => prompt.trim() === '';
@@ -294,79 +288,30 @@ export function ListEditor({
   );
 }
 
-/** A textarea with a Bold / Italic / Strikethrough / emoji strip and a character count. */
-function PromptEditor({ value, onChange }: { value: string; onChange: (next: string) => void }) {
-  const area = useRef<HTMLTextAreaElement>(null);
-
-  /** Replaces the selection with `wrap(selected)`, keeping the caret after it. */
-  const edit = (wrap: (selected: string) => string) => {
-    const el = area.current;
-    if (!el) return;
-    const { selectionStart: from, selectionEnd: to } = el;
-    const inserted = wrap(value.slice(from, to));
-    onChange(value.slice(0, from) + inserted + value.slice(to));
-    const caret = from + inserted.length;
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(caret, caret);
-    });
-  };
-
-  return (
-    <div className="lc-aep__editor">
-      <textarea
-        ref={area}
-        aria-label="Description (Prompt)"
-        aria-required="true"
-        aria-invalid={isPromptEmpty({ prompt: value }) || undefined}
-        className="lc-aep__textarea"
-        rows={9}
-        value={value}
-        onChange={(e) => onChange(e.currentTarget.value)}
-      />
-      <div className="lc-aep__toolbar">
-        {FORMATS.map(({ label, glyph, mark }) => (
-          <button
-            key={label}
-            type="button"
-            className={`lc-aep__fmt lc-aep__fmt--${label.toLowerCase()}`}
-            aria-label={label}
-            title={label}
-            onClick={() => edit((s) => `${mark}${s}${mark}`)}
-          >
-            {glyph}
-          </button>
-        ))}
-        <span className="lc-aep__sep" aria-hidden="true" />
-        <Menu
-          ariaLabel="Insert emoji"
-          items={EMOJIS.map((emoji) => ({ label: emoji, onClick: () => edit(() => emoji) }))}
-          trigger={({ ref, onClick }) => (
-            <button ref={ref} type="button" className="lc-aep__fmt" aria-label="Insert emoji" title="Insert emoji" onClick={onClick}>
-              <Icon name="mood-smile" size={16} />
-            </button>
-          )}
-        />
-        <span className="lc-aep__count">{value.length} characters</span>
-      </div>
-    </div>
-  );
-}
-
-/** The agent's or task's prompt: read-only until the edit button opens the editor. */
+/**
+ * The agent's or task's prompt. The card only reads it: a click anywhere on it, or on its
+ * edit button, opens the dialog that writes it (Figma 2772:16964, whose hover state is the
+ * blue stroke this card takes on). Read-only versions get the text alone.
+ */
 export function PromptCard({
   value,
   onChange,
   readOnly,
   /** What the prompt belongs to, for the copy that asks for one: "agent" or "task". */
   what = 'agent',
+  /** The agent's or task's name, which titles the dialog. */
+  name = '',
 }: {
   value: string;
   onChange: (next: string) => void;
   readOnly?: boolean;
   what?: string;
+  name?: string;
 }) {
-  const [editing, setEditing] = useState(false);
+  // Bumped on each opening, so the dialog starts afresh from the saved prompt; it stays
+  // mounted while `open` is false so the Modal can play its exit.
+  const [opening, setOpening] = useState(0);
+  const [open, setOpen] = useState(false);
   const empty = isPromptEmpty({ prompt: value });
 
   if (readOnly) {
@@ -382,28 +327,47 @@ export function PromptCard({
     );
   }
 
+  const openDialog = () => {
+    setOpening((n) => n + 1);
+    setOpen(true);
+  };
+
   return (
-    <aside className="lc-aep__prompt" data-editing={editing || undefined}>
-      <div className="lc-aep__prompt-head">
-        <h2 className="lc-aep__prompt-title">Prompt/Instruction</h2>
-        <button
-          type="button"
-          className="lc-aep__prompt-edit"
-          aria-label={editing ? 'Done editing prompt' : 'Edit prompt'}
-          aria-pressed={editing}
-          onClick={() => setEditing((on) => !on)}
-        >
-          <Icon name={editing ? 'circle-check' : 'edit-square'} size={20} />
-        </button>
-      </div>
-      {editing ? (
-        <PromptEditor value={value} onChange={onChange} />
-      ) : (
+    <>
+      {/* The whole card opens the dialog, as the design's hover state says it does, while the
+          edit button stays the control a keyboard reaches. Reading the prompt often means
+          selecting a line of it, so a click that ends a selection is left alone. */}
+      <aside
+        className="lc-aep__prompt"
+        data-clickable="true"
+        onClick={() => {
+          if (!document.getSelection()?.toString()) openDialog();
+        }}
+      >
+        <div className="lc-aep__prompt-head">
+          <h2 className="lc-aep__prompt-title">Prompt/Instruction</h2>
+          <button type="button" className="lc-aep__prompt-edit" aria-label="Edit prompt" onClick={openDialog}>
+            <Icon name="edit-square" size={20} />
+          </button>
+        </div>
         <p className="lc-aep__prompt-body" data-empty={empty || undefined}>
-          {empty ? `No prompt yet — add one to publish this ${what}.` : value}
+          {empty ? `No prompt yet, add one to publish this ${what}.` : value}
         </p>
-      )}
-      {empty && <p className="lc-aep__error">Describe what the {what} does to publish it.</p>}
-    </aside>
+        {empty && <p className="lc-aep__error">Describe what the {what} does to publish it.</p>}
+      </aside>
+
+      <PromptModal
+        key={opening}
+        open={open}
+        onClose={() => setOpen(false)}
+        onSave={(next) => {
+          onChange(next);
+          setOpen(false);
+        }}
+        value={value}
+        what={what}
+        name={name || `This ${what}`}
+      />
+    </>
   );
 }

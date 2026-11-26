@@ -32,7 +32,7 @@ describe('Agent edit page', () => {
     expect(screen.queryByText('Unsaved')).not.toBeInTheDocument();
   });
 
-  it('shows the prompt in its card and edits it behind the edit button', async () => {
+  it('shows the prompt in its card and edits it in the dialog the card opens', async () => {
     const user = userEvent.setup();
     render(<Harness start="support" />);
 
@@ -40,16 +40,34 @@ describe('Agent edit page', () => {
     expect(screen.queryByRole('textbox', { name: 'Description (Prompt)' })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Edit prompt' }));
-    const prompt = screen.getByRole('textbox', { name: 'Description (Prompt)' });
-    expect(screen.getByText(/^\d+ characters$/)).toBeInTheDocument();
+    const dialog = screen.getByRole('dialog', { name: 'Support Agent Prompt' });
+    const prompt = within(dialog).getByRole('textbox', { name: 'Description (Prompt)' });
+    expect(within(dialog).getByText(/^\d+ characters$/)).toBeInTheDocument();
 
     await user.clear(prompt);
-    expect(screen.getByRole('button', { name: 'Publish' })).toBeDisabled();
-
     await user.type(prompt, 'Hello');
     await user.tripleClick(prompt);
-    await user.click(screen.getByRole('button', { name: 'Bold' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Bold' }));
     expect(prompt).toHaveValue('*Hello*');
+
+    // The dialog holds its own draft: Close leaves the card's prompt as it was.
+    // Two buttons close the dialog: the header's ✕ and the footer's Close.
+    const closes = within(dialog).getAllByRole('button', { name: 'Close' });
+    await user.click(closes[closes.length - 1]);
+    await user.click(screen.getByRole('button', { name: 'Edit prompt' }));
+    expect(screen.getByRole('textbox', { name: 'Description (Prompt)' })).not.toHaveValue('*Hello*');
+  });
+
+  it('saves the prompt the dialog leaves behind, and blocks publishing an empty one', async () => {
+    const user = userEvent.setup();
+    render(<Harness start="support" />);
+
+    await user.click(screen.getByRole('button', { name: 'Edit prompt' }));
+    await user.clear(screen.getByRole('textbox', { name: 'Description (Prompt)' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(screen.getByText('Describe what the agent does to publish it.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Publish' })).toBeDisabled();
   });
 
   it('adds and removes trigger examples, falling back to the AI empty state', async () => {

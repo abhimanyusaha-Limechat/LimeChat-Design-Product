@@ -812,3 +812,125 @@
   font-weight: var(--v3-h5-m-weight);
   line-height: var(--v3-h5-line);
 }
+
+/* --- Prompt card: the dialog it opens ---------------------------------------- */
+
+/* Figma 2772:16964. The card reads as one target: the 2px stroke is transparent until
+   hover, so taking on the blue leaves the text where it was. */
+.lc-aep__prompt[data-clickable] {
+  padding: 14px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.lc-aep__prompt[data-clickable]:hover,
+.lc-aep__prompt[data-clickable]:focus-within {
+  /* Colors/Secondary/Secondary_Primary, with V3's Elevation/1dp. */
+  border-color: var(--v3-blue-dark);
+  box-shadow:
+    0 1px 3px rgba(3, 3, 3, 0.2),
+    0 2px 2px rgba(255, 255, 255, 0.12),
+    0 0 2px rgba(250, 250, 250, 0.14);
+}
+
+/* Figma 2772:16868 — the prompt dialog: Generate above, the editor, Close / Save below. */
+.lc-aep__dialog-top {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.lc-aep__dialog .lc-aep__textarea {
+  min-height: 320px;
+}
+
+/* The editor's box while an AI action runs (Figma 2798:1714). */
+.lc-aep__thinking {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 368px;
+  color: var(--v3-text-dark);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.lc-aep__thinking-icon {
+  color: var(--v3-blue-dark);
+  animation: lc-aep-think 1200ms ease-in-out infinite;
+}
+
+@keyframes lc-aep-think {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Figma 2798:2153 — "Improve" and the note it asks for, over the end of the format strip. */
+.lc-aep__improve {
+  position: relative;
+  margin-left: 8px;
+}
+
+.lc-aep__improve-btn {
+  height: 24px;
+  padding: 2px 8px;
+}
+
+.lc-aep__improve-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  box-sizing: border-box;
+  width: min(420px, 70vw);
+  padding: 12px;
+  border: 1px solid var(--v3-grey-400);
+  border-radius: 8px;
+  background: var(--v3-white);
+  box-shadow:
+    0 1px 1.5px rgba(0, 0, 0, 0.05),
+    0 10px 7.5px rgba(0, 0, 0, 0.1);
+}
+
+.lc-aep__improve-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--v3-grey-400);
+  border-radius: 8px;
+  background: var(--v3-input-default-body);
+  color: var(--v3-text-dark);
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  resize: vertical;
+}
+
+.lc-aep__improve-input:focus-visible {
+  outline: 2px solid var(--v3-primary);
+  outline-offset: -1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-aep__prompt[data-clickable] {
+    transition: none;
+  }
+
+  .lc-aep__thinking-icon {
+    animation: none;
+  }
+}

@@ -85,10 +85,13 @@ function ThinkingFlows({ value, onChange, readOnly }: { value: string[]; onChang
 }
 
 function GeneralTab({
+  name,
   setup,
   onChange,
   readOnly,
 }: {
+  /** The agent's name, which titles the prompt dialog. */
+  name: string;
   setup: AgentSetup;
   onChange: (patch: Partial<AgentSetup>) => void;
   readOnly?: boolean;
@@ -107,7 +110,7 @@ function GeneralTab({
         <hr className="lc-aep__rule" />
         <ThinkingFlows value={setup.flows ?? []} onChange={(flows) => onChange({ flows })} readOnly={readOnly} />
       </div>
-      <PromptCard value={setup.prompt} onChange={(prompt) => onChange({ prompt })} readOnly={readOnly} />
+      <PromptCard value={setup.prompt} onChange={(prompt) => onChange({ prompt })} readOnly={readOnly} name={name} />
     </div>
   );
 }
@@ -239,7 +242,7 @@ export function AgentEditPage({ agent, setup, onChange, onBack, onPublish, canPu
               }}
             />
           ) : tab === 'general' ? (
-            <GeneralTab setup={shown} onChange={onChange} readOnly={!!viewing} />
+            <GeneralTab name={agent.name} setup={shown} onChange={onChange} readOnly={!!viewing} />
           ) : (
             <TasksPlaceholder />
           )}

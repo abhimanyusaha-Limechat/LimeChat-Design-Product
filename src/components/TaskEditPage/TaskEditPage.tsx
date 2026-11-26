@@ -114,7 +114,7 @@ function GeneralTab({
           onChange={(flowInstructions) => onChange({ flowInstructions })}
         />
       </div>
-      <PromptCard value={setup.prompt} onChange={(prompt) => onChange({ prompt })} what="task" />
+      <PromptCard value={setup.prompt} onChange={(prompt) => onChange({ prompt })} what="task" name={task.name} />
     </div>
   );
 }

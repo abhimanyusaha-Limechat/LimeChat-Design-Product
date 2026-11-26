@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TasksScreen } from '../ListScreens/TasksScreen';
 
@@ -111,5 +111,36 @@ describe('Task edit page', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     expect(screen.getByRole('heading', { name: 'Satisfaction survey' })).toBeInTheDocument();
+  });
+  it('writes the prompt in the dialog the card opens, and keeps it on Save', async () => {
+    const user = userEvent.setup();
+    open('#/automation/tasks?task=track-order');
+    render(<TasksScreen />);
+
+    // The whole card opens the dialog, which is what the design's hover stroke promises.
+    await user.click(screen.getByRole('heading', { name: 'Prompt/Instruction' }));
+    const dialog = screen.getByRole('dialog', { name: 'Track Order Prompt' });
+
+    await user.click(within(dialog).getByRole('button', { name: 'Generate new prompt' }));
+    const written = await within(dialog).findByDisplayValue(/first stop for every conversation this task/);
+    expect(written).toBeInTheDocument();
+
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(screen.getByText(/first stop for every conversation this task/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Update' })).toBeEnabled();
+  });
+
+  it('folds an Improve note into the prompt', async () => {
+    const user = userEvent.setup();
+    open('#/automation/tasks?task=track-order');
+    render(<TasksScreen />);
+
+    await user.click(screen.getByRole('button', { name: 'Edit prompt' }));
+    await user.click(screen.getByRole('button', { name: 'Improve with AI' }));
+    await user.type(screen.getByLabelText('Tell us what we need to improve'), 'Never promise a delivery date.');
+    await user.click(screen.getByRole('button', { name: 'Improve' }));
+
+    expect(await screen.findByDisplayValue(/Never promise a delivery date\.$/)).toBeInTheDocument();
   });
 });
