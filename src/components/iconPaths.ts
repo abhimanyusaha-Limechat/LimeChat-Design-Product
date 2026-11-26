@@ -30,6 +30,8 @@ export const ICON_PATHS = {
   ],
   /* V3 Computers/API — the letters A, P, I. */
   api: ['M4 13h5', 'M12 16v-8h3a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-3', 'M20 8v8', 'M9 16v-5.5a2.5 2.5 0 0 0 -5 0v5.5'],
+  /* V3 Analytics/Dropoff (Figma node 60:22175) — the arch a conversation leaves part-way through. */
+  'arrow-drop-off': ['M7 20v-11.5a4.5 4.5 0 0 1 9 0v8.5', 'M13 14l3 3l3 -3'],
   'arrow-up': ['M12 5l0 14', 'M18 11l-6 -6', 'M6 11l6 -6'],
   'arrows-sort': ['M4 8l4 -4l4 4', 'M8 4l0 16', 'M20 16l-4 4l-4 -4', 'M16 20l0 -16'],
   bell: [

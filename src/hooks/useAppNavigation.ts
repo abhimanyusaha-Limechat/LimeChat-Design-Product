@@ -16,6 +16,7 @@ export type Page =
   | 'bot-flows-list'
   | 'bot-flows-canvas'
   | 'agents'
+  | 'tasks'
   | 'segments'
   | 'templates'
   | 'settings'
@@ -41,6 +42,7 @@ export function pageOf({ product, selected, view, userSettings }: Screen): Page 
   if ((product === 'marketing' || product === 'helpdesk') && selected === 'templates') return 'templates';
   if (selected === 'settings') return 'settings';
   if (product === 'automation' && selected === 'agents') return 'agents';
+  if (product === 'automation' && selected === 'tasks') return 'tasks';
   if (product === 'automation' && selected === 'knowledge-base') return 'knowledge-base';
   if (product === 'helpdesk' && selected === 'tickets') return 'tickets';
   if (product === 'helpdesk' && selected === 'contacts') return 'contacts';
