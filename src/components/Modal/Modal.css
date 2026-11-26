@@ -148,6 +148,40 @@
   gap: 12px;
 }
 
+/* --- Framed surface --------------------------------------------- */
+
+/* The title row and the actions row stay white and still; the content sits on grey
+   between them and scrolls, so the body's own boxes read as content on a surface. */
+.lc-modal[data-surface='framed'] {
+  gap: 0;
+  max-height: calc(100vh - 32px);
+  padding: 0;
+  overflow: hidden;
+}
+.lc-modal[data-surface='framed'] .lc-modal__header {
+  align-items: center;
+  flex-shrink: 0;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--lc-modal-border);
+}
+.lc-modal[data-surface='framed'] .lc-modal__title {
+  font-size: 18px;
+  line-height: 26px;
+}
+.lc-modal[data-surface='framed'] .lc-modal__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 20px 24px;
+  background: var(--v3-grey-200);
+  overflow-y: auto;
+}
+.lc-modal[data-surface='framed'] .lc-modal__actions {
+  flex-shrink: 0;
+  padding: 16px 24px;
+  border-top: 1px solid var(--lc-modal-border);
+  background: var(--v3-white);
+}
+
 /* --- Fields --------------------------------------------------- */
 .lc-modal__field {
   display: flex;

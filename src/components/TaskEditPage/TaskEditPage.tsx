@@ -357,7 +357,7 @@ export function TaskEditPage({
         open={renaming}
         onClose={() => setRenaming(false)}
         title="Rename task"
-        description="The name customers never see — it labels this task across Automation."
+        description="The name customers never see. It labels this task across Automation."
         footer={
           <>
             <Button variant="default" size="sm" onClick={() => setRenaming(false)}>

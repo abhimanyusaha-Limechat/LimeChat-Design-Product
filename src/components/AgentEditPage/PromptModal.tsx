@@ -108,6 +108,7 @@ export function PromptModal({
       // in a grid column that would otherwise grow past a narrow screen.
       style={{ width: 'min(1020px, calc(100vw - 32px))' }}
       className="lc-aep__dialog"
+      surface="framed"
       headerAction={
         <Button
           className="lc-aep__generate"
