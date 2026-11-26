@@ -16,7 +16,7 @@ import { Modal } from '../Modal';
 import type { TicketChannel } from '../TicketListItem';
 import { AttachmentTiles } from './AttachmentTiles';
 import { AiImproveToolbar, type AiImproveStyle } from './AiImproveToolbar';
-import { FormattingToolbar } from './FormattingToolbar';
+import { FormattingToolbar, keepFocus } from './FormattingToolbar';
 import { MODE_CONFIG, ModeTabs, type TicketComposerMode } from './ModeTabs';
 import { useFileDrop } from './useFileDrop';
 import { useTextHistory } from './useTextHistory';
@@ -334,6 +334,7 @@ export function TicketComposer({
                 title="Formatting options"
                 aria-pressed={formatOpen}
                 disabled={value.trim() === ''}
+                onMouseDown={keepFocus}
                 onClick={() => toggleRow('format')}
               >
                 Aa
