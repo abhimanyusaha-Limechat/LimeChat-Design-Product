@@ -39,6 +39,36 @@
 
 /* --- Side panel ------------------------------------------------------------ */
 
+/* Holds the tab list and whatever floats over its lower end. */
+.lc-sp__side {
+  position: relative;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+/* `tabListFooter`: centred over the white space under the tabs, 12px up from the panel's edge.
+   Only the control itself takes clicks, so the tabs beside it stay reachable. */
+.lc-sp__side-float {
+  position: absolute;
+  right: 0;
+  bottom: 12px;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  /* Keeps a wide control off the panel's edges; it shrinks instead. */
+  padding: 0 12px;
+  pointer-events: none;
+}
+
+.lc-sp__side-float > * {
+  pointer-events: auto;
+}
+
+/* On a short window the tabs scroll: this lets the last ones clear the floating control. */
+.lc-sp__side:has(.lc-sp__side-float) .lc-sp__side-panel {
+  padding-bottom: 60px;
+}
+
 .lc-sp__side-panel {
   display: flex;
   flex-direction: column;

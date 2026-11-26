@@ -1,0 +1,523 @@
+/**
+ * DeleteHistory: Settings > Delete history, Automation product.
+ *
+ * Geometry follows Figma section 5566:8370: a 64px controls row (filters + search), a 28px pill
+ * per active filter, a 24px-inset rule, then a 24px-padded body holding the table or an empty
+ * state. The table frame (scroll, sticky 44px header, 60px rows, row hover) comes from DataTable.
+ */
+
+.lc-dh {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  color: var(--v3-text-title);
+}
+
+/* --- Controls row -------------------------------------------------------- */
+
+.lc-dh__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  padding: 16px 24px;
+}
+
+.lc-dh__filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 360px wide as designed. On a narrower card it shrinks (down to 200px) before it wraps under
+   the filters, so the row stays one line at laptop widths. */
+.lc-dh__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 200px;
+  max-width: 360px;
+  height: var(--lc-input-sm);
+  padding: 0 12px;
+  border: 1px solid var(--v3-border-default);
+  border-radius: var(--v3-radius-2xs);
+  background: var(--v3-white);
+  color: var(--v3-icon-default);
+  cursor: text;
+}
+
+.lc-dh__search:focus-within {
+  border-color: var(--v3-green-primary);
+}
+
+.lc-dh__search svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.lc-dh__search input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: var(--v3-text-sm-size);
+  line-height: var(--v3-text-sm-line);
+  color: var(--v3-text-title);
+}
+
+.lc-dh__search input::placeholder {
+  color: var(--v3-text-placeholder);
+}
+
+.lc-dh__search input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+/* --- Filter menus ---------------------------------------------------------
+   The shared Menu, skinned as the V3 dropdown this page was drawn with: a 1px border and the
+   small "xs" shadow in place of the floating one, 4px of padding, and Text/sm rows. */
+
+.lc-dh__menu.lc-menu {
+  /* The 220px the menu is given is its full width, border and padding included. */
+  box-sizing: border-box;
+  padding: 4px;
+  border: 1px solid var(--v3-border-default);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.lc-dh__menu .lc-menu__item {
+  font-size: var(--v3-text-sm-size);
+  line-height: var(--v3-text-sm-line);
+  color: var(--v3-text-default);
+}
+
+.lc-dh__menu .lc-menu__item:hover:not(:disabled) {
+  background: var(--v3-background-gray-light);
+}
+
+/* The single-choice Date menu keeps the shared highlight for its picked row. */
+.lc-dh__menu .lc-menu__item--selected {
+  color: var(--v3-green-primary-600);
+}
+
+.lc-dh__menu .lc-menu__item-icon:not(.lc-menu__item-icon--trailing) {
+  color: var(--v3-icon-default);
+  opacity: 1;
+}
+
+/* A filter with nothing to list yet. Text/sm, dimmed, on the rows' own 8px inset. */
+.lc-dh__menu-empty {
+  margin: 0;
+  padding: 8px;
+  font-size: var(--v3-text-sm-size);
+  line-height: var(--v3-text-sm-line);
+  color: var(--v3-text-dimmed);
+}
+
+/* --- Active filter pills ---------------------------------------------------- */
+
+.lc-dh__pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  padding: 0 24px 16px;
+}
+
+/* V3 Pill, size sm. */
+.lc-dh__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 4px 12px;
+  border-radius: var(--v3-radius-md);
+  background: var(--v3-green-0);
+  font-size: var(--v3-text-sm-size);
+  line-height: var(--v3-text-sm-line);
+  color: var(--v3-text-default);
+}
+
+.lc-dh__pill-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lc-dh__pill-remove {
+  appearance: none;
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--v3-gray-40);
+  cursor: pointer;
+  transition: color 120ms ease;
+}
+
+/* The 16px glyph is the design; this widens what can be clicked to the pill's full height. */
+.lc-dh__pill-remove::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+.lc-dh__pill-remove svg {
+  width: 100%;
+  height: 100%;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lc-dh__pill-remove:hover {
+    color: var(--v3-text-default);
+  }
+}
+
+.lc-dh__pill-remove:focus-visible {
+  outline: 2px solid var(--v3-green-primary-600);
+  outline-offset: 1px;
+  color: var(--v3-text-default);
+}
+
+/* --- Rule + body ------------------------------------------------------------ */
+
+.lc-dh__rule {
+  flex-shrink: 0;
+  height: 1px;
+  margin: 0 24px;
+  background: var(--v3-border-gray-default);
+}
+
+.lc-dh__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 24px;
+}
+
+/* --- Table cells ------------------------------------------------------------ */
+
+.lc-dh__cell {
+  /* The column widths below count their padding, wherever the page is mounted. */
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Heading/h7. Sortable headers set their own label type in DataTable. */
+[role='columnheader'].lc-dh__cell {
+  font-size: var(--v3-h7-size);
+  line-height: var(--v3-h7-line);
+  font-weight: var(--v3-h7-weight);
+  color: var(--v3-gray-70);
+  white-space: nowrap;
+}
+
+/* Columns are the V3 Table element's: Item takes what is left, then Status and Deleted by at
+   160px and Deleted on at 120px, then 96px for the action. Those three are set 8px narrower
+   here, because the row's own 8px gap makes up the rest; 24px of each is right padding. On a
+   narrower card Deleted by gives way first (its name ellipsizes), so the table only scrolls
+   sideways once that runs out. */
+.lc-dh__cell--item {
+  flex: 1 1 0;
+  min-width: 160px;
+  gap: 8px;
+  padding-right: 16px;
+}
+
+/* Lines the "Item" label up with the names, past the 36px type icon and its 8px gap. */
+.lc-dh__head-item {
+  padding-left: 44px;
+}
+
+.lc-dh__cell--status {
+  flex: 0 0 152px;
+  padding-right: 24px;
+}
+
+.lc-dh__cell--actor {
+  flex: 0 1 152px;
+  min-width: 120px;
+  padding-right: 24px;
+}
+
+.lc-dh__cell--date {
+  flex: 0 0 112px;
+  padding-right: 24px;
+}
+
+.lc-dh__cell--action {
+  flex: 0 0 96px;
+  justify-content: flex-end;
+}
+
+/* 36px tile, 8px corners, 24px glyph. */
+.lc-dh__type-icon.lc-avatar {
+  --lc-avatar-light-bg: var(--v3-background-primary-light);
+  --lc-avatar-fg-accent: var(--v3-text-primary-default);
+}
+
+.lc-dh__type-icon .lc-avatar__icon {
+  width: 24px;
+  height: 24px;
+}
+
+.lc-dh__name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Heading/h5 */
+.lc-dh__name {
+  font-size: var(--v3-heading-h5-size);
+  line-height: var(--v3-heading-h5-line);
+  font-weight: var(--v3-heading-h5-weight);
+  color: var(--v3-text-title);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Text SemiBold/sm: the main line of the Deleted by and Deleted on cells. */
+.lc-dh__value {
+  font-size: var(--v3-text-sm-size);
+  line-height: var(--v3-text-sm-line);
+  font-weight: var(--v3-text-semibold-sm-weight);
+  color: var(--v3-gray-70);
+  white-space: nowrap;
+}
+
+/* Text/xs: the dimmed line under a name, an actor or a date. */
+.lc-dh__caption {
+  font-size: var(--v3-text-xs-size);
+  line-height: var(--v3-text-xs-line);
+  font-weight: var(--v3-text-xs-weight);
+  color: var(--v3-text-dimmed);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Status badge -----------------------------------------------------------
+   The status the item had when it was deleted. Active is the filled badge, so it reads as the
+   deletion with the most consequence. */
+
+.lc-dh__status {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: var(--v3-radius-2xs);
+  /* Text SemiBold/xs on the badge's own 14px line: an 18px badge. */
+  font-size: var(--v3-text-semibold-xs-size);
+  line-height: 14px;
+  font-weight: var(--v3-text-semibold-xs-weight);
+  color: var(--v3-text-gray-dark);
+  white-space: nowrap;
+}
+
+.lc-dh__status[data-status='active'] {
+  background: var(--v3-background-primary-filled);
+  color: var(--v3-white);
+}
+
+.lc-dh__status[data-status='inactive'] {
+  background: var(--v3-background-gray-light);
+}
+
+/* An inside stroke, as drawn: it does not grow the badge. */
+.lc-dh__status[data-status='draft'] {
+  box-shadow: inset 0 0 0 1px var(--v3-border-default);
+}
+
+.lc-dh__status[data-status='unpublished'] {
+  background: var(--v3-background-warning-light);
+  color: var(--v3-text-warning-dark);
+}
+
+/* --- Deleted by ------------------------------------------------------------- */
+
+.lc-dh__actor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lc-dh__actor .lc-avatar {
+  --lc-avatar-light-bg: var(--v3-background-primary-light);
+  --lc-avatar-fg-accent: var(--v3-text-primary-default);
+}
+
+.lc-dh__actor .lc-avatar__icon {
+  width: 16px;
+  height: 16px;
+}
+
+.lc-dh__actor-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.lc-dh__actor-text .lc-dh__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Deleted on ------------------------------------------------------------- */
+
+.lc-dh__date {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* --- Download ---------------------------------------------------------------- */
+
+.lc-dh__download {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--v3-radius-2xs);
+  background: transparent;
+  color: var(--v3-icon-default);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, transform 140ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lc-dh__download svg {
+  width: 20px;
+  height: 20px;
+}
+
+.lc-dh__download:focus-visible {
+  outline: 2px solid var(--v3-green-primary-600);
+  outline-offset: 1px;
+}
+
+.lc-dh__download:not([aria-disabled='true']):active {
+  transform: scale(0.95);
+}
+
+/* Touch screens fire :hover on tap and leave it stuck, so hover styles are for real pointers only. */
+@media (hover: hover) and (pointer: fine) {
+  .lc-dh__download:not([aria-disabled='true']):hover {
+    background: var(--v3-grey-300);
+    color: var(--v3-text-title);
+  }
+}
+
+/* No snapshot to download: dimmed, never red. The tooltip carries the reason. */
+.lc-dh__download[aria-disabled='true'] {
+  color: var(--v3-icon-muted);
+  cursor: default;
+}
+
+/* The reason wraps at the width the tooltip is drawn at (254px with its padding). The tooltip
+   is portalled to <body>, so this is not nested under .lc-dh. */
+.lc-dh__reason {
+  display: block;
+  max-width: 238px;
+}
+
+/* --- Loading ----------------------------------------------------------------- */
+
+/* The leading placeholder stands in for the square type icon, not a round avatar. */
+.lc-dh .lc-dt__skeleton-circle {
+  border-radius: var(--v3-radius-xs);
+}
+
+/* --- Empty states ------------------------------------------------------------ */
+
+.lc-dh__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex: 1 1 auto;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.lc-dh__empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 84px;
+  height: 84px;
+  border-radius: var(--v3-radius-2xs);
+  background: var(--v3-background-gray-light);
+  color: var(--v3-text-gray-dark);
+}
+
+.lc-dh__empty-icon svg {
+  width: 48px;
+  height: 48px;
+}
+
+.lc-dh__empty-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Title/H3 */
+.lc-dh__empty-title {
+  margin: 0;
+  font-size: var(--v3-h3-size);
+  line-height: var(--v3-h3-line);
+  font-weight: var(--v3-h3-weight);
+  color: var(--v3-text-title);
+}
+
+/* Text/sm */
+.lc-dh__empty-body {
+  width: 440px;
+  max-width: 100%;
+  margin: 0;
+  font-size: var(--v3-text-sm-size);
+  line-height: var(--v3-text-sm-line);
+  color: var(--v3-text-dimmed);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-dh__download,
+  .lc-dh__pill-remove {
+    transition: none;
+  }
+
+  .lc-dh__download:active {
+    transform: none;
+  }
+}

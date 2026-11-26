@@ -90,6 +90,24 @@
   --v3-padding-xs: 8px; /* padding/xs */
   --v3-padding-sm: 12px; /* padding/sm */
   --v3-spacing-xs: 8px; /* spacing/xs */
+
+  /* Read from the Deletion History frames (5535:17036, 5535:16847) and their component sheet
+     (5531:16185) with get_variable_defs. */
+  --v3-text-title: #3c492c; /* text/title */
+  --v3-text-default: #3c492c; /* text/default */
+  --v3-text-gray-dark: #262626; /* text/gray/dark */
+  --v3-text-warning-dark: #8b5f0e; /* text/warning/dark */
+  --v3-text-primary-default: #6bac1b; /* text/primary/default */
+  --v3-text-placeholder: #8c8c8c; /* text/placeholder */
+  --v3-background-gray-light: #f3f4f3; /* background/gray/light */
+  --v3-background-warning-light: #fcf2e7; /* background/warning/light */
+  --v3-border-default: #d9d9d9; /* border/default */
+  --v3-icon-default: #8c8c8c; /* icon/default */
+  --v3-icon-muted: #bfbfbf; /* icon/muted */
+  --v3-gray-40: #d9d9d9; /* gray/40 */
+  --v3-gray-70: #595959; /* gray/70 */
+  --v3-green-0: #fafdf6; /* ~green/green-0 */
+  --v3-radius-md: 16px; /* radius/md */
   /* Elevation/1dp */
   --v3-elevation-1dp:
     0 1px 3px 0 rgba(3, 3, 3, 0.2),
@@ -151,6 +169,26 @@
   --v3-text-semibold-xs-size: 12px;
   --v3-text-semibold-xs-line: 16px;
   --v3-text-semibold-xs-weight: 600;
+
+  /* Title/H3 — Bold 18/26. Read from the Deletion History empty states (5535:16658). */
+  --v3-h3-size: 18px;
+  --v3-h3-line: 26px;
+  --v3-h3-weight: 700;
+
+  /* Heading/h5 — Bold 14/18. A table row's name. */
+  --v3-heading-h5-size: 14px;
+  --v3-heading-h5-line: 18px;
+  --v3-heading-h5-weight: 700;
+
+  /* Text/sm — Regular 14/20, and Text SemiBold/sm — SemiBold 14/20. */
+  --v3-text-sm-size: 14px;
+  --v3-text-sm-line: 20px;
+  --v3-text-semibold-sm-weight: 600;
+
+  /* Text/xs — Regular 12/16. */
+  --v3-text-xs-size: 12px;
+  --v3-text-xs-line: 16px;
+  --v3-text-xs-weight: 400;
 
   /* Letter_spacing/0 px — the system sets tracking to zero on every text style, as a bound
      variable rather than by omission. Do not add tracking to V3 type. */

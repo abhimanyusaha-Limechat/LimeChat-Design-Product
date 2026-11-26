@@ -6,6 +6,7 @@ import type { SidebarProduct } from '../Sidebar/presets';
 import { SettingsScreen } from './SettingsScreen';
 import { SETTINGS_COPY, SETTINGS_TABS_BY_PRODUCT } from './settingsTabs';
 import { DEMO_INBOXES, INTEGRATION_CATEGORIES, INTEGRATION_FORMS } from '../../data/settingsDemo';
+import { statesOf } from '../../hooks/screenStates';
 
 // Stands in for App: the URL-owned tab and Product come from outside the Screen.
 function Harness({
@@ -24,6 +25,9 @@ function Harness({
   const [team, setTeam] = useState('');
   const [rule, setRule] = useState('');
   const [changePlan, setChangePlan] = useState(false);
+  // As the URL does it: each tab opens in its first state.
+  const screenStates = statesOf(product, 'settings', tab);
+  const [screenState, setScreenState] = useState('');
   return (
     <SettingsScreen
       product={product}
@@ -35,6 +39,8 @@ function Harness({
       team={team}
       rule={rule}
       changePlan={changePlan}
+      screenStates={screenStates}
+      screenState={screenStates.some((state) => state.id === screenState) ? screenState : (screenStates[0]?.id ?? '')}
       onTabChange={(id) => {
         setTab(id);
         setIntegration('');
@@ -43,6 +49,7 @@ function Harness({
         setTeam('');
         setRule('');
         setChangePlan(false);
+        setScreenState('');
       }}
       onManageIndustriesChange={onManageIndustriesChange}
       onIntegrationChange={setIntegration}
@@ -51,6 +58,7 @@ function Harness({
       onTeamChange={setTeam}
       onRuleChange={setRule}
       onChangePlanChange={setChangePlan}
+      onScreenStateChange={setScreenState}
     />
   );
 }
@@ -127,6 +135,106 @@ describe('SettingsScreen tabs', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Automation rules');
     expect(screen.getByText('Auto-assign by inbox')).toBeInTheDocument();
     expect(screen.queryByText('Customer Support')).not.toBeInTheDocument();
+  });
+});
+
+describe('Delete history tab', () => {
+  it("sits right below Bot settings in Automation's tab list", () => {
+    render(<Harness product="automation" initialTab="bot-settings" />);
+    const tabs = within(screen.getByRole('navigation', { name: 'Settings' }))
+      .getAllByRole('button')
+      .map((tab) => tab.textContent);
+    expect(tabs.slice(tabs.indexOf('Bot settings'), tabs.indexOf('Bot settings') + 2)).toEqual(['Bot settings', 'Delete history']);
+  });
+
+  it('opens from the tab list with the deletions and Docs, but no tutorial video', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="automation" initialTab="bot-settings" />);
+
+    await user.click(sideTab('Delete history'));
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Delete history');
+    expect(screen.getByRole('table', { name: 'Delete history' })).toBeInTheDocument();
+    expect(screen.getByText('Track order status')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Docs' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Video' })).not.toBeInTheDocument();
+  });
+
+  it('is only in Automation', () => {
+    expect(SETTINGS_TABS_BY_PRODUCT.helpdesk.some((tab) => tab.id === 'delete-history')).toBe(false);
+    expect(SETTINGS_TABS_BY_PRODUCT.marketing.some((tab) => tab.id === 'delete-history')).toBe(false);
+  });
+});
+
+describe('State switcher', () => {
+  const switcher = () => screen.queryByRole('combobox', { name: 'State of this screen' });
+
+  it('switches Delete history to its zero state and back', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="automation" initialTab="delete-history" />);
+    expect(screen.getByText('Track order status')).toBeInTheDocument();
+    expect(within(switcher()!).getAllByRole('option').map((option) => option.textContent)).toEqual([
+      'With data',
+      'Zero state',
+      'No search results',
+      'No filter results',
+    ]);
+    expect(switcher()).toHaveDisplayValue('With data');
+
+    await user.selectOptions(switcher()!, 'Zero state');
+    expect(switcher()).toHaveDisplayValue('Zero state');
+    expect(screen.getByRole('heading', { name: 'Nothing deleted yet' })).toBeInTheDocument();
+    expect(screen.queryByText('Track order status')).not.toBeInTheDocument();
+    // The filters stay, as drawn; with nobody to list, Deleted by says so.
+    await user.click(screen.getByRole('button', { name: 'Deleted by' }));
+    expect(within(screen.getByRole('menu', { name: 'Filter by who deleted' })).getByText('No deletions yet')).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+
+    await user.selectOptions(switcher()!, 'With data');
+    expect(screen.getByText('Track order status')).toBeInTheDocument();
+  });
+
+  it('opens Delete history on a search that finds nothing, typed into the search box', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="automation" initialTab="delete-history" />);
+
+    await user.selectOptions(switcher()!, 'No search results');
+    expect(screen.getByRole('searchbox', { name: 'Search by name' })).toHaveValue('pricing');
+    expect(screen.getByRole('heading', { name: 'No deletions match these filters' })).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'Active filters' })).not.toBeInTheDocument();
+  });
+
+  it('opens Delete history on filters that leave nothing, shown as applied, and drops them with the state', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="automation" initialTab="delete-history" />);
+
+    await user.selectOptions(switcher()!, 'No filter results');
+    expect(screen.getByRole('heading', { name: 'No deletions match these filters' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Type: 1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Deleted by: 1' })).toBeInTheDocument();
+    const pills = within(screen.getByRole('group', { name: 'Active filters' }));
+    expect(pills.getByText('Type: KBM URL')).toBeInTheDocument();
+    expect(pills.getByText('Deleted by: Atharv')).toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: 'Search by name' })).toHaveValue('');
+
+    // Another state opens the page afresh: the filters do not follow it there.
+    await user.selectOptions(switcher()!, 'With data');
+    expect(screen.getByText('Track order status')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Type: All' })).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'Active filters' })).not.toBeInTheDocument();
+  });
+
+  it('floats beside the tab list without being one of the tabs', () => {
+    render(<Harness product="automation" initialTab="delete-history" />);
+    const nav = screen.getByRole('navigation', { name: 'Settings' });
+    expect(switcher()).toBeInTheDocument();
+    expect(nav).not.toContainElement(switcher());
+  });
+
+  it('shows only on tabs that have more than one state', async () => {
+    const user = userEvent.setup();
+    render(<Harness product="automation" initialTab="delete-history" />);
+    await user.click(sideTab('Bot settings'));
+    expect(switcher()).not.toBeInTheDocument();
   });
 });
 

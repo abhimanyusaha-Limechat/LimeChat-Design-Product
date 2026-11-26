@@ -83,6 +83,11 @@
   opacity: 0.5;
   cursor: default;
 }
+/* Keyboard focus. The ring sits inside the row, where the menu's own edge can't clip it. */
+.lc-menu__item:focus-visible {
+  outline: 2px solid var(--v3-green-primary-600);
+  outline-offset: -2px;
+}
 
 .lc-menu__item--danger {
   color: var(--v3-warning-red-medium);
@@ -121,4 +126,52 @@
 .lc-menu__item-icon--trailing {
   color: var(--v3-green-primary-600);
   opacity: 1;
+}
+
+/* --- Checkbox rows (`checked`) -----------------------------------------------
+   V3 Checkbox, size sm: a 20px box with radius/2xs corners. Unchecked is a white box in
+   border/default; checked fills with background/primary/filled under a white 16px tick;
+   `mixed` fills the same way under a dash. */
+.lc-menu__check {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--v3-border-default);
+  border-radius: var(--v3-radius-2xs);
+  background: var(--v3-white);
+  color: var(--v3-white);
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+.lc-menu__check[data-checked='true'],
+.lc-menu__check[data-checked='mixed'] {
+  border-color: var(--v3-background-primary-filled);
+  background: var(--v3-background-primary-filled);
+}
+.lc-menu__check svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+.lc-menu__check[data-checked='mixed']::before {
+  content: '';
+  width: 10px;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+.lc-menu__divider {
+  flex-shrink: 0;
+  height: 1px;
+  background: var(--v3-border-default);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-menu__check {
+    transition: none;
+  }
 }

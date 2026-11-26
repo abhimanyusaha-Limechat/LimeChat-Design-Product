@@ -20,12 +20,42 @@
  *
  * `ActionMenu` bundles the common case: a dots-vertical trigger with a
  * "More actions" tooltip.
+ *
+ * Keyboard: opening it from the keyboard moves focus into it (the menu sits at
+ * the end of <body>, so Tab alone would not reach it). Arrow keys move
+ * through the items, Home and End jump to the ends, Enter or Space picks, Escape
+ * closes, and Tab closes and carries on from the trigger. Mouse use is untouched.
  */
-import { useEffect, useRef, useState, type ReactNode, type Ref } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode, type Ref } from 'react';
 import { createPortal } from 'react-dom';
+import { CheckIcon } from '../icons';
 import { Tooltip } from '../Tooltip';
 import { usePopoverPosition } from '../../hooks/usePopoverPosition';
 import './Menu.css';
+
+/** The rows a key can land on. */
+const MENU_ITEMS = '[role^="menuitem"]:not(:disabled)';
+/** Where the arrow keys stop, in order: a header field such as a search box, then every row. */
+const KEYBOARD_STOPS = `input:not(:disabled), ${MENU_ITEMS}`;
+
+/** Whether the element shows a keyboard focus ring, i.e. the user reached it with the keyboard. */
+function hasFocusRing(el: Element): boolean {
+  try {
+    return el.matches(':focus-visible');
+  } catch {
+    return false; // an engine that doesn't know :focus-visible
+  }
+}
+
+/**
+ * Whether a click came from the keyboard: Enter or Space on a button fires a click with no
+ * pointer behind it (`detail` 0), a real click counts at least one. Undefined when the trigger
+ * didn't pass its event along, so there is nothing to tell by.
+ */
+function clickedFromKeyboard(event: unknown): boolean | undefined {
+  if (typeof event !== 'object' || event === null || !('detail' in event)) return undefined;
+  return event.detail === 0;
+}
 
 export interface MenuItemData {
   key?: string;
@@ -38,6 +68,14 @@ export interface MenuItemData {
   disabled?: boolean;
   /** Highlights the row with a light primary background, for the currently active option in a single-select list. */
   selected?: boolean;
+  /**
+   * Makes the row a checkbox, for a multi-select list: a tick box leads the row and it is
+   * announced as checked or not. `'mixed'` is for a "select all" row with only some of its
+   * options checked. Pair it with `closeOnItemClick={false}`.
+   */
+  checked?: boolean | 'mixed';
+  /** Draws a rule under the row, e.g. to set an "All" option apart from the list it controls. */
+  dividerAfter?: boolean;
 }
 
 export interface MenuTriggerRenderProps {
@@ -79,12 +117,38 @@ export function Menu({
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  // How the trigger was last pressed; see `clickedFromKeyboard`.
+  const pressedFromKeyboard = useRef<boolean | undefined>(undefined);
+  // Triggers hand this straight to `onClick`, so the click event arrives as its argument.
+  const toggle = (event?: unknown) => {
+    pressedFromKeyboard.current = clickedFromKeyboard(event);
+    setOpen((o) => !o);
+  };
 
   // Rows/cards often animate with a `transform`, which establishes a stacking
   // context even at rest — a menu positioned inside its own row can end up
   // painted behind a later row's stacking context despite z-index. Portalling
   // to <body> (like Tooltip already does) sidesteps that entirely.
   const coords = usePopoverPosition(open, triggerRef, menuRef, width, align);
+  const positioned = coords !== null;
+
+  // Opened from the keyboard: focus moves into the menu, to a header field if there is one,
+  // else the row already chosen in a single-choice list, else the first row. A mouse click
+  // leaves focus where it is, and so does a header field that focused itself. Where the
+  // trigger didn't pass its click along, its focus ring says whether the keyboard got the user
+  // there. It waits for the first position because the menu is hidden, and so unfocusable,
+  // until then.
+  useLayoutEffect(() => {
+    const menu = menuRef.current;
+    const trigger = triggerRef.current;
+    if (!open || !positioned || !menu || !trigger || document.activeElement !== trigger) return;
+    if (!(pressedFromKeyboard.current ?? hasFocusRing(trigger))) return;
+    const start =
+      menu.querySelector<HTMLElement>('input:not(:disabled)') ??
+      menu.querySelector<HTMLElement>(`.lc-menu__item--selected${MENU_ITEMS}`) ??
+      menu.querySelector<HTMLElement>(MENU_ITEMS);
+    start?.focus();
+  }, [open, positioned]);
 
   useEffect(() => {
     if (!open) return;
@@ -93,7 +157,39 @@ export function Menu({
       if (!triggerRef.current?.contains(target) && !menuRef.current?.contains(target)) setOpen(false);
     };
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      const menu = menuRef.current;
+      const trigger = triggerRef.current;
+      const active = document.activeElement;
+      const inMenu = !!menu && menu.contains(active);
+      if (e.key === 'Escape') {
+        setOpen(false);
+        // Focus was inside the menu, which is about to go: hand it back rather than lose it.
+        if (inMenu) trigger?.focus();
+        return;
+      }
+      // The rest are the menu's keys only while focus is in it or on its trigger.
+      if (!menu || !(inMenu || active === trigger)) return;
+      const onItem = inMenu && !!active?.matches(MENU_ITEMS);
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        const stops = Array.from(menu.querySelectorAll<HTMLElement>(KEYBOARD_STOPS));
+        if (stops.length === 0) return;
+        e.preventDefault(); // keep the page, the list and a header field's caret still
+        const at = stops.findIndex((stop) => stop === active);
+        const next = e.key === 'ArrowDown' ? (at + 1) % stops.length : at <= 0 ? stops.length - 1 : at - 1;
+        stops[next].focus();
+      } else if ((e.key === 'Home' || e.key === 'End') && onItem) {
+        // In a header field these move the caret, so only the rows take them.
+        const rows = menu.querySelectorAll<HTMLElement>(MENU_ITEMS);
+        e.preventDefault();
+        rows[e.key === 'Home' ? 0 : rows.length - 1]?.focus();
+      } else if (e.key === 'Tab') {
+        // Tab leaves the menu: close it and let the key carry on from the trigger. A header
+        // field is the exception going forwards, where Tab steps into the rows as usual.
+        const leaving = onItem || (e.shiftKey && inMenu);
+        if (!leaving) return;
+        setOpen(false);
+        trigger?.focus();
+      }
     };
     document.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
@@ -105,7 +201,7 @@ export function Menu({
 
   return (
     <>
-      {trigger({ ref: triggerRef, onClick: () => setOpen((o) => !o), open })}
+      {trigger({ ref: triggerRef, onClick: toggle, open })}
       {open &&
         typeof document !== 'undefined' &&
         createPortal(
@@ -120,23 +216,36 @@ export function Menu({
             <div className="lc-menu__items lc-scrollbar-thin">
               {items.length === 0 && emptyState}
               {items.map((item, i) => (
-                <button
-                  key={item.key ?? i}
-                  type="button"
-                  role="menuitem"
-                  className={`lc-menu__item${item.danger ? ' lc-menu__item--danger' : ''}${item.selected ? ' lc-menu__item--selected' : ''}`}
-                  disabled={item.disabled}
-                  onClick={() => {
-                    if (closeOnItemClick) setOpen(false);
-                    item.onClick?.();
-                  }}
-                >
-                  {item.icon && <span className="lc-menu__item-icon">{item.icon}</span>}
-                  <span className="lc-menu__item-label">{item.label}</span>
-                  {item.trailingIcon && (
-                    <span className="lc-menu__item-icon lc-menu__item-icon--trailing">{item.trailingIcon}</span>
-                  )}
-                </button>
+                <Fragment key={item.key ?? i}>
+                  <button
+                    type="button"
+                    role={item.checked === undefined ? 'menuitem' : 'menuitemcheckbox'}
+                    aria-checked={item.checked}
+                    className={`lc-menu__item${item.danger ? ' lc-menu__item--danger' : ''}${item.selected ? ' lc-menu__item--selected' : ''}`}
+                    disabled={item.disabled}
+                    onClick={(e) => {
+                      if (closeOnItemClick) {
+                        setOpen(false);
+                        // Picked from the keyboard (a click with no pointer behind it): focus goes
+                        // back to the trigger instead of vanishing with the menu.
+                        if (e.detail === 0) triggerRef.current?.focus();
+                      }
+                      item.onClick?.();
+                    }}
+                  >
+                    {item.checked !== undefined && (
+                      <span className="lc-menu__check" data-checked={item.checked} aria-hidden="true">
+                        {item.checked === true && <CheckIcon />}
+                      </span>
+                    )}
+                    {item.icon && <span className="lc-menu__item-icon">{item.icon}</span>}
+                    <span className="lc-menu__item-label">{item.label}</span>
+                    {item.trailingIcon && (
+                      <span className="lc-menu__item-icon lc-menu__item-icon--trailing">{item.trailingIcon}</span>
+                    )}
+                  </button>
+                  {item.dividerAfter && <div role="separator" className="lc-menu__divider" />}
+                </Fragment>
               ))}
             </div>
           </div>,

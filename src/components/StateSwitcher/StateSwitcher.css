@@ -1,0 +1,79 @@
+/**
+ * StateSwitcher: a reviewer tool. The dark pill, its hairline and its shadow are Inspect mode's
+ * bar (see Inspector.css), so the two tools read as one family and neither as product UI. The
+ * dropdown inside is NativeSelect, recoloured through its own custom properties.
+ */
+.lc-state-switcher {
+  --lc-state-switcher-surface: #0f1419; /* Inspect mode's --lc-inspector-surface */
+  --lc-state-switcher-dim: rgb(255 255 255 / 65%);
+
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
+  border-radius: 999px;
+  background: var(--lc-state-switcher-surface);
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 22%),
+    inset 0 0 0 1px rgb(255 255 255 / 8%);
+  transition: background-color 120ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lc-state-switcher:hover {
+    background: color-mix(in srgb, var(--v3-white) 8%, var(--lc-state-switcher-surface));
+  }
+}
+
+/* Sits over the select's left padding and lets clicks through, so the whole pill opens the list. */
+.lc-state-switcher__icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  color: var(--lc-state-switcher-dim);
+  pointer-events: none;
+}
+
+.lc-state-switcher .lc-state-switcher__select.lc-select {
+  --lc-select-bg: transparent;
+  --lc-select-border: transparent;
+  --lc-select-value: var(--v3-white);
+  --lc-select-icon: var(--lc-state-switcher-dim);
+  --lc-select-radius: 999px;
+  --h: 36px;
+
+  width: auto;
+  min-width: 0;
+}
+
+.lc-state-switcher .lc-select__input {
+  /* Clears the eye: 12px inset, 16px icon, 8px gap. */
+  padding-left: 36px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  /* The list a browser draws for a select follows its colour scheme. */
+  color-scheme: dark;
+}
+
+/* Browsers that style the list themselves take these; the rest use the system menu. */
+.lc-state-switcher option {
+  background: var(--lc-state-switcher-surface);
+  color: var(--v3-white);
+}
+
+/* One ring around the whole pill, in place of the select's own. */
+.lc-state-switcher .lc-select__input:focus-visible {
+  border-color: transparent;
+  box-shadow: none;
+  outline: 2px solid var(--v3-green-primary-200);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-state-switcher {
+    transition: none;
+  }
+}

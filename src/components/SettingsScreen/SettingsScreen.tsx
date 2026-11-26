@@ -40,6 +40,8 @@ import {
   type CsatTimeDelay,
 } from '../BotCsatSettings';
 import { BotSettings, DEFAULT_BOT_SETTINGS, type BotSettingsValues } from '../BotSettings';
+import { DeleteHistory } from '../DeleteHistory';
+import { StateSwitcher } from '../StateSwitcher';
 import { TicketAssignmentSettings, type AssignmentStrategy } from '../TicketAssignmentSettings';
 import { IntegrationsHomePage } from '../IntegrationsHomePage';
 import { IntegrationSettings } from '../IntegrationSettings';
@@ -87,9 +89,11 @@ import {
   withFieldMeta,
 } from '../../data/settingsDemo';
 import { CATALOG_STORE, DEMO_CATALOG } from '../../data/catalogDemo';
+import { DEMO_DELETED_ITEMS, DEMO_DELETE_HISTORY_FILTERS } from '../../data/deleteHistoryDemo';
 import { DEFAULT_MAX_EXECUTIONS, ruleFor, type AutomationRule } from '../../data/ruleDemo';
 import { slaPolicyFor, type SlaPolicy } from '../../data/slaPolicyDemo';
 import { DEMO_TEMPLATES } from '../../data/templatesDemo';
+import { ZERO_STATE, type ScreenState } from '../../hooks/screenStates';
 import {
   HELPDESK_ADD_CTA,
   INDUSTRY_TABS,
@@ -119,6 +123,10 @@ export interface SettingsScreenProps {
   rule: string;
   /** HelpDesk Billing's "Change plan" sub-view. */
   changePlan: boolean;
+  /** The states this tab can be switched between, for the reviewer's state switcher; empty when it has only one way of showing. */
+  screenStates: readonly ScreenState[];
+  /** The id of the state the tab is shown in. */
+  screenState: string;
   onTabChange: (id: string) => void;
   onManageIndustriesChange: (next: boolean) => void;
   onIntegrationChange: (partnerId: string) => void;
@@ -127,6 +135,7 @@ export interface SettingsScreenProps {
   onTeamChange: (teamId: string) => void;
   onRuleChange: (ruleId: string) => void;
   onChangePlanChange: (open: boolean) => void;
+  onScreenStateChange: (id: string) => void;
 }
 
 /** What every edit page lets you type in the header. */
@@ -316,6 +325,8 @@ export function SettingsScreen({
   team: teamId,
   rule: ruleId,
   changePlan,
+  screenStates,
+  screenState,
   onTabChange,
   onManageIndustriesChange,
   onIntegrationChange,
@@ -324,6 +335,7 @@ export function SettingsScreen({
   onTeamChange,
   onRuleChange,
   onChangePlanChange,
+  onScreenStateChange,
 }: SettingsScreenProps) {
   const copy = SETTINGS_COPY[settingsTab];
   // The search box is shared by every tab's table but belongs to one tab: reading it under a
@@ -474,9 +486,9 @@ export function SettingsScreen({
       setSavingSlaOrder(false);
     }, 700);
   };
-  // Demo: a table's data "loads" again when the tab, list tab or sub-page changes.
+  // Demo: a table's data "loads" again when the tab, list tab, sub-page or state changes.
   const tableLoading = useDemoLoading(
-    [settingsTab, listTab, manageIndustries, industryTab, variableScope, integrationId].join(':'),
+    [settingsTab, listTab, manageIndustries, industryTab, variableScope, integrationId, screenState].join(':'),
   );
   const [tagsInInternalTickets, setTagsInInternalTickets] = useState(false);
   // Tags: one tree per tab (Customer / Contact). Moves apply immediately.
@@ -773,6 +785,12 @@ export function SettingsScreen({
       tabs={SETTINGS_TABS_BY_PRODUCT[product]}
       activeTab={settingsTab}
       onTabChange={onTabChange}
+      // A reviewer tool: on a tab with more than one state, it switches between them.
+      tabListFooter={
+        screenStates.length > 1 ? (
+          <StateSwitcher states={screenStates} value={screenState} onChange={onScreenStateChange} />
+        ) : undefined
+      }
       title={
         creatingWidget
           ? 'Create a widget'
@@ -829,12 +847,25 @@ export function SettingsScreen({
               ? `You are on ${CURRENT_PLAN_TIER.name} at $${CURRENT_PLAN_TIER.pricePerMonth}/month. Prices are in USD. Recurring and usage-based charges bill every 30 days.`
               : copy.description
       }
-      contentPadding={changePlan ? '48px 72px 72px' : settingsTab === 'bot-settings' ? 0 : settingsTab === 'custom-fields' ? 20 : undefined}
+      contentPadding={
+        changePlan
+          ? '48px 72px 72px'
+          : settingsTab === 'bot-settings' || settingsTab === 'delete-history'
+            ? 0
+            : settingsTab === 'custom-fields'
+              ? 20
+              : undefined
+      }
       detailPanel={detailPanel}
       // The inbox edit page has no tutorial or docs page of its own.
       onTitleChange={patchTitled && ((name) => patchTitled({ name }))}
       onDescriptionChange={patchTitled && ((description) => patchTitled({ description }))}
-      onWatchVideo={creatingWidget || editedInbox || editedAgent || editedTeam || editedListRow ? undefined : () => alert(`Play tutorial video: ${copy.title}`)}
+      // Delete history is designed with Docs alone: it has no tutorial video.
+      onWatchVideo={
+        creatingWidget || editedInbox || editedAgent || editedTeam || editedListRow || settingsTab === 'delete-history'
+          ? undefined
+          : () => alert(`Play tutorial video: ${copy.title}`)
+      }
       onViewDocs={creatingWidget || editedInbox || editedAgent || editedTeam || editedListRow ? undefined : () => alert(`Open docs: ${copy.title}`)}
       headerActions={
         creatingWidget ? undefined : editedInbox || editedAgent || editedTeam || editedListRow ? (
@@ -1189,6 +1220,15 @@ export function SettingsScreen({
         />
       ) : settingsTab === 'bot-settings' ? (
         <BotSettings values={botSettings} onChange={setBotSettings} />
+      ) : settingsTab === 'delete-history' ? (
+        <DeleteHistory
+          // Each state opens the page afresh, on the search or filters that produce it.
+          key={screenState}
+          loading={tableLoading}
+          items={screenState === ZERO_STATE.id ? [] : DEMO_DELETED_ITEMS}
+          initialFilters={DEMO_DELETE_HISTORY_FILTERS[screenState]}
+          onDownload={(item) => alert(`Download snapshot: ${item.name}`)}
+        />
       ) : settingsTab === 'bot-csat' ? (
         <BotCsatSettings
           enabled={csatEnabled}

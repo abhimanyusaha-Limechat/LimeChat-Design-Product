@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { sidebarPresets, type SidebarProduct } from '../components/Sidebar/presets';
 import { flowKindOf, parseHash, toHash, toScreen, withoutUnknownParams, type FlowKind, type Screen, type UserSettingsTab } from './navigationHash';
+import { statesOf } from './screenStates';
 
 export type { FlowKind };
 
@@ -58,7 +59,7 @@ export function pageOf({ product, selected, view, userSettings }: Screen): Page 
  */
 export function useAppNavigation() {
   const [screen, setScreen] = useState(() => parseHash(window.location.hash));
-  const { product, selected, tab, manageIndustries, integration, inbox, agent, team, rule, changePlan, ticket, flow, userSettings } = screen;
+  const { product, selected, tab, manageIndustries, integration, inbox, agent, team, rule, changePlan, state, ticket, flow, userSettings } = screen;
   const flowKind = flowKindOf(product, selected);
   const page = pageOf(screen);
 
@@ -104,6 +105,10 @@ export function useAppNavigation() {
     rule,
     /** HelpDesk Billing's "Change plan" sub-view is open. */
     changePlan,
+    /** The states this Screen can be switched between, default first; empty when it has only one way of showing. */
+    screenStates: statesOf(product, selected, tab),
+    /** The id of the state the Screen is shown in; '' when it has none. */
+    screenState: state,
     ticketId: ticket,
     /** Which Broadcast, Flow or Bot flow list/editor this item opens, if any. */
     flowKind,
@@ -118,8 +123,8 @@ export function useAppNavigation() {
     leaveCanvas: () => update({ view: 'list' }),
     openUserSettings: (tab: UserSettingsTab) => update({ userSettings: tab }),
     setUserSettingsTab: (tab: UserSettingsTab) => update({ userSettings: tab }),
-    /** Picking a tab, even the current one, also closes Manage industries, any partner form, inbox edit and Change plan. */
-    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '', inbox: '', agent: '', team: '', rule: '', changePlan: false }),
+    /** Picking a tab, even the current one, also closes Manage industries, any partner form, inbox edit and Change plan, and goes back to the tab's first state. */
+    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '', inbox: '', agent: '', team: '', rule: '', changePlan: false, state: '' }),
     setManageIndustries: (open: boolean) => update({ manageIndustries: open }),
     /** Opens a partner's form on the Integration tab; '' goes back to the tile grid. */
     setIntegration: (id: string) => update({ integration: id }),
@@ -132,6 +137,8 @@ export function useAppNavigation() {
     /** Opens a rule's or SLA policy's edit page; '' goes back to the list. */
     setRule: (id: string) => update({ rule: id }),
     setChangePlan: (open: boolean) => update({ changePlan: open }),
+    /** Shows the Screen in another of its states, by id. An id the Screen doesn't have falls back to its first. */
+    setScreenState: (id: string) => update({ state: id }),
     openTicket: (id: string) => update({ ticket: id }),
   };
 }

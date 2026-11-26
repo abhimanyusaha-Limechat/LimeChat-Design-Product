@@ -158,6 +158,7 @@ describe('useAppNavigation', () => {
       ['#/automation/settings?tab=bot-templates&industries=1', { page: 'settings', manageIndustries: true }],
       ['#/helpdesk/settings?tab=hd-integration&integration=freshdesk', { page: 'settings', integration: 'freshdesk' }],
       ['#/helpdesk/settings?tab=billing&plans=1', { page: 'settings', tab: 'billing', changePlan: true }],
+      ['#/automation/settings?tab=delete-history&state=zero', { page: 'settings', tab: 'delete-history', screenState: 'zero' }],
       ['#/helpdesk/settings?inbox=36000', { page: 'settings', tab: 'inboxes', inbox: '36000' }],
       ['#/helpdesk/settings?tab=widget&inbox=36000', { page: 'settings', tab: 'widget', inbox: '36000' }],
       ['#/helpdesk/settings?tab=agents&agent=c1', { page: 'settings', tab: 'agents', agent: 'c1' }],
@@ -288,6 +289,44 @@ describe('useAppNavigation', () => {
       expect(result.current.changePlan).toBe(false);
     });
 
+    it('switches a Screen between its states, leaving the first one out of the URL', () => {
+      history.replaceState(null, '', '#/automation/settings?tab=delete-history');
+      const { result } = setup();
+      const before = history.length;
+      expect(result.current.screenStates.map((state) => state.id)).toEqual([
+        'data',
+        'zero',
+        'no-search-results',
+        'no-filter-results',
+      ]);
+      expect(result.current.screenState).toBe('data');
+
+      act(() => result.current.setScreenState('zero'));
+      expect(location.hash).toBe('#/automation/settings?tab=delete-history&state=zero');
+      expect(result.current.screenState).toBe('zero');
+      expect(history.length).toBe(before + 1);
+
+      act(() => result.current.setScreenState('data'));
+      expect(location.hash).toBe('#/automation/settings?tab=delete-history');
+    });
+
+    it("goes back to a tab's first state when the tab is picked, even the same one", () => {
+      history.replaceState(null, '', '#/automation/settings?tab=delete-history&state=zero');
+      const { result } = setup();
+      act(() => result.current.setTab('delete-history'));
+      expect(location.hash).toBe('#/automation/settings?tab=delete-history');
+      expect(result.current.screenState).toBe('data');
+    });
+
+    it('offers no states, and takes none, on a Screen that lists none', () => {
+      history.replaceState(null, '', '#/automation/settings?tab=bot-settings');
+      const { result } = setup();
+      expect(result.current.screenStates).toEqual([]);
+      act(() => result.current.setScreenState('zero'));
+      expect(location.hash).toBe('#/automation/settings?tab=bot-settings');
+      expect(result.current.screenState).toBe('');
+    });
+
     it('composes back-to-back changes made in one handler', () => {
       history.replaceState(null, '', '#/automation/settings?tab=bot-templates&industries=1');
       const { result } = setup();
@@ -340,6 +379,10 @@ describe('useAppNavigation', () => {
       ['#/helpdesk/tickets?user=admin', '#/helpdesk/tickets', { page: 'tickets' }],
       ['#/helpdesk/settings?tab=agents&plans=1', '#/helpdesk/settings?tab=agents', { changePlan: false }],
       ['#/helpdesk/settings?tab=billing&plans=yes', '#/helpdesk/settings?tab=billing', { changePlan: false }],
+      ['#/automation/settings?tab=bot-settings&state=zero', '#/automation/settings?tab=bot-settings', { screenState: '' }],
+      ['#/automation/settings?tab=delete-history&state=nope', '#/automation/settings?tab=delete-history', { screenState: 'data' }],
+      ['#/automation/settings?tab=delete-history&state=data', '#/automation/settings?tab=delete-history', { screenState: 'data' }],
+      ['#/automation/flows?state=zero', '#/automation/flows', { screenState: '' }],
     ])('corrects %s to %s in place', (hash, corrected, expected) => {
       history.replaceState(null, '', hash);
       const before = history.length;
