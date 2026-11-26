@@ -196,7 +196,7 @@ export function AgentEditPage({ agent, setup, onChange, onBack, onPublish, canPu
         open={renaming}
         onClose={() => setRenaming(false)}
         title="Rename agent"
-        description="The name customers never see — it labels this agent across Automation."
+        description="The name customers never see. It labels this agent across Automation."
         footer={
           <>
             <Button variant="default" size="sm" onClick={() => setRenaming(false)}>
