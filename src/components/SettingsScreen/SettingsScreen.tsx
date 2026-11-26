@@ -1219,7 +1219,7 @@ export function SettingsScreen({
           }
         />
       ) : settingsTab === 'bot-settings' ? (
-        <BotSettings values={botSettings} onChange={setBotSettings} />
+        <BotSettings values={botSettings} savedValues={savedBotSettings} onChange={setBotSettings} />
       ) : settingsTab === 'delete-history' ? (
         <DeleteHistory
           // Each state opens the page afresh, on the search or filters that produce it.

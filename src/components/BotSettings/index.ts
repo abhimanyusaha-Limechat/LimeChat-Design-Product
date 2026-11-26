@@ -1,5 +1,7 @@
-export { BotSettings, default, DEFAULT_BOT_SETTINGS } from "./BotSettings";
-export type { BotSettingsProps, BotSettingsValues } from "./BotSettings";
+export { BotSettings, default, DEFAULT_BOT_SETTINGS, SECTION_TABS, unsavedChanges } from "./BotSettings";
+export type { BotSettingsProps, BotSettingsValues, BotSettingsSection } from "./BotSettings";
+export { RichTextField } from "./RichTextField";
+export type { RichTextFieldProps } from "./RichTextField";
 export {
   ProductCardPreview,
   PRODUCT_CARD_LAYOUTS,

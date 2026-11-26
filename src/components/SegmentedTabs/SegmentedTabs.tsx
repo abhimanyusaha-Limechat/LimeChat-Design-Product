@@ -10,6 +10,10 @@ import './SegmentedTabs.css';
 export interface SegmentedTab<Id extends string = string> {
   id: Id;
   label: string;
+  /** Marks the tab with a small amber dot, e.g. for unsaved changes in that section. Decorative: say why elsewhere. */
+  dot?: boolean;
+  /** A count after the label, e.g. how many search results the section holds. */
+  badge?: number;
 }
 
 export interface SegmentedTabsProps<Id extends string> {
@@ -36,6 +40,8 @@ export function SegmentedTabs<Id extends string>({ tabs, value, onChange, ariaLa
           onClick={() => onChange(tab.id)}
         >
           {tab.label}
+          {tab.badge != null && <span className="lc-segtabs__badge">{tab.badge}</span>}
+          {tab.dot && <span className="lc-segtabs__dot" data-testid="segtab-dot" aria-hidden="true" />}
         </button>
       ))}
     </div>

@@ -1,0 +1,322 @@
+/**
+ * Setting rows for Bot settings — the "Row / *" frames in Figma. A row is padded 14px
+ * above and 12px below with an 8px gap inside; child rows sit behind a 2px rule, 20px in.
+ */
+
+.lc-bsr,
+.lc-bsr__master {
+  /* Figma note "Token gap to fix in V3": secondary copy is #5A6650 because no V3 muted
+     text token passes AA on white (text-dimmed is 3.65:1). Swap for the token once it exists. */
+  --lc-bsr-muted: #5a6650;
+  --lc-bsr-error: #da1b21;
+}
+
+.lc-bsr {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 0 12px;
+}
+
+.lc-bsr__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 24px;
+}
+
+/* A switch makes the header a 44px row, the switch's touch target. */
+.lc-bsr__header:has(.lc-bsr__switch-target) {
+  min-height: 44px;
+}
+
+.lc-bsr__label-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lc-bsr__label {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--v3-text-default);
+}
+
+.lc-bsr[data-disabled] .lc-bsr__label,
+.lc-bsr[data-disabled] .lc-bsr__unit {
+  color: var(--v3-grey-500);
+}
+
+/* --- Help icon ---------------------------------------------------------- */
+
+.lc-bsr__help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--v3-icon-default);
+  cursor: help;
+}
+
+.lc-bsr__help:hover {
+  background: var(--v3-grey-200);
+}
+
+.lc-bsr__help:focus-visible {
+  outline: 2px solid var(--v3-green-primary);
+  outline-offset: 1px;
+}
+
+/* --- Switch (V3 Switch, sm) --------------------------------------------- */
+
+.lc-bsr__switch-target {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+}
+
+.lc-bsr__switch {
+  position: relative;
+  width: 42px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--v3-border-default);
+  border-radius: 16px;
+  background: var(--v3-background-gray-light);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.lc-bsr__switch-thumb {
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--v3-white);
+  border-radius: 50%;
+  background: var(--v3-white);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transform: translateY(-50%);
+  transition: transform 150ms ease;
+}
+
+.lc-bsr__switch[aria-checked='true'] {
+  border-color: var(--v3-green-primary);
+  background: var(--v3-green-primary);
+}
+
+.lc-bsr__switch[aria-checked='true'] .lc-bsr__switch-thumb {
+  transform: translate(22px, -50%);
+}
+
+.lc-bsr__switch:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lc-bsr__switch:focus-visible {
+  outline: 2px solid var(--v3-green-primary);
+  outline-offset: 2px;
+}
+
+/* --- Child rows, dividers, copy ----------------------------------------- */
+
+.lc-bsr__children {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-left: 20px;
+  border-left: 2px solid var(--v3-border-default);
+}
+
+.lc-bsr__children[data-active='true'] {
+  border-left-color: var(--v3-border-primary-light);
+}
+
+.lc-bsr__divider {
+  width: 100%;
+  height: 1px;
+  flex-shrink: 0;
+  background: var(--v3-grey-300);
+}
+
+/* A search can hide the rows around a divider; never show two together or one at an edge. */
+.lc-bsr__divider + .lc-bsr__divider,
+.lc-bsr__divider:first-child,
+.lc-bsr__divider:last-child {
+  display: none;
+}
+
+.lc-bsr__note,
+.lc-bsr__helper {
+  margin: 0;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--lc-bsr-muted);
+}
+
+.lc-bsr__helper[data-error] {
+  color: var(--lc-bsr-error);
+}
+
+/* --- Number field ------------------------------------------------------- */
+
+.lc-bsr__number {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-bsr__number-box {
+  display: flex;
+  align-items: stretch;
+  width: 200px;
+  height: var(--lc-input-sm);
+  border: 1px solid var(--v3-border-default);
+  border-radius: 4px;
+  background: var(--v3-white);
+  overflow: hidden;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.lc-bsr__number-box:focus-within {
+  border-color: var(--v3-green-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--v3-green-primary) 20%, transparent);
+}
+
+.lc-bsr__number-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--v3-text-default);
+  outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.lc-bsr__number-input::-webkit-outer-spin-button,
+.lc-bsr__number-input::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.lc-bsr__stepper {
+  display: flex;
+  flex-direction: column;
+  width: 20px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--v3-border-default);
+}
+
+.lc-bsr__stepper button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--v3-icon-default);
+  cursor: pointer;
+}
+
+.lc-bsr__stepper button + button {
+  border-top: 1px solid var(--v3-border-default);
+}
+
+.lc-bsr__stepper button:hover:not(:disabled) {
+  background: var(--v3-grey-200);
+  color: var(--v3-text-default);
+}
+
+.lc-bsr__stepper button:disabled {
+  color: var(--v3-icon-muted);
+  cursor: default;
+}
+
+.lc-bsr__number-box[data-disabled] {
+  background: var(--v3-grey-200);
+}
+
+.lc-bsr__number-box[data-disabled] .lc-bsr__number-input {
+  color: var(--v3-grey-500);
+}
+
+.lc-bsr__unit {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--lc-bsr-muted);
+}
+
+/* --- Master card -------------------------------------------------------- */
+
+.lc-bsr__master {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--v3-border-primary-light);
+  border-radius: 12px;
+  background: var(--v3-background-primary-light);
+}
+
+.lc-bsr__master-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.lc-bsr__master-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lc-bsr__master-title {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--v3-text-default);
+}
+
+.lc-bsr__badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--v3-background-primary-light);
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--v3-text-primary-default);
+}
+
+.lc-bsr__master-desc {
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--v3-text-default);
+}

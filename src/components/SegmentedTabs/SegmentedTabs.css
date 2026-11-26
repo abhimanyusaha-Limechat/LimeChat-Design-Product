@@ -10,6 +10,9 @@
 }
 
 .lc-segtabs__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 6px 16px;
   border: 0;
   border-radius: 4px;
@@ -34,4 +37,26 @@
 .lc-segtabs__tab:focus-visible {
   outline: 2px solid var(--v3-green-primary);
   outline-offset: 2px;
+}
+
+/* Unsaved-changes marker, after the label. */
+.lc-segtabs__dot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--v3-warning-yellow-dark);
+}
+
+/* Count after the label, e.g. search results in that section. */
+.lc-segtabs__badge {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--v3-background-primary-light);
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--v3-primary-dark);
 }
