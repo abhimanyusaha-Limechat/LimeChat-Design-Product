@@ -2,26 +2,19 @@
  * The Prompt/Instruction editor, in the dialog the prompt card opens (Figma "Agentic Bot
  * Builder", nodes 2772:16868 for the dialog and 2772:17164 for the editor inside it).
  *
- * The card itself only reads the prompt; everything that writes one lives here: the text
- * area with its formatting strip, "Generate new prompt" in the header, "Improve" at the
- * foot of the strip, and Close / Save. Edits are the dialog's own until Save, so Close
- * leaves the prompt as it was.
+ * The card itself only reads the prompt; everything that writes one lives here: the V3 rich
+ * text editor, "Generate new prompt" beside the title, "Improve" at the right of its toolbar,
+ * and Close / Save. Edits are the dialog's own until Save, so Close leaves the prompt as it
+ * was.
  *
  * Drawn with the Agent editor's `lc-aep` classes like the rest of this family.
  */
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../Button';
-import { Menu } from '../Menu';
 import { Modal } from '../Modal';
+import { RichTextField } from '../BotSettings';
 import { Icon } from '../icons';
 import './AgentEditPage.css';
-
-const FORMATS = [
-  { label: 'Bold', glyph: 'B', mark: '*' },
-  { label: 'Italic', glyph: 'I', mark: '_' },
-  { label: 'Strikethrough', glyph: 'S', mark: '~' },
-];
-const EMOJIS = ['🙂', '👍', '🙏', '🎉', '❤️', '😊'];
 
 /** How long the demo lets an AI action think. Immediate under tests so they needn't wait. */
 const THINK_MS = import.meta.env.MODE === 'test' ? 0 : 1400;
@@ -45,121 +38,32 @@ const generatedPrompt = (what: string, name: string) =>
 
 const improvedPrompt = (prompt: string, note: string) => `${prompt.trim()}\n\n${note.trim()}`;
 
-/** A textarea with a Bold / Italic / Strikethrough / emoji strip and a character count. */
-function PromptEditor({
-  value,
-  onChange,
-  action,
-}: {
-  value: string;
-  onChange: (next: string) => void;
-  /** Sits at the right of the formatting strip; the Improve button goes here. */
-  action?: ReactNode;
-}) {
-  const area = useRef<HTMLTextAreaElement>(null);
-
-  /** Replaces the selection with `wrap(selected)`, keeping the caret after it. */
-  const edit = (wrap: (selected: string) => string) => {
-    const el = area.current;
-    if (!el) return;
-    const { selectionStart: from, selectionEnd: to } = el;
-    const inserted = wrap(value.slice(from, to));
-    onChange(value.slice(0, from) + inserted + value.slice(to));
-    const caret = from + inserted.length;
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(caret, caret);
-    });
-  };
-
-  return (
-    <div className="lc-aep__editor">
-      <textarea
-        ref={area}
-        aria-label="Description (Prompt)"
-        aria-required="true"
-        aria-invalid={value.trim() === '' || undefined}
-        className="lc-aep__textarea"
-        rows={9}
-        value={value}
-        onChange={(e) => onChange(e.currentTarget.value)}
-      />
-      <div className="lc-aep__toolbar">
-        {FORMATS.map(({ label, glyph, mark }) => (
-          <button
-            key={label}
-            type="button"
-            className={`lc-aep__fmt lc-aep__fmt--${label.toLowerCase()}`}
-            aria-label={label}
-            title={label}
-            onClick={() => edit((s) => `${mark}${s}${mark}`)}
-          >
-            {glyph}
-          </button>
-        ))}
-        <span className="lc-aep__sep" aria-hidden="true" />
-        <Menu
-          ariaLabel="Insert emoji"
-          items={EMOJIS.map((emoji) => ({ label: emoji, onClick: () => edit(() => emoji) }))}
-          trigger={({ ref, onClick }) => (
-            <button ref={ref} type="button" className="lc-aep__fmt" aria-label="Insert emoji" title="Insert emoji" onClick={onClick}>
-              <Icon name="mood-smile" size={16} />
-            </button>
-          )}
-        />
-        <span className="lc-aep__count">{value.length} characters</span>
-        {action}
-      </div>
-    </div>
-  );
-}
-
-/** The note the Improve button asks for, in the small panel it opens over the editor. */
-function ImproveButton({ onImprove, disabled }: { onImprove: (note: string) => void; disabled?: boolean }) {
-  const [open, setOpen] = useState(false);
+/** The note Improve asks for, in the panel it opens over the end of the toolbar. */
+function ImproveNote({ onImprove, onCancel }: { onImprove: (note: string) => void; onCancel: () => void }) {
   const [note, setNote] = useState('');
 
-  const submit = () => {
-    const text = note.trim();
-    if (!text) return;
-    onImprove(text);
-    setNote('');
-    setOpen(false);
-  };
-
   return (
-    <div className="lc-aep__improve">
-      <button
-        type="button"
-        className="lc-aep__ai-btn lc-aep__improve-btn"
-        /* The panel's own button says "Improve" too, so this one says what it opens. */
-        aria-label="Improve with AI"
-        aria-expanded={open}
-        disabled={disabled}
-        onClick={() => setOpen((on) => !on)}
+    <div className="lc-aep__improve-panel">
+      <textarea
+        className="lc-aep__improve-input"
+        aria-label="Tell us what we need to improve"
+        placeholder="Tell us what we need to improve"
+        rows={3}
+        autoFocus
+        value={note}
+        onChange={(e) => setNote(e.currentTarget.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') onCancel();
+        }}
+      />
+      <Button
+        size="xs"
+        aria-label="Improve with this note"
+        disabled={note.trim() === ''}
+        onClick={() => onImprove(note.trim())}
       >
-        <Icon name="wand" size={14} />
-        <span className="lc-aep__ai-label">Improve</span>
-      </button>
-      {open && (
-        <div className="lc-aep__improve-panel">
-          <textarea
-            className="lc-aep__improve-input"
-            aria-label="Tell us what we need to improve"
-            placeholder="Tell us what we need to improve"
-            rows={3}
-            autoFocus
-            value={note}
-            onChange={(e) => setNote(e.currentTarget.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') setOpen(false);
-            }}
-          />
-          <Button size="xs" onClick={submit} disabled={note.trim() === ''}>
-            Improve
-          </Button>
-        </div>
-      )}
+        Improve
+      </Button>
     </div>
   );
 }
@@ -184,6 +88,7 @@ export function PromptModal({
   // The dialog is keyed on each opening, so this starts from the saved prompt every time.
   const [draft, setDraft] = useState(value);
   const [thinking, setThinking] = useState<Thinking | null>(null);
+  const [improving, setImproving] = useState(false);
 
   useEffect(() => {
     if (!thinking) return;
@@ -203,6 +108,16 @@ export function PromptModal({
       // in a grid column that would otherwise grow past a narrow screen.
       style={{ width: 'min(1020px, calc(100vw - 32px))' }}
       className="lc-aep__dialog"
+      headerAction={
+        <Button
+          className="lc-aep__generate"
+          leftSection={<Icon name="wand" size={16} />}
+          disabled={!!thinking}
+          onClick={() => setThinking({ label: `Analyzing the ${what}...`, next: generatedPrompt(what, name) })}
+        >
+          Generate new prompt
+        </Button>
+      }
       footer={
         <>
           <Button variant="subtle" color="red" onClick={onClose}>
@@ -214,31 +129,30 @@ export function PromptModal({
         </>
       }
     >
-      <div className="lc-aep__dialog-top">
-        <Button
-          leftSection={<Icon name="wand" size={16} />}
-          disabled={!!thinking}
-          onClick={() => setThinking({ label: `Analyzing the ${what}...`, next: generatedPrompt(what, name) })}
-        >
-          Generate new prompt
-        </Button>
-      </div>
-
       {thinking ? (
-        <div className="lc-aep__editor lc-aep__thinking" role="status">
+        <div className="lc-aep__thinking" role="status">
           <Icon name="sparkle" size={24} className="lc-aep__thinking-icon" />
           {thinking.label}
         </div>
       ) : (
-        <PromptEditor
-          value={draft}
-          onChange={setDraft}
-          action={
-            <ImproveButton
-              onImprove={(note) => setThinking({ label: 'Improving the prompt...', next: improvedPrompt(draft, note) })}
+        <div className="lc-aep__improve">
+          <RichTextField
+            value={draft}
+            onChange={setDraft}
+            label="Description (Prompt)"
+            placeholder={`Describe what this ${what} does.`}
+            onImprove={() => setImproving((on) => !on)}
+          />
+          {improving && (
+            <ImproveNote
+              onCancel={() => setImproving(false)}
+              onImprove={(note) => {
+                setImproving(false);
+                setThinking({ label: 'Improving the prompt...', next: improvedPrompt(draft, note) });
+              }}
             />
-          }
-        />
+          )}
+        </div>
       )}
     </Modal>
   );

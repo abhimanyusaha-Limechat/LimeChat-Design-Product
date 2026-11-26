@@ -511,7 +511,7 @@
   color: var(--v3-grey-500);
 }
 
-/* --- Prompt editor ---------------------------------------------------------- */
+/* --- Prompt validation ------------------------------------------------------ */
 
 .lc-aep__error {
   margin: 0;
@@ -519,97 +519,6 @@
   color: var(--v3-warning-red-medium);
   font-size: 12px;
   line-height: 16px;
-}
-
-.lc-aep__editor {
-  border: 1px solid var(--v3-grey-400);
-  border-radius: 6px;
-  background: var(--v3-white);
-}
-
-.lc-aep__editor:focus-within {
-  border-color: var(--v3-primary-dark);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--v3-primary-dark) 20%, transparent);
-}
-
-.lc-aep__editor:has([aria-invalid]) {
-  border-color: var(--v3-warning-red-medium);
-}
-
-.lc-aep__textarea {
-  display: block;
-  box-sizing: border-box;
-  width: 100%;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 6px 6px 0 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 14px;
-  line-height: 22px;
-  resize: vertical;
-}
-
-.lc-aep__textarea:focus {
-  outline: none;
-}
-
-.lc-aep__toolbar {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-top: 1px solid var(--v3-grey-300);
-}
-
-.lc-aep__fmt {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: none;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--v3-grey-800);
-  font: inherit;
-  cursor: pointer;
-}
-
-.lc-aep__fmt:hover {
-  background: var(--v3-grey-200);
-}
-
-.lc-aep__fmt:focus-visible {
-  outline: 2px solid var(--v3-primary);
-  outline-offset: 2px;
-}
-
-.lc-aep__fmt--bold {
-  font-weight: 700;
-}
-
-.lc-aep__fmt--italic {
-  font-style: italic;
-}
-
-.lc-aep__fmt--strikethrough {
-  text-decoration: line-through;
-}
-
-.lc-aep__sep {
-  width: 1px;
-  height: 16px;
-  margin: 0 4px;
-  background: var(--v3-grey-400);
-}
-
-.lc-aep__count {
-  margin-left: auto;
-  color: var(--v3-text-light);
-  font-size: 12px;
 }
 
 /* --- Narrow screens --------------------------------------------------------- */
@@ -836,14 +745,26 @@
     0 0 2px rgba(250, 250, 250, 0.14);
 }
 
-/* Figma 2772:16868 — the prompt dialog: Generate above, the editor, Close / Save below. */
-.lc-aep__dialog-top {
-  display: flex;
-  justify-content: flex-end;
+/* Figma 2772:16868 — the dialog: the title and Generate on one line, the editor, Close / Save.
+   Generate is filled with Gradient/AI, so it paints over the Button's flat green. */
+.lc-aep__dialog .lc-btn.lc-aep__generate {
+  border-color: transparent;
+  background-image: var(--v3-gradient-ai);
 }
 
-.lc-aep__dialog .lc-aep__textarea {
-  min-height: 320px;
+.lc-aep__dialog .lc-btn.lc-aep__generate:disabled {
+  background-image: none;
+}
+
+.lc-aep__generate:not(:disabled):hover {
+  filter: brightness(1.06);
+}
+
+/* The editor fills the dialog rather than the short box the Bot settings rows use. */
+.lc-aep__dialog .lc-rte__body {
+  min-height: 340px;
+  max-height: calc(100vh - 340px);
+  overflow-y: auto;
 }
 
 /* The editor's box while an AI action runs (Figma 2798:1714). */
@@ -852,7 +773,10 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 368px;
+  min-height: 404px;
+  border: 1px solid var(--v3-border-default);
+  border-radius: 4px;
+  background: var(--v3-white);
   color: var(--v3-text-dark);
   font-size: 14px;
   line-height: 22px;
@@ -875,21 +799,15 @@
   }
 }
 
-/* Figma 2798:2153 — "Improve" and the note it asks for, over the end of the format strip. */
+/* Figma 2798:2153 — the note Improve asks for, over the end of the editor's toolbar. */
 .lc-aep__improve {
   position: relative;
-  margin-left: 8px;
-}
-
-.lc-aep__improve-btn {
-  height: 24px;
-  padding: 2px 8px;
 }
 
 .lc-aep__improve-panel {
   position: absolute;
-  right: 0;
-  bottom: calc(100% + 8px);
+  right: 12px;
+  bottom: 48px;
   z-index: 1;
   display: flex;
   flex-direction: column;

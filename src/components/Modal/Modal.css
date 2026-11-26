@@ -88,6 +88,9 @@
   justify-content: space-between;
   gap: 16px;
 }
+.lc-modal__header-action {
+  margin-left: auto;
+}
 .lc-modal__heading {
   display: flex;
   flex-direction: column;

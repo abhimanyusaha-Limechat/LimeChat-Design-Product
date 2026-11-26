@@ -122,8 +122,12 @@ describe('Task edit page', () => {
     const dialog = screen.getByRole('dialog', { name: 'Track Order Prompt' });
 
     await user.click(within(dialog).getByRole('button', { name: 'Generate new prompt' }));
-    const written = await within(dialog).findByDisplayValue(/first stop for every conversation this task/);
-    expect(written).toBeInTheDocument();
+    // The editor gives way to the thinking state while the demo writes, then comes back with it.
+    await waitFor(() =>
+      expect(within(dialog).getByRole('textbox', { name: 'Description (Prompt)' })).toHaveTextContent(
+        /first stop for every conversation this task/,
+      ),
+    );
 
     await user.click(within(dialog).getByRole('button', { name: 'Save' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
@@ -137,10 +141,14 @@ describe('Task edit page', () => {
     render(<TasksScreen />);
 
     await user.click(screen.getByRole('button', { name: 'Edit prompt' }));
-    await user.click(screen.getByRole('button', { name: 'Improve with AI' }));
-    await user.type(screen.getByLabelText('Tell us what we need to improve'), 'Never promise a delivery date.');
     await user.click(screen.getByRole('button', { name: 'Improve' }));
+    await user.type(screen.getByLabelText('Tell us what we need to improve'), 'Never promise a delivery date.');
+    await user.click(screen.getByRole('button', { name: 'Improve with this note' }));
 
-    expect(await screen.findByDisplayValue(/Never promise a delivery date\.$/)).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole('textbox', { name: 'Description (Prompt)' })).toHaveTextContent(
+        /Never promise a delivery date\.$/,
+      ),
+    );
   });
 });

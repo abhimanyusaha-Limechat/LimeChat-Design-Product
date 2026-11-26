@@ -42,6 +42,8 @@ export interface ModalProps {
   description?: ReactNode;
   /** Right-aligned actions row (usually one or two `<Button>`s). */
   footer?: ReactNode;
+  /** An action that belongs on the title's own line, before the ✕. */
+  headerAction?: ReactNode;
   children?: ReactNode;
   /** Card width in px. Default `500`. */
   width?: number;
@@ -55,6 +57,7 @@ export function Modal({
   title,
   description,
   footer,
+  headerAction,
   children,
   width = 500,
   className,
@@ -147,6 +150,7 @@ export function Modal({
             </p>
             {description != null && <p className="lc-modal__description">{description}</p>}
           </div>
+          {headerAction != null && <div className="lc-modal__header-action">{headerAction}</div>}
           <button type="button" className="lc-modal__close" aria-label="Close" onClick={onClose}>
             <CloseIcon />
           </button>
