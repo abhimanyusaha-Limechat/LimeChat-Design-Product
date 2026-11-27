@@ -42,6 +42,14 @@ export interface ModalProps {
   description?: ReactNode;
   /** Right-aligned actions row (usually one or two `<Button>`s). */
   footer?: ReactNode;
+  /** An action that belongs on the title's own line, before the ✕. */
+  headerAction?: ReactNode;
+  /**
+   * `plain` (the default) is one white card. `framed` makes it a working surface: the title
+   * row and the actions row stay white, the content sits on grey between them and scrolls,
+   * so a body of its own cards reads as content rather than as more of the chrome.
+   */
+  surface?: 'plain' | 'framed';
   children?: ReactNode;
   /** Card width in px. Default `500`. */
   width?: number;
@@ -55,6 +63,8 @@ export function Modal({
   title,
   description,
   footer,
+  headerAction,
+  surface = 'plain',
   children,
   width = 500,
   className,
@@ -134,6 +144,7 @@ export function Modal({
         ref={cardRef}
         className={`lc-modal${className ? ` ${className}` : ''}`}
         data-state={state}
+        data-surface={surface}
         style={{ width, ...style }}
         role="dialog"
         aria-modal="true"
@@ -147,6 +158,7 @@ export function Modal({
             </p>
             {description != null && <p className="lc-modal__description">{description}</p>}
           </div>
+          {headerAction != null && <div className="lc-modal__header-action">{headerAction}</div>}
           <button type="button" className="lc-modal__close" aria-label="Close" onClick={onClose}>
             <CloseIcon />
           </button>

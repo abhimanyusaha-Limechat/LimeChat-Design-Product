@@ -1,0 +1,312 @@
+/**
+ * TaskEditPage — the parts of Automation → Tasks → Configure that the Agent editor does not
+ * already draw. The page shell, the two-column General tab, the section heads, the list editors
+ * and the Prompt card all come from AgentEditPage.css, which the shared sections module loads;
+ * everything here is scoped to "lc-tep" and sits on top of it.
+ */
+
+.lc-tep {
+  --lc-tep-border: var(--v3-grey-400);
+  --lc-tep-dimmed: var(--v3-text-light);
+  --lc-tep-radius: 4px;
+}
+
+/* The design sizes the agent dropdown to its longest agent name, not the column. */
+.lc-tep__agent-select.lc-select {
+  width: auto;
+  min-width: 180px;
+  max-width: 320px;
+}
+
+.lc-tep__kebab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--lc-tep-radius);
+  background: none;
+  color: var(--v3-text-dark);
+  cursor: pointer;
+}
+
+.lc-tep__kebab:hover {
+  background: var(--v3-grey-200);
+}
+
+/* --- Flows tab ------------------------------------------------------------- */
+
+.lc-tep__flows {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+  padding: 0 16px 8px;
+}
+
+/* The picker and ADD sit centred over the list, as the design has them. */
+.lc-tep__add-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  padding-top: 8px;
+}
+
+.lc-tep__flow-select.lc-select {
+  width: 420px;
+  max-width: 100%;
+}
+
+.lc-tep__add-btn {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.lc-tep__row-head,
+.lc-tep__row {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 48px;
+}
+
+.lc-tep__row-head {
+  flex-shrink: 0;
+  padding: 12px 12px 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--lc-tep-dimmed);
+}
+
+.lc-tep__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.lc-tep__row {
+  padding: 8px 12px;
+  background: var(--v3-white);
+  border: 1px solid var(--v3-grey-300);
+  border-radius: 8px;
+  transition: border-color 150ms ease;
+}
+
+.lc-tep__row:hover,
+.lc-tep__row:focus-within {
+  border-color: var(--v3-green-primary-200);
+}
+
+.lc-tep__row-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lc-tep__flow-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--v3-text-dark);
+}
+
+/* Blue, so a thinking flow is told apart from the greens the page uses for its own actions. */
+.lc-tep__tag {
+  flex-shrink: 0;
+  padding: 0 6px;
+  background: var(--v3-secondary-light);
+  border: 1px solid var(--v3-secondary-dark);
+  border-radius: var(--lc-tep-radius);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--v3-secondary-dark);
+}
+
+.lc-tep__flow-time {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--lc-tep-dimmed);
+}
+
+/* --- "When to trigger?" ----------------------------------------------------- */
+
+.lc-tep__trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 0 8px 0 12px;
+  background: var(--v3-white);
+  border: 1px solid var(--lc-tep-border);
+  border-radius: var(--lc-tep-radius);
+}
+
+.lc-tep__trigger:focus-within {
+  border-color: var(--v3-green-primary);
+}
+
+.lc-tep__trigger-input {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--v3-text-dark);
+}
+
+.lc-tep__trigger-input::placeholder {
+  color: var(--v3-text-placeholder);
+}
+
+.lc-tep__trigger-ai {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--lc-tep-radius);
+  background: none;
+  color: var(--v3-green-primary);
+  cursor: pointer;
+}
+
+.lc-tep__trigger-ai:hover {
+  background: var(--v3-bg-green);
+}
+
+/* --- Row actions ------------------------------------------------------------ */
+
+.lc-tep__row-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-shrink: 0;
+  padding-left: 8px;
+}
+
+.lc-tep__toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 18px;
+  padding: 2px;
+  border: none;
+  border-radius: 999px;
+  background: var(--v3-grey-400);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.lc-tep__toggle:hover {
+  background: var(--v3-grey-500);
+}
+
+.lc-tep__toggle[data-checked] {
+  background: var(--v3-green-primary);
+}
+
+.lc-tep__toggle[data-checked]:hover {
+  background: var(--v3-green-primary-600);
+}
+
+.lc-tep__toggle-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--v3-white);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transform: translateX(0);
+  transition: transform 150ms ease;
+}
+
+.lc-tep__toggle[data-checked] .lc-tep__toggle-thumb {
+  transform: translateX(14px);
+}
+
+/* --- Empty state ------------------------------------------------------------ */
+
+.lc-tep__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 48px auto 0;
+  text-align: center;
+}
+
+.lc-tep__empty-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--lc-tep-dimmed);
+}
+
+.lc-tep__empty-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--v3-text-dark);
+}
+
+.lc-tep__empty-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--v3-grey-700);
+}
+
+/* --- Narrow screens --------------------------------------------------------- */
+
+@media (max-width: 1100px) {
+  .lc-tep__row-head {
+    display: none;
+  }
+
+  .lc-tep__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px 16px;
+  }
+
+  /* The trigger drops under the name and spans both columns. */
+  .lc-tep__trigger {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lc-tep__row,
+  .lc-tep__toggle,
+  .lc-tep__toggle-thumb {
+    transition: none;
+  }
+}
