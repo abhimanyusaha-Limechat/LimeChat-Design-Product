@@ -16,6 +16,7 @@ export type Page =
   | 'bot-flows-list'
   | 'bot-flows-canvas'
   | 'agents'
+  | 'tasks'
   | 'segments'
   | 'templates'
   | 'settings'
@@ -41,6 +42,7 @@ export function pageOf({ product, selected, view, userSettings }: Screen): Page 
   if ((product === 'marketing' || product === 'helpdesk') && selected === 'templates') return 'templates';
   if (selected === 'settings') return 'settings';
   if (product === 'automation' && selected === 'agents') return 'agents';
+  if (product === 'automation' && selected === 'tasks') return 'tasks';
   if (product === 'automation' && selected === 'knowledge-base') return 'knowledge-base';
   if (product === 'helpdesk' && selected === 'tickets') return 'tickets';
   if (product === 'helpdesk' && selected === 'contacts') return 'contacts';
@@ -59,7 +61,7 @@ export function pageOf({ product, selected, view, userSettings }: Screen): Page 
  */
 export function useAppNavigation() {
   const [screen, setScreen] = useState(() => parseHash(window.location.hash));
-  const { product, selected, tab, manageIndustries, integration, inbox, agent, team, rule, changePlan, state, ticket, flow, userSettings } = screen;
+  const { product, selected, tab, manageIndustries, integration, inbox, agent, task, team, rule, changePlan, state, ticket, flow, userSettings } = screen;
   const flowKind = flowKindOf(product, selected);
   const page = pageOf(screen);
 
@@ -99,6 +101,8 @@ export function useAppNavigation() {
     inbox,
     /** The agent being edited (from the Agents tab); '' when the list shows. */
     agent,
+    /** The task being edited (from Automation → Tasks); '' when the list shows. */
+    task,
     /** The team being edited (from the Teams tab); '' when the list shows. */
     team,
     /** The automation rule or SLA policy being edited (from the Automation rules or SLA rules tab); '' when the list shows. */
@@ -124,7 +128,7 @@ export function useAppNavigation() {
     openUserSettings: (tab: UserSettingsTab) => update({ userSettings: tab }),
     setUserSettingsTab: (tab: UserSettingsTab) => update({ userSettings: tab }),
     /** Picking a tab, even the current one, also closes Manage industries, any partner form, inbox edit and Change plan, and goes back to the tab's first state. */
-    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '', inbox: '', agent: '', team: '', rule: '', changePlan: false, state: '' }),
+    setTab: (id: string) => update({ tab: id, manageIndustries: false, integration: '', inbox: '', agent: '', task: '', team: '', rule: '', changePlan: false, state: '' }),
     setManageIndustries: (open: boolean) => update({ manageIndustries: open }),
     /** Opens a partner's form on the Integration tab; '' goes back to the tile grid. */
     setIntegration: (id: string) => update({ integration: id }),
@@ -132,6 +136,8 @@ export function useAppNavigation() {
     setInbox: (id: string) => update({ inbox: id }),
     /** Opens an agent's edit page from the Agents tab; '' goes back to the list. */
     setAgent: (id: string) => update({ agent: id }),
+    /** Opens a task's edit page from Automation → Tasks; '' goes back to the list. */
+    setTask: (id: string) => update({ task: id }),
     /** Opens a team's edit page from the Teams tab; '' goes back to the list. */
     setTeam: (id: string) => update({ team: id }),
     /** Opens a rule's or SLA policy's edit page; '' goes back to the list. */

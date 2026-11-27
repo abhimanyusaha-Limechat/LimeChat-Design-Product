@@ -123,6 +123,8 @@ export interface RichTextFieldProps {
   /** Shown while the value is empty. */
   placeholder?: string;
   disabled?: boolean;
+  /** Handles the Improve button, in place of the demo's alert. */
+  onImprove?: () => void;
 }
 
 // mousedown would move focus (and the caret) out of the body.
@@ -134,6 +136,7 @@ export function RichTextField({
   label,
   placeholder = 'Nothing set. The built-in default is used.',
   disabled,
+  onImprove,
 }: RichTextFieldProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
   // What the body last showed or emitted. A value from outside (reset, undo) redraws the
@@ -198,7 +201,7 @@ export function RichTextField({
             type="button"
             className="lc-rte__improve-main"
             disabled={disabled}
-            onClick={() => alert(`Improve with AI: ${label}`)}
+            onClick={onImprove ?? (() => alert(`Improve with AI: ${label}`))}
           >
             <WandIcon />
             <span>Improve</span>

@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DEMO_TEMPLATES } from '../../data/templatesDemo';
-import { BroadcastScreen, KnowledgeBaseScreen, TemplatesScreen, templateMatches } from '.';
+import { BroadcastScreen, KnowledgeBaseScreen, TasksScreen, TemplatesScreen, templateMatches } from '.';
 
 // jsdom has no ResizeObserver; tab indicators only use it to re-measure.
 beforeAll(() => {
@@ -114,5 +114,66 @@ describe('KnowledgeBaseScreen', () => {
 
     await user.click(screen.getByRole('button', { name: 'Close history' }));
     expect(screen.queryByRole('dialog', { name: 'History' })).not.toBeInTheDocument();
+  });
+});
+
+describe('TasksScreen', () => {
+  const taskCards = () => rows('task-card').map((card) => card.getAttribute('data-anchor-key'));
+
+  it('narrows the list by name and by each of the two filters', async () => {
+    const user = userEvent.setup();
+    open('#/automation/tasks');
+    render(<TasksScreen />);
+    expect(taskCards()).toHaveLength(4);
+
+    await user.type(screen.getByPlaceholderText('Search by name'), 'product');
+    expect(taskCards()).toEqual(['return-or-replace', 'product-inquiry']);
+
+    await user.clear(screen.getByPlaceholderText('Search by name'));
+    await user.selectOptions(screen.getByLabelText('Filter tasks by agent'), 'Sales Agent');
+    expect(taskCards()).toEqual(['return-or-replace']);
+
+    await user.selectOptions(screen.getByLabelText('Filter tasks by agent'), 'all');
+    await user.selectOptions(screen.getByLabelText('Filter tasks by flow'), 'Collect Rating');
+    expect(taskCards()).toEqual(['csat']);
+  });
+
+  it('opens each state the switcher offers, with the search or filters that produce it', async () => {
+    const user = userEvent.setup();
+    open('#/automation/tasks');
+    render(<TasksScreen />);
+    const switcher = screen.getByLabelText('State of this screen');
+    expect(taskCards()).toHaveLength(4);
+
+    await user.selectOptions(switcher, 'zero');
+    expect(location.hash).toBe('#/automation/tasks?state=zero');
+    expect(screen.getByText('No tasks yet')).toBeInTheDocument();
+
+    await user.selectOptions(switcher, 'no-search-results');
+    expect(screen.getByPlaceholderText('Search by name')).toHaveValue('pricing');
+    expect(screen.getByText('No tasks match this search')).toBeInTheDocument();
+
+    await user.selectOptions(switcher, 'no-filter-results');
+    expect(screen.getByPlaceholderText('Search by name')).toHaveValue('');
+    expect(screen.getByLabelText('Filter tasks by agent')).toHaveValue('Payment Agent');
+    expect(screen.getByText('No tasks match these filters')).toBeInTheDocument();
+
+    // "Clear filters" is the way back from a state the filters produced.
+    await user.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(taskCards()).toHaveLength(4);
+  });
+
+  it('switches a task off and back on from its card', async () => {
+    const user = userEvent.setup();
+    open('#/automation/tasks');
+    render(<TasksScreen />);
+    const card = () => rows('task-card').find((c) => c.getAttribute('data-anchor-key') === 'csat');
+    expect(card()).toHaveAttribute('data-status', 'active');
+
+    await user.click(screen.getByRole('switch', { name: 'Turn off CSAT' }));
+    expect(card()).toHaveAttribute('data-status', 'disabled');
+
+    await user.click(screen.getByRole('switch', { name: 'Turn on CSAT' }));
+    expect(card()).toHaveAttribute('data-status', 'active');
   });
 });

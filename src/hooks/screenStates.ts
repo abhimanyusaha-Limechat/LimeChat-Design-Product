@@ -30,6 +30,7 @@ export const NO_FILTER_RESULTS: ScreenState = { id: 'no-filter-results', label: 
  * produce opens with them already applied, so the controls show what led to it.
  */
 const SCREEN_STATES: Record<string, readonly ScreenState[]> = {
+  'automation/tasks': [WITH_DATA, ZERO_STATE, NO_SEARCH_RESULTS, NO_FILTER_RESULTS],
   'automation/settings/delete-history': [WITH_DATA, ZERO_STATE, NO_SEARCH_RESULTS, NO_FILTER_RESULTS],
 };
 
