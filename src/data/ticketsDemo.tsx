@@ -35,18 +35,18 @@ export interface ConversationEntry {
 export const CONVERSATIONS: Record<string, ConversationEntry[]> = {
   't-1': [
     { id: 'm-1', side: 'customer', text: 'Hi, I placed an order last week and haven’t heard anything since.', time: '09:41', date: '2026-09-19' },
-    { id: 'm-2', side: 'agent', text: 'Hi John! Sorry for the trouble — let me pull that up for you.', time: '09:42', date: '2026-09-19' },
+    { id: 'm-2', side: 'agent', text: 'Hi John! Sorry for the trouble. Let me pull that up for you.', time: '09:42', date: '2026-09-19' },
     { id: 'm-3', side: 'customer', text: 'Sure, thanks. Order number is #48213.', time: '09:43', date: '2026-09-19' },
     { id: 'm-4', side: 'agent', text: 'Got it, one moment while I check the shipping status.', time: '09:44', date: '2026-09-19' },
     { id: 'm-5', side: 'agent', text: 'Looks like it’s been sitting at the local facility for a couple of days.', time: '09:46', date: '2026-09-19' },
     { id: 'm-6', side: 'customer', text: 'Hey, is my order still on its way? It has been 3 days already.', time: '10:02', date: '2026-09-20' },
     { id: 'm-7', side: 'agent', text: 'Hi John! Let me check that for you right away.', time: '10:03', date: '2026-09-20' },
     { id: 'm-8', side: 'customer', text: 'Sure, thanks. Order number is #48213.', time: '10:04', date: '2026-09-20' },
-    { id: 'm-9', side: 'agent', text: 'Thanks for your patience — I’ve escalated this with our logistics partner.', time: '10:05', date: '2026-09-20' },
+    { id: 'm-9', side: 'agent', text: 'Thanks for your patience. I’ve escalated this with our logistics partner.', time: '10:05', date: '2026-09-20' },
     { id: 'm-10', side: 'agent', text: 'Your order left the warehouse yesterday and is out for delivery today.', time: '10:06', date: '2026-09-20' },
     { id: 'm-11', side: 'customer', text: 'That’s great to hear, thank you!', time: '10:07', date: '2026-09-20' },
     { id: 'm-12', side: 'agent', text: 'Of course! You’ll get a tracking notification once it’s out for delivery.', time: '10:08', date: '2026-09-20' },
-    { id: 'm-13', side: 'customer', text: 'One more thing — can I change the delivery address at this point?', time: '10:10', date: '2026-09-20' },
+    { id: 'm-13', side: 'customer', text: 'One more thing: can I change the delivery address at this point?', time: '10:10', date: '2026-09-20' },
     { id: 'm-14', side: 'agent', text: 'Since it’s already out for delivery, we can’t redirect it, unfortunately.', time: '10:11', date: '2026-09-20' },
     { id: 'm-15', side: 'agent', text: 'But if the courier misses you, they’ll leave a reattempt slip with a reschedule option. You can also reschedule it yourself from the tracking link once it’s generated, without needing to wait for the slip. Just make sure someone’s available at the address for the next attempt, since after two missed attempts the order gets sent back to the warehouse.', time: '10:12', date: '2026-09-20' },
     { id: 'm-16', side: 'customer', text: 'Got it, that works. Thanks for clarifying!', time: '10:13', date: '2026-09-20' },
@@ -54,7 +54,7 @@ export const CONVERSATIONS: Record<string, ConversationEntry[]> = {
     { id: 'm-18', side: 'customer', text: 'Nope, that’s all. Thanks again!', time: '10:15', date: '2026-09-20' },
   ],
   't-2': [
-    { id: 'm-1', side: 'agent', text: 'Hi John, just a heads up — your order #48213 is out for delivery today.', time: '10:06', date: '2026-09-20' },
+    { id: 'm-1', side: 'agent', text: 'Hi John, just a heads up: your order #48213 is out for delivery today.', time: '10:06', date: '2026-09-20' },
     {
       id: 'm-2',
       side: 'customer',
@@ -94,7 +94,7 @@ export const EMAIL_THREADS: Record<string, EmailThreadEntry[]> = {
           Hi team,
           <br />
           <br />
-          Following up on the refund request I submitted last week — I haven&apos;t heard back yet. Could you let me know the status?
+          Following up on the refund request I submitted last week. I haven&apos;t heard back yet. Could you let me know the status?
           <br />
           <br />
           Thanks,
@@ -116,7 +116,7 @@ export const EMAIL_THREADS: Record<string, EmailThreadEntry[]> = {
           Hi Aditi,
           <br />
           <br />
-          Apologies for the delay — I can confirm your refund of ₹1,200 has been processed today. It should reflect in your account within 3-5 business days.
+          Apologies for the delay. I can confirm your refund of ₹1,200 has been processed today. It should reflect in your account within 3-5 business days.
           <br />
           <br />
           Best,
@@ -134,13 +134,13 @@ export const EMAIL_THREADS: Record<string, EmailThreadEntry[]> = {
       senderEmail: 'marcus@limechat.io',
       date: 'Sep 15, 2026, 9:31 AM',
       badgeLabel: '9 minutes ago',
-      preview: 'Good news — your refund of ₹1,200 has been processed.',
+      preview: 'Good news: your refund of ₹1,200 has been processed.',
       body: (
         <>
           Hi Aditi,
           <br />
           <br />
-          Good news — your refund of ₹1,200 has been processed. It should reflect in your account within 3-5 business days.
+          Good news: your refund of ₹1,200 has been processed. It should reflect in your account within 3-5 business days.
           <br />
           <br />
           Best,
@@ -212,7 +212,7 @@ export const SHOWCASE_MESSAGES: Array<{ id: string } & ComponentProps<typeof Mes
     time: '09:03',
     onlyVisibleToMe: true,
     note: { ticketId: '123456' },
-    children: 'Internal note — only the team can see this.',
+    children: 'Internal note: only the team can see this.',
   },
   { id: 's-11', side: 'customer', variant: 'opened', time: '09:05' },
   { id: 's-12', side: 'agent', variant: 'viewOnce', time: '09:05', children: 'Photo' },
@@ -229,7 +229,7 @@ export const SHOWCASE_MESSAGES: Array<{ id: string } & ComponentProps<typeof Mes
     side: 'customer',
     variant: 'text',
     time: '09:06',
-    children: "That's the whole set — thanks!",
+    children: "That's the whole set, thanks!",
   },
 ];
 
@@ -441,7 +441,7 @@ export const TICKETS: TicketRowData[] = [
     channel: 'whatsapp',
     user: 'Design QA',
     timestamp: 'Just now',
-    message: 'All message states — for design review',
+    message: 'All message states (for design review)',
     assignee: 'You',
   },
 ];

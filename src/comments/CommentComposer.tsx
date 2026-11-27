@@ -56,7 +56,7 @@ export const CommentComposer = forwardRef<HTMLTextAreaElement, CommentComposerPr
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
       />
-      {inOverlay && <p className="lc-comments__hint">This is on a menu or dialog, so it won't get a Pin — it'll be in the list.</p>}
+      {inOverlay && <p className="lc-comments__hint">This is on a menu or dialog, so it won't get a Pin. It'll be in the list.</p>}
       {confirmDiscard && <p className="lc-comments__hint">Press Esc again to discard.</p>}
       {error && (
         <p className="lc-comments__error" role="alert">

@@ -137,7 +137,7 @@ export function AccountSettings({
   return (
     <div className="lc-as">
       <section className="lc-as__table">
-        <Row label="ID" htmlFor={idId} description="Internal identifier — can't be changed.">
+        <Row label="ID" htmlFor={idId} description="Internal identifier. Can't be changed.">
           <input id={idId} className="lc-as__input" value={id} disabled readOnly />
         </Row>
 
