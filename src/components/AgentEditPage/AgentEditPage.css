@@ -767,36 +767,13 @@
   overflow-y: auto;
 }
 
-/* The editor's box while an AI action runs (Figma 2798:1714). */
+/* The box the editor leaves behind while an AI action runs (Figma 2798:1714); `lc-aep__loader`
+   above centres the mark and its message inside it. */
 .lc-aep__thinking {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
   min-height: 404px;
   border: 1px solid var(--v3-border-default);
   border-radius: 4px;
   background: var(--v3-white);
-  color: var(--v3-text-dark);
-  font-size: 14px;
-  line-height: 22px;
-}
-
-.lc-aep__thinking-icon {
-  color: var(--v3-blue-dark);
-  animation: lc-aep-think 1200ms ease-in-out infinite;
-}
-
-@keyframes lc-aep-think {
-  0%,
-  100% {
-    opacity: 0.4;
-    transform: scale(0.9);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 /* Figma 2798:2153 — the note Improve asks for, over the end of the editor's toolbar. */
@@ -846,9 +823,5 @@
 @media (prefers-reduced-motion: reduce) {
   .lc-aep__prompt[data-clickable] {
     transition: none;
-  }
-
-  .lc-aep__thinking-icon {
-    animation: none;
   }
 }

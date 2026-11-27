@@ -6,10 +6,11 @@
  * They were the Agent editor's, and both pages still draw them with its `lc-aep` classes, so
  * the two editors stay one screen family (see AgentEditPage.css, which this module loads).
  */
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Icon } from '../icons';
 import { PromptModal } from './PromptModal';
+import loadingYeti from '../../assets/loading/loading-yeti.gif';
 import './AgentEditPage.css';
 
 
@@ -285,6 +286,51 @@ export function ListEditor({
         )}
       </div>
     </section>
+  );
+}
+
+
+/**
+ * The product's loading container (Figma 2798:2173): the animated mark with one message at a
+ * time, each `stepMs` apart, then `onDone`. The work behind an AI action is invisible, so the
+ * messages are what says it is doing something and roughly what.
+ */
+export function StepLoader({
+  steps,
+  stepMs = 650,
+  onDone,
+  /** Added to the loader's own class, for a caller that draws it inside a box. */
+  className,
+}: {
+  steps: string[];
+  stepMs?: number;
+  onDone?: () => void;
+  className?: string;
+}) {
+  const [step, setStep] = useState(0);
+  // Held in a ref so a new `onDone` identity on each render can't restart the sequence.
+  const done = useRef(onDone);
+  useEffect(() => {
+    done.current = onDone;
+  });
+
+  useEffect(() => {
+    const last = step >= steps.length - 1;
+    const timer = window.setTimeout(() => (last ? done.current?.() : setStep((s) => s + 1)), stepMs);
+    return () => window.clearTimeout(timer);
+  }, [step, steps.length, stepMs]);
+
+  return (
+    <div
+      className={`lc-aep__loader${className ? ` ${className}` : ''}`}
+      role="status"
+      aria-live="polite"
+      data-anchor="step-loader"
+    >
+      {/* The mark carries no meaning the message does not; it is the message that is announced. */}
+      <img className="lc-aep__loader-mark" src={loadingYeti} alt="" width={56} height={56} />
+      <p className="lc-aep__loader-text">{steps[step]}</p>
+    </div>
   );
 }
 

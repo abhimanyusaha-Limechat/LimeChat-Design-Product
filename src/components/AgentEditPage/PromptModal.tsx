@@ -9,21 +9,35 @@
  *
  * Drawn with the Agent editor's `lc-aep` classes like the rest of this family.
  */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '../Button';
 import { Modal } from '../Modal';
 import { RichTextField } from '../BotSettings';
 import { Icon } from '../icons';
+import { StepLoader } from './sections';
 import './AgentEditPage.css';
 
-/** How long the demo lets an AI action think. Immediate under tests so they needn't wait. */
-const THINK_MS = import.meta.env.MODE === 'test' ? 0 : 1400;
+/** How long each loading message holds. Immediate under tests so they needn't wait. */
+const STEP_MS = import.meta.env.MODE === 'test' ? 0 : 900;
 
-/** An AI action in flight: what to say while it runs, and the prompt it leaves behind. */
+/** An AI action in flight: what it says it is doing, and the prompt it leaves behind. */
 interface Thinking {
-  label: string;
+  steps: string[];
   next: string;
 }
+
+/**
+ * What generating a prompt says it is doing, one message per variant of the loading container
+ * in Figma (2798:2173). The first names what is being read, so a task says "task".
+ */
+const generateSteps = (what: string) => [
+  `Analyzing the ${what.charAt(0).toUpperCase()}${what.slice(1)}...`,
+  'Collecting data and information...',
+  'Reviewing flows...',
+  'Preparing prompt...',
+];
+
+const improveSteps = ['Reviewing the prompt...', 'Preparing prompt...'];
 
 /**
  * ponytail: no model writes these yet. "Generate" hands back a prompt in the shape a real
@@ -90,15 +104,6 @@ export function PromptModal({
   const [thinking, setThinking] = useState<Thinking | null>(null);
   const [improving, setImproving] = useState(false);
 
-  useEffect(() => {
-    if (!thinking) return;
-    const timer = window.setTimeout(() => {
-      setDraft(thinking.next);
-      setThinking(null);
-    }, THINK_MS);
-    return () => window.clearTimeout(timer);
-  }, [thinking]);
-
   return (
     <Modal
       open={open}
@@ -114,7 +119,7 @@ export function PromptModal({
           className="lc-aep__generate"
           leftSection={<Icon name="wand" size={16} />}
           disabled={!!thinking}
-          onClick={() => setThinking({ label: `Analyzing the ${what}...`, next: generatedPrompt(what, name) })}
+          onClick={() => setThinking({ steps: generateSteps(what), next: generatedPrompt(what, name) })}
         >
           Generate new prompt
         </Button>
@@ -131,10 +136,16 @@ export function PromptModal({
       }
     >
       {thinking ? (
-        <div className="lc-aep__thinking" role="status">
-          <Icon name="sparkle" size={24} className="lc-aep__thinking-icon" />
-          {thinking.label}
-        </div>
+        // The loader owns the wait: the prompt lands when it has been through its messages.
+        <StepLoader
+          steps={thinking.steps}
+          stepMs={STEP_MS}
+          className="lc-aep__thinking"
+          onDone={() => {
+            setDraft(thinking.next);
+            setThinking(null);
+          }}
+        />
       ) : (
         <div className="lc-aep__improve">
           <RichTextField
@@ -149,7 +160,7 @@ export function PromptModal({
               onCancel={() => setImproving(false)}
               onImprove={(note) => {
                 setImproving(false);
-                setThinking({ label: 'Improving the prompt...', next: improvedPrompt(draft, note) });
+                setThinking({ steps: improveSteps, next: improvedPrompt(draft, note) });
               }}
             />
           )}

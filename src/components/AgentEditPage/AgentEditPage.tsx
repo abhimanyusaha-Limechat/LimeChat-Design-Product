@@ -9,7 +9,7 @@
  *
  *   <AgentEditPage agent={agent} setup={setup} onChange={patch} onBack={close} onPublish={publish} canPublish />
  */
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { AgentCardData } from '../AgentsHomePage';
 import { Button } from '../Button';
 import { HeaderSwitch } from '../InboxSettings';
@@ -25,12 +25,12 @@ import {
   ListEditor,
   PromptCard,
   SectionHead,
+  StepLoader,
   TriggerExamples,
   isPromptEmpty,
   type ListEditorCopy,
 } from './sections';
 import { CURRENT_EDITOR, PUBLISH_HISTORY, THINKING_FLOWS, type PublishedVersion } from '../../data/agentsDemo';
-import loadingYeti from '../../assets/loading/loading-yeti.gif';
 import './AgentEditPage.css';
 
 /** What the General tab edits, besides the agent's name and status. */
@@ -235,7 +235,8 @@ export function AgentEditPage({ agent, setup, onChange, onBack, onPublish, canPu
         </div>
         <div className="lc-aep__tabpanel" role="tabpanel" aria-label={TABS.find((t) => t.id === tab)?.label}>
           {loading ? (
-            <VersionLoader
+            <StepLoader
+              steps={LOAD_STEPS}
               onDone={() => {
                 setViewing(loading);
                 setLoading(null);
@@ -255,43 +256,14 @@ export function AgentEditPage({ agent, setup, onChange, onBack, onPublish, canPu
 /** The work the page pretends to do while an older publish is pulled back in. */
 /**
  * The product's own loading messages, one per variant of the Container component in Figma
- * (2798:2173), shown beside the same animated mark.
+ * (2798:2173), in the order that frame lists them.
  */
 const LOAD_STEPS = [
   'Analyzing the Agent...',
   'Collecting data and information...',
-  'Preparing prompt...',
   'Reviewing flows...',
+  'Preparing prompt...',
 ];
-
-const STEP_MS = 650;
-
-/**
- * Stands in for the General tab while a version loads, so an older publish never appears
- * without warning. Walks the messages above, then hands over.
- */
-function VersionLoader({ onDone }: { onDone: () => void }) {
-  const [step, setStep] = useState(0);
-  // Held in a ref so a new `onDone` identity on each render can't restart the sequence.
-  const done = useRef(onDone);
-  useEffect(() => {
-    done.current = onDone;
-  });
-
-  useEffect(() => {
-    const last = step >= LOAD_STEPS.length - 1;
-    const timer = setTimeout(() => (last ? done.current() : setStep((s) => s + 1)), STEP_MS);
-    return () => clearTimeout(timer);
-  }, [step]);
-
-  return (
-    <div className="lc-aep__loader" role="status" aria-live="polite" data-anchor="version-loader">
-      {/* The mark carries no meaning the message does not; it is the message that is announced. */}
-      <img className="lc-aep__loader-mark" src={loadingYeti} alt="" width={56} height={56} />
-      <p className="lc-aep__loader-text">{LOAD_STEPS[step]}</p>
-    </div>
-  );
-}
 
 /**
  * Sits at the bottom of the page while an older version is on screen: which version it is, who
