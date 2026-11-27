@@ -66,7 +66,7 @@ export function SignInPage() {
         <h2 className="sign-in-page__headline">Every conversation, one workspace.</h2>
         <div className="sign-in-page__bubbles">
           <p className="sign-in-page__bubble">Hi! Is my order out for delivery?</p>
-          <p className="sign-in-page__bubble sign-in-page__bubble--reply">Yes — arriving today by 6 PM.</p>
+          <p className="sign-in-page__bubble sign-in-page__bubble--reply">Yes, arriving today by 6 PM.</p>
         </div>
       </section>
       <section className="sign-in-page__panel">

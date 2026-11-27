@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { describe, expect, it } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AgentsScreen } from '../ListScreens/AgentsScreen';
 
@@ -32,7 +32,7 @@ describe('Agent edit page', () => {
     expect(screen.queryByText('Unsaved')).not.toBeInTheDocument();
   });
 
-  it('shows the prompt in its card and edits it behind the edit button', async () => {
+  it('shows the prompt in its card and edits it in the dialog the card opens', async () => {
     const user = userEvent.setup();
     render(<Harness start="support" />);
 
@@ -40,16 +40,35 @@ describe('Agent edit page', () => {
     expect(screen.queryByRole('textbox', { name: 'Description (Prompt)' })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Edit prompt' }));
+    const dialog = screen.getByRole('dialog', { name: 'Support Agent Prompt' });
+    const prompt = within(dialog).getByRole('textbox', { name: 'Description (Prompt)' });
+    expect(prompt).toHaveTextContent(/post-purchase topics/);
+
+    await user.click(prompt);
+    await user.type(prompt, ' It never guesses.');
+    expect(prompt).toHaveTextContent(/It never guesses\./);
+
+    // The dialog holds its own draft, so Close leaves the card's prompt as it was.
+    const closes = within(dialog).getAllByRole('button', { name: 'Close' });
+    await user.click(closes[closes.length - 1]);
+    await user.click(screen.getByRole('button', { name: 'Edit prompt' }));
+    expect(screen.getByRole('textbox', { name: 'Description (Prompt)' })).not.toHaveTextContent('It never guesses.');
+  });
+
+  it('saves the prompt the dialog leaves behind, and blocks publishing an empty one', async () => {
+    const user = userEvent.setup();
+    render(<Harness start="support" />);
+
+    await user.click(screen.getByRole('button', { name: 'Edit prompt' }));
+    // The editor is a contenteditable body, so this empties it the way typing would.
     const prompt = screen.getByRole('textbox', { name: 'Description (Prompt)' });
-    expect(screen.getByText(/^\d+ characters$/)).toBeInTheDocument();
+    prompt.textContent = '';
+    fireEvent.input(prompt);
+    await user.click(screen.getByRole('button', { name: 'Save' }));
 
-    await user.clear(prompt);
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(screen.getByText('Describe what the agent does to publish it.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Publish' })).toBeDisabled();
-
-    await user.type(prompt, 'Hello');
-    await user.tripleClick(prompt);
-    await user.click(screen.getByRole('button', { name: 'Bold' }));
-    expect(prompt).toHaveValue('*Hello*');
   });
 
   it('adds and removes trigger examples, falling back to the AI empty state', async () => {

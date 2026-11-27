@@ -961,8 +961,10 @@ describe('SettingsScreen inbox edit', () => {
     await user.click(screen.getByRole('tab', { name: 'Widget' }));
     expect(screen.getByRole('complementary', { name: 'Mobile preview' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Preview on desktop' }));
-    expect(screen.getByRole('dialog', { name: 'Desktop preview' })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Close' }));
+    const preview = screen.getByRole('dialog', { name: 'Desktop preview' });
+    // The framed dialog closes from its ✕ and from the Close in its action row.
+    const closes = within(preview).getAllByRole('button', { name: 'Close' });
+    await user.click(closes[closes.length - 1]);
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     await user.click(screen.getByRole('button', { name: 'Copy code' }));
     expect(await screen.findByRole('button', { name: 'Copied' })).toBeInTheDocument();

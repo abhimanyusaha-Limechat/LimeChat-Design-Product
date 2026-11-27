@@ -42,7 +42,7 @@ export interface WebhooksTableProps {
 
 const STATUS_LABEL: Record<WebhookStatus, string> = {
   active: 'Delivering',
-  failing: 'Failing — the last delivery didn’t go through',
+  failing: 'Failing: the last delivery didn’t go through',
 };
 
 export function WebhooksTable({ webhooks, onEdit, onDelete, iconActions = false, loading = false }: WebhooksTableProps) {

@@ -16,7 +16,7 @@ const appUrl = new URL(import.meta.env.BASE_URL, window.location.origin).href;
 /** Shows the app only to signed-in users; everyone else gets the sign-in page. */
 export function AuthGate({ children }: { children: ReactNode }) {
   if (!publishableKey) {
-    return <p style={{ padding: 24 }}>Missing VITE_CLERK_PUBLISHABLE_KEY — add it to .env and restart the dev server.</p>;
+    return <p style={{ padding: 24 }}>Missing VITE_CLERK_PUBLISHABLE_KEY. Add it to .env and restart the dev server.</p>;
   }
   return (
     <ClerkProvider publishableKey={publishableKey} localization={localization}

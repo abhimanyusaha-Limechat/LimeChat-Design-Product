@@ -18,7 +18,7 @@ export const AGENTS: AgentCardData[] = [
     model: 'LimeGPT',
     name: 'Sales Agent',
     description:
-      'The Sales Agent bot is designed to guide customers through their purchase journey—answering product questions, comparing options and closing the sale on chat.',
+      'The Sales Agent bot is designed to guide customers through their purchase journey: answering product questions, comparing options and closing the sale on chat.',
     goal:
       'To increase conversions and average order value by helping users discover, understand and buy the right product for them.',
     tasks: [

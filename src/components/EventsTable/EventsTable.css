@@ -165,14 +165,13 @@
 
 /* --- Payload modal ---------------------------------------------------------- */
 
+/* A card on the dialog's grey surface, which is what scrolls when a payload is long. */
 .lc-ev__payload {
   margin: 0;
-  max-height: 50vh;
-  overflow: auto;
   padding: 12px;
   border: 1px solid var(--v3-grey-400);
   border-radius: 4px;
-  background: var(--v3-grey-200);
+  background: var(--v3-white);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 12px;
   line-height: 18px;

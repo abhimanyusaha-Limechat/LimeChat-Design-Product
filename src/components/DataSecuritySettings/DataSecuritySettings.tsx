@@ -318,7 +318,7 @@ export function DataSecuritySettings({
               </div>
             ))
           ) : (
-            <p className="lc-dss__profanity-empty">No words or phrases blocked yet — add one above.</p>
+            <p className="lc-dss__profanity-empty">No words or phrases blocked yet. Add one above.</p>
           )}
         </div>
       </section>

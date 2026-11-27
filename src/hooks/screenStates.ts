@@ -33,6 +33,7 @@ export const VERSION_2: ScreenState = { id: 'v2', label: 'Version 2' };
  * produce opens with them already applied, so the controls show what led to it.
  */
 const SCREEN_STATES: Record<string, readonly ScreenState[]> = {
+  'automation/tasks': [WITH_DATA, ZERO_STATE, NO_SEARCH_RESULTS, NO_FILTER_RESULTS],
   // Opens in Version 2, the Helpdesk inbox page's boxed layout; Version 1 follows the Figma frames.
   'automation/settings/bot-settings': [VERSION_2, VERSION_1],
   'automation/settings/delete-history': [WITH_DATA, ZERO_STATE, NO_SEARCH_RESULTS, NO_FILTER_RESULTS],

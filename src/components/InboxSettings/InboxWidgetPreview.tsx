@@ -137,6 +137,12 @@ export function WidgetPreview({
         title="Desktop preview"
         description="Where the widget and pop-up sit on a desktop website, using your Desktop settings."
         width={960}
+        surface="framed"
+        footer={
+          <Button variant="subtle" color="primary" size="sm" onClick={() => setDesktopOpen(false)}>
+            Close
+          </Button>
+        }
       >
         <div className="lc-inbs-browser" aria-hidden="true">
           <div className="lc-inbs-browser__bar">

@@ -64,7 +64,7 @@ export function VisualizeFlowModal({
   onClose,
   onSend,
   title = 'Send Test Message',
-  description = 'Test the flow using your WhatsApp number to see what it is like. This is a demo, so no real actions—such as placing or cancelling an order—will occur.',
+  description = 'Test the flow using your WhatsApp number to see what it is like. This is a demo, so no real actions, such as placing or cancelling an order, will occur.',
   countryCodes = DEFAULT_COUNTRY_CODES,
   defaults,
 }: VisualizeFlowModalProps) {

@@ -109,7 +109,7 @@ export const DEMO_USER_SEGMENTS: UserSegment[] = [
   },
   {
     id: 'seg-8',
-    name: 'Inactive Users — Last 90 Days',
+    name: 'Inactive Users: Last 90 Days',
     description: 'Contacts with no session activity in the last quarter.',
     count: 2894,
     lastEdited: '5 June 2023',
@@ -123,7 +123,7 @@ export const DEMO_USER_SEGMENTS: UserSegment[] = [
   },
   {
     id: 'seg-10',
-    name: 'CRM Import — Newsletter Subscribers',
+    name: 'CRM Import: Newsletter Subscribers',
     description: 'Imported from the marketing CRM opt-in list.',
     count: 5210,
     lastEdited: '3 May 2023',
@@ -131,7 +131,7 @@ export const DEMO_USER_SEGMENTS: UserSegment[] = [
   },
   {
     id: 'seg-11',
-    name: 'CRM Import — Trade Show Leads',
+    name: 'CRM Import: Trade Show Leads',
     description: 'Contacts collected at the Q2 trade show booth.',
     count: 964,
     lastEdited: '18 April 2023',

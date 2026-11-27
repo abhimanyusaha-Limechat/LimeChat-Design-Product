@@ -151,6 +151,12 @@ export function EventsTable({ events, onCustomEvents, loading = false }: EventsT
         title="Payload"
         description={openEvent && `${openEvent.name} · ${openEvent.phone} · ${openEvent.createdAt}`}
         width={560}
+        surface="framed"
+        footer={
+          <Button variant="subtle" color="primary" size="sm" onClick={() => setOpenEvent(null)}>
+            Close
+          </Button>
+        }
       >
         <pre className="lc-ev__payload">{openEvent && JSON.stringify(openEvent.payload, null, 2)}</pre>
       </Modal>

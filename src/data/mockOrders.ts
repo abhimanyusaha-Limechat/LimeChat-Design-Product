@@ -189,7 +189,7 @@ export const MOCK_ORDERS: Order[] = [
     shippingAddress: BLR_ADDRESS,
     billingAddress: BLR_ADDRESS,
     billingSameAsShipping: true,
-    notes: 'Customer cancelled — found a better price elsewhere.',
+    notes: 'Customer cancelled: found a better price elsewhere.',
   }),
   buildOrder({
     id: 'ORD-10205',
@@ -204,7 +204,7 @@ export const MOCK_ORDERS: Order[] = [
     shippingAddress: MUM_ADDRESS,
     billingAddress: MUM_ADDRESS,
     billingSameAsShipping: true,
-    notes: 'Size issue — refund processed after return pickup.',
+    notes: 'Size issue: refund processed after return pickup.',
   }),
 ];
 
