@@ -93,7 +93,7 @@ import { DEMO_DELETED_ITEMS, DEMO_DELETE_HISTORY_FILTERS } from '../../data/dele
 import { DEFAULT_MAX_EXECUTIONS, ruleFor, type AutomationRule } from '../../data/ruleDemo';
 import { slaPolicyFor, type SlaPolicy } from '../../data/slaPolicyDemo';
 import { DEMO_TEMPLATES } from '../../data/templatesDemo';
-import { ZERO_STATE, type ScreenState } from '../../hooks/screenStates';
+import { VERSION_2, ZERO_STATE, type ScreenState } from '../../hooks/screenStates';
 import {
   HELPDESK_ADD_CTA,
   INDUSTRY_TABS,
@@ -1219,7 +1219,12 @@ export function SettingsScreen({
           }
         />
       ) : settingsTab === 'bot-settings' ? (
-        <BotSettings values={botSettings} savedValues={savedBotSettings} onChange={setBotSettings} />
+        <BotSettings
+          values={botSettings}
+          savedValues={savedBotSettings}
+          onChange={setBotSettings}
+          version={screenState === VERSION_2.id ? 'v2' : 'v1'}
+        />
       ) : settingsTab === 'delete-history' ? (
         <DeleteHistory
           // Each state opens the page afresh, on the search or filters that produce it.

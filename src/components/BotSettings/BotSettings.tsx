@@ -13,14 +13,7 @@ import { Fragment, useMemo, useRef, useState } from 'react';
 import { NativeSelect } from '../Select';
 import { SegmentedTabs } from '../SegmentedTabs';
 import { CheckIcon, CloseIcon } from '../icons';
-import {
-  PRODUCT_CARD_LAYOUTS,
-  ProductCardPreview,
-  type ButtonLayout,
-  type ButtonStyle,
-  type ProductCardElements,
-  type ProductCardLayout,
-} from './ProductCardPreview';
+import { PRODUCT_CARD_LAYOUTS, ProductCardPreview, type ProductCardElements, type ProductCardLayout } from './ProductCardPreview';
 import {
   DEFAULT_BOT_SETTINGS,
   SECTION_TABS,
@@ -29,50 +22,21 @@ import {
   type BotSettingsValues,
 } from './botSettingsValues';
 import { AdvancedSection, BotBehaviourSection, ChannelsSection, CsatSection, MessagingSection } from './sections';
+import {
+  AdvancedSectionV2,
+  BotBehaviourSectionV2,
+  ChannelsSectionV2,
+  CsatSectionV2,
+  MessagingSectionV2,
+  ProductCardsSectionV2,
+} from './sectionsV2';
+import { BUTTON_LAYOUTS, BUTTON_STYLES, CARD_ELEMENT_ROWS, CURRENCIES, LABEL_LIMIT, type ElementKey } from './productCardsOptions';
 import { searchSettings, settingEntry, type SettingEntry } from './settingsIndex';
 import { NO_FILTER, SearchFilterContext, type SearchFilter } from './SettingRow';
 import './BotSettings.css';
 
 export { DEFAULT_BOT_SETTINGS, SECTION_TABS, unsavedChanges };
 export type { BotSettingsSection, BotSettingsValues };
-
-type ElementKey = keyof ProductCardElements | 'title' | 'price';
-
-const CARD_ELEMENT_ROWS: { key: ElementKey; label: string; description: string; required?: boolean }[] = [
-  { key: 'title', label: 'Product title', description: 'Name of the product, up to 2 lines', required: true },
-  { key: 'description', label: 'Description', description: 'Short product summary, up to 2 lines' },
-  { key: 'price', label: 'Selling price', description: 'Number with currency symbol, e.g. ₹399', required: true },
-  {
-    key: 'mrp',
-    label: 'MRP / original price',
-    description: 'Struck through next to the selling price. Hidden automatically when it matches the selling price.',
-  },
-  { key: 'discount', label: 'Discount value', description: 'Percentage off, worked out from the MRP' },
-  { key: 'rating', label: 'Rating', description: 'Average star rating out of 5' },
-  { key: 'reviewCount', label: 'Review count', description: 'Number of reviews, shown next to the rating' },
-  { key: 'tags', label: 'Tag pills', description: 'Up to three product attributes, then a +N pill' },
-  { key: 'ribbon', label: 'Ribbon badge', description: 'Bestseller, New or Editor’s pick over the image' },
-];
-
-const CURRENCIES = [
-  { value: '₹', label: '₹  Indian Rupee (INR)' },
-  { value: '$', label: '$  US Dollar (USD)' },
-  { value: '€', label: '€  Euro (EUR)' },
-  { value: '£', label: '£  Pound Sterling (GBP)' },
-  { value: 'AED ', label: 'AED  UAE Dirham (AED)' },
-];
-
-const BUTTON_STYLES: { id: ButtonStyle; label: string; description: string }[] = [
-  { id: 'primary-outline', label: 'Primary + outline', description: 'First button filled, others outlined' },
-  { id: 'all-filled', label: 'All filled', description: 'Every button filled in brand green' },
-];
-
-const BUTTON_LAYOUTS: { id: ButtonLayout; label: string }[] = [
-  { id: 'stacked', label: 'Stacked' },
-  { id: 'side-by-side', label: 'Side by side' },
-];
-
-const LABEL_LIMIT = 25;
 
 const SearchIcon = () => (
   <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -141,11 +105,14 @@ function SearchSummary({
   query,
   matches,
   section,
+  unfiltered,
   onSection,
 }: {
   query: string;
   matches: SettingEntry[];
   section: BotSettingsSection;
+  /** The open tab shows every setting regardless of the search (Version 1 Product cards). */
+  unfiltered: boolean;
   onSection: (next: BotSettingsSection) => void;
 }) {
   const counts = SECTION_TABS.map((tab) => ({ ...tab, count: matches.filter((m) => m.section === tab.id).length }));
@@ -182,7 +149,7 @@ function SearchSummary({
   return (
     <p className="lc-bset__search-count" role="status">
       {here.count} {here.count === 1 ? 'setting matches' : 'settings match'} "{query}" in {here.label}
-      {section === 'product-cards' && '. Product cards shows all its settings while you search'}.
+      {unfiltered && '. Product cards shows all its settings while you search'}.
     </p>
   );
 }
@@ -194,9 +161,14 @@ export interface BotSettingsProps {
   savedValues?: BotSettingsValues;
   /** Section tab to open on mount. */
   initialSection?: BotSettingsSection;
+  /**
+   * 'v1' lays the tabs out as the Figma frames do; 'v2' uses the Helpdesk inbox page's boxed
+   * groups. Both are kept to compare; the state switcher picks, opening in 'v2'.
+   */
+  version?: 'v1' | 'v2';
 }
 
-export function BotSettings({ values, onChange, savedValues, initialSection = 'bot-behaviour' }: BotSettingsProps) {
+export function BotSettings({ values, onChange, savedValues, initialSection = 'bot-behaviour', version = 'v1' }: BotSettingsProps) {
   const [section, setSection] = useState<BotSettingsSection>(initialSection);
   const [search, setSearch] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
@@ -293,16 +265,40 @@ export function BotSettings({ values, onChange, savedValues, initialSection = 'b
 
       <div className="lc-bset__rule" />
 
-      {matches && <SearchSummary query={query} matches={matches} section={section} onSection={setSection} />}
+      {matches && (
+        <SearchSummary
+          query={query}
+          matches={matches}
+          section={section}
+          unfiltered={section === 'product-cards' && version === 'v1'}
+          onSection={setSection}
+        />
+      )}
 
       <SearchFilterContext.Provider value={filter}>
       {section !== 'product-cards' ? (
-        <div className="lc-bset__page lc-scrollbar-thin">
-          {section === 'bot-behaviour' && <BotBehaviourSection values={values} patch={patch} />}
-          {section === 'messaging' && <MessagingSection values={values} patch={patch} />}
-          {section === 'channels' && <ChannelsSection values={values} patch={patch} />}
-          {section === 'csat' && <CsatSection values={values} patch={patch} />}
-          {section === 'advanced' && <AdvancedSection values={values} patch={patch} />}
+        <div className="lc-bset__page lc-scrollbar-thin" data-version={version}>
+          {version === 'v2' ? (
+            <>
+              {section === 'bot-behaviour' && <BotBehaviourSectionV2 values={values} patch={patch} />}
+              {section === 'messaging' && <MessagingSectionV2 values={values} patch={patch} />}
+              {section === 'channels' && <ChannelsSectionV2 values={values} patch={patch} />}
+              {section === 'csat' && <CsatSectionV2 values={values} patch={patch} />}
+              {section === 'advanced' && <AdvancedSectionV2 values={values} patch={patch} />}
+            </>
+          ) : (
+            <>
+              {section === 'bot-behaviour' && <BotBehaviourSection values={values} patch={patch} />}
+              {section === 'messaging' && <MessagingSection values={values} patch={patch} />}
+              {section === 'channels' && <ChannelsSection values={values} patch={patch} />}
+              {section === 'csat' && <CsatSection values={values} patch={patch} />}
+              {section === 'advanced' && <AdvancedSection values={values} patch={patch} />}
+            </>
+          )}
+        </div>
+      ) : version === 'v2' ? (
+        <div className="lc-bset__page lc-scrollbar-thin" data-version="v2">
+          <ProductCardsSectionV2 values={values} patch={patch} />
         </div>
       ) : (
         <div className="lc-bset__columns">

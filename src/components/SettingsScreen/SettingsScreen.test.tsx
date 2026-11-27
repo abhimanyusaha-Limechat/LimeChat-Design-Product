@@ -233,8 +233,11 @@ describe('State switcher', () => {
   it('shows only on tabs that have more than one state', async () => {
     const user = userEvent.setup();
     render(<Harness product="automation" initialTab="delete-history" />);
-    await user.click(sideTab('Bot settings'));
+    await user.click(sideTab('Bot brain'));
     expect(switcher()).not.toBeInTheDocument();
+    // Bot settings keeps two layouts to compare, so it gets the switcher back.
+    await user.click(sideTab('Bot settings'));
+    expect(switcher()).toBeInTheDocument();
   });
 });
 

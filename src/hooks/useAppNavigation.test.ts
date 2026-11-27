@@ -319,11 +319,11 @@ describe('useAppNavigation', () => {
     });
 
     it('offers no states, and takes none, on a Screen that lists none', () => {
-      history.replaceState(null, '', '#/automation/settings?tab=bot-settings');
+      history.replaceState(null, '', '#/automation/settings?tab=bot-brain');
       const { result } = setup();
       expect(result.current.screenStates).toEqual([]);
       act(() => result.current.setScreenState('zero'));
-      expect(location.hash).toBe('#/automation/settings?tab=bot-settings');
+      expect(location.hash).toBe('#/automation/settings?tab=bot-brain');
       expect(result.current.screenState).toBe('');
     });
 
@@ -379,7 +379,7 @@ describe('useAppNavigation', () => {
       ['#/helpdesk/tickets?user=admin', '#/helpdesk/tickets', { page: 'tickets' }],
       ['#/helpdesk/settings?tab=agents&plans=1', '#/helpdesk/settings?tab=agents', { changePlan: false }],
       ['#/helpdesk/settings?tab=billing&plans=yes', '#/helpdesk/settings?tab=billing', { changePlan: false }],
-      ['#/automation/settings?tab=bot-settings&state=zero', '#/automation/settings?tab=bot-settings', { screenState: '' }],
+      ['#/automation/settings?tab=bot-brain&state=zero', '#/automation/settings?tab=bot-brain', { screenState: '' }],
       ['#/automation/settings?tab=delete-history&state=nope', '#/automation/settings?tab=delete-history', { screenState: 'data' }],
       ['#/automation/settings?tab=delete-history&state=data', '#/automation/settings?tab=delete-history', { screenState: 'data' }],
       ['#/automation/flows?state=zero', '#/automation/flows', { screenState: '' }],

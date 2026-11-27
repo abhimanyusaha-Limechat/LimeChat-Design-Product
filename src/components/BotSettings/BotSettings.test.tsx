@@ -6,9 +6,9 @@ import { BotSettings, DEFAULT_BOT_SETTINGS, unsavedChanges, type BotSettingsValu
 import { fromDom, toHtml } from './RichTextField';
 
 // Stands in for SettingsScreen: it owns the values and the last saved copy.
-function Harness({ initial = DEFAULT_BOT_SETTINGS }: { initial?: BotSettingsValues }) {
+function Harness({ initial = DEFAULT_BOT_SETTINGS, version }: { initial?: BotSettingsValues; version?: 'v1' | 'v2' }) {
   const [values, setValues] = useState(initial);
-  return <BotSettings values={values} savedValues={initial} onChange={setValues} />;
+  return <BotSettings values={values} savedValues={initial} onChange={setValues} version={version} />;
 }
 
 const tab = (name: string) => screen.getByRole('tab', { name });
@@ -166,6 +166,70 @@ describe('Search all settings', () => {
     expect(searchBox()).toHaveValue('');
     expect(searchBox()).toHaveFocus();
     expect(screen.queryByRole('button', { name: 'Clear search' })).not.toBeInTheDocument();
+  });
+});
+
+describe('Version 2 layout', () => {
+  it('groups each tab into headed cards with the same settings', async () => {
+    const user = userEvent.setup();
+    render(<Harness version="v2" />);
+    const ai = screen.getByRole('region', { name: 'AI decision making' });
+    expect(within(ai).getByRole('switch', { name: 'AI decision making' })).toBeChecked();
+    expect(within(ai).getByRole('textbox', { name: 'What the bot says when it switches topic' })).toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: 'Fallback' })).getByRole('combobox', { name: 'When no flow matches' })).toHaveValue('');
+    expect(screen.queryByText('Controls this tab')).not.toBeInTheDocument();
+
+    await user.click(tab('Messaging'));
+    const translate = screen.getByRole('region', { name: "Translate replies to the customer's language" });
+    expect(within(translate).getByRole('switch', { name: 'Keep button labels in the original language' })).toBeChecked();
+    expect(within(translate).getByText('Hindi')).toBeInTheDocument();
+
+    await user.click(tab('Advanced'));
+    expect(screen.getByRole('region', { name: 'Models' })).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'Message execution logs' })).toBeChecked();
+  });
+
+  it('dims a group\'s rows while its heading switch is off', async () => {
+    const user = userEvent.setup();
+    render(<Harness version="v2" />);
+    const reminder = screen.getByRole('region', { name: 'Reminder when a customer goes quiet' });
+    const flow = within(reminder).getByRole('combobox', { name: 'Reminder flow' });
+    expect(flow).toBeDisabled();
+    await user.click(within(reminder).getByRole('switch', { name: 'Reminder when a customer goes quiet' }));
+    expect(flow).toBeEnabled();
+  });
+
+  it('lays Product cards out as headed cards with the preview beside them', async () => {
+    const user = userEvent.setup();
+    render(<Harness version="v2" />);
+    await user.click(tab('Product cards'));
+    for (const name of ['Layout', 'Card content', 'Buttons', 'Products shown']) {
+      expect(screen.getByRole('region', { name })).toBeInTheDocument();
+    }
+    expect(screen.getByRole('tablist', { name: 'Preview layout' })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Product title' })).toBeDisabled();
+
+    const count = screen.getByRole('radiogroup', { name: 'Number of buttons' });
+    expect(screen.getAllByRole('textbox', { name: /Button \d label/ })).toHaveLength(2);
+    await user.click(within(count).getByLabelText('3'));
+    expect(screen.getAllByRole('textbox', { name: /Button \d label/ })).toHaveLength(3);
+
+    const variants = screen.getByRole('switch', { name: 'Show product variants' });
+    expect(variants).toBeChecked();
+    await user.click(variants);
+    expect(variants).not.toBeChecked();
+  });
+
+  it('is searched the same way, keeping a group while one of its rows matches', async () => {
+    const user = userEvent.setup();
+    render(<Harness version="v2" />);
+    await user.type(screen.getByRole('searchbox', { name: 'Search all settings' }), 'send after');
+    expect(screen.getByRole('status')).toHaveTextContent('1 setting matches "send after" in Bot behaviour');
+    expect(screen.getByRole('region', { name: 'Reminder when a customer goes quiet' })).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: 'Send after' })).toBeInTheDocument();
+    expect(screen.queryByRole('combobox', { name: 'Reminder flow' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Fallback' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'AI decision making' })).not.toBeInTheDocument();
   });
 });
 
