@@ -678,3 +678,73 @@
   outline-offset: 2px;
   border-radius: 2px;
 }
+
+/* --- Version 2: the Helpdesk inbox page's boxed layout ------------------ */
+
+/* Inside the inbox layout (`.lc-inbs`), the control column is 400px: selects and number
+   fields fill it, editors go full width under their label. */
+.lc-bset-v2 {
+  --lc-bsr-muted: #5a6650;
+  --lc-bsr-error: #da1b21;
+  max-width: 800px;
+}
+
+.lc-bset-v2__control {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lc-bset-v2 .lc-inbs__row--stacked .lc-bset-v2__control {
+  width: 100%;
+}
+
+.lc-bset-v2 .lc-bset-v2__languages {
+  width: 100%;
+}
+
+.lc-bset-v2 .lc-inbs__row[data-disabled='true'] .lc-rte,
+.lc-bset-v2 .lc-inbs__row[data-disabled='true'] .lc-bsr__number-box {
+  background: var(--v3-grey-200);
+}
+
+/* Product cards in Version 2: the inbox widget tabs' form + sticky preview shell. */
+.lc-bset-v2__shell {
+  align-items: stretch;
+}
+
+.lc-bset-v2__shell > .lc-inbs {
+  flex: 0 0 58%;
+  max-width: none;
+}
+
+.lc-bset-v2__preview {
+  align-self: flex-start;
+}
+
+.lc-bset-v2__stage {
+  width: 100%;
+  min-height: 560px;
+  flex: 0 0 auto;
+}
+
+.lc-bset-v2 .lc-bset__elements {
+  width: 100%;
+}
+
+.lc-bset-v2__radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+.lc-bset-v2 .lc-bset__label-row + .lc-bset__label-row {
+  margin-top: 0;
+}
+
+/* Beside the preview the form is narrower than an inbox tab, so give the label column more
+   of each row: the controls here (selects, radios, label inputs) sit happily in 260px. */
+.lc-bset-v2__shell .lc-inbs__row:not(.lc-inbs__row--stacked) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 260px);
+}

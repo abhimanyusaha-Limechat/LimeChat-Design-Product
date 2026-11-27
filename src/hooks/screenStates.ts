@@ -19,6 +19,9 @@ export const ZERO_STATE: ScreenState = { id: 'zero', label: 'Zero state' };
 export const NO_SEARCH_RESULTS: ScreenState = { id: 'no-search-results', label: 'No search results' };
 /** Filters that leave nothing to show. The Screen opens with them applied. */
 export const NO_FILTER_RESULTS: ScreenState = { id: 'no-filter-results', label: 'No filter results' };
+/** Two layouts of one Screen kept side by side to compare; the first is the one it opens in. */
+export const VERSION_1: ScreenState = { id: 'v1', label: 'Version 1' };
+export const VERSION_2: ScreenState = { id: 'v2', label: 'Version 2' };
 
 /**
  * The states each Screen can be switched between; the first is the one it opens in.
@@ -31,6 +34,8 @@ export const NO_FILTER_RESULTS: ScreenState = { id: 'no-filter-results', label: 
  */
 const SCREEN_STATES: Record<string, readonly ScreenState[]> = {
   'automation/tasks': [WITH_DATA, ZERO_STATE, NO_SEARCH_RESULTS, NO_FILTER_RESULTS],
+  // Opens in Version 2, the Helpdesk inbox page's boxed layout; Version 1 follows the Figma frames.
+  'automation/settings/bot-settings': [VERSION_2, VERSION_1],
   'automation/settings/delete-history': [WITH_DATA, ZERO_STATE, NO_SEARCH_RESULTS, NO_FILTER_RESULTS],
 };
 
